@@ -16,5 +16,5 @@ esforço. Lida com os formatos brasileiros de data, dinheiro e números nativame
  
 Usado em mais de 20 projetos e comprovado por fogo a mais de 4 anos.
 
-# Mas espera
+# Mas espere!
 Antes de iniciar o uso em um novo projeto aguarde o repositório de examples e a documentação oficial.
