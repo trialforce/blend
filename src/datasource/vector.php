@@ -1,0 +1,134 @@
+<?php
+
+namespace DataSource;
+
+/**
+ * Query datasource
+ */
+class Vector extends DataSource
+{
+
+    /**
+     * Data
+     *
+     * @var array
+     */
+    protected $data;
+
+    public function __construct($data)
+    {
+        $this->setData($data);
+    }
+
+    public function getCount()
+    {
+        return count($this->data);
+    }
+
+    public function getData()
+    {
+        //faz a ordenação, caso necessário
+        if (!is_null($this->getOrderBy()))
+        {
+            usort($this->data, array($this, "compareToOrder"));
+        }
+
+        return $this->data;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
+    }
+
+    public function compareToOrder($first, $second)
+    {
+        $columnName = $this->getOrderBy();
+        $orderWay = $this->getOrderWay();
+
+        $firstl = '';
+        $secondl = '';
+
+        if (isset($first->$columnName))
+        {
+            $firstl = strtolower($first->$columnName);
+
+            //obtém só os caracteres numéricos caso seja um valor numérico
+            if (\Type\Integer::isNumeric($firstl))
+            {
+                $firstl = \Type\Integer::onlyNumbers($firstl);
+            }
+        }
+
+        if (isset($second->$columnName))
+        {
+            $secondl = strtolower($second->$columnName);
+
+            if (\Type\Integer::isNumeric($secondl))
+            {
+                $secondl = \Type\Integer::onlyNumbers($secondl);
+            }
+        }
+
+        if ($firstl == $secondl)
+        {
+            return 0;
+        }
+        else if (strtoupper($orderWay) == \Db\Model::ORDER_ASC)
+        {
+            return ($firstl > $secondl) ? +1 : -1;
+        }
+        else
+        {
+            return ($firstl > $secondl) ? -1 : +1;
+        }
+    }
+
+    public function executeAggregator(Aggregator $aggregator)
+    {
+        $data = $this->getData();
+        $columnName = $aggregator->getColumnName();
+        $money = false;
+        $total = 0;
+
+        if (is_array($data))
+        {
+            //TODO make other aggregation methods
+            if ($aggregator->getMethod() == Aggregator::METHOD_SUM)
+            {
+
+                foreach ($data as $item)
+                {
+                    $value = $item->$columnName;
+
+                    if ($value instanceof \Type\Generic)
+                    {
+                        $value = $value->toDb();
+                    }
+
+                    //adiciona suporte a REAIS
+                    if (stripos($value, 'R$') === 0)
+                    {
+                        $money = true;
+                        $value = \Type\Money::get($value);
+                        $value = $value->toDb();
+                    }
+
+                    $total += $value;
+                }
+            }
+            else if ($aggregator->getMethod() == Aggregator::METHOD_COUNT)
+            {
+                $total = count($data);
+            }
+        }
+
+        if ($money)
+        {
+            $total = \Type\Money::get($total);
+        }
+
+        return $aggregator->getLabelledValue($total);
+    }
+
+}

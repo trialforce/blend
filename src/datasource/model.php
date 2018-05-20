@@ -1,0 +1,218 @@
+<?php
+
+namespace DataSource;
+
+/**
+ * Datasource de modelo
+ */
+class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
+{
+
+    /**
+     *
+     * @var \Db\Model
+     */
+    protected $model;
+
+    /**
+     * Cached data
+     *
+     * @var array
+     */
+    protected $data;
+
+    public function __construct($model = NULL)
+    {
+        $this->setModel($model);
+    }
+
+    /**
+     * Return the \DB\Model
+     *
+     * @return \Db\Model
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * Define the model
+     *
+     * @param \Db\Model $model
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * Count the total data without limits and offsets
+     *
+     * @return int
+     */
+    public function getCount()
+    {
+        if (is_null($this->count))
+        {
+            $model = $this->model;
+
+            $this->count = $model->count($model->smartFilters($this->getSmartFilter(), $this->getExtraFilter()));
+        }
+
+        return $this->count;
+    }
+
+    /**
+     * Return the datasource data, execute sql if needed
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        if (is_null($this->data) || (is_array($this->data) && count($this->data) == 0))
+        {
+            $model = $this->model;
+            $this->data = $model->smartFind($this->getSmartFilter(), $this->getExtraFilter(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
+        }
+
+        return $this->data;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * Execute aggregator
+     *
+     * @param \DataSource\Aggregator $aggregator
+     *
+     * @return mixed
+     */
+    public function executeAggregator(Aggregator $aggregator)
+    {
+        $model = $this->model;
+        $sqlColumn = $aggregator->getColumnName();
+        $column = $model->getColumn($aggregator->getColumnName());
+        $forceExternalSelect = FALSE;
+
+        if ($column instanceof \Db\SearchColumn)
+        {
+            $forceExternalSelect = TRUE;
+        }
+
+        $connInfoType = $model->getConnInfo()->getType();
+
+        $method = $aggregator->getMethod();
+        $query = $method . '( ' . $sqlColumn . ' )';
+
+        //make sum of time work
+        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
+        {
+            $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
+        }
+
+        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+
+        $result = $model->aggregation($filters, $query, $forceExternalSelect);
+
+        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME)
+        {
+            $result = \Type\Time::get($result)->toHuman();
+        }
+
+        return $aggregator->getLabelledValue($result);
+    }
+
+    /**
+     * Create grid columns based on model information
+     *
+     * @return array
+     */
+    public function mountColumns()
+    {
+        return \DataSource\Model::createColumn($this->model->getColumns(), $this->getOrderBy());
+    }
+
+    /**
+     * Create grid columns based on model information
+     *
+     * @param array $columns
+     * @param string $orderBy
+     * @return \Component\Grid\Column
+     */
+    public static function createColumn($columns, $orderBy = NULL)
+    {
+        //avoid errors in PHPMD nullifyng the parameter
+        //TODO avaliate why this is here
+        $orderBy = null;
+        $gridColumns = array();
+
+        //default checkcolumn
+        //$gridColumns[] = new \Component\Grid\CheckColumn( null, 'check' );
+        if (is_array($columns))
+        {
+            foreach ($columns as $column)
+            {
+                $columnLabel = $column->getLabel() ? $column->getLabel() : $column->getName();
+                $columnLabel = $columnLabel == 'Código' ? 'Cód' : $columnLabel;
+
+                if ($column->getType() == \Db\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column::TYPE_DATETIME || $column->getType() == \Db\Column::TYPE_DATE)
+                {
+                    $gridColumn = new \Component\Grid\SmartDateColumn($column->getName(), $columnLabel, NULL, $column->getType());
+                    //$gridColumn = new \Component\Grid\Column( $column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType() );
+                    //$gridColumn->setAlign( \Component\Grid\Column::ALIGN_RIGHT );
+                }
+                else if ($column->getType() == \Db\Column::TYPE_BOOL || $column->getType() == \Db\Column::TYPE_TINYINT)
+                {
+                    $gridColumn = new \Component\Grid\BoolColumn($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
+                }
+                else if ($column->isPrimaryKey())
+                {
+                    $gridColumn = new \Component\Grid\PkColumnEdit($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_COLAPSE, $column->getType());
+                }
+                else
+                {
+                    $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType());
+
+                    if (($column->getType() == \Db\Column::TYPE_INTEGER || $column->getType() == \Db\Column::TYPE_DECIMAL || $column->getType() == \Db\Column::TYPE_TIME) && !$column->getReferenceDescription())
+                    {
+                        $gridColumn->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
+                    }
+                }
+
+                $gridColumn->setIdentificator($column->isPrimaryKey());
+
+                //search column has having filter as default
+                if ($column instanceof \Db\SearchColumn)
+                {
+                    $gridColumn->setFilter(FALSE);
+                }
+
+                //hide text columns by default
+                if ($column->getType() === \Db\Column::TYPE_TEXT)
+                {
+                    $gridColumn->setRender(FALSE);
+                }
+
+                $gridColumns[$column->getName()] = $gridColumn;
+            }
+        }
+
+        return $gridColumns;
+    }
+
+    public function listAvoidPropertySerialize()
+    {
+        $avoid[] = 'data';
+        $avoid[] = 'count';
+        $avoid[] = 'page';
+        $avoid[] = 'paginationLimit';
+
+        return $avoid;
+    }
+
+}

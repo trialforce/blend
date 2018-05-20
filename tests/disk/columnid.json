@@ -1,0 +1,50 @@
+{
+    "codigo": {
+        "phpClassName": "\\Db\\Column",
+        "label": "C\u00f3digo",
+        "name": "id",
+        "type": "integer",
+        "size": null,
+        "minSize": null,
+        "nullable": false,
+        "isPrimaryKey": true,
+        "defaultValue": null,
+        "extra": "auto_increment",
+        "referenceTable": null,
+        "referenceField": null,
+        "referenceDescription": null,
+        "constantValues": null,
+        "class": null,
+        "property": null,
+        "validators": [
+            {
+                "phpClassName": "\\Validator\\Validator",
+                "label": null
+            }
+        ]
+    },
+    "descricao": {
+        "phpClassName": "\\Db\\Column",
+        "label": "Descri\u00e7\u00e3o",
+        "name": "descricao",
+        "type": "varchar",
+        "size": 255,
+        "minSize": null,
+        "nullable": false,
+        "isPrimaryKey": false,
+        "defaultValue": null,
+        "extra": null,
+        "referenceTable": null,
+        "referenceField": null,
+        "referenceDescription": null,
+        "constantValues": null,
+        "class": null,
+        "property": null,
+        "validators": [
+            {
+                "phpClassName": "\\Validator\\Validator",
+                "label": null
+            }
+        ]
+    }
+}
