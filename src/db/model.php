@@ -473,14 +473,16 @@ class Model
         $columnNameSql = self::getColumnsForFind($columns);
         $where = self::getWhereFromFilters($filters);
 
+		$catalog = $name::getCatalogClass();
+		
         //if has ASC or DESC in order BY don't treat then, let it be
         if (!( stripos($orderBy, 'ASC') > 0 || stripos($orderBy, 'DESC') > 0))
         {
-            $orderBy = implode(',', \Db\Catalog::parseTableNameForQuery(explode(',', $orderBy)));
+            $orderBy = implode(',', $catalog::parseTableNameForQuery(explode(',', $orderBy)));
         }
 
-        $table = \Db\Catalog::parseTableNameForQuery($name::getTableName());
-        $sql = \Db\Catalog::mountSelect($table, \Db\Catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
+        $table = $catalog::parseTableNameForQuery($name::getTableName());
+        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
         $instanceOf = in_array('Db\SqlCache', class_implements($name));
@@ -503,6 +505,27 @@ class Model
 
         return $result;
     }
+	
+	public static function getCatalogClass()
+	{
+		$name = self::getName();;
+		$conn = $name::getConnInfo();
+
+		if ( $conn->getType() == \Db\ConnInfo::TYPE_MYSQL )
+		{
+			return '\Db\MysqlCatalog';
+		}
+		else if ( $conn->getType() == \Db\ConnInfo::TYPE_POSTGRES )
+		{
+			return '\Db\PgsqlCatalog';
+		}
+		else if ( $conn->getType() == \Db\ConnInfo::TYPE_MSSQL )
+		{
+			return '\Db\MssqlCatalog';
+		}
+		
+		return '\Db\MysqlCatalog.';
+	}
 
     /**
      * Execute a search in database and return a list
@@ -608,11 +631,13 @@ class Model
         $i = 0;
 
         $filters = array();
+		
+		$catalog = $name::getCatalogClass();
 
         foreach ($pks as $pk)
         {
-            $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
-            $pkName = \Db\Catalog::parseTableNameForQuery($pk->getName());
+            $tableName = $catalog::parseTableNameForQuery($name::getTableName());
+            $pkName = $catalog::parseTableNameForQuery($pk->getName());
             $pkName = $tableName . '.' . $pkName;
 
             if (isset($id[$i]))
@@ -1187,18 +1212,28 @@ class Model
      */
     public function getArray()
     {
-        $temp = (array) ($this);
+		$name = self::getName();
+		$columns = $name::getColumns();
+        $temp = (array)($this);
         $array = array();
 
         foreach ($temp as $k => $v)
         {
             $k = preg_match('/^\x00(?:.*?)\x00(.+)/', $k, $matches) ? $matches[1] : $k;
-
+			
             if ($v instanceof \Type\Generic)
             {
                 $v = $v->toDb();
             }
-
+			
+			$column = $columns[$k];
+			
+			//add suport to decimal values
+			if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+			{
+				$v = \Type\Decimal::get($v)->toDb();
+			}
+			
             $array[$k] = $v;
         }
 

@@ -5,7 +5,7 @@ namespace Db;
 /**
  * Funções especificas para lidar com o catálogo/esquerma do mysql
  */
-class MysqlCatalog
+class MssqlCatalog
 {
 
     /**
@@ -42,24 +42,23 @@ class MysqlCatalog
         }
 
         $sql = "SELECT
-                t.TABLE_NAME AS tableName,
-                t.COLUMN_NAME AS name,
-                t.COLUMN_DEFAULT AS defaultValue,
-                t.IS_NULLABLE = 'YES' AS nullable,
-                COALESCE(t.DATA_TYPE, t.NUMERIC_PRECISION) AS type,
-                t.CHARACTER_MAXIMUM_LENGTH AS size,
-                t.COLUMN_KEY = 'PRI' AS isPrimaryKey,
-                t.EXTRA AS extra,
-                t.COLUMN_COMMENT AS label,
-                k.REFERENCED_TABLE_NAME AS referenceTable,
-                k.REFERENCED_COLUMN_NAME AS referenceField
-                FROM INFORMATION_SCHEMA.COLUMNS t
-                    LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k ON t.COLUMN_NAME = k.COLUMN_NAME
-                                                                    AND t.TABLE_SCHEMA = k.CONSTRAINT_SCHEMA
-                                                                    AND t.TABLE_NAME = k.TABLE_NAME
-                  WHERE t.table_name = ?
-                    AND t.table_schema = ?
-               ORDER BY t.ORDINAL_POSITION;";
+	'$table' as tableName,
+    c.name as name,
+	'' as defaultValue,
+    c.is_nullable as nullable,
+    t.Name as type,
+    c.max_length as size,
+    ISNULL(i.is_primary_key, 0) as isPrimaryKey,
+	'' as extra,
+    c.name AS label,
+    '' AS referenceTable,
+    '' AS referenceField
+FROM    
+ sys.columns c
+INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+WHERE c.object_id = OBJECT_ID('$table')";
 
         $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column');
 
@@ -72,12 +71,51 @@ class MysqlCatalog
             //indexa as colunas por nome
             foreach ($colums as $column)
             {
+				$column->setReferenceTable( trim( $column->getReferenceTable()) );
+				$column->setDefaultValue( trim( $column->getDefaultValue()) );
+				$column->setReferenceField( trim( $column->getReferenceField()) );
+				$column->setExtra( trim( $column->getExtra()) );
+				
+				//var_dump($column->getName().'-'.$column->getType());
                 if (strtolower($column->getType()) == 'int' || strtolower($column->getType()) == 'mediumint')
                 {
                     $column->setType(\Db\Column::TYPE_INTEGER);
                 }
+				
+				$type = $column->getType();
+				
+				if ( strtolower($type) == 'char')
+				{
+					$type = \Db\Column::TYPE_VARCHAR;
+				}				
+				else if ( strtolower($type) == 'int' || strtolower($type) == 'smallint' ||  strtolower($type) == 'numeric')
+				{
+					$type = \Db\Column::TYPE_INTEGER;
+				}
+				else if ( strtolower($type) == 'float')
+				{
+					$type = \Db\Column::TYPE_DECIMAL;
+				}
+				else if ( strtolower($type) == 'bit')
+				{
+					$type = \Db\Column::TYPE_INTEGER;
+				}
+				else if ( strtolower($type) == 'image')
+				{
+					$type = \Db\Column::TYPE_UNKNOW;
+				}
+				
+				$column->setType($type);
 
+				$label = str_replace('_', ' ', $column->getLabel());
+				$label = str_replace('_', ' ', $label );
+				$label = str_replace('_', ' ', $label );
+				$label = str_replace('Id', '', $label );
+				$label = ucfirst(strtolower($label));
+				$column->setLabel(trim($label));
+				
                 $columns[$column->getName()] = $column;
+				//var_dump($column);
             }
         }
 
@@ -99,12 +137,74 @@ class MysqlCatalog
     {
         $dbName = \Db\Conn::getConnInfo()->getName();
 
-        $sql = "SELECT TABLE_NAME as name,
-                       TABLE_COMMENT as label
-                  FROM INFORMATION_SCHEMA.TABLES
-                 WHERE TABLE_SCHEMA = ?;";
+        $sql = "SELECT
+    t.NAME AS name,
+	t.NAME AS label
+FROM
+    sys.tables t
+INNER JOIN
+    sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN
+    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN
+    sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN
+    sys.schemas s ON t.schema_id = s.schema_id
+WHERE
+    t.NAME NOT LIKE 'dt%'
+    AND t.is_ms_shipped = 0
+    AND i.OBJECT_ID > 255
+GROUP BY t.Name, s.Name, p.Rows
+ORDER BY name ASC";
 
-        return \Db\Conn::getInstance()->query($sql, array($dbName));
+	//se quiser filtrar somente as que tem registro
+	//AND p.rows > 1  
+
+        $result = \Db\Conn::getInstance()->query($sql, array($dbName));
+		
+		if (is_array($result) )
+		{
+			foreach ($result as $item)
+			{				
+				$label = $item->label;
+				
+				//prefixos organiza
+				$label = str_replace('Cfc_', '', $label );
+				$label = str_replace('Cna_', '', $label );
+				$label = str_replace('Cpr_', '', $label );
+				$label = str_replace('Crm_', '', $label );
+				$label = str_replace('Cst_', '', $label );
+				$label = str_replace('Ctb_', '', $label );
+				$label = str_replace('Ctr_', '', $label );
+				$label = str_replace('Est_', '', $label );
+				$label = str_replace('Fat_', '', $label );
+				$label = str_replace('Fin_', '', $label );
+				$label = str_replace('Ftw_', '', $label );
+				$label = str_replace('Gra_', '', $label );
+				$label = str_replace('Ger_', '', $label );
+				$label = str_replace('Ina_', '', $label );
+				$label = str_replace('Inc_', '', $label );
+				$label = str_replace('Int_', '', $label );
+				$label = str_replace('Iso_', '', $label );
+				$label = str_replace('Nfe_', '', $label );
+				$label = str_replace('Obr_', '', $label );
+				$label = str_replace('Pal_', '', $label );
+				$label = str_replace('Pat_', '', $label );
+				$label = str_replace('Rhu_', '', $label );
+				$label = str_replace('Tra_', '', $label );
+				$label = str_replace('Wor_', '', $label );
+				
+				$label = str_replace('_', ' ', $label );
+				$label = str_replace('_', ' ', $label );
+				$label = str_replace('_', ' ', $label );
+				
+				$label = trim(ucfirst(strtolower($label)));
+				
+				$item->label = $label;
+			}
+		}
+		
+		return $result;
     }
 
     /**
@@ -125,10 +225,25 @@ class MysqlCatalog
             return $cache->getContent();
         }
 
-        $sql = "SELECT TABLE_NAME as name,
-                       TABLE_COMMENT as label
-                  FROM INFORMATION_SCHEMA.TABLES
-                 WHERE TABLE_NAME = ?;";
+        $sql = "SELECT
+    t.NAME AS name,
+	t.NAME AS label
+FROM
+    sys.tables t
+INNER JOIN
+    sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN
+    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN
+    sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN
+    sys.schemas s ON t.schema_id = s.schema_id
+WHERE
+    t.NAME NOT LIKE 'dt%'
+    AND t.is_ms_shipped = 0
+    AND i.OBJECT_ID > 255
+GROUP BY t.Name, s.Name, p.Rows
+ORDER BY name ASC;";
 
         $tableData = \Db\Conn::getInstance()->query($sql, array($table));
 
@@ -155,40 +270,7 @@ class MysqlCatalog
      */
     public static function listTableIndex($table = NULL, $indexName = NULL)
     {
-        if ($indexName)
-        {
-            if ($table)
-            {
-                $result = \Db\Conn::getInstance()->query('SHOW INDEX FROM ' . $table . " WHERE key_name = '{$indexName}'");
-            }
-            else
-            {
-                $sql = "
-SELECT table_name AS `Table`,
-0 as 'Non_unique',
-index_name AS `Key_name`,
-SEQ_IN_INDEX as 'Seq_in_index',
-column_name as 'Column_name',
-COLLATION as 'Collation',
-CARDINALITY as 'Cardinality',
-NULL as 'Sub_part',
-NULL as 'Packed',
-NULLABLE as 'Null',
-INDEX_TYPE as 'Index_type',
-COMMENT as 'Comment',
-INDEX_COMMENT as 'Index_comment'
-FROM information_schema.statistics
-WHERE index_name = '{$indexName}'";
-
-                $result = \Db\Conn::getInstance()->query($sql);
-            }
-        }
-        else
-        {
-            $result = \Db\Conn::getInstance()->query("SHOW INDEX FROM  {$table}");
-        }
-
-        return $result;
+		throw new \UserException('Não implementado');
     }
 
     /**
@@ -207,14 +289,15 @@ WHERE index_name = '{$indexName}'";
      */
     public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL)
     {
-        $sql = 'SELECT ' . $columns;
+		$top = strlen(trim($limit)) > 0 ? 'TOP ' . $limit.' ' : '';
+		
+        $sql = 'SELECT ' . $top .$columns;
         $sql .= $tables ? ' FROM ' . $tables : '';
         $sql .= strlen(trim($where)) > 0 ? ' WHERE ' . $where : '';
         $sql .= strlen(trim($groupBy)) > 0 ? ' GROUP BY ' . $groupBy : '';
         $sql .= strlen(trim($having)) > 0 ? ' HAVING ' . $having : '';
         $sql .= strlen(trim($orderBy)) > 0 ? ' ORDER BY ' . $orderBy : '';
         $sql .= strlen(trim($orderWay)) > 0 ? ' ' . $orderWay : '';
-        $sql .= strlen(trim($limit)) > 0 ? ' LIMIT ' . $limit : '';
 
         //avoid negative offset error
         $offset = ( is_numeric(trim($offset)) && trim($offset) < 0) ? 0 : trim($offset);
@@ -304,7 +387,7 @@ WHERE index_name = '{$indexName}'";
             return trim($table);
         }
 
-        return strlen(trim($table)) > 0 ? '`' . trim($table) . '`' : '';
+        return strlen(trim($table)) > 0 ? '[' . trim($table) . ']' : '';
     }
 
     /**
@@ -323,5 +406,6 @@ WHERE index_name = '{$indexName}'";
 
 if (!class_exists('\Db\Catalog'))
 {
-	class Catalog extends \Db\MysqlCatalog{}
+	class Catalog extends \Db\MssqlCatalog {};
 }
+	

@@ -11,3 +11,7 @@ else if ( $conn->getType() == \Db\ConnInfo::TYPE_POSTGRES )
 {
     require_once 'pgsqlcatalog.php';
 }
+else if ( $conn->getType() == \Db\ConnInfo::TYPE_MSSQL )
+{
+    require_once 'mssqlcatalog.php';
+}
