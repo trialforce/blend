@@ -483,7 +483,7 @@ class Model
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
-
+		
         $returnType = is_null($returnType) ? $name : $returnType;
         $instanceOf = in_array('Db\SqlCache', class_implements($name));
 
@@ -524,7 +524,7 @@ class Model
 			return '\Db\MssqlCatalog';
 		}
 		
-		return '\Db\MysqlCatalog.';
+		return '\Db\MysqlCatalog';
 	}
 
     /**
@@ -815,12 +815,13 @@ class Model
     {
         $name = self::getName();
         $columnValues = $this->getColumnValues($columns);
+		$catalog = $name::getCatalogClass();
 
         foreach ($columnValues as $columnName => $value)
         {
             //value is not used in this case
             $value = null;
-            $sqlColumns[] = \Db\Catalog::parseColumnNameForQuery($columnName);
+            $sqlColumns[] = $catalog::parseColumnNameForQuery($columnName);
         }
 
         $sqlWhere = array();
@@ -828,12 +829,12 @@ class Model
 
         foreach ($pk as $pkName => $pk)
         {
-            $sqlWhere[] = \Db\Catalog::parseColumnNameForQuery($pkName);
+            $sqlWhere[] = $catalog::parseColumnNameForQuery($pkName);
         }
 
-        $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
-        $sql = \Db\Catalog::mountUpdate($tableName, implode(', ', $sqlColumns), implode(' AND ', $sqlWhere));
-
+        $tableName =$catalog::parseTableNameForQuery($name::getTableName());
+        $sql = $catalog::mountUpdate($tableName, implode(', ', $sqlColumns), implode(' AND ', $sqlWhere));
+		
         if (Config::get('dbSsqlCache') && $this instanceof \Db\SqlCache)
         {
             \Db\CacheSql::clearForTable($name::getTableName());

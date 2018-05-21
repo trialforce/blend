@@ -276,7 +276,7 @@ WHERE index_name = '{$indexName}'";
      */
     public static function parseColumnNameForQuery($columnName)
     {
-        return " $columnName = :$columnName";
+        return " `$columnName` = :$columnName";
     }
 
     /**
@@ -315,8 +315,40 @@ WHERE index_name = '{$indexName}'";
      *
      */
     public static function implodeColumnNames($columnNames)
-    {
-        return implode(', ', $columnNames);
+    {	
+		if (is_array($columnNames))
+		{
+			foreach ($columnNames as $idx =>$columnName)
+			{
+				//subselect
+				if (stripos($columnName,'SELECT'))
+				{
+					$columnName = $columnName;
+				}
+				else
+				{
+					$explode = explode('AS', $columnName);
+				
+					//as
+					if ( count($explode)> 1)
+					{
+						$columnName = '`'.trim($explode[0]).'` as `'.trim($explode[1]).'`';
+					}
+					//default simple column
+					else
+					{
+						$columnName = '`'.$columnName.'`';
+					}
+				}
+				
+				$columnNames[$idx] = $columnName;
+			}
+		}
+		
+		//$columns = '`'.implode('`,`', $columnNames).'`';
+		$columns = implode(',', $columnNames);
+		
+        return $columns;
     }
 
 }
