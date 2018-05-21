@@ -16,7 +16,7 @@ class ConnInfo
     /**
      * MSSql server
      */
-    const TYPE_MSSQL = 'mssql';
+    const TYPE_MSSQL = 'dblib';
 
     /**
      * Postgress server

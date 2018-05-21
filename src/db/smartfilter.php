@@ -318,10 +318,24 @@ class SmartFilter
     {
         //reference description
         $name = $this->getModelClass();
-        $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
+		$catalog = $name::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $referenceClass = '\Model\\' . $column->getReferenceTable();
-        $referenceTable = \Db\Catalog::parseTableNameForQuery($referenceClass::getTableName());
-        $query = '( SELECT ' . $column->getReferenceDescription() . ' FROM ' . $referenceTable . ' WHERE ' . $referenceTable . '.' . $column->getReferenceField() . ' = ' . $tableName . '.' . $column->getName() . ' LIMIT 1) ';
+        $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
+		
+		$top = '';
+		$limit = '';
+		
+		if ( strtolower($catalog) == '\db\mssqlcatalog' )
+		{
+			$top = 'TOP 1 ';
+		}
+		else
+		{
+			$limit = ' LIMIT 1 ';
+		}
+		
+        $query = '( SELECT ' .$top . $column->getReferenceDescription() . ' FROM ' . $referenceTable . ' WHERE ' . $referenceTable . '.' . $column->getReferenceField() . ' = ' . $tableName . '.' . $column->getName() . ' '.$limit.') ';
         $this->conds[] = new \Db\Cond($query . ' like ?', str_replace(' ', '%', '%' . $filter . '%'), \Db\Cond::COND_OR);
     }
 

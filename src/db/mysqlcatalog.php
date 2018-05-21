@@ -316,7 +316,7 @@ WHERE index_name = '{$indexName}'";
      */
     public static function implodeColumnNames($columnNames)
     {
-        return implode(', ', $columnNames);
+        return '`'.implode('`, `', $columnNames).'`';
     }
 
 }

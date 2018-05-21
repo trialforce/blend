@@ -484,6 +484,7 @@ class Model
         $table = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
 
+		\Log::debug($sql);
         $returnType = is_null($returnType) ? $name : $returnType;
         $instanceOf = in_array('Db\SqlCache', class_implements($name));
 
@@ -524,7 +525,7 @@ class Model
 			return '\Db\MssqlCatalog';
 		}
 		
-		return '\Db\MysqlCatalog.';
+		return '\Db\MysqlCatalog';
 	}
 
     /**
