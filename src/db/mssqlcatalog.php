@@ -53,7 +53,7 @@ class MssqlCatalog
     c.name AS label,
     '' AS referenceTable,
     '' AS referenceField
-FROM    
+FROM
  sys.columns c
 INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
 LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id
@@ -71,51 +71,51 @@ WHERE c.object_id = OBJECT_ID('$table')";
             //indexa as colunas por nome
             foreach ($colums as $column)
             {
-				$column->setReferenceTable( trim( $column->getReferenceTable()) );
-				$column->setDefaultValue( trim( $column->getDefaultValue()) );
-				$column->setReferenceField( trim( $column->getReferenceField()) );
-				$column->setExtra( trim( $column->getExtra()) );
-				
-				//var_dump($column->getName().'-'.$column->getType());
+                $column->setReferenceTable(trim($column->getReferenceTable()));
+                $column->setDefaultValue(trim($column->getDefaultValue()));
+                $column->setReferenceField(trim($column->getReferenceField()));
+                $column->setExtra(trim($column->getExtra()));
+
+                //var_dump($column->getName().'-'.$column->getType());
                 if (strtolower($column->getType()) == 'int' || strtolower($column->getType()) == 'mediumint')
                 {
                     $column->setType(\Db\Column::TYPE_INTEGER);
                 }
-				
-				$type = $column->getType();
-				
-				if ( strtolower($type) == 'char')
-				{
-					$type = \Db\Column::TYPE_VARCHAR;
-				}				
-				else if ( strtolower($type) == 'int' || strtolower($type) == 'smallint' ||  strtolower($type) == 'numeric')
-				{
-					$type = \Db\Column::TYPE_INTEGER;
-				}
-				else if ( strtolower($type) == 'float')
-				{
-					$type = \Db\Column::TYPE_DECIMAL;
-				}
-				else if ( strtolower($type) == 'bit')
-				{
-					$type = \Db\Column::TYPE_INTEGER;
-				}
-				else if ( strtolower($type) == 'image')
-				{
-					$type = \Db\Column::TYPE_UNKNOW;
-				}
-				
-				$column->setType($type);
 
-				$label = str_replace('_', ' ', $column->getLabel());
-				$label = str_replace('_', ' ', $label );
-				$label = str_replace('_', ' ', $label );
-				$label = str_replace('Id', '', $label );
-				$label = ucfirst(strtolower($label));
-				$column->setLabel(trim($label));
-				
+                $type = $column->getType();
+
+                if (strtolower($type) == 'char')
+                {
+                    $type = \Db\Column::TYPE_VARCHAR;
+                }
+                else if (strtolower($type) == 'int' || strtolower($type) == 'smallint' || strtolower($type) == 'numeric')
+                {
+                    $type = \Db\Column::TYPE_INTEGER;
+                }
+                else if (strtolower($type) == 'float')
+                {
+                    $type = \Db\Column::TYPE_DECIMAL;
+                }
+                else if (strtolower($type) == 'bit')
+                {
+                    $type = \Db\Column::TYPE_INTEGER;
+                }
+                else if (strtolower($type) == 'image')
+                {
+                    $type = \Db\Column::TYPE_UNKNOW;
+                }
+
+                $column->setType($type);
+
+                $label = str_replace('_', ' ', $column->getLabel());
+                $label = str_replace('_', ' ', $label);
+                $label = str_replace('_', ' ', $label);
+                $label = str_replace('Id', '', $label);
+                $label = ucfirst(strtolower($label));
+                $column->setLabel(trim($label));
+
                 $columns[$column->getName()] = $column;
-				//var_dump($column);
+                //var_dump($column);
             }
         }
 
@@ -157,54 +157,54 @@ WHERE
 GROUP BY t.Name, s.Name, p.Rows
 ORDER BY name ASC";
 
-	//se quiser filtrar somente as que tem registro
-	//AND p.rows > 1  
+        //se quiser filtrar somente as que tem registro
+        //AND p.rows > 1
 
         $result = \Db\Conn::getInstance()->query($sql, array($dbName));
-		
-		if (is_array($result) )
-		{
-			foreach ($result as $item)
-			{				
-				$label = $item->label;
-				
-				//prefixos organiza
-				$label = str_replace('Cfc_', '', $label );
-				$label = str_replace('Cna_', '', $label );
-				$label = str_replace('Cpr_', '', $label );
-				$label = str_replace('Crm_', '', $label );
-				$label = str_replace('Cst_', '', $label );
-				$label = str_replace('Ctb_', '', $label );
-				$label = str_replace('Ctr_', '', $label );
-				$label = str_replace('Est_', '', $label );
-				$label = str_replace('Fat_', '', $label );
-				$label = str_replace('Fin_', '', $label );
-				$label = str_replace('Ftw_', '', $label );
-				$label = str_replace('Gra_', '', $label );
-				$label = str_replace('Ger_', '', $label );
-				$label = str_replace('Ina_', '', $label );
-				$label = str_replace('Inc_', '', $label );
-				$label = str_replace('Int_', '', $label );
-				$label = str_replace('Iso_', '', $label );
-				$label = str_replace('Nfe_', '', $label );
-				$label = str_replace('Obr_', '', $label );
-				$label = str_replace('Pal_', '', $label );
-				$label = str_replace('Pat_', '', $label );
-				$label = str_replace('Rhu_', '', $label );
-				$label = str_replace('Tra_', '', $label );
-				$label = str_replace('Wor_', '', $label );
-				
-				$label = str_replace('_', ' ', $label );
-				$label = str_replace('_', ' ', $label );
-				$label = str_replace('_', ' ', $label );
-				
-				$label = trim(ucfirst(strtolower($label)));
-				
-				$item->label = $label;
-			}
-		}
-		
-		return $result;
+
+        if (is_array($result))
+        {
+            foreach ($result as $item)
+            {
+                $label = $item->label;
+
+                //prefixos organiza
+                $label = str_replace('Cfc_', '', $label);
+                $label = str_replace('Cna_', '', $label);
+                $label = str_replace('Cpr_', '', $label);
+                $label = str_replace('Crm_', '', $label);
+                $label = str_replace('Cst_', '', $label);
+                $label = str_replace('Ctb_', '', $label);
+                $label = str_replace('Ctr_', '', $label);
+                $label = str_replace('Est_', '', $label);
+                $label = str_replace('Fat_', '', $label);
+                $label = str_replace('Fin_', '', $label);
+                $label = str_replace('Ftw_', '', $label);
+                $label = str_replace('Gra_', '', $label);
+                $label = str_replace('Ger_', '', $label);
+                $label = str_replace('Ina_', '', $label);
+                $label = str_replace('Inc_', '', $label);
+                $label = str_replace('Int_', '', $label);
+                $label = str_replace('Iso_', '', $label);
+                $label = str_replace('Nfe_', '', $label);
+                $label = str_replace('Obr_', '', $label);
+                $label = str_replace('Pal_', '', $label);
+                $label = str_replace('Pat_', '', $label);
+                $label = str_replace('Rhu_', '', $label);
+                $label = str_replace('Tra_', '', $label);
+                $label = str_replace('Wor_', '', $label);
+
+                $label = str_replace('_', ' ', $label);
+                $label = str_replace('_', ' ', $label);
+                $label = str_replace('_', ' ', $label);
+
+                $label = trim(ucfirst(strtolower($label)));
+
+                $item->label = $label;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -270,7 +270,7 @@ ORDER BY name ASC;";
      */
     public static function listTableIndex($table = NULL, $indexName = NULL)
     {
-		throw new \UserException('Não implementado');
+        throw new \UserException('Não implementado');
     }
 
     /**
@@ -287,16 +287,17 @@ ORDER BY name ASC;";
      *
      * @return string
      */
-    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL)
+    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = FALSE)
     {
-		$top = strlen(trim($limit)) > 0 ? 'TOP ' . $limit.' ' : '';
-		
-        $sql = 'SELECT ' . $top .$columns;
-        $sql .= $tables ? ' FROM ' . $tables : '';
-        $sql .= strlen(trim($where)) > 0 ? ' WHERE ' . $where : '';
-        $sql .= strlen(trim($groupBy)) > 0 ? ' GROUP BY ' . $groupBy : '';
-        $sql .= strlen(trim($having)) > 0 ? ' HAVING ' . $having : '';
-        $sql .= strlen(trim($orderBy)) > 0 ? ' ORDER BY ' . $orderBy : '';
+        $top = strlen(trim($limit)) > 0 ? 'TOP ' . $limit . ' ' : '';
+
+        $lineEnding = $format ? "\r\n" : ' ';
+        $sql = 'SELECT' . $lineEnding . $top . $columns;
+        $sql .= $tables ? $lineEnding . 'FROM ' . $tables : '';
+        $sql .= strlen(trim($where)) > 0 ? $lineEnding . 'WHERE ' . $where : '';
+        $sql .= strlen(trim($groupBy)) > 0 ? $lineEnding . 'GROUP BY ' . $groupBy : '';
+        $sql .= strlen(trim($having)) > 0 ? $lineEnding . 'HAVING ' . $having : '';
+        $sql .= strlen(trim($orderBy)) > 0 ? $lineEnding . 'ORDER BY ' . $orderBy : '';
         $sql .= strlen(trim($orderWay)) > 0 ? ' ' . $orderWay : '';
 
         //avoid negative offset error
@@ -403,9 +404,11 @@ ORDER BY name ASC;";
     }
 
 }
-
 if (!class_exists('\Db\Catalog'))
 {
-	class Catalog extends \Db\MssqlCatalog {};
+
+    class Catalog extends \Db\MssqlCatalog
+    {
+
+    }
 }
-	

@@ -2,7 +2,7 @@
 O Blend Web App Framework é um framework PHP para desenvolvimento de Aplicações Web. Apesar de ele ser um motor que pode ser usado para construir qualquer aplicativo ele tem algumas regras pré-definidas e simplificadas de rotas, páginas e modelos que o engessam de certa forma, mas que tornam o desenvolvimento de aplicações web super rápido e assertivo.
 
 # Cruds rápidos
-Sua tabela está pronta? Então sua interface também. Com 2 arquivos poucas e linhas (página e modelo) sua página está funcional e a prova de bugs.
+Sua tabela está pronta? Então sua interface também. Com 2 arquivos e poucas linhas (página e modelo) sua página está funcional e a prova de bugs.
 
 Não usa gerador de código. Tudo é criado dinamicamente. E você tem possibilidade de customizar todas as diferenças que quiser.
 

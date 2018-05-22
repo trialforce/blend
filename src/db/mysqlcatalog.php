@@ -205,16 +205,17 @@ WHERE index_name = '{$indexName}'";
      *
      * @return string
      */
-    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL)
+    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = FALSE)
     {
-        $sql = 'SELECT ' . $columns;
-        $sql .= $tables ? ' FROM ' . $tables : '';
-        $sql .= strlen(trim($where)) > 0 ? ' WHERE ' . $where : '';
-        $sql .= strlen(trim($groupBy)) > 0 ? ' GROUP BY ' . $groupBy : '';
-        $sql .= strlen(trim($having)) > 0 ? ' HAVING ' . $having : '';
-        $sql .= strlen(trim($orderBy)) > 0 ? ' ORDER BY ' . $orderBy : '';
+        $lineEnding = $format ? "\r\n" : ' ';
+        $sql = 'SELECT' . $lineEnding . $columns;
+        $sql .= $tables ? $lineEnding . 'FROM ' . $tables : '';
+        $sql .= strlen(trim($where)) > 0 ? $lineEnding . 'WHERE ' . $where : '';
+        $sql .= strlen(trim($groupBy)) > 0 ? $lineEnding . 'GROUP BY ' . $groupBy : '';
+        $sql .= strlen(trim($having)) > 0 ? $lineEnding . 'HAVING ' . $having : '';
+        $sql .= strlen(trim($orderBy)) > 0 ? $lineEnding . 'ORDER BY ' . $orderBy : '';
         $sql .= strlen(trim($orderWay)) > 0 ? ' ' . $orderWay : '';
-        $sql .= strlen(trim($limit)) > 0 ? ' LIMIT ' . $limit : '';
+        $sql .= strlen(trim($limit)) > 0 ? $lineEnding . 'LIMIT ' . $limit : '';
 
         //avoid negative offset error
         $offset = ( is_numeric(trim($offset)) && trim($offset) < 0) ? 0 : trim($offset);
@@ -315,45 +316,48 @@ WHERE index_name = '{$indexName}'";
      *
      */
     public static function implodeColumnNames($columnNames)
-    {	
-		if (is_array($columnNames))
-		{
-			foreach ($columnNames as $idx =>$columnName)
-			{
-				//subselect
-				if (stripos($columnName,'SELECT'))
-				{
-					$columnName = $columnName;
-				}
-				else
-				{
-					$explode = explode('AS', $columnName);
-				
-					//as
-					if ( count($explode)> 1)
-					{
-						$columnName = '`'.trim($explode[0]).'` as `'.trim($explode[1]).'`';
-					}
-					//default simple column
-					else
-					{
-						$columnName = '`'.$columnName.'`';
-					}
-				}
-				
-				$columnNames[$idx] = $columnName;
-			}
-		}
-		
-		//$columns = '`'.implode('`,`', $columnNames).'`';
-		$columns = implode(',', $columnNames);
-		
+    {
+        if (is_array($columnNames))
+        {
+            foreach ($columnNames as $idx => $columnName)
+            {
+                //subselect
+                if (stripos($columnName, 'SELECT'))
+                {
+                    $columnName = $columnName;
+                }
+                else
+                {
+                    $explode = explode('AS', $columnName);
+
+                    //as
+                    if (count($explode) > 1)
+                    {
+                        $columnName = '`' . trim($explode[0]) . '` as `' . trim($explode[1]) . '`';
+                    }
+                    //default simple column
+                    else
+                    {
+                        $columnName = '`' . $columnName . '`';
+                    }
+                }
+
+                $columnNames[$idx] = $columnName;
+            }
+        }
+
+        //$columns = '`'.implode('`,`', $columnNames).'`';
+        $columns = implode(',', $columnNames);
+
         return $columns;
     }
 
 }
-
 if (!class_exists('\Db\Catalog'))
 {
-	class Catalog extends \Db\MysqlCatalog{}
+
+    class Catalog extends \Db\MysqlCatalog
+    {
+
+    }
 }

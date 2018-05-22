@@ -2,8 +2,6 @@
 
 namespace Db;
 
-use DataHandle\Config;
-
 /**
  * Integrates the database with php.
  * Utilizes active Record concept.
@@ -408,24 +406,6 @@ class Model
     }
 
     /**
-     * Obtem o find() ordenado pelo atributo ID.
-     *
-     * @return array
-     */
-    public static function findAllIndexed()
-    {
-        $indexedRows = self::orderArrayByProperty(self::find(), 'id');
-        $list = array();
-
-        foreach ((array) $indexedRows as $key => $row)
-        {
-            $list[$key] = $row->populateIndexed();
-        }
-
-        return $list;
-    }
-
-    /**
      *
      * @param type $columns
      * @param \Db\Cond $filters
@@ -473,8 +453,8 @@ class Model
         $columnNameSql = self::getColumnsForFind($columns);
         $where = self::getWhereFromFilters($filters);
 
-		$catalog = $name::getCatalogClass();
-		
+        $catalog = $name::getCatalogClass();
+
         //if has ASC or DESC in order BY don't treat then, let it be
         if (!( stripos($orderBy, 'ASC') > 0 || stripos($orderBy, 'DESC') > 0))
         {
@@ -483,49 +463,35 @@ class Model
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
-		
+
         $returnType = is_null($returnType) ? $name : $returnType;
-        $instanceOf = in_array('Db\SqlCache', class_implements($name));
 
-        if (Config::get('dbSsqlCache') && $instanceOf)
-        {
-            $stringCache = $sql . implode('', $where->args) . $returnType;
-            $result = \Db\CacheSql::get($name::getTableName(), $stringCache);
-
-            if (!$result)
-            {
-                $result = $name::getConn()->query($sql, $where->args, $returnType);
-                \Db\CacheSql::set($name::getTableName(), $stringCache, $result);
-            }
-        }
-        else
-        {
-            $result = $name::getConn()->query($sql, $where->args, $returnType);
-        }
+        $result = $name::getConn()->query($sql, $where->args, $returnType);
 
         return $result;
     }
-	
-	public static function getCatalogClass()
-	{
-		$name = self::getName();;
-		$conn = $name::getConnInfo();
 
-		if ( $conn->getType() == \Db\ConnInfo::TYPE_MYSQL )
-		{
-			return '\Db\MysqlCatalog';
-		}
-		else if ( $conn->getType() == \Db\ConnInfo::TYPE_POSTGRES )
-		{
-			return '\Db\PgsqlCatalog';
-		}
-		else if ( $conn->getType() == \Db\ConnInfo::TYPE_MSSQL )
-		{
-			return '\Db\MssqlCatalog';
-		}
-		
-		return '\Db\MysqlCatalog';
-	}
+    public static function getCatalogClass()
+    {
+        $name = self::getName();
+        ;
+        $conn = $name::getConnInfo();
+
+        if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
+        {
+            return '\Db\MysqlCatalog';
+        }
+        else if ($conn->getType() == \Db\ConnInfo::TYPE_POSTGRES)
+        {
+            return '\Db\PgsqlCatalog';
+        }
+        else if ($conn->getType() == \Db\ConnInfo::TYPE_MSSQL)
+        {
+            return '\Db\MssqlCatalog';
+        }
+
+        return '\Db\MysqlCatalog';
+    }
 
     /**
      * Execute a search in database and return a list
@@ -631,8 +597,8 @@ class Model
         $i = 0;
 
         $filters = array();
-		
-		$catalog = $name::getCatalogClass();
+
+        $catalog = $name::getCatalogClass();
 
         foreach ($pks as $pk)
         {
@@ -798,11 +764,6 @@ class Model
             }
         }
 
-        if (Config::get('dbSsqlCache') && $this instanceof \Db\SqlCache)
-        {
-            \Db\CacheSql::clearForTable($name::getTableName());
-        }
-
         return $ok;
     }
 
@@ -815,7 +776,7 @@ class Model
     {
         $name = self::getName();
         $columnValues = $this->getColumnValues($columns);
-		$catalog = $name::getCatalogClass();
+        $catalog = $name::getCatalogClass();
 
         foreach ($columnValues as $columnName => $value)
         {
@@ -832,13 +793,8 @@ class Model
             $sqlWhere[] = $catalog::parseColumnNameForQuery($pkName);
         }
 
-        $tableName =$catalog::parseTableNameForQuery($name::getTableName());
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountUpdate($tableName, implode(', ', $sqlColumns), implode(' AND ', $sqlWhere));
-		
-        if (Config::get('dbSsqlCache') && $this instanceof \Db\SqlCache)
-        {
-            \Db\CacheSql::clearForTable($name::getTableName());
-        }
 
         return $name::getConn()->execute($sql, $columnValues);
     }
@@ -897,22 +853,6 @@ class Model
         {
             return $this->insert($columns);
         }
-    }
-
-    public function saveChain()
-    {
-        $this->save();
-
-        return $this->populateIndexed();
-    }
-
-    /**
-     *
-     * @return array
-     */
-    protected function populateIndexed()
-    {
-        return $this->getArray();
     }
 
     /**
@@ -978,13 +918,7 @@ class Model
         }
 
         $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
-
         $sql = \Db\Catalog::mountDelete($tableName, implode(' AND ', $where));
-
-        if (Config::get('dbSsqlCache') && $this instanceof \Db\SqlCache)
-        {
-            \Db\CacheSql::clearForTable($tableName);
-        }
 
         return $name::getConn()->execute($sql, $args);
     }
@@ -1000,11 +934,6 @@ class Model
         $name = self::getName();
         $where = $name::getWhereFromFilters($filters);
         $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->sql);
-
-        if (Config::get('dbSsqlCache') && $this instanceof \Db\SqlCache)
-        {
-            \Db\CacheSql::clearForTable($name::getTableName());
-        }
 
         return $name::getConn()->execute($sql, $where->args);
     }
@@ -1213,28 +1142,28 @@ class Model
      */
     public function getArray()
     {
-		$name = self::getName();
-		$columns = $name::getColumns();
-        $temp = (array)($this);
+        $name = self::getName();
+        $columns = $name::getColumns();
+        $temp = (array) ($this);
         $array = array();
 
         foreach ($temp as $k => $v)
         {
             $k = preg_match('/^\x00(?:.*?)\x00(.+)/', $k, $matches) ? $matches[1] : $k;
-			
+
             if ($v instanceof \Type\Generic)
             {
                 $v = $v->toDb();
             }
-			
-			$column = $columns[$k];
-			
-			//add suport to decimal values
-			if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
-			{
-				$v = \Type\Decimal::get($v)->toDb();
-			}
-			
+
+            $column = $columns[$k];
+
+            //add suport to decimal values
+            if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+            {
+                $v = \Type\Decimal::get($v)->toDb();
+            }
+
             $array[$k] = $v;
         }
 
@@ -1300,13 +1229,5 @@ class Model
     {
         return $this->getName();
     }
-
-}
-
-/**
- * Implements this interface to make your model use sqlCache
- */
-interface SqlCache
-{
 
 }
