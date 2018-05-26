@@ -322,7 +322,7 @@ WHERE index_name = '{$indexName}'";
             foreach ($columnNames as $idx => $columnName)
             {
                 //subselect
-                if (stripos($columnName, 'SELECT'))
+                if (stripos($columnName, 'SELECT') || stripos($columnName, '(') || stripos($columnName, ' ' || stripos($columnName, '`')))
                 {
                     $columnName = $columnName;
                 }
