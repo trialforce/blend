@@ -759,7 +759,15 @@ function getJson(page,formData, showLoading, callBack)
         },
         success: function(response)
         {
-            callBack(response);
+            if ( typeof response.script == 'string')
+			{
+				response.script.replace('\\\"','\\"');
+				$('body').append('<script>' + response.script + '</script>');
+			}
+			else
+			{
+				callBack(response);
+			}
         }
         ,error: function (xhr, ajaxOptions, thrownError)
         {
