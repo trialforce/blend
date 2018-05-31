@@ -1,6 +1,7 @@
 <?php
 
 namespace Component;
+
 use DataHandle\Request;
 use View\Td;
 use View\Tr;
@@ -43,7 +44,7 @@ abstract class Combo extends \Component\Component
         $input[] = $this->labelValue = new \View\InputText('labelField_' . $id, NULL, 'labelValue');
 
         $this->labelValue->setAutoComplete(FALSE);
-        $this->labelValue->setData('change', $this->getLink('onchange', $id)); //$value)"p('{$this->getClassUrl()}/onchange/{$id}');");
+        $this->labelValue->setData('change', "p('" . $this->getLink('onchange', $id) . "');");
         $this->labelValue->setAttribute('onclick', "comboShowDropdown('$id')");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
         $this->labelValue->setAttribute('data-invalid-id', $id);
@@ -196,8 +197,7 @@ abstract class Combo extends \Component\Component
             $table = new Table(null, $tr);
 
             $itens[] = new Div(null, $table);
-        }
-        else
+        } else
         {
             $itens[] = new Div(null, 'Nenhum registro encontrado!');
         }
@@ -209,8 +209,7 @@ abstract class Combo extends \Component\Component
         if ($hideCombo)
         {
             $container->hide();
-        }
-        else
+        } else
         {
             $container->show();
         }

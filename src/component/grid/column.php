@@ -626,7 +626,7 @@ class Column implements \Disk\JsonAvoidPropertySerialize
         $param['orderWay'] = $newOrderWay;
 
         //link normal
-        $url = $this->getGrid()->getLink('', '', $param); // . '&orderBy=' . $this->getName() . '&orderWay=' . $newOrderWay;
+        $url = $this->getGrid()->getLink('listar', '', $param);
         $link = new \View\A('order' . ucfirst($this->getName()), $this->getLabel() . ' ', $url);
 
         $orderByName = $orderBy;

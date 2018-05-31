@@ -53,8 +53,13 @@ class Component
 
     public function getLink($event, $value, $param = null)
     {
+        if (is_array($param))
+        {
+            http_build_query($param);
+        }
+
         $param = $param ? '?' . $param : null;
-        return "p('{$this->getClassUrl()}/{$event}/{$value}{$param}');";
+        return "{$this->getClassUrl()}/{$event}/{$value}{$param}";
     }
 
     public function callEvent()
