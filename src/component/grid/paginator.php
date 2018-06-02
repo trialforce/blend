@@ -218,7 +218,8 @@ class Paginator extends \View\Div
 
         $paginationLimit = new \View\Select('paginationLimit', $options, $value, 'fr');
         $paginationLimit->setTitle('Limite de registros por página');
-        $paginationLimit->change('$("#buscar").click();');
+        $link = $this->getGrid()->getLink('listar');
+        $paginationLimit->change("p('" . $link . "');");
 
         return $paginationLimit;
     }
@@ -278,7 +279,7 @@ class Paginator extends \View\Div
 
         if ($lastPage > 0 && $makePaginator)
         {
-            $linkMethod = '';
+            $linkMethod = 'listar';
             $urlExtra['orderBy'] = Request::get('orderBy');
             $urlExtra['orderWay'] = Request::get('orderWay');
 

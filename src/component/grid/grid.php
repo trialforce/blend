@@ -1,6 +1,8 @@
 <?php
 
 namespace Component\Grid;
+use DataHandle\Request;
+use DataHandle\Session;
 
 /**
  * A Simple grid, works very handy.
@@ -152,6 +154,11 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         {
             foreach ($columns as $column)
             {
+                if (!$column)
+                {
+                    continue;
+                }
+
                 if ($column->getRender())
                 {
                     $renderColumns[] = $column;
@@ -228,6 +235,11 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         foreach ($columns as $column)
         {
+            if (!$column)
+            {
+                continue;
+            }
+
             $column->setGrid($this);
 
             if ($column->getIdentificator())
@@ -329,9 +341,52 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         }
     }
 
+    /**
+     * Mount col group
+     * @return \View\ColGroup
+     */
     public function mountColGroup()
     {
-        return null;
+        $orderBy = $this->getDataSource()->getOrderBy();
+        $columns = $this->getColumns();
+        $cols = null;
+
+        if (is_array($columns))
+        {
+            foreach ($columns as $column)
+            {
+                if (!$column)
+                {
+                    continue;
+                }
+
+                $column->setGrid($this);
+
+                //jump column that not render
+                if (!$column->getRender())
+                {
+                    continue;
+                }
+
+                $class = $orderBy == $column->getName() ? 'order-by' : '';
+
+                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
+                $align = str_replace('align', '', $column->getAlign());
+                $col->setAttribute('align', lcfirst($align));
+                $col->setData('type', $column->getType());
+                $col->setData('name', $column->getName());
+                $col->setData('label', $column->getLabel());
+
+                if ($column->getWidth())
+                {
+                    $col->css('width', $column->getWidth());
+                }
+            }
+        }
+
+        $colGroup = new \View\ColGroup(null, $cols);
+
+        return $colGroup;
     }
 
     /**
@@ -565,6 +620,205 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $file = $class::create($dataSource, $this->getId(), $columns, $pageSize);
 
         return $file;
+    }
+
+    /**
+     * Add search filters to dataSource
+     *
+     * @param \DataSource\DataSource $dataSource
+     * @return \DataSource\DataSource $dataSource
+     */
+    public static function addFiltersToDataSource(\DataSource\DataSource $dataSource)
+    {
+        $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
+
+        if (Request::get('orderBy'))
+        {
+            $dataSource->setOrderBy(Request::get('orderBy'));
+        }
+
+        if (Request::get('orderWay'))
+        {
+            $dataSource->setOrderWay(Request::get('orderWay'));
+        }
+
+        if (Request::get('page'))
+        {
+            $dataSource->setPage(Request::get('page'));
+        }
+        else
+        {
+            if (is_null($dataSource->getLimit()))
+            {
+                $dataSource->setPage(0);
+            }
+        }
+
+        //this need to be optimized, this is in wrong place, but for compatibily porpouses is here
+        $page = \View\View::getDom();
+
+        if (method_exists($page, 'getModel'))
+        {
+            //FIXME optimize 10% if get only what is is post
+            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel());
+
+            if (is_array($filters))
+            {
+                foreach ($filters as $filter)
+                {
+                    $dbCond = $filter->getDbCond();
+
+                    if ($dbCond)
+                    {
+                        $dataSource->addExtraFilter($dbCond);
+                    }
+                }
+            }
+        }
+
+        return $dataSource->setSmartFilter(Request::get('q'));
+    }
+
+    /**
+     * Return the file from report columns
+     *
+     * @return \Disk\File
+     */
+    public function getReportColumnsFile()
+    {
+        $idUser = Session::get('user') ? Session::get('user') . '/' : '';
+        $fileReportColumns = \Disk\File::getFromStorage($idUser . 'report-columns-' . $this->getPageName() . '.json');
+
+        return $fileReportColumns;
+    }
+
+    /**
+     * Grid export data, used in component grid
+     * @return type
+     */
+    public function gridExportData()
+    {
+        \App::dontChangeUrl();
+        $grid = $this;
+        $columns = $grid->getColumns();
+
+        //get selected columns from file
+        $fileReportColumns = $this->getReportColumnsFile();
+        $fileReportColumns->load();
+        $selectedColumns = json_decode($fileReportColumns->getContent());
+
+        if (is_array($columns))
+        {
+            foreach ($columns as $column)
+            {
+                if ($column->getExport())
+                {
+                    $columnSelected = $column->getRender();
+
+                    if (is_array($selectedColumns))
+                    {
+                        $columnSelected = in_array($column->getName(), $selectedColumns);
+                    }
+
+                    $idName = 'reportColumns[' . $column->getName() . ']';
+                    $line = array();
+                    $line[] = new \View\Ext\CheckboxDb($idName, $idName, $columnSelected);
+                    $line[] = new \View\Label(NULL, $idName, $column->getLabel());
+                    $checks[] = new \View\Div(null, $line);
+                }
+            }
+        }
+
+        $selectColumns = new \View\Div('exportColumns', $checks, 'exportColumns ');
+
+        $left[] = new \View\Div(NULL, 'Colunas');
+        $left[] = $selectColumns;
+
+        $right[] = new \View\Div( );
+
+        $formats['csv'] = 'CSV (Excel)';
+        $formats['html'] = 'HTML (Tela)';
+        $formats['pdf'] = 'PDF (Impressão)';
+
+        $formatos[] = new \View\Label(NULL, 'format', 'Formato', 'field-label');
+        $formatos[] = $abc = new \View\Select('format', $formats, 'csv');
+        $abc->change("if ( $(this).val() == 'pdf' ) { $('#reportPageSize_contain').show(); } else { $('#reportPageSize_contain').hide(); }");
+
+        $right[] = new \View\Div(NULL, $formatos, 'field-contain');
+
+        $pageSizes['A4'] = 'A4 (Retrato)';
+        $pageSizes['A4-L'] = 'A4 (Paisagem)';
+
+        $sizes[] = new \View\Label(NULL, 'reportPageSize', 'Página', 'field-label');
+        $sizes[] = $pageSize = new \View\Select('reportPageSize', $pageSizes, 'csv');
+        $pageSize->selectFirst();
+        $right[] = $pageSizeContain = new \View\Div('reportPageSize_contain', $sizes, 'field-contain');
+        $pageSizeContain->hide();
+
+        $view[] = new \View\Div('left', $left, 'fl');
+        $view[] = new \View\Div('right', $right, 'fr alignLeft');
+
+        $url = $this->getLink('exportGridFile');
+
+        $buttons[] = new \View\Ext\LinkButton('exportGridFile', 'download', 'Gerar arquivo', $url, 'primary');
+        $buttons[] = new \View\Ext\Button('cancel', 'cancel', 'Cancelar', \View\Blend\Popup::getJs('destroy'));
+        $popup = new \View\Blend\Popup('gridExportData', 'Criação de relatórios / exportação de dados ', $view, $buttons);
+        $popup->setIcon('download');
+
+        return $popup->show();
+    }
+
+    /**
+     * Export file from grid, used in component grid
+     *
+     * @throws \Exception
+     */
+    public function exportGridFile()
+    {
+        \App::dontChangeUrl();
+        $dataSource = $this->getDataSource();
+        $dataSource->setColumns($this->getColumns());
+        $this->addFiltersToDataSource($dataSource);
+        $type = str_replace("/", '', Request::get('format'));
+        $reportColumns = array_keys(Request::get('reportColumns'));
+
+        //save selected filter in file, to restore
+        $fileReportColumns = $this->getReportColumnsFile();
+        $fileReportColumns->save(json_encode($reportColumns));
+
+        $pageSize = Request::get('reportPageSize');
+
+        return $this->exportFile($type, $reportColumns, $pageSize)->outputToBrowser();
+    }
+
+    /**
+     * Create dataSource used in component grids
+     *
+     * @param type $reference
+     * @return \DataSource\Model
+     */
+    public function createDataSource($reference)
+    {
+        $ds = new \DataSource\Model($reference);
+        //compatibility with search grid
+        $this->model = $reference;
+        $this->addFiltersToDataSource($ds);
+
+        return $ds;
+    }
+
+    /**
+     * Listar, used in component grid
+     */
+    public function listar()
+    {
+        \App::dontChangeUrl();
+        $id = $this->getId();
+        $dom = \View\View::getDom();
+        $div = $dom->byId($id);
+
+        $table = $this->createTable();
+        $div->html($table);
     }
 
     public function listAvoidPropertySerialize()

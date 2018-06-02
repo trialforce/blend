@@ -1,7 +1,6 @@
 <?php
 
 namespace Component;
-
 use DataHandle\Request;
 
 class Component
@@ -51,21 +50,47 @@ class Component
         return strtolower(str_replace('\\', '-', str_replace('Component\\', '', get_class($this))));
     }
 
-    public function getLink($event, $value, $param = null)
+    public function getLink($event, $value, $params = null, $putUrl = false)
     {
-        if (is_array($param))
+        if ($putUrl)
         {
-            http_build_query($param);
+            $queryString = null;
+            parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING'), $queryString);
+            unset($queryString['p']);
+            unset($queryString['e']);
+            unset($queryString['v']);
+            unset($queryString['_']);
+            unset($queryString['selectFilters']);
+            unset($queryString['selectGroups']);
+
+            if (!$params)
+            {
+                $params = $queryString;
+            }
+            else if (is_array($params))
+            {
+                $params = array_merge($queryString, $params);
+            }
         }
 
-        $param = $param ? '?' . $param : null;
-        return "{$this->getClassUrl()}/{$event}/{$value}{$param}";
+        if (is_array($params))
+        {
+            $params = http_build_query($params);
+        }
+
+        $params = $params ? '?' . $params : null;
+        return "{$this->getClassUrl()}/{$event}/{$value}{$params}";
     }
 
     public function callEvent()
     {
         $event = $this->getEvent();
-        $this->setId($this->getIdentifier());
+
+        //only if not defined
+        if (!$this->getId())
+        {
+            $this->setId($this->getIdentifier());
+        }
 
         if ($event && method_exists($this, $event))
         {

@@ -650,7 +650,7 @@ class Layout extends \DomDocument implements \Countable
      */
     public function getPageUrl()
     {
-        return \Request::get('p') ? \Request::get('p') : 'default';
+        return Request::get('p') ? Request::get('p') : 'default';
     }
 
     /**

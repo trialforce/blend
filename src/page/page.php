@@ -1,7 +1,6 @@
 <?php
 
 namespace Page;
-
 use DataHandle\Request;
 use DataHandle\Config;
 use DataHandle\Session;
@@ -613,72 +612,7 @@ class Page extends \View\Layout
             $grid = $this->getGrid();
         }
 
-        $columns = $grid->getColumns();
-
-        //get selected columns from file
-        $fileReportColumns = $this->getReportColumnsFile();
-        $fileReportColumns->load();
-        $selectedColumns = json_decode($fileReportColumns->getContent());
-
-        if (is_array($columns))
-        {
-            foreach ($columns as $column)
-            {
-                if ($column->getExport())
-                {
-                    $columnSelected = $column->getRender();
-
-                    if (is_array($selectedColumns))
-                    {
-                        $columnSelected = in_array($column->getName(), $selectedColumns);
-                    }
-
-                    $idName = 'reportColumns[' . $column->getName() . ']';
-                    $line = array();
-                    $line[] = new \View\Ext\CheckboxDb($idName, $idName, $columnSelected);
-                    $line[] = new \View\Label(NULL, $idName, $column->getLabel());
-                    $checks[] = new \View\Div(null, $line);
-                }
-            }
-        }
-
-        $selectColumns = new \View\Div('exportColumns', $checks, 'exportColumns ');
-
-        $left[] = new \View\Div(NULL, 'Colunas');
-        $left[] = $selectColumns;
-
-        $right[] = new \View\Div( );
-
-        $formats['csv'] = 'CSV (Excel)';
-        $formats['html'] = 'HTML (Tela)';
-        $formats['pdf'] = 'PDF (Impressão)';
-
-        $formatos[] = new \View\Label(NULL, 'format', 'Formato', 'field-label');
-        $formatos[] = $abc = new \View\Select('format', $formats, 'csv');
-        $abc->change("if ( $(this).val() == 'pdf' ) { $('#reportPageSize_contain').show(); } else { $('#reportPageSize_contain').hide(); }");
-
-        $right[] = new \View\Div(NULL, $formatos, 'field-contain');
-
-        $pageSizes['A4'] = 'A4 (Retrato)';
-        $pageSizes['A4-L'] = 'A4 (Paisagem)';
-
-        $sizes[] = new \View\Label(NULL, 'reportPageSize', 'Página', 'field-label');
-        $sizes[] = $pageSize = new \View\Select('reportPageSize', $pageSizes, 'csv');
-        $pageSize->selectFirst();
-        $right[] = $pageSizeContain = new \View\Div('reportPageSize_contain', $sizes, 'field-contain');
-        $pageSizeContain->hide();
-
-        $view[] = new \View\Div('left', $left, 'fl');
-        $view[] = new \View\Div('right', $right, 'fr alignLeft');
-
-        $url = $this->getGrid()->getLink('exportGridFile');
-
-        $buttons[] = new \View\Ext\LinkButton('exportGridFile', 'download', 'Gerar arquivo', $url, 'primary');
-        $buttons[] = new \View\Ext\Button('cancel', 'cancel', 'Cancelar', \View\Blend\Popup::getJs('destroy'));
-        $popup = new \View\Blend\Popup('gridExportData', 'Criação de relatórios / exportação de dados ', $view, $buttons);
-        $popup->setIcon('download');
-
-        $popup->show();
+        return $grid->exportGridData();
     }
 
     /**
@@ -716,29 +650,7 @@ class Page extends \View\Layout
             $grid = $this->getGrid();
         }
 
-        //$grid->remove();
-        $this->byId('searchHead')->remove();
-
-        if ($grid)
-        {
-            $dataSource = $grid->getDataSource();
-            $dataSource->setColumns($grid->getColumns());
-            $this->addFiltersToDataSource($dataSource);
-            $type = str_replace("/", '', Request::get('format'));
-            $reportColumns = array_keys(Request::get('reportColumns'));
-
-            //save selected filter in file, to restore
-            $fileReportColumns = $this->getReportColumnsFile();
-            $fileReportColumns->save(json_encode($reportColumns));
-
-            $pageSize = Request::get('reportPageSize');
-
-            $grid->exportFile($type, $reportColumns, $pageSize)->outputToBrowser();
-        }
-        else
-        {
-            throw new \Exception('Impossível encontrar grid');
-        }
+        return $grid->exportGridFile();
     }
 
     /**
@@ -748,50 +660,7 @@ class Page extends \View\Layout
      */
     public function addFiltersToDataSource(\DataSource\DataSource $dataSource)
     {
-        $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
-
-        if (Request::get('orderBy'))
-        {
-            $dataSource->setOrderBy(Request::get('orderBy'));
-        }
-
-        if (Request::get('orderWay'))
-        {
-            $dataSource->setOrderWay(Request::get('orderWay'));
-        }
-
-        if (Request::get('page'))
-        {
-            $dataSource->setPage(Request::get('page'));
-        }
-        else
-        {
-            if (is_null($dataSource->getLimit()))
-            {
-                $dataSource->setPage(0);
-            }
-        }
-
-        if (method_exists($this, 'getModel'))
-        {
-            //FIXME aqui otimiza uns 10% pegando só o que vier no post
-            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $this->getModel());
-
-            if (is_array($filters))
-            {
-                foreach ($filters as $filter)
-                {
-                    $dbCond = $filter->getDbCond();
-
-                    if ($dbCond)
-                    {
-                        $dataSource->addExtraFilter($dbCond);
-                    }
-                }
-            }
-        }
-
-        return $dataSource->setSmartFilter(Request::get('q'));
+        return \Component\Grid\Grid::addFiltersToDataSource($dataSource);
     }
 
     public function setDefaultGrid()

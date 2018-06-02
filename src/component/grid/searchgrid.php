@@ -91,18 +91,18 @@ class SearchGrid extends \Component\Grid\Grid
     protected function createTd(\Component\Grid\Column $column, $index, $item, $tr)
     {
         $dom = \View\View::getDom();
-        $afterGridCreateCell = FALSE;
-
-        if ($this->getCallInterfaceFunctions())
-        {
-            $afterGridCreateCell = $dom instanceof \Page\AfterGridCreateCell;
-        }
-
         $td = parent::createTd($column, $index, $item, $tr);
 
-        if ($afterGridCreateCell)
+        //from page
+        if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\AfterGridCreateCell)
         {
             \View\View::getDom()->afterGridCreateCell($column, $item, $index, $tr, $td);
+        }
+
+        //from grid
+        if ($this instanceof \Page\AfterGridCreateCell)
+        {
+            $this->afterGridCreateCell($column, $item, $index, $tr, $td);
         }
 
         return $td;
@@ -110,72 +110,35 @@ class SearchGrid extends \Component\Grid\Grid
 
     protected function createTr($columns, $index, $item)
     {
-        $beforeGridCreateRow = false;
-        $afterGridCreateRow = false;
         $dom = \View\View::getDom();
 
-        if ($this->getCallInterfaceFunctions())
-        {
-            $beforeGridCreateRow = $dom instanceof \Page\BeforeGridCreateRow;
-            $afterGridCreateRow = $dom instanceof \Page\AfterGridCreateRow;
-        }
-
-        if ($beforeGridCreateRow)
+        //from page
+        if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\BeforeGridCreateRow)
         {
             $dom->beforeGridCreateRow($item, $index, NULL);
         }
 
+        //from grid
+        if ($this instanceof \Page\BeforeGridCreateRow)
+        {
+            $this->beforeGridCreateRow($item, $index, $tr);
+        }
+
         $tr = parent::createTr($columns, $index, $item);
 
-        if ($afterGridCreateRow)
+        //from page
+        if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\AfterGridCreateRow)
         {
             \View\View::getDom()->afterGridCreateRow($item, $index, $tr);
         }
 
-        return $tr;
-    }
-
-    /**
-     * Mount col group
-     * @return \View\ColGroup
-     */
-    public function mountColGroup()
-    {
-        $orderBy = $this->getDataSource()->getOrderBy();
-        $columns = $this->getColumns();
-        $cols = null;
-
-        if (is_array($columns))
+        //from grid
+        if ($this instanceof \Page\AfterGridCreateRow)
         {
-            foreach ($columns as $column)
-            {
-                $column->setGrid($this);
-
-                //jump column that not render
-                if (!$column->getRender())
-                {
-                    continue;
-                }
-
-                $class = $orderBy == $column->getName() ? 'order-by' : '';
-
-                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
-                $align = str_replace('align', '', $column->getAlign());
-                $col->setAttribute('align', lcfirst($align));
-                $col->setData('type', $column->getType());
-                $col->setData('name', $column->getName());
-                $col->setData('label', $column->getLabel());
-
-                if ($column->getWidth())
-                {
-                    $col->css('width', $column->getWidth());
-                }
-            }
+            $this->afterGridCreateRow($item, $index, $tr);
         }
 
-        $colGroup = new \View\ColGroup(null, $cols);
-
-        return $colGroup;
+        return $tr;
     }
 
 }
