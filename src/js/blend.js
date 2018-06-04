@@ -1419,3 +1419,24 @@ function arrayContains(array, obj)
     
     return false;
 }
+
+
+function preparaVer()
+{
+    //remove botão de adicionar
+    $('#btnInsert').remove();
+    //remove filtros
+    $('#savedListGroup').remove();
+    //adiciona botão de voltar
+    $('#btnGroup').append('<button id=\"btnVoltar\" class=\"btn\" onclick=\"history.back(1);\" type=\"button\" title=\"Volta para a listagem!\" data-form-changed-advice=\"1\"><i class=\"fa fa-arrow-left\"></i><span class=\"btn-label\"> Voltar</span></button>');
+
+    //coloca todos campos como readonly e disabled
+    $('input, select, textarea').each(
+    function()
+    {
+        $(this).attr('disabled', 'disabled');
+        //$(this).attr('readonly', 'readonly');
+    }
+
+    );
+}

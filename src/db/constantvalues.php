@@ -26,7 +26,7 @@ class ConstantValues
 
     /**
      * Return key description
-     * 
+     *
      * @param int $key
      * @return string
      */

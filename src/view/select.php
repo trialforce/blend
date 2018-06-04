@@ -112,6 +112,12 @@ class Select extends \View\View
     {
         $element->clearChildren();
 
+        //if is a constant values convert it to array
+        if ($searchResult instanceof \Db\ConstantValues)
+        {
+            $searchResult = $searchResult->getArray();
+        }
+
         //if has default option in array, deactive it
         if (is_array($searchResult) && array_key_exists('', $searchResult))
         {

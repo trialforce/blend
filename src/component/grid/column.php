@@ -493,9 +493,9 @@ class Column implements \Disk\JsonAvoidPropertySerialize
                         $value = $value->toDb();
                     }
 
-                    if (strlen($valueConstant) > 0 && isset($constantValues[$value]))
+                    if (isset($constantValues[$value]))
                     {
-                        $valueConstant = $constantValues [$value];
+                        $valueConstant = $constantValues[$value];
                     }
 
                     //if has valueConstant use it

@@ -429,6 +429,13 @@ class Crud extends \Page\Page
         }
     }
 
+    public function ver()
+    {
+        $campos = $this->editar();
+        \App::addJs("preparaVer();");
+        return $campos;
+    }
+
     /**
      * Retorna o FieldLayout utilizado para montagem dos campos
      *
@@ -820,7 +827,7 @@ class Crud extends \Page\Page
         //create field only if needed
         if (!$onlyFilter)
         {
-            //add suporte for constant values
+            //add support for constant values
             if ($options instanceof \Db\ConstantValues)
             {
                 $options = $options->getArray();
