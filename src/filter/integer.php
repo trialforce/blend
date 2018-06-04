@@ -1,6 +1,7 @@
 <?php
 
 namespace Filter;
+
 use DataHandle\Request;
 
 /**
@@ -42,7 +43,7 @@ class Integer extends \Filter\Text
 
         $select = new \View\Select($conditionName, $options, $conditionValue, 'span1_5 small filterCondition');
 
-        $js = "if ( $(this).val() == 'between') { console.log($(this));     $(this).parent().find('.final').show(); } else { $(this).parent().find('.final').hide(); }";
+        $js = "if ( $(this).val() == 'between') { $(this).parent().find('.final').show(); } else { $(this).parent().find('.final').hide(); }";
         $select->change($js);
 
         $this->getCondJs($select);
