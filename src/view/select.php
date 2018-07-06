@@ -112,12 +112,6 @@ class Select extends \View\View
     {
         $element->clearChildren();
 
-        //if is a constant values convert it to array
-        if ($searchResult instanceof \Db\ConstantValues)
-        {
-            $searchResult = $searchResult->getArray();
-        }
-
         //if has default option in array, deactive it
         if (is_array($searchResult) && array_key_exists('', $searchResult))
         {
@@ -137,7 +131,7 @@ class Select extends \View\View
             $option->setId('select-null-option');
         }
 
-        if (is_array($searchResult))
+        if (is_iterable($searchResult))
         {
             foreach ($searchResult as $index => $item)
             {

@@ -1,6 +1,7 @@
 <?php
 
 namespace Component\Grid;
+
 use DataHandle\Request;
 use DataHandle\Session;
 
@@ -507,6 +508,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             unset($queryString['_']);
             unset($queryString['e']);
             unset($queryString['v']);
+            unset($queryString['formChanged']);
+            unset($queryString['total_notificacoes']);
+            unset($queryString['paginationLimit']);
 
             if (is_array($params))
             {

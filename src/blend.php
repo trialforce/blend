@@ -60,14 +60,6 @@ function toast($message = NULL, $type = NULL, $duration = 4000)
 }
 
 /**
- * Exception to user, do not log in file
- */
-class UserException extends Exception
-{
-
-}
-
-/**
  * Glob recursive
  * Does not support flag GLOB_BRACE
  *
@@ -88,4 +80,28 @@ function globRecursive($pattern, $flags = 0)
     }
 
     return $files;
+}
+
+//polyfill por php < 7.0
+if (!function_exists('is_iterable'))
+{
+
+    /**
+     * Verify if an element is iterable
+     * @param mixed $obj
+     * @return bool
+     */
+    function is_iterable($obj)
+    {
+        return is_array($obj) || (is_object($obj) && $obj instanceof \Traversable);
+    }
+
+}
+
+/**
+ * Exception to user, do not log in file
+ */
+class UserException extends Exception
+{
+
 }

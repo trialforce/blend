@@ -2,11 +2,11 @@
 
 namespace View\Ext;
 
+/**
+ * A simple \View\Select mounted by a list of constant values
+ */
 class SelectConstantValue extends \View\Select
 {
-
-    protected $radios;
-    protected $value;
 
     public function __construct(\Db\Column $column, $columName)
     {
@@ -18,7 +18,7 @@ class SelectConstantValue extends \View\Select
             $constantValues = $constantValues->getArray();
         }
 
-        if (is_array($constantValues))
+        if (is_iterable($constantValues))
         {
             foreach ($constantValues as $value => $label)
             {

@@ -316,12 +316,6 @@ class Engine
                             if ($dbColumn instanceof \Db\Column && $dbColumn->getConstantValues())
                             {
                                 $array = $dbColumn->getConstantValues();
-
-                                if ($array instanceof \Db\ConstantValues)
-                                {
-                                    $array = $array->getArray();
-                                }
-
                                 $valueDescription = '';
 
                                 if (isset($array[$value]) && $array[$value])
@@ -524,6 +518,41 @@ class Engine
         $this->getLayout()->loadHTML($html);
 
         return $this;
+    }
+
+    /**
+     * Add a custom font to mpdf
+     * @param Mpdf $mpdf mpdf object
+     * @param array $fonts_list array
+     */
+    protected function addCustomFont($mpdf, $fonts_list)
+    {
+        // Logic from line 1146 mpdf.pdf - $this->available_unifonts = array()...
+        foreach ($fonts_list as $f => $fs)
+        {
+            // add to fontdata array
+            $mpdf->fontdata[$f] = $fs;
+
+            // add to available fonts array
+            if (isset($fs['R']) && $fs['R'])
+            {
+                $mpdf->available_unifonts[] = $f;
+            }
+            if (isset($fs['B']) && $fs['B'])
+            {
+                $mpdf->available_unifonts[] = $f . 'B';
+            }
+            if (isset($fs['I']) && $fs['I'])
+            {
+                $mpdf->available_unifonts[] = $f . 'I';
+            }
+            if (isset($fs['BI']) && $fs['BI'])
+            {
+                $mpdf->available_unifonts[] = $f . 'BI';
+            }
+        }
+
+        $mpdf->default_available_fonts = $mpdf->available_unifonts;
     }
 
 }

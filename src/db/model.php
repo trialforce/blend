@@ -1156,12 +1156,15 @@ class Model
                 $v = $v->toDb();
             }
 
-            $column = $columns[$k];
-
-            //add suport to decimal values
-            if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+            if (isset($columns[$k]))
             {
-                $v = \Type\Decimal::get($v)->toDb();
+                $column = $columns[$k];
+
+                //add suport to decimal values
+                if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+                {
+                    $v = \Type\Decimal::get($v)->toDb();
+                }
             }
 
             $array[$k] = $v;

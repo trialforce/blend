@@ -816,6 +816,7 @@ class Crud extends \Page\Page
     public function createFixedFilter($idColumn, $options, $defaultValue = '', $allLabel = 'Todos', $onlyFilter = false)
     {
         $column = $this->model->getColumn($idColumn);
+        $isSearchColumn = $column instanceof \Db\SearchColumn;
         $label = $column ? $column->getLabel() : $idColumn;
 
         $grid = $this->getGrid();
@@ -859,7 +860,8 @@ class Crud extends \Page\Page
         //add support for @id parameter
         if ($valorFiltro || $valorFiltro === '0' && $firstLeter != '@')
         {
-            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro));
+            $type = $isSearchColumn ? \Db\Cond::TYPE_HAVING : \Db\Cond::TYPE_NORMAL;
+            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro, $type));
         }
 
         return $campo;

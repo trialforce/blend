@@ -1,6 +1,7 @@
 <?php
 
 namespace Page;
+
 use DataHandle\Request;
 use DataHandle\Config;
 use DataHandle\Session;
@@ -612,7 +613,7 @@ class Page extends \View\Layout
             $grid = $this->getGrid();
         }
 
-        return $grid->exportGridData();
+        return $grid->gridExportData();
     }
 
     /**
@@ -648,6 +649,9 @@ class Page extends \View\Layout
         else
         {
             $grid = $this->getGrid();
+            $ds = $grid->getDataSource();
+            $this->addFiltersToDataSource($ds);
+            $grid->setDataSource($ds);
         }
 
         return $grid->exportGridFile();

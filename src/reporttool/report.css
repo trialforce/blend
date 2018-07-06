@@ -140,12 +140,18 @@ table {
     border-collapse: collapse;
 }
 
-.table {
-    border: 1px solid lightgray;
+.grid table {
+    width: 100%;
 }
 
-.table td, .table th, .table caption {
-    border: 1px solid lightgray;
+.grid table, .table {
+    border: 1px solid #000;
+}
+
+.grid table td, .table td, 
+.grid table th, .table th,
+.grid table caption, .table caption {
+    border: 1px solid #000;
     padding: 4px;
 }
 
