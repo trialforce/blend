@@ -43,7 +43,7 @@ abstract class Combo extends \Component\Component
         $input[] = new Div('dropDownContainer_' . $id, null, 'dropDownContainer');
         $input[] = $this->labelValue = new \View\InputText('labelField_' . $id, NULL, 'labelValue');
 
-        $this->labelValue->setAutoComplete(FALSE);
+        $this->labelValue->setAttribute('autocomplete', 'new_' . $id);
         $this->labelValue->setData('change', "p('" . $this->getLink('onchange', $id) . "');");
         $this->labelValue->setAttribute('onclick', "comboShowDropdown('$id')");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
@@ -197,7 +197,8 @@ abstract class Combo extends \Component\Component
             $table = new Table(null, $tr);
 
             $itens[] = new Div(null, $table);
-        } else
+        }
+        else
         {
             $itens[] = new Div(null, 'Nenhum registro encontrado!');
         }
@@ -209,7 +210,8 @@ abstract class Combo extends \Component\Component
         if ($hideCombo)
         {
             $container->hide();
-        } else
+        }
+        else
         {
             $container->show();
         }

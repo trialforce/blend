@@ -591,6 +591,8 @@ class Page extends \View\Layout
         $views[] = $this->getBodyDiv($div);
 
         $this->append($views);
+
+        $this->byId('q')->focus();
     }
 
     public function createGroupGrid()
@@ -648,10 +650,25 @@ class Page extends \View\Layout
         }
         else
         {
+            //evoid memory break
             $grid = $this->getGrid();
             $ds = $grid->getDataSource();
             $this->addFiltersToDataSource($ds);
+            $ds->setPage(NULL)->setLimit(NULL);
             $grid->setDataSource($ds);
+
+            if ($grid->getCallInterfaceFunctions() && $this instanceof \Page\BeforeGridCreateRow)
+            {
+                $data = $ds->getData();
+
+                if (is_iterable($data))
+                {
+                    foreach ($data as $item)
+                    {
+                        $this->beforeGridCreateRow($item, null, NULL);
+                    }
+                }
+            }
         }
 
         return $grid->exportGridFile();

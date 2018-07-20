@@ -447,7 +447,7 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Retorna o título da página
+     * Return page title
      *
      * @return string
      */
@@ -687,6 +687,32 @@ class Crud extends \Page\Page
         toast('OK! Gravado!', 'success');
 
         \App::redirect($this->getPageUrl());
+    }
+
+    /**
+     * Duplicate the currente mdoel, ask confirmation
+     */
+    public function duplicar()
+    {
+        \App::dontChangeUrl();
+
+        $view[] = new \View\Label('label', null, 'Tem certeza que deseja duplicar o registro?');
+
+        \View\Blend\Popup::prompt('Duplicação', $view, 'duplicarConfirmado', null, 'small')->show();
+    }
+
+    /**
+     * Really duplicate current model
+     */
+    public function duplicarConfirmado()
+    {
+        \App::dontChangeUrl();
+        $model = $this->setModelFromIdUrl();
+        $model->duplicate();
+
+        \App::redirect($this->getPageUrl() . '/editar/' . $model->getId(), true);
+
+        toast('Registro duplicado com sucesso !');
     }
 
     public function editarDialog()

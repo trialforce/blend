@@ -444,7 +444,7 @@ function correctUrl(url)
     }
 
     //remove # and after from end
-    url = url.split('#')[0]
+    url = url.split('#')[0];
 
     //remove ? in end
     if (url.substr(-1, 1) === '?')
@@ -1217,17 +1217,12 @@ function openSubMenu(element)
     //esconde todos menus
     //submenu atual
     var submenu = element.parent().children('div');
-    //console.log(submenu);
-
-    console.log(submenu.attr('id'), submenu.css('display'));
 
     if (submenu.css('display') == 'block')
     {
-        console.log('a');
         submenu.stop().slideUp('fast');
     } else
     {
-        console.log('b');
         submenu.stop().slideDown('fast');
     }
 
@@ -1397,19 +1392,41 @@ function arrayContains(array, obj)
 function preparaVer()
 {
     //remove botão de adicionar
-    $('#btnInsert').remove();
+    $('#btnInsert').hide().data('hide-by-see');
     //remove filtros
-    $('#savedListGroup').remove();
-    //adiciona botão de voltar
-    $('#btnGroup').append('<button id=\"btnVoltar\" class=\"btn\" onclick=\"history.back(1);\" type=\"button\" title=\"Volta para a listagem!\" data-form-changed-advice=\"1\"><i class=\"fa fa-arrow-left\"></i><span class=\"btn-label\"> Voltar</span></button>');
+    $('#savedListGroup').hide();
+
+    //adiciona botão de voltar, caso necessáiro
+    if ($('#btnVoltar').length == 0)
+    {
+        $('#btnGroup').append('<button id=\"btnVoltar\" class=\"btn\" onclick=\"history.back(1);\" type=\"button\" title=\"Volta para a listagem!\" data-form-changed-advice=\"1\"><i class=\"fa fa-arrow-left\"></i><span class=\"btn-label\"> Voltar</span></button>');
+    }
+
+    //esconde botões de adicionar de mestre-detalhe
+    $('[id^="btnAdd"]').hide().data('hide-by-see');
+    //esconde botão de salvar
+    $('#btnSalvar').hide().data('hide-by-see');
+
+    $('.fa-trash-o').each(
+            function ()
+            {
+                var parent = $(this).parent();
+                
+                if (parent.prop('tagName') == 'A')
+                {
+                    parent.data('hide-by-see');
+                    parent.hide();
+                }
+            }
+    );
 
     //coloca todos campos como readonly e disabled
     $('input, select, textarea').each(
-        function ()
-        {
-            $(this).attr('disabled', 'disabled');
-            //$(this).attr('readonly', 'readonly');
-        }
+            function ()
+            {
+                $(this).attr('disabled', 'disabled');
+                //$(this).attr('readonly', 'readonly');
+            }
     );
 }
 

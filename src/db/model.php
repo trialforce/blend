@@ -474,7 +474,6 @@ class Model
     public static function getCatalogClass()
     {
         $name = self::getName();
-        ;
         $conn = $name::getConnInfo();
 
         if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
@@ -725,7 +724,90 @@ class Model
     }
 
     /**
-     * Faz a inserção de um registro
+     * Delete com filtros
+     *
+     * @param array $filters
+     * @return array
+     */
+    public static function remove($filters)
+    {
+        $name = self::getName();
+        $where = $name::getWhereFromFilters($filters);
+        $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->sql);
+
+        return $name::getConn()->execute($sql, $where->args);
+    }
+
+    /**
+     * Remove passando um array de ids
+     *
+     * @param array $ids
+     * @return array
+     */
+    public static function removeInId(array $ids)
+    {
+        $name = self::getName();
+        $filters[] = new \Db\Cond($name::getPrimaryKey() . ' IN (' . implode(',', $ids) . ')');
+        return $name::remove($filters);
+    }
+
+    /**
+     * Order and array of models by a passed property
+     *
+     * @param array $array
+     * @param string $property
+     * @return array
+     */
+    public static function orderArrayByProperty($array, $property)
+    {
+        $result = NULL;
+
+        if (is_array($array))
+        {
+            foreach ($array as $model)
+            {
+                $index = $model->getValue($property);
+                $result[$index] = $model;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Return connection id
+     *
+     * @return string
+     */
+    public static function getConnId()
+    {
+        return 'default';
+    }
+
+    /**
+     * Return conn info
+     *
+     * @return \Db\ConnInfo
+     */
+    public static function getConnInfo()
+    {
+        $name = self::getName();
+        return \Db\Conn::getConnInfo($name::getConnId());
+    }
+
+    /**
+     * Return the connection of current model
+     *
+     * @return \Db\Conn
+     */
+    public static function getConn()
+    {
+        $name = self::getName();
+        return \Db\Conn::getInstance($name::getConnId());
+    }
+
+    /**
+     * Make a databse insert
      *
      * @return int
      */
@@ -752,7 +834,7 @@ class Model
                 $this->$id = $ok[0]->{$id};
             }
         }
-        else //mysql é necessário obter em um novo select
+        else //mysql is necessary to get a new sql
         {
             $conn = $name::getConn();
             $ok = $conn->execute($sql, $columnValues);
@@ -800,8 +882,8 @@ class Model
     }
 
     /**
-     * Salva, faz a persistencia.
-     * Executa inserção ou atualização de acordo com a necessidade.
+     * Save the model in database, make persistence.
+     * Call insert or update according situation
      *
      * @return integer
      */
@@ -853,6 +935,17 @@ class Model
         {
             return $this->insert($columns);
         }
+    }
+
+    /**
+     * Duplicate current object in database
+     *
+     * @return int
+     */
+    public function duplicate()
+    {
+        $this->setId(null);
+        return $this->insert();
     }
 
     /**
@@ -924,34 +1017,6 @@ class Model
     }
 
     /**
-     * Delete com filtros
-     *
-     * @param array $filters
-     * @return array
-     */
-    public static function remove($filters)
-    {
-        $name = self::getName();
-        $where = $name::getWhereFromFilters($filters);
-        $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->sql);
-
-        return $name::getConn()->execute($sql, $where->args);
-    }
-
-    /**
-     * Remove passando um array de ids
-     *
-     * @param array $ids
-     * @return array
-     */
-    public static function removeInId(array $ids)
-    {
-        $name = self::getName();
-        $filters[] = new \Db\Cond($name::getPrimaryKey() . ' IN (' . implode(',', $ids) . ')');
-        return $name::remove($filters);
-    }
-
-    /**
      * Method used to auto mount selects
      *
      * @return string
@@ -979,38 +1044,6 @@ class Model
     public function getTitleLabel()
     {
         return '';
-    }
-
-    /**
-     * Return connection id
-     *
-     * @return string
-     */
-    public static function getConnId()
-    {
-        return 'default';
-    }
-
-    /**
-     * Return conn info
-     *
-     * @return \Db\ConnInfo
-     */
-    public static function getConnInfo()
-    {
-        $name = self::getName();
-        return \Db\Conn::getConnInfo($name::getConnId());
-    }
-
-    /**
-     * Return the connection of current model
-     *
-     * @return \Db\Conn
-     */
-    public static function getConn()
-    {
-        $name = self::getName();
-        return \Db\Conn::getInstance($name::getConnId());
     }
 
     /**
@@ -1064,7 +1097,7 @@ class Model
     }
 
     /**
-     * Define a value in current model. Supports
+     * Define a value in current model.
      *
      * Support get/set or public variables, according to the situation.
      *
@@ -1160,7 +1193,7 @@ class Model
             {
                 $column = $columns[$k];
 
-                //add suport to decimal values
+                //add suport to decimal values, even if they are not using type
                 if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
                 {
                     $v = \Type\Decimal::get($v)->toDb();
@@ -1181,29 +1214,6 @@ class Model
     public function getJson()
     {
         return json_encode($this->getArray());
-    }
-
-    /**
-     * Order and array of models by a passed property
-     *
-     * @param array $array
-     * @param string $property
-     * @return array
-     */
-    public static function orderArrayByProperty($array, $property)
-    {
-        $result = NULL;
-
-        if (is_array($array))
-        {
-            foreach ($array as $model)
-            {
-                $index = $model->getValue($property);
-                $result[$index] = $model;
-            }
-        }
-
-        return $result;
     }
 
     /**

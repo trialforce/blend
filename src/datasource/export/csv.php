@@ -1,6 +1,7 @@
 <?php
 
 namespace DataSource\Export;
+
 use DataHandle\Session;
 
 /**
@@ -69,7 +70,7 @@ class Csv
         //store file on disk
         $csvPath = str_replace('\\', '_', strtolower($relativePath) . '.csv');
         $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $csvPath);
-        //remove file to avoid erro
+        //remove file to avoid error
         $file->remove();
         $file->save(utf8_decode($csv));
 
