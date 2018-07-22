@@ -1,7 +1,6 @@
 <?php
 
 namespace Component;
-
 use DataHandle\Request;
 use View\Td;
 use View\Tr;
@@ -82,7 +81,10 @@ abstract class Combo extends \Component\Component
 
     public function hideValue()
     {
-        $this->getContent()->addClass('hideValue');
+        if ($this->getContent())
+        {
+            $this->getContent()->addClass('hideValue');
+        }
     }
 
     /**
