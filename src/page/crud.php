@@ -1,7 +1,6 @@
 <?php
 
 namespace Page;
-
 use DataHandle\Request;
 use DataHandle\Get;
 use \View\Ext\HighChart;
@@ -686,7 +685,7 @@ class Crud extends \Page\Page
         \App::dontChangeUrl();
         toast('OK! Gravado!', 'success');
 
-        \App::redirect($this->getPageUrl());
+        \App::redirect($this->getPageUrl(), TRUE);
     }
 
     /**

@@ -741,7 +741,7 @@ class DateTime implements \Type\Generic
     }
 
     /**
-     * Returna list of months
+     * Return list o months
      *
      * @return array
      *

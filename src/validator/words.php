@@ -15,20 +15,20 @@ class Words extends \Validator\Validator
         return $this->wordCount;
     }
 
-    public function setWordCount( $wordCount )
+    public function setWordCount($wordCount)
     {
         $this->wordCount = $wordCount;
 
         return $this;
     }
 
-    public function validate( $value )
+    public function validate($value = null)
     {
-        $error = parent::validate( $value );
+        $error = parent::validate($value);
 
-        $words = explode( ' ', $this->value );
+        $words = explode(' ', $this->value);
 
-        if ( count( $words ) < $this->wordCount )
+        if (count($words) < $this->wordCount)
         {
             $error[] = 'É necessário preencher ao menos ' . $this->wordCount . ' palavras.';
         }
