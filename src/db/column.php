@@ -63,17 +63,16 @@ class Column implements \Disk\JsonAvoidPropertySerialize
      */
     const TYPE_DATETIME = 'datetime';
 
-	/**
-	* Unknow database column tipe
-	*/
-	const TYPE_UNKNOW = 'unknow';
-	
+    /**
+     * Unknow database column tipe
+     */
+    const TYPE_UNKNOW = 'unknow';
+
     /**
      * Auto increment
      */
     const EXTRA_AUTO_INCREMENT = 'auto_increment';
 
-	
     /**
      * Name of the table
      *
@@ -360,28 +359,28 @@ class Column implements \Disk\JsonAvoidPropertySerialize
     public function getReferenceSql($withAs = TRUE)
     {
         $referenceClass = '\Model\\' . $this->getReferenceTable();
-		$catalog = $referenceClass::getCatalogClass();
-		$referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
+        $catalog = $referenceClass::getCatalogClass();
+        $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
-		$tableName = $catalog::parseTableNameForQuery($this->getTableName());
-		
-		$top = '';
-		$limit = '';
-		
-		if ( strtolower($catalog) == '\db\mssqlcatalog' )
-		{
-			$top = 'TOP 1 ';
-		}
-		else
-		{
-			$limit = ' LIMIT 1 ';
-		}
-		
-        $sql = '( SELECT ' .$top. $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $tableName . '.' . $this->getName() . $limit.')';
+        $tableName = $catalog::parseTableNameForQuery($this->getTableName());
+
+        $top = '';
+        $limit = '';
+
+        if (strtolower($catalog) == '\db\mssqlcatalog')
+        {
+            $top = 'TOP 1 ';
+        }
+        else
+        {
+            $limit = ' LIMIT 1 ';
+        }
+
+        $sql = '( SELECT ' . $top . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $tableName . '.' . $this->getName() . $limit . ')';
 
         if ($withAs)
         {
-            $sql .=' AS ' . $this->getName() . 'Description ';
+            $sql .= ' AS ' . $this->getName() . 'Description ';
         }
 
         return $sql;
@@ -390,7 +389,7 @@ class Column implements \Disk\JsonAvoidPropertySerialize
     public function getReferenceSqlForValue($value)
     {
         $referenceClass = '\Model\\' . $this->getReferenceTable();
-		$catalog = $referenceClass::getCatalogClass();
+        $catalog = $referenceClass::getCatalogClass();
         $referenceTable = \Db\Catalog::parseTableNameForQuery($referenceClass::getTableName());
 
         $sql = 'SELECT ' . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $value . ' LIMIT 1 ';
