@@ -293,7 +293,7 @@ WHERE index_name = '{$indexName}'";
         {
             foreach ($table as $index => $value)
             {
-                $table[$index] = \Db\Catalog::parseTableNameForQuery($value);
+                $table[$index] = self::parseTableNameForQuery($value);
             }
 
             return $table;
@@ -353,6 +353,7 @@ WHERE index_name = '{$indexName}'";
     }
 
 }
+
 if (!class_exists('\Db\Catalog'))
 {
 
@@ -360,4 +361,5 @@ if (!class_exists('\Db\Catalog'))
     {
 
     }
+
 }
