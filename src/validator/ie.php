@@ -1382,10 +1382,10 @@ class Ie extends \Validator\Validator
         return ($dig == $inscE[10]);
     }
 
-    public function validate($value =NULL)
+    public function validate($value = NULL)
     {
         $error = parent::validate($value);
-        parent::somenteNumeros();
+        $this->value = parent::unmask($this->value);
 
         $ok = $this->CheckIE($this->value, $this->uf);
 

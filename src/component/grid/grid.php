@@ -1,7 +1,6 @@
 <?php
 
 namespace Component\Grid;
-
 use DataHandle\Request;
 use DataHandle\Session;
 
@@ -555,11 +554,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     protected function createTr($columns, $index, $item)
     {
         $tr = new \View\Tr(NULL, NULL, $index % 2 ? 'alt' : 'normal');
-
-        if (method_exists($item, 'fillExtraData'))
-        {
-            $item = $item->fillExtraData();
-        }
 
         //parse item data to grid
         $item2 = $this->parseItemData($item);

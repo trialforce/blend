@@ -71,7 +71,7 @@ class Phone extends \Validator\Validator
             return $error;
         }
 
-        parent::somenteNumeros();
+        $this->value = self::unmask($this->value);
 
         if ($this->verificaIguais($this->value, '0') || $this->verificaIguais($this->value, '1') || $this->verificaIguais($this->value, '2') || $this->verificaIguais($this->value, '3') || $this->verificaIguais($this->value, '4') || $this->verificaIguais($this->value, '5') || $this->verificaIguais($this->value, '6') || $this->verificaIguais($this->value, '7') || $this->verificaIguais($this->value, '8') || $this->verificaIguais($this->value, '9'))
         {

@@ -3,14 +3,22 @@
 /* Active php gzip */
 ini_set('zlib.output_compression', 'On');
 
-//System constants
-define('DS', '/'); //DIRECTORY_SEPARATOR
+/**
+ * Directory separaror
+ * @deprecated since version 28/07/2018
+ */
+define('DS', '/');
+/**
+ * Current timestamp in brazilial format
+ * @deprecated since version 28/07/2018
+ */
 define('NOW', date('d/m/Y H:i:s'));
 
 require 'autoload.php';
 
 /**
  * Adjust path to system bar
+ * @deprecated since version 28/07/2018
  *
  * @param string $path
  * @return string
@@ -41,6 +49,7 @@ function alert($message)
  * info
  * alert
  * success
+ * Or any other css class
  *
  * @param string $message toast message, can be html
  * @param string $type a custom css type, in case a extra class in css.
@@ -80,22 +89,6 @@ function globRecursive($pattern, $flags = 0)
     }
 
     return $files;
-}
-
-//polyfill por php < 7.0
-if (!function_exists('is_iterable'))
-{
-
-    /**
-     * Verify if an element is iterable
-     * @param mixed $obj
-     * @return bool
-     */
-    function is_iterable($obj)
-    {
-        return is_array($obj) || (is_object($obj) && $obj instanceof \Traversable);
-    }
-
 }
 
 /**

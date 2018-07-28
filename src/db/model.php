@@ -20,6 +20,11 @@ class Model
     const ORDER_DESC = 'DESC';
 
     /**
+     * Auto increment constant
+     */
+    const DB_AUTO_INCREMENT = 'auto_increment';
+
+    /**
      * Columns for cache, avoid large memory usage
      *
      * @var array
@@ -32,60 +37,6 @@ class Model
      * @var array
      */
     protected static $pksCache;
-
-    /**
-     * Auto increment
-     */
-    const DB_AUTO_INCREMENT = 'auto_increment';
-
-    /**
-     * Return the label of model/table.
-     *
-     * You can overwrite to ajdust.
-     *
-     * @return string
-     */
-    public static function getLabel()
-    {
-        $name = self::getName();
-        return \Db\Catalog::tableExists($name::getTableName())->label;
-    }
-
-    /**
-     * Return the label of model in plural.
-     *
-     * You can overwrite to ajdust.
-     *
-     * @return string
-     */
-    public static function getLabelPlural()
-    {
-        $name = self::getName();
-        return $name::getLabel() . 's';
-    }
-
-    /**
-     * Return the name of class/table/model
-     *
-     * @return string
-     */
-    public static function getName()
-    {
-        //necessary because namespace
-        return '\\' . get_called_class();
-    }
-
-    /**
-     * Return the table name related to this model.
-     * Can be overide where table name differs from class name.
-     *
-     * @return string
-     */
-    public static function getTableName()
-    {
-        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
-        return lcfirst($tableName);
-    }
 
     /**
      * Return the columns indexed by name
@@ -140,28 +91,6 @@ class Model
         $name = self::getName();
 
         self::$columnsCache[$name][$column->getName()] = $column;
-    }
-
-    /**
-     * Return all extra columns
-     *
-     * @return array of \Db\ExtraColumn
-     */
-    public static function getExtraColumns()
-    {
-        $name = self::getName();
-        $columns = $name::getColumns();
-        $extraColumns = NULL;
-
-        foreach ($columns as $column)
-        {
-            if ($column instanceof \Db\ExtraColumn)
-            {
-                $extraColumns[$column->getName()] = $column;
-            }
-        }
-
-        return $extraColumns;
     }
 
     /**
@@ -273,7 +202,7 @@ class Model
             $value = $this->getValueDb($columnName);
             $check = $avoidPk ? ($column->isPrimaryKey() && $value == '' ) : $value === '';
 
-            if ($column instanceof \Db\SearchColumn || $column instanceof \Db\ExtraColumn || $check)
+            if ($column instanceof \Db\SearchColumn || $check)
             {
                 continue;
             }
@@ -285,22 +214,15 @@ class Model
     }
 
     /**
-     * Garante que a variável esteja num array
-     * caso não seja, e limpa o desnecessário.
+     * Convert a variable to array if not
+     * @deprecated since version 28/07/2018
      *
      * @param mixed $var
      * @return array
      */
     protected static function toArray($var)
     {
-        if (!is_array($var))
-        {
-            $var = array($var);
-        }
-
-        $var = array_filter($var);
-
-        return $var;
+        return is_array($var) ? array_filter($var) : array($var);
     }
 
     /**
@@ -471,27 +393,6 @@ class Model
         return $result;
     }
 
-    public static function getCatalogClass()
-    {
-        $name = self::getName();
-        $conn = $name::getConnInfo();
-
-        if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
-        {
-            return '\Db\MysqlCatalog';
-        }
-        else if ($conn->getType() == \Db\ConnInfo::TYPE_POSTGRES)
-        {
-            return '\Db\PgsqlCatalog';
-        }
-        else if ($conn->getType() == \Db\ConnInfo::TYPE_MSSQL)
-        {
-            return '\Db\MssqlCatalog';
-        }
-
-        return '\Db\MysqlCatalog';
-    }
-
     /**
      * Execute a search in database and return a list
      *
@@ -519,7 +420,7 @@ class Model
     }
 
     /**
-     * Faz a contagem
+     * Make a count on database
      *
      * @param type $filters
      *
@@ -775,38 +676,6 @@ class Model
     }
 
     /**
-     * Return connection id
-     *
-     * @return string
-     */
-    public static function getConnId()
-    {
-        return 'default';
-    }
-
-    /**
-     * Return conn info
-     *
-     * @return \Db\ConnInfo
-     */
-    public static function getConnInfo()
-    {
-        $name = self::getName();
-        return \Db\Conn::getConnInfo($name::getConnId());
-    }
-
-    /**
-     * Return the connection of current model
-     *
-     * @return \Db\Conn
-     */
-    public static function getConn()
-    {
-        $name = self::getName();
-        return \Db\Conn::getInstance($name::getConnId());
-    }
-
-    /**
      * Make a databse insert
      *
      * @return int
@@ -834,7 +703,7 @@ class Model
                 $this->$id = $ok[0]->{$id};
             }
         }
-        else //mysql is necessary to get a new sql
+        else //mysql is necessary to call a method
         {
             $conn = $name::getConn();
             $ok = $conn->execute($sql, $columnValues);
@@ -1029,6 +898,7 @@ class Model
 
     /**
      * Method used to auto mount selects (label)
+     * when using foreign key
      *
      * @return string
      */
@@ -1077,7 +947,7 @@ class Model
     }
 
     /**
-     * Return a value from model, detect set/get or public variable
+     * Return a value from model, detect set/get or public variable.
      *
      * Ready for database
      *
@@ -1217,8 +1087,10 @@ class Model
     }
 
     /**
-     * Supports the search for variables in the model. Even if they are not declared.
-     * In other words variables declared without support models, but avoids error when using PHP_STRICT.
+     * Supports the search for variables in the model.
+     * Even if they are not declared.
+     * In other words variables declared without support models,
+     * but avoids error when using PHP_STRICT.
      *
      * @param string $name
      * @return mixed
@@ -1241,6 +1113,113 @@ class Model
     public function __toString()
     {
         return $this->getName();
+    }
+
+    /**
+     * Get the catalog class name of this model
+     *
+     * @return string
+     */
+    public static function getCatalogClass()
+    {
+        $name = self::getName();
+        $conn = $name::getConnInfo();
+
+        if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
+        {
+            return '\Db\MysqlCatalog';
+        }
+        else if ($conn->getType() == \Db\ConnInfo::TYPE_POSTGRES)
+        {
+            return '\Db\PgsqlCatalog';
+        }
+        else if ($conn->getType() == \Db\ConnInfo::TYPE_MSSQL)
+        {
+            return '\Db\MssqlCatalog';
+        }
+
+        return '\Db\MysqlCatalog';
+    }
+
+    /**
+     * Return connection id
+     *
+     * @return string
+     */
+    public static function getConnId()
+    {
+        return 'default';
+    }
+
+    /**
+     * Return conn info of current method
+     *
+     * @return \Db\ConnInfo
+     */
+    public static function getConnInfo()
+    {
+        $name = self::getName();
+        return \Db\Conn::getConnInfo($name::getConnId());
+    }
+
+    /**
+     * Return the connection of current model
+     *
+     * @return \Db\Conn
+     */
+    public static function getConn()
+    {
+        $name = self::getName();
+        return \Db\Conn::getInstance($name::getConnId());
+    }
+
+    /**
+     * Return the label of model/table.
+     *
+     * You can overwrite to ajdust.
+     *
+     * @return string
+     */
+    public static function getLabel()
+    {
+        $name = self::getName();
+        return \Db\Catalog::tableExists($name::getTableName())->label;
+    }
+
+    /**
+     * Return the label of model in plural.
+     *
+     * You can overwrite to ajdust.
+     *
+     * @return string
+     */
+    public static function getLabelPlural()
+    {
+        $name = self::getName();
+        return $name::getLabel() . 's';
+    }
+
+    /**
+     * Return the name of class/table/model
+     *
+     * @return string
+     */
+    public static function getName()
+    {
+        //necessary because namespace
+        return '\\' . get_called_class();
+    }
+
+    /**
+     * Return the table name related to this model.
+     * Can be overide where table name differs from class name.
+     *
+     * @return string
+     */
+    public static function getTableName()
+    {
+        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
+        return lcfirst($tableName);
     }
 
 }

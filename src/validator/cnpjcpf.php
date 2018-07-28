@@ -3,12 +3,44 @@
 namespace Validator;
 
 /**
- * Classe de validação de CPF e CNPJ
+ * Validator and type or brasizilian CPF/CPNJ
  */
 class CnpjCpf extends \Validator\Validator
 {
 
-    public function validate($value=NULL)
+    public function getValue()
+    {
+        return self::unmask($this->value);
+    }
+
+    public function setValue($value)
+    {
+        if ($value instanceof \Type\Generic)
+        {
+            $value = $value->getValue();
+        }
+
+        $this->value = $value;
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return self::mask($this->value);
+    }
+
+    public function toHuman()
+    {
+        return self::mask($this->value);
+    }
+
+    public function toDb()
+    {
+        return self::unmask($this->value);
+    }
+
+    public function validate($value = NULL)
     {
         $error = parent::validate($value);
         $this->value = $this->unmask($value);
@@ -176,6 +208,16 @@ class CnpjCpf extends \Validator\Validator
         }
 
         return $mascara;
+    }
+
+    public static function get($value = null)
+    {
+        return new \Type\CpfCnpj($value);
+    }
+
+    public static function value($value = null)
+    {
+        return \Type\CpfCnpj::get($value)->getValue();
     }
 
 }

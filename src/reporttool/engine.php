@@ -290,11 +290,6 @@ class Engine
                 {
                     foreach ($data as $item)
                     {
-                        if (method_exists($item, 'fillExtraData'))
-                        {
-                            $item = $item->fillExtraData();
-                        }
-
                         $myResult = $originalText;
 
                         foreach ($columns as $columnName => $column)
