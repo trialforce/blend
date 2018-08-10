@@ -2,14 +2,16 @@
 
 namespace DataSource;
 
-class Sql extends \DataSource\DataSource
+class Sql extends \DataSource\Vector
 {
 
     protected $file;
+    protected $query;
     protected $fileCount;
     protected $params;
+    protected $connInfo;
 
-    public function __construct($sqlRelativePath, $params)
+    public function __construct($sqlRelativePath = null, $params = null)
     {
         if ($sqlRelativePath)
         {
@@ -48,6 +50,34 @@ class Sql extends \DataSource\DataSource
         return $this;
     }
 
+    public function setQuery($query)
+    {
+        $this->query = $query;
+        return $this;
+    }
+
+    public function getQuery()
+    {
+        if (!$this->query && $this->file)
+        {
+            $this->query = $this->file->getContent();
+        }
+
+        return $this->query;
+    }
+
+    function getConnInfo()
+    {
+        return $this->connInfo;
+    }
+
+    function setConnInfo($connInfo)
+    {
+        $this->connInfo = $connInfo;
+
+        return $this;
+    }
+
     public function executeAggregator(Aggregator $aggregator)
     {
 
@@ -80,7 +110,7 @@ class Sql extends \DataSource\DataSource
 
     public function getData()
     {
-        $result = \Db\Conn::getInstance()->query($this->file->getContent(), $this->params);
+        $result = \Db\Conn::getInstance($this->connInfo)->query($this->getQuery(), $this->params);
 
         if (is_array($result) && isset($result[0]) && !$this->columns)
         {

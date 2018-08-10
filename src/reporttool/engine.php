@@ -446,6 +446,11 @@ class Engine
         return $childContent;
     }
 
+    protected function replaceVariable($var, $value, $content)
+    {
+        return str_replace('{$' . $var . '}', $value, $content);
+    }
+
     /**
      * Replace one item (line) from datasource
      *
@@ -465,7 +470,8 @@ class Engine
             $column = null;
             //replace default columns value
             $value = $this->getValue($item, $columnName);
-            $myResult = str_replace('{$' . $columnName . '}', $value, $myResult);
+            $myResult = $this->replaceVariable($columnName, $value, $myResult);
+            //$myResult = str_replace('{$' . $columnName . '}', $value, $myResult);
 
             $dbColumn = null;
 
@@ -491,13 +497,24 @@ class Engine
                 $valueDescription = $this->getValue($item, $columnName . 'Description');
             }
 
-            $myResult = str_replace('{$' . $columnName . 'Description}', $valueDescription, $myResult);
+            //make replace even it's empty
+            $myResult = $this->replaceVariable($columnName . 'Description', $valueDescription, $myResult);
+        }
+
+        //after all collumn values, make simple replace by public propertys
+        if (is_array($item) || is_object($item))
+        {
+            foreach ($item as $prop => $value)
+            {
+                $myResult = $this->replaceVariable($prop, $value, $myResult);
+            }
         }
 
         //make the child replace
         if ($sectionName)
         {
             $childsDs = $this->getChildDataSources($sectionName);
+
             if (is_array($childsDs))
             {
                 $childResult = '';
