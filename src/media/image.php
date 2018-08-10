@@ -460,14 +460,14 @@ class Image extends \Disk\File
             }
             else
             {
-				if ( !file_exists($this->path))
-				{
-					$this->sizes['width'] = null;
+                if (!file_exists($this->path))
+                {
+                    $this->sizes['width'] = null;
                     $this->sizes['height'] = null;
-					
-					return $this->sizes;
-				}
-				
+
+                    return $this->sizes;
+                }
+
                 //works without load the image (read from path)
                 $this->sizes = getimagesize($this->path);
 
@@ -501,11 +501,11 @@ class Image extends \Disk\File
     {
         //load if not make yet
         $this->load();
-		
-		if ($this->getWidth()== 0 || $this->getHeight()==0)
-		{
-			return $this;
-		}
+
+        if ($this->getWidth() == 0 || $this->getHeight() == 0)
+        {
+            return $this;
+        }
 
         if (!$width && !$height)
         {
@@ -530,11 +530,11 @@ class Image extends \Disk\File
     {
         $dstW = intval($dstW);
         $dstH = intval($dstH);
-		
-		if ( $dstW == 0 || $dstH == 0)
-		{
-			return $this;
-		}
+
+        if ($dstW == 0 || $dstH == 0)
+        {
+            return $this;
+        }
 
         if ($dstW == 0 || $dstH == 0)
         {
@@ -613,12 +613,6 @@ class Image extends \Disk\File
         return in_array($format, self::listImagesTypes());
     }
 
-    /**
-     * Output image inline
-     *
-     * @param type $disposition
-     * @param \Media\Request $request
-     */
     public function outputInline($disposition = 'inline', $request = NULL)
     {
         if ($request instanceof \DataHandle\Request)
@@ -630,16 +624,9 @@ class Image extends \Disk\File
             {
                 $this->resize($width, $height);
             }
-            else
-            {
-                $this->load();
-            }
         }
-        else
-        {
 
-            $this->load();
-        }
+        $this->load();
 
         header('Content-Description: File Transfer');
         header("Content-Type: " . $this->getMimeType());
@@ -652,7 +639,17 @@ class Image extends \Disk\File
         header("Last-Modified: " . $this->getMTime());
         header('Connection: close');
 
+        $this->outputBrowser();
+    }
+
+    protected function outputBrowser()
+    {
         $extension = $this->getExtension();
+
+        if (!$this->content)
+        {
+            return null;
+        }
 
         if ($extension == Image::EXT_PNG)
         {
@@ -670,6 +667,26 @@ class Image extends \Disk\File
         {
             imagexbm($this->content);
         }
+    }
+
+    /**
+     * Return the image as base64 string
+     * @return type
+     */
+    public function toBase64()
+    {
+        $this->load();
+        ob_start();
+        $this->outputBrowser();
+        $imageData = ob_get_contents();
+        ob_end_clean();
+
+        if ($imageData)
+        {
+            return 'data:' . $this->getMimeType() . ';base64,' . base64_encode($imageData);
+        }
+
+        return null;
     }
 
     /**

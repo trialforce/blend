@@ -39,9 +39,22 @@ class Engine
 
     /**
      * DataSources
-     * @var mixed
+     * @var Array
      */
     protected $dataSources;
+
+    /**
+     * Child Datasources
+     *
+     * @var array
+     */
+    protected $childDataSources;
+
+    /**
+     * Child conditions
+     * @var array
+     */
+    protected $childCond;
 
     /**
      * Use default style sheet
@@ -123,6 +136,11 @@ class Engine
         return $this->header;
     }
 
+    public function getContent()
+    {
+        return $this->content;
+    }
+
     function getFooter()
     {
         if (!$this->footer)
@@ -173,6 +191,22 @@ class Engine
         }
 
         return NULL;
+    }
+
+    /**
+     * Add params from a iterable object or array
+     *
+     * @param iterable $iterable
+     */
+    public function addParams($iterable)
+    {
+        if (is_iterable($iterable))
+        {
+            foreach ($iterable as $property => $value)
+            {
+                $this->setParam($property, $value);
+            }
+        }
     }
 
     public function setTitle($title)
@@ -226,21 +260,82 @@ class Engine
         return $this;
     }
 
+    /**
+     * Return the list of datasources
+     *
+     * @return array
+     */
     public function getDataSources()
     {
         return $this->dataSources;
     }
 
+    /**
+     * Add a list of datasources
+     *
+     * @param array $dataSources
+     * @return $this
+     */
     public function setDataSources($dataSources)
     {
         $this->dataSources = $dataSources;
         return $this;
     }
 
+    /**
+     * Add one datasource to the report
+     *
+     * @param \DataSource\DataSource $datasource
+     * @param string $section section name
+     * @return $this
+     */
     public function addDataSource(\DataSource\DataSource $datasource, $section = 'default')
     {
         $this->dataSources[$section] = $datasource;
         return $this;
+    }
+
+    /**
+     * Add a child datasource
+     *
+     * @param \DataSource\DataSource $datasource
+     * @param string $section section name
+     * @param string $childSection child section name
+     *
+     * @return $this
+     */
+    public function addChildDataSource(\DataSource\DataSource $datasource, $section, $childSection, $cond = null)
+    {
+        //convert to array
+        if ($cond)
+        {
+            $cond = is_array($cond) ? $cond : array($cond);
+        }
+
+        $this->childDataSources[$section][$childSection] = $datasource;
+        $this->childCond[$section][$childSection] = $cond;
+
+        return $this;
+    }
+
+    /**
+     * Return all the child datasources
+     *
+     * @return array
+     */
+    public function getChildDataSources($sectionName = null)
+    {
+        if ($sectionName)
+        {
+            if (isset($this->childDataSources[$sectionName]))
+            {
+                return $this->childDataSources[$sectionName];
+            }
+
+            return null;
+        }
+
+        return $this->childDataSources;
     }
 
     public function getDefaultStyleSheet()
@@ -253,6 +348,11 @@ class Engine
         $this->defaultStyleSheet = $defaultStyleSheet;
     }
 
+    /**
+     * Generate the report (make the replaces)
+     *
+     * @return string
+     */
     public function generate()
     {
         if ($this->getDefaultStyleSheet())
@@ -267,81 +367,202 @@ class Engine
 
         if (count($dataSources) > 0)
         {
-            foreach ($dataSources as $section => $dataSource)
+            foreach ($dataSources as $sectionName => $dataSource)
             {
                 $data = $dataSource->getData();
                 //stores for further use
-                $this->data[$section] = $data;
+                $this->data[$sectionName] = $data;
                 $columns = $dataSource->getColumns();
-                $pattern = '/<!--' . $section . '-->.*<!--[!]' . $section . '-->/uis';
-                $matches = '';
+                $sectionContent = $this->getContentForSection($sectionName);
                 $result = '';
-
-                preg_match_all($pattern, $this->content, $matches);
-
-                $originalText = NULL;
-
-                if (isset($matches[0]) && isset($matches[0][0]))
-                {
-                    $originalText = $matches[0][0];
-                }
 
                 if (count($data) > 0)
                 {
                     foreach ($data as $item)
                     {
-                        if (method_exists($item, 'fillExtraData'))
-                        {
-                            $item = $item->fillExtraData();
-                        }
-
-                        $myResult = $originalText;
-
-                        foreach ($columns as $columnName => $column)
-                        {
-                            //column is not used in this case
-                            $column = null;
-                            $value = $this->getValue($item, $columnName);
-                            $myResult = str_replace('{$' . $columnName . '}', $value, $myResult);
-
-                            $dbColumn = null;
-
-                            if ($item instanceof \Db\Model)
-                            {
-                                //support setReferenceDescriptin data
-                                $dbColumn = $item->getColumn($columnName);
-                            }
-
-                            //add suporte for constante values
-                            if ($dbColumn instanceof \Db\Column && $dbColumn->getConstantValues())
-                            {
-                                $array = $dbColumn->getConstantValues();
-                                $valueDescription = '';
-
-                                if (isset($array[$value]) && $array[$value])
-                                {
-                                    $valueDescription = $array[$value];
-                                }
-                            }
-                            else
-                            {
-                                $valueDescription = $this->getValue($item, $columnName . 'Description');
-                            }
-
-                            $myResult = str_replace('{$' . $columnName . 'Description}', $valueDescription, $myResult);
-                        }
-
-                        $result .= $myResult;
+                        $result .= $this->replaceOneItem($item, $columns, $sectionContent, $sectionName);
                     }
                 }
 
-                $this->content = str_replace($originalText, $result, $this->content);
+                $this->content = str_replace($sectionContent, $result, $this->content);
             }
         }
 
         return $this->content;
     }
 
+    /**
+     * Return the part of content for one section
+     *
+     * @param string $section section name
+     *
+     * @return string
+     */
+    public function getContentForSection($section)
+    {
+        $pattern = '/<!--' . $section . '-->.*<!--[!]' . $section . '-->/uis';
+        $matches = '';
+
+        //locate the part of content of this datasource
+        preg_match_all($pattern, $this->content, $matches);
+
+        $sectionContent = NULL;
+
+        if (isset($matches[0]) && isset($matches[0][0]))
+        {
+            $sectionContent = $matches[0][0];
+        }
+
+        if ($sectionContent)
+        {
+            $this->getContentForChildren($sectionContent, 'item');
+        }
+
+        return $sectionContent;
+    }
+
+    /**
+     * Return the content of a children
+     *
+     * @param string $sectionContent section content
+     * @param string $childName child name
+     * @return string
+     */
+    private function getContentForChildren($sectionContent, $childName)
+    {
+        $pattern = '/<!--\*' . $childName . '-->.*<!--\*!' . $childName . '-->/uis';
+        $matches = '';
+
+        //locate the part of content of this child
+        preg_match_all($pattern, $sectionContent, $matches);
+
+        $childContent = NULL;
+
+        if (isset($matches[0]) && isset($matches[0][0]))
+        {
+            $childContent = $matches[0][0];
+        }
+
+        return $childContent;
+    }
+
+    /**
+     * Replace one item (line) from datasource
+     *
+     * @param mixed $item original item
+     * @param array $columns columns
+     * @param string $sectionContent section content
+     * @return string
+     */
+    protected function replaceOneItem($item, $columns, $sectionContent, $sectionName)
+    {
+        $myResult = $sectionContent;
+
+        //passes trough each column of model
+        foreach ($columns as $columnName => $column)
+        {
+            //column is not used in this case
+            $column = null;
+            //replace default columns value
+            $value = $this->getValue($item, $columnName);
+            $myResult = str_replace('{$' . $columnName . '}', $value, $myResult);
+
+            $dbColumn = null;
+
+            //support setReferenceDescriptin data
+            if ($item instanceof \Db\Model)
+            {
+                $dbColumn = $item->getColumn($columnName);
+            }
+
+            //add suport for constant values
+            if ($dbColumn instanceof \Db\Column && $dbColumn->getConstantValues())
+            {
+                $array = $dbColumn->getConstantValues();
+                $valueDescription = '';
+
+                if (isset($array[$value]) && $array[$value])
+                {
+                    $valueDescription = $array[$value];
+                }
+            }
+            else
+            {
+                $valueDescription = $this->getValue($item, $columnName . 'Description');
+            }
+
+            $myResult = str_replace('{$' . $columnName . 'Description}', $valueDescription, $myResult);
+        }
+
+        //make the child replace
+        if ($sectionName)
+        {
+            $childsDs = $this->getChildDataSources($sectionName);
+
+            if (is_array($childsDs))
+            {
+                $childResult = '';
+
+                foreach ($childsDs as $childName => $childDs)
+                {
+                    $childContent = $this->getContentForChildren($sectionContent, $childName);
+                    //clone for each line has its' conditions
+                    $childDs = clone($childDs);
+
+                    //extra filters from child cond
+                    if (isset($this->childCond[$sectionName][$childName]))
+                    {
+                        $conds = $this->childCond[$sectionName][$childName];
+
+                        if (is_array($conds))
+                        {
+                            foreach ($conds as $cond)
+                            {
+                                //clone for each line
+                                $cond = clone($cond);
+                                $cond instanceof \Db\Cond;
+                                $propertyToReplace = $cond->getValue();
+                                $newValue = null;
+
+                                if (is_iterable($propertyToReplace))
+                                {
+                                    foreach ($propertyToReplace as $myProp)
+                                    {
+                                        $newValue[] = $this->getValue($item, $myProp);
+                                    }
+                                }
+
+                                $cond->setValue($newValue);
+                                $childDs->addExtraFilter($cond);
+                            }
+                        }
+                    }
+
+                    $columns = $childDs->getColumns();
+                    $childData = $childDs->getData();
+
+                    if (count($childData) > 0)
+                    {
+                        foreach ($childData as $item)
+                        {
+                            $childResult .= $this->replaceOneItem($item, $columns, $childContent, NULL);
+                        }
+                    }
+                }
+
+                $myResult = str_replace($childContent, $childResult, $myResult);
+            }
+        }
+
+        return $myResult;
+    }
+
+    /**
+     * Replace global parametros
+     *
+     * @param string $content
+     * @return string
+     */
     public function replaceContentParams($content)
     {
         $params = $this->getParams();
@@ -369,6 +590,13 @@ class Engine
         return $content;
     }
 
+    /**
+     * Return the value of one property
+     *
+     * @param \Db\Model $item
+     * @param type $columnName
+     * @return type
+     */
     public function getValue($item, $columnName)
     {
         $value = '';
@@ -413,11 +641,6 @@ class Engine
         return \Disk\File::getFromStorage($relativePath);
     }
 
-    public function getContent()
-    {
-        return $this->content;
-    }
-
     /**
      * Generate the file in disk
      *
@@ -425,6 +648,7 @@ class Engine
      */
     public function generateFile($type)
     {
+        //generate report if needed
         if (!$this->content)
         {
             $this->generate();
@@ -496,7 +720,7 @@ class Engine
     }
 
     /**
-     * Obter relatório
+     * Load a report from body string
      *
      * @return \ReportTool\Engine
      */

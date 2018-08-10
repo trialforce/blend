@@ -346,7 +346,7 @@ class Vector
     public function treatField($field, \Db\Column $column)
     {
         $field->setAttribute("title", $column->getLabel());
-        $field->setAttribute("placeholder", $column->getLabel());
+        $field->setAttribute("placeholder", strip_tags($column->getLabel()));
 
         $size = $column->getSize();
 

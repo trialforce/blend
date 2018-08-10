@@ -1483,12 +1483,14 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             return false;
         }
 
-        if ($string != strip_tags($string))
-        {
-            return true;
-        }
+        return preg_match('/<\s?[^\>]*\/?\s?>/i', $string);
 
-        return false;
+        /* if ($string != strip_tags($string))
+          {
+          return true;
+          }
+
+          return false; */
     }
 
     public function listAvoidPropertySerialize()
