@@ -199,11 +199,6 @@ class SmartFilter
 
         foreach ($columns as $column)
         {
-            if ($column instanceof \Db\ExtraColumn)
-            {
-                continue;
-            }
-
             //if is to search some column, and is not current column, jump for next column
             if ($columnSearch)
             {
@@ -318,24 +313,24 @@ class SmartFilter
     {
         //reference description
         $name = $this->getModelClass();
-		$catalog = $name::getCatalogClass();
+        $catalog = $name::getCatalogClass();
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $referenceClass = '\Model\\' . $column->getReferenceTable();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
-		
-		$top = '';
-		$limit = '';
-		
-		if ( strtolower($catalog) == '\db\mssqlcatalog' )
-		{
-			$top = 'TOP 1 ';
-		}
-		else
-		{
-			$limit = ' LIMIT 1 ';
-		}
-		
-        $query = '( SELECT ' .$top . $column->getReferenceDescription() . ' FROM ' . $referenceTable . ' WHERE ' . $referenceTable . '.' . $column->getReferenceField() . ' = ' . $tableName . '.' . $column->getName() . ' '.$limit.') ';
+
+        $top = '';
+        $limit = '';
+
+        if (strtolower($catalog) == '\db\mssqlcatalog')
+        {
+            $top = 'TOP 1 ';
+        }
+        else
+        {
+            $limit = ' LIMIT 1 ';
+        }
+
+        $query = '( SELECT ' . $top . $column->getReferenceDescription() . ' FROM ' . $referenceTable . ' WHERE ' . $referenceTable . '.' . $column->getReferenceField() . ' = ' . $tableName . '.' . $column->getName() . ' ' . $limit . ') ';
         $this->conds[] = new \Db\Cond($query . ' like ?', str_replace(' ', '%', '%' . $filter . '%'), \Db\Cond::COND_OR);
     }
 

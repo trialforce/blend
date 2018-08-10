@@ -10,18 +10,11 @@ namespace Type;
  * Eduardo Bonfandini [eduardo@solis.coop.br]
  * Jamiel Spezia [jamiel@solis.coop.br]
  * Moises Heberle [moises@solis.coop.br]
- * Na Solis - Cooperativa de Soluções Livres Ltda. e Univates - Centro Universitário.
+ * Started atr Solis - Cooperativa de Soluções Livres Ltda. e Univates - Centro Universitário.
  *
  * */
-class DateTime implements \Type\Generic
+class DateTime extends \Validator\Validator
 {
-
-    private $day = null,
-            $month = null,
-            $year = null,
-            $hour = null,
-            $minute = null,
-            $second = null;
 
     const MASK_DATE_USER = 'd/m/Y';
     const MASK_DATE_CNAB6 = 'dmy';
@@ -42,10 +35,12 @@ class DateTime implements \Type\Generic
     const ROUND_DOWN = 'd';
     const ROUND_UP = 'u';
 
-    public function __construct($date = null)
-    {
-        $this->setValue($date);
-    }
+    private $day = null;
+    private $month = null;
+    private $year = null;
+    private $hour = null;
+    private $minute = null;
+    private $second = null;
 
     /**
      * Contrutor estático usado para que possa se utilizar
@@ -1003,6 +998,23 @@ class DateTime implements \Type\Generic
         }
 
         return TRUE;
+    }
+
+    public function validate($value = NULL)
+    {
+        $error = parent::validate($value);
+
+        if (mb_strlen($this->value) > 0)
+        {
+            list($dia, $mes, $ano) = explode('/', $this->getValue());
+
+            if (!checkdate($mes, $dia, $ano))
+            {
+                $error[] = 'Data inválida.';
+            }
+        }
+
+        return $error;
     }
 
 }

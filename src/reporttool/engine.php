@@ -498,7 +498,6 @@ class Engine
         if ($sectionName)
         {
             $childsDs = $this->getChildDataSources($sectionName);
-
             if (is_array($childsDs))
             {
                 $childResult = '';

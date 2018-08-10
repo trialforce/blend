@@ -5,7 +5,7 @@ namespace Validator;
 /**
  * Validador genérico
  */
-class Validator implements \Disk\JsonAvoidPropertySerialize
+class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
 {
 
     /**
@@ -29,10 +29,10 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
      */
     protected $label;
 
-    public function __construct($column = NULL, $value = NULL)
+    public function __construct($value = NULL, $column = NULL)
     {
-        $this->column = $column;
-        $this->value = $value;
+        $this->setColumn($column);
+        $this->setValue($value);
     }
 
     public function getColumn()
@@ -189,7 +189,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
                 return false;
             }
         }
-        else //validação sem coluna
+        else //validation without column
         {
             return !$empty;
         }
@@ -264,7 +264,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
-     * valida os tipos int e float
+     * Valida os types (int and float)
      */
     protected function validateType()
     {
@@ -290,13 +290,16 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
-     * @deprecated since version 25/04/2014
+     * Propertys to avoid when serialize
      *
-     * Limpa máscaras (transforma em somente números)
+     * @return string
      */
-    protected function somenteNumeros()
+    public function listAvoidPropertySerialize()
     {
-        $this->value = Validator::unmask($this->value);
+        $avoid[] = 'column';
+        $avoid[] = 'value';
+
+        return $avoid;
     }
 
     /**
@@ -321,6 +324,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
     public static function isInteger($var)
     {
         $int = intval($var);
+
         if ("$int" == "$var")
         {
             return TRUE;
@@ -332,7 +336,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
-     * Get some Validator, used by php limitation "new Class()->function()"
+     * Get some Validator, used to avoid by php limitation "new Class()->function()"
      *
      * @param \Db\Column $column
      * @param string $value
@@ -345,16 +349,44 @@ class Validator implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
-     * Propertys to avoid when serialize
+     * Get instance and returns it's default value
+     *
+     * @param mixed $value
+     * @return string the value
+     */
+    public static function value($value)
+    {
+        return self::get($value)->getValue();
+    }
+
+    /**
+     * Return the string representation of the datatype
      *
      * @return string
      */
-    public function listAvoidPropertySerialize()
+    public function __toString()
     {
-        $avoid[] = 'column';
-        $avoid[] = 'value';
+        return $this->value;
+    }
 
-        return $avoid;
+    /**
+     * Return the value parsed to database
+     * @return string
+     */
+    public function toDb()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Return the string representation of this type to human,
+     * used in grid, list e etc
+     *
+     * @return stirng
+     */
+    public function toHuman()
+    {
+        return $this->value;
     }
 
 }

@@ -38,34 +38,8 @@ class Vector
      */
     protected $defaultClass = 'span3';
 
-    public function __construct($array, $model = null, $makeExtraColumns = FALSE)
+    public function __construct($array, $model = null)
     {
-        if ($makeExtraColumns)
-        {
-            $fieldLine = NULL;
-            $columns = $model->getExtraColumns();
-
-            if (is_array($columns))
-            {
-                foreach ($columns as $column)
-                {
-                    $classCss = $column->getCssClass();
-
-                    if (!$classCss)
-                    {
-                        $classCss = $makeExtraColumns === TRUE ? 'span6' : $makeExtraColumns;
-                    }
-
-                    $fieldLine[$column->getName()] = $classCss;
-                }
-            }
-
-            if (is_array($fieldLine))
-            {
-                $array[] = $fieldLine;
-            }
-        }
-
         $this->setArray($array);
         $this->setModel($model);
     }
