@@ -98,3 +98,13 @@ class UserException extends Exception
 {
 
 }
+
+/**
+ * Verify if an element is iterable
+ * @param mixed $obj
+ * @return bool
+ */
+function isIterable($obj)
+{
+    return is_array($obj) || is_object($obj);
+}

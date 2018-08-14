@@ -200,7 +200,7 @@ class Engine
      */
     public function addParams($iterable)
     {
-        if (is_iterable($iterable))
+        if (isIterable($iterable))
         {
             foreach ($iterable as $property => $value)
             {
@@ -355,6 +355,9 @@ class Engine
      */
     public function generate()
     {
+        global $rGlobal;
+        $rGlobal = array();
+
         if ($this->getDefaultStyleSheet())
         {
             $this->layout->addStyleShet('report', BLEND_PATH . '/reporttool/report.css', NULL, NULL);
@@ -388,7 +391,26 @@ class Engine
             }
         }
 
+        $this->removePropertysMissing();
+
         return $this->content;
+    }
+
+    /**
+     * Remove missing propertys
+     */
+    public function removePropertysMissing()
+    {
+        $matches = '';
+        preg_match_all('/{\$(.*)}/uUmi', $this->content, $matches);
+
+        if (is_array($matches[0]))
+        {
+            foreach ($matches[0] as $match)
+            {
+                $this->content = str_replace($match, '', $this->content);
+            }
+        }
     }
 
     /**
@@ -451,6 +473,11 @@ class Engine
         return str_replace('{$' . $var . '}', $value, $content);
     }
 
+    protected function replaceEval()
+    {
+
+    }
+
     /**
      * Replace one item (line) from datasource
      *
@@ -510,6 +537,8 @@ class Engine
             }
         }
 
+        $myResult = $this->makeExpressions($item, null, $myResult);
+
         //make the child replace
         if ($sectionName)
         {
@@ -540,7 +569,7 @@ class Engine
                                 $propertyToReplace = $cond->getValue();
                                 $newValue = null;
 
-                                if (is_iterable($propertyToReplace))
+                                if (isIterable($propertyToReplace))
                                 {
                                     foreach ($propertyToReplace as $myProp)
                                     {
@@ -559,9 +588,11 @@ class Engine
 
                     if (count($childData) > 0)
                     {
-                        foreach ($childData as $item)
+                        foreach ($childData as $itemChild)
                         {
-                            $childResult .= $this->replaceOneItem($item, $columns, $childContent, NULL);
+                            $myChildResult = $this->replaceOneItem($itemChild, $columns, $childContent, NULL);
+                            $myChildResult = $this->makeExpressions($item, $itemChild, $myChildResult);
+                            $childResult .= $myChildResult;
                         }
                     }
                 }
@@ -570,7 +601,118 @@ class Engine
             }
         }
 
+        $myResult = $this->makeExpressionsFinal($item, $myResult);
+
         return $myResult;
+    }
+
+    public function makeExpressionsFinal($item, $content)
+    {
+        global $rGlobal;
+        $matches = null;
+
+        $regexp = '/\$\!{(.*)}/uUmi';
+        preg_match_all($regexp, $content, $matches);
+
+        if (is_array($matches[0]))
+        {
+            $expressionsContent = $matches[0];
+            $expressions = $matches[1];
+
+            //create variables for use in eval
+            $param = $this->params;
+            $father = array();
+
+            if ($item instanceof \Db\Model)
+            {
+                $item = $item->getArray();
+            }
+
+            //create variables for use in eval
+            if (isIterable($item))
+            {
+                foreach ($item as $prop => $value)
+                {
+                    $$prop = $value;
+                    //fill father props, in case chield has same names
+                    $father[$prop] = $value;
+                }
+            }
+
+            foreach ($expressions as $idx => $expression)
+            {
+                ob_start();
+                $expression = html_entity_decode($expression);
+                eval('echo (' . $expression . ');');
+                $result = ob_get_contents();
+                ob_end_clean();
+                $find = $expressionsContent[$idx];
+                $content = str_replace($find, $result, $content);
+            }
+        }
+
+        return $content;
+    }
+
+    public function makeExpressions($item, $itemChild, $content)
+    {
+        global $rGlobal;
+        $matches = null;
+
+        $regexp = $itemChild ? '/\$\*{(.*)}/uUmi' : '/\${(.*)}/uUmi';
+        preg_match_all($regexp, $content, $matches);
+
+        if (is_array($matches[0]))
+        {
+            $expressionsContent = $matches[0];
+            $expressions = $matches[1];
+
+            if ($item instanceof \Db\Model)
+            {
+                $item = $item->getArray();
+            }
+
+            //create variables for use in eval
+            $param = $this->params;
+            $father = array();
+
+            //create variables for use in eval
+            if (isIterable($item))
+            {
+                foreach ($item as $prop => $value)
+                {
+                    $$prop = $value;
+                    //fill father props, in case chield has same names
+                    $father[$prop] = $value;
+                }
+            }
+
+            if ($itemChild instanceof \Db\Model)
+            {
+                $itemChild = $itemChild->getArray();
+            }
+
+            if (isIterable($itemChild))
+            {
+                foreach ($itemChild as $prop => $value)
+                {
+                    $$prop = $value;
+                }
+            }
+
+            foreach ($expressions as $idx => $expression)
+            {
+                ob_start();
+                $expression = html_entity_decode($expression);
+                eval('echo (' . $expression . ');');
+                $result = ob_get_contents();
+                ob_end_clean();
+                $find = $expressionsContent[$idx];
+                $content = str_replace($find, $result, $content);
+            }
+        }
+
+        return $content;
     }
 
     /**

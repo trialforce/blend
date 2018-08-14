@@ -661,7 +661,7 @@ class Page extends \View\Layout
             {
                 $data = $ds->getData();
 
-                if (is_iterable($data))
+                if (isIterable($data))
                 {
                     foreach ($data as $item)
                     {

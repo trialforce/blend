@@ -18,7 +18,7 @@ class SelectConstantValue extends \View\Select
             $constantValues = $constantValues->getArray();
         }
 
-        if (is_iterable($constantValues))
+        if (isIterable($constantValues))
         {
             foreach ($constantValues as $value => $label)
             {

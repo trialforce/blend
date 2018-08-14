@@ -242,7 +242,7 @@ class Vector
         {
             $field = new \View\Ext\ReferenceField($column, $property);
         }
-        else if (is_iterable($constantValues))
+        else if (isIterable($constantValues))
         {
             $field = new \View\Ext\SelectConstantValue($column, $property);
         }
