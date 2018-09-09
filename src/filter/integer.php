@@ -1,7 +1,6 @@
 <?php
 
 namespace Filter;
-
 use DataHandle\Request;
 
 /**
@@ -23,16 +22,14 @@ class Integer extends \Filter\Text
     {
         $conditionName = $this->getConditionName();
 
-        $options[self::COND_IGUAL] = 'Igual';
-        $options[Text::COND_NOT_EQUALS] = 'Diferente';
-        $options[self::COND_MAIOR] = 'Maior';
-        $options[self::COND_MAIOR_IGUAL] = 'Maior ou igual';
-        $options[self::COND_MENOR] = 'Menor';
-        $options[self::COND_MENOR_IGUAL] = 'Menor ou igual';
+        $options[self::COND_IGUAL] = '=';
+        $options[Text::COND_NOT_EQUALS] = '<>';
+        $options[self::COND_MAIOR] = '>';
+        $options[self::COND_MAIOR_IGUAL] = '>=';
+        $options[self::COND_MENOR] = '<';
+        $options[self::COND_MENOR_IGUAL] = '<=';
         $options[self::COND_BETWEEN] = 'Intervalo';
         $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
-        $options[\Filter\Text::COND_EMPTY] = 'Vazio';
-        $options[\Filter\Text::COND_NULL] = 'Nulo';
 
         $conditionValue = Request::get($conditionName);
 
@@ -41,12 +38,10 @@ class Integer extends \Filter\Text
             $conditionValue = self::COND_IGUAL;
         }
 
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'span1_5 small filterCondition');
+        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
+        $select->onPressEnter("$('#buscar').click()");
 
-        $js = "if ( $(this).val() == 'between') { $(this).parent().find('.final').show(); } else { $(this).parent().find('.final').hide(); }";
-        $select->change($js);
-
-        $this->getCondJs($select);
+        $select->change('filterChangeInteger($(this));');
 
         return $select;
     }
@@ -55,8 +50,10 @@ class Integer extends \Filter\Text
     {
         $columnValue = $this->getValueName();
 
-        $input[] = new \View\Ext\IntInput($columnValue, Request::get($columnValue), NULL, NULL, 'small filterInput');
-        $input[] = new \View\Ext\IntInput($columnValue . 'Final', Request::get($columnValue . 'Final'), NULL, NULL, 'small filterInput final');
+        $input[0] = new \View\Ext\IntInput($columnValue, Request::get($columnValue), NULL, NULL, '');
+        $input[0]->onPressEnter("$('#buscar').click()");
+        $input[1] = new \View\Ext\IntInput($columnValue . 'Final', Request::get($columnValue . 'Final'), NULL, NULL, 'filterInput final');
+        $input[1]->onPressEnter("$('#buscar').click()");
 
         return $input;
     }
@@ -78,23 +75,27 @@ class Integer extends \Filter\Text
         $filterValue = Request::get($filterName);
         $filterFinalValue = Request::get($filterName . 'Final');
 
-        if ($conditionValue && isset($filterValue) && \Type\Integer::isNumeric($filterValue))
+        if ($conditionValue && isset($filterValue))
         {
             if ($conditionValue == self::COND_BETWEEN)
             {
                 $values[] = \Type\Decimal::value($filterValue);
                 $values[] = \Type\Decimal::value($filterFinalValue);
 
-                return new \Db\Cond($columnName . ' BETWEEN ? AND ?', $values, \Db\Cond::COND_AND, $this->getFilterType());
+                $cond = new \Db\Cond($columnName . ' BETWEEN ? AND ?', $values, \Db\Cond::COND_AND, $this->getFilterType());
+            }
+            else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+            {
+                $cond = new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
             }
             else
             {
                 $filterValue = \Type\Decimal::value($filterValue);
-                return new \Db\Cond($columnName . ' ' . $conditionValue . ' ? ', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
+                $cond = new \Db\Cond($columnName . ' ' . $conditionValue . ' ? ', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
             }
         }
 
-        return $this->getNullOrEmptyFilter($conditionValue, $columnName);
+        return $cond;
     }
 
 }

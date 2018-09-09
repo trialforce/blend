@@ -1310,7 +1310,7 @@ class PHPMailer
         $PHPMAILER_LANG = array(
             'authenticate' => 'Erro de SMTP: Não foi possível autenticar.',
             'connect_host' => 'Erro de SMTP: Não foi possível conectar com o servidor SMTP.',
-            'data_not_accepted' => 'SErro de SMTP: Dados não aceitos.',
+            'data_not_accepted' => 'Erro de SMTP: Dados não aceitos.',
             'empty_message' => 'Corpo do email vazio',
             'encoding' => 'Codificação desconhecido: ',
             'execute' => 'Impossível executar: ',

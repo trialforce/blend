@@ -1,7 +1,6 @@
 <?php
 
 namespace Page;
-
 use DataHandle\Request;
 use DataHandle\Config;
 use DataHandle\Session;
@@ -1055,7 +1054,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         \App::setResponse('NULL'); //for grid
         //TODO suport columns with description in name
-        $originalValue = Request::get('selectFilters');
+        $originalValue = Request::get('v');
         $value = str_replace('Description', '', $originalValue);
         $grid = $this->setDefaultGrid();
 
@@ -1068,7 +1067,7 @@ class Page extends \View\Layout
         $dbModel = $this->getModel();
         $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
         $filter = $mountFilter->getFilter();
-
+        //\Log::dump($filter);
         //choose the filter if is array
         if (is_array($filter))
         {
@@ -1087,12 +1086,10 @@ class Page extends \View\Layout
             $input = $filter->getInput();
             $input->append(self::getCloseFilterButton());
 
-            $btn = $this->getSearch2Button();
             //remove the filter if exists
             \App::addJs("$('#{$input->getId()}').remove();");
-
             //put the input inside containerFiltros
-            $this->byId('containerFiltros')->append(array($input, $btn));
+            $this->byId('containerFiltros')->append($input);
             //call js change
             \App::addJs("$('.filterCondition').change();");
             //put focus on input field
@@ -1112,12 +1109,6 @@ class Page extends \View\Layout
         $icon->addClass('removeFilter');
 
         return $icon;
-    }
-
-    public function getSearch2Button()
-    {
-        \App::addJs("$('#search2').remove();");
-        return new \View\Ext\Button('search2', 'search', 'Buscar', "$('#buscar').click();", '', 'Clique para pesquisa');
     }
 
     /**
@@ -1168,8 +1159,6 @@ class Page extends \View\Layout
         $grid = $this->setDefaultGrid();
         $name = Request::get('selectGroups');
         $div[] = self::createSearchGroupField($grid, $name);
-
-        $div[] = $this->getSearch2Button();
 
         $this->byId('containerFiltros')->append($div);
     }

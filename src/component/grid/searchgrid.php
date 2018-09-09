@@ -29,7 +29,7 @@ class SearchGrid extends \Component\Grid\Grid
         $myId = $id ? $id : get_class($this);
         parent::__construct($myId, $dataSource, $class);
         $this->setColumns($columns);
-        $this->setSearchField(new \Component\Grid\SearchField($this, 'searchField'));
+        $this->setSearchField(new \Component\Grid\SearchField($this));
     }
 
     /**
