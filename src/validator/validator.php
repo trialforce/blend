@@ -342,7 +342,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
      * @param string $value
      * @return \Validator\Validator
      */
-    public static function get($column = NULL, $value = NULL)
+    public static function get($value = NULL, $column = NULL)
     {
         $class = get_called_class();
         return new $class($column, $value);

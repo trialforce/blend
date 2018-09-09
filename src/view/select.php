@@ -131,7 +131,7 @@ class Select extends \View\View
             $option->setId('select-null-option');
         }
 
-        if (is_iterable($searchResult))
+        if (isIterable($searchResult))
         {
             foreach ($searchResult as $index => $item)
             {

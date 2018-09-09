@@ -107,9 +107,9 @@ class Integer extends \Validator\Validator
      *
      * @return \Type\Integer
      */
-    public static function get($value, $parse = TRUE)
+    public static function get($value = null, $column = null)
     {
-        return new Integer($value, $parse);
+        return new Integer($value, $column);
     }
 
     /**

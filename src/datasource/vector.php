@@ -106,7 +106,7 @@ class Vector extends DataSource
                         $value = $value->toDb();
                     }
 
-                    //adiciona suporte a REAIS
+                    //add suporte for braizilian real
                     if (stripos($value, 'R$') === 0)
                     {
                         $money = true;

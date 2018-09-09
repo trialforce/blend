@@ -210,14 +210,14 @@ class CnpjCpf extends \Validator\Validator
         return $mascara;
     }
 
-    public static function get($value = null)
+    public static function get($value = null, $column = null)
     {
-        return new \Type\CpfCnpj($value);
+        return new \Type\CpfCnpj($value, $column);
     }
 
     public static function value($value = null)
     {
-        return \Type\CpfCnpj::get($value)->getValue();
+        return \Type\CpfCnpj::get(null, $value)->getValue();
     }
 
 }

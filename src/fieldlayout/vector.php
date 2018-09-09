@@ -242,7 +242,7 @@ class Vector
         {
             $field = new \View\Ext\ReferenceField($column, $property);
         }
-        else if (is_iterable($constantValues))
+        else if (isIterable($constantValues))
         {
             $field = new \View\Ext\SelectConstantValue($column, $property);
         }
@@ -320,7 +320,7 @@ class Vector
     public function treatField($field, \Db\Column $column)
     {
         $field->setAttribute("title", $column->getLabel());
-        $field->setAttribute("placeholder", $column->getLabel());
+        $field->setAttribute("placeholder", strip_tags($column->getLabel()));
 
         $size = $column->getSize();
 

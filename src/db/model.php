@@ -39,6 +39,65 @@ class Model
     protected static $pksCache;
 
     /**
+     * Return the label of model/table.
+     *
+     * You can overwrite to ajdust.
+     *
+     * @return string
+     */
+    public static function getLabel()
+    {
+        $name = self::getName();
+        return \Db\Catalog::tableExists($name::getTableName())->label;
+    }
+
+    /**
+     * Return the label of model in plural.
+     *
+     * You can overwrite to ajdust.
+     *
+     * @return string
+     */
+    public static function getLabelPlural()
+    {
+        $name = self::getName();
+        return $name::getLabel() . 's';
+    }
+
+    /**
+     * Return the name of class/table/model
+     *
+     * @return string
+     */
+    public static function getName()
+    {
+        //necessary because namespace, add support for API classes
+        $name = get_called_class();
+
+        if (stripos($name, 'api') === 0)
+        {
+            $name = 'Model\\' . str_replace('Api\\', '', $name);
+        }
+
+        $name = '\\' . $name;
+        return $name;
+    }
+
+    /**
+     * Return the table name related to this model.
+     * Can be overide where table name differs from class name.
+     *
+     * @return string
+     */
+    public static function getTableName()
+    {
+        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
+        return lcfirst($tableName);
+    }
+
+    /**
+      =======
+      >>>>>>> bc9e1c4debdb1855e913d1b5bfdcd7753a13642b
      * Return the columns indexed by name
      *
      * @return array of \Db\Column
@@ -1171,55 +1230,6 @@ class Model
     {
         $name = self::getName();
         return \Db\Conn::getInstance($name::getConnId());
-    }
-
-    /**
-     * Return the label of model/table.
-     *
-     * You can overwrite to ajdust.
-     *
-     * @return string
-     */
-    public static function getLabel()
-    {
-        $name = self::getName();
-        return \Db\Catalog::tableExists($name::getTableName())->label;
-    }
-
-    /**
-     * Return the label of model in plural.
-     *
-     * You can overwrite to ajdust.
-     *
-     * @return string
-     */
-    public static function getLabelPlural()
-    {
-        $name = self::getName();
-        return $name::getLabel() . 's';
-    }
-
-    /**
-     * Return the name of class/table/model
-     *
-     * @return string
-     */
-    public static function getName()
-    {
-        //necessary because namespace
-        return '\\' . get_called_class();
-    }
-
-    /**
-     * Return the table name related to this model.
-     * Can be overide where table name differs from class name.
-     *
-     * @return string
-     */
-    public static function getTableName()
-    {
-        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
-        return lcfirst($tableName);
     }
 
 }
