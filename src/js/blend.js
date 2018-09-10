@@ -1433,7 +1433,8 @@ function filterChangeText(element)
 {
     var val = $(element).val();
     
-    var input = $(element).parent().find('input');
+    var input = $(element).parent().find('.filterInput');
+    console.log('input', input);
     
     if ( val== 'nullorempty' || val == 'today' )
     { 
@@ -1450,7 +1451,7 @@ function filterChangeText(element)
 function filterChangeInteger(element)
 {
     var val = $(element).val();
-    var input = $(element).parent().find('input');
+    var input = $(element).parent().find('.filterInput');
     
     if ( val == 'between') 
     {  
@@ -1473,7 +1474,7 @@ function filterChangeInteger(element)
 function filterChangeDate(element)
 {
     var val = $(element).val();
-    var input = $(element).parent().find('input');
+    var input = $(element).parent().find('.filterInput');
     
     if ( val== 'nullorempty' 
             || val == 'today' 

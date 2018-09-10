@@ -41,7 +41,7 @@ class Reference extends \Filter\Text
     public function getValue()
     {
         $columnValue = $this->getValueName();
-        $class = 'small filterCondition reference';
+        $class = 'filterInput reference';
         $value = Request::get($columnValue);
 
         if ($this->dbColumn->getReferenceField())
@@ -71,7 +71,7 @@ class Reference extends \Filter\Text
         $options[self::COND_NOT_EQUALS] = 'Diferente';
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
-        $conditionValue = Request::get($conditionName);
+        $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_EQUALS;
 
         if (!$conditionValue)
         {

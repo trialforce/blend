@@ -84,7 +84,7 @@ class DateTime extends \Filter\Text
         $view[0] = $input = new \View\InputText($columnValue, Request::get($columnValue), 'filterInput');
         $view[0]->onPressEnter("$('#buscar').click()");
         $view[1] = $label = new \View\Label($columnValue . 'LabelFinal', NULL, 'até', 'filterInput');
-        $view[2] = $hide = new \View\InputText($columnValue . 'Final', Request::get($columnValue . 'Final'), 'small filterInput filterDataFinal');
+        $view[2] = $hide = new \View\InputText($columnValue . 'Final', Request::get($columnValue . 'Final'), 'filterInput filterDataFinal');
         $view[2]->onPressEnter("$('#buscar').click()");
 
         $hide->addStyle('display', 'none');
