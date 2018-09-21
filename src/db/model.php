@@ -533,48 +533,64 @@ class Model
      * Obtem um registro pelo id
      *
      * @param string $id
+     * @param bool $useCache
      * @return \Db\Model
      */
-    public static function findOneByPk($id)
+    public static function findOneByPk($id, $useCache = FALSE)
     {
-        //avoid sql if not id passed
-        //support id = 0
+        static $findOneCache;
+        $cacheKey = null;
+
+        //avoid sql if not id passed, support id = 0
         if (!$id && $id !== '0')
         {
             return NULL;
         }
 
+        //security to support legacy code
+        $ids = is_array($id) ? $id : array($id);
         $name = self::getName();
-
-        //segurança para compatibilidade com código antigo
-        if (!is_array($id))
-        {
-            $id = array($id);
-        }
-
         $pks = $name::getPrimaryKeys();
-        $i = 0;
-
-        $filters = array();
-
         $catalog = $name::getCatalogClass();
+        $filters = array();
+        $i = 0;
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
+        $cacheKey = null;
 
+        //mount filters
         foreach ($pks as $pk)
         {
-            $tableName = $catalog::parseTableNameForQuery($name::getTableName());
             $pkName = $catalog::parseTableNameForQuery($pk->getName());
             $pkName = $tableName . '.' . $pkName;
 
-            if (isset($id[$i]))
+            if (isset($ids[$i]))
             {
-                $filters[] = new \Db\Cond($pkName . ' = ?', $id[$i]);
+                $filters[] = new \Db\Cond($pkName . ' = ?', $ids[$i]);
+                $cacheKey .= $ids[$i];
             }
 
             $i++;
         }
 
-        //procura por um só registro
-        return $name::findOne($filters);
+        //read from cache
+        if ($useCache && $cacheKey)
+        {
+            if (isset($findOneCache[$tableName]) && isset($findOneCache[$tableName][$cacheKey]))
+            {
+                return $findOneCache[$tableName][$cacheKey];
+            }
+        }
+
+        //find one register
+        $result = $name::findOne($filters);
+
+        //put on cache
+        if ($useCache && $cacheKey)
+        {
+            $findOneCache[$tableName][$cacheKey] = $result;
+        }
+
+        return $result;
     }
 
     /**
