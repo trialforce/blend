@@ -1,8 +1,9 @@
 <?php
 
 namespace Page;
-use DataHandle\Request;
+
 use DataHandle\Get;
+use DataHandle\Request;
 use \View\Ext\HighChart;
 
 /**
@@ -14,10 +15,9 @@ class Crud extends \Page\Page
     const EVENT_SEARCH = 'listar';
     const EVENT_INSERT = 'adicionar';
     const EVENT_UPDATE = 'editar';
+    const EVENT_VIEW = 'ver';
     const EVENT_REMOVE = 'remover';
     const EVENT_SAVE = 'salvar';
-
-    protected $popupAdd = FALSE;
 
     /**
      * Floating menu
@@ -54,6 +54,11 @@ class Crud extends \Page\Page
 
         $this->setModel($model);
         parent::__construct();
+    }
+
+    public function getPopupAdd()
+    {
+        return $this->popupAdd || $this->getFormValue('popupAdd') || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
     }
 
     /**
@@ -318,22 +323,6 @@ class Crud extends \Page\Page
         $views[] = $this->getBodyDiv(array($searchField, $chartCont));
     }
 
-    public function getPopupAdd()
-    {
-        return $this->popupAdd || $this->getFormValue('popupAdd') || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
-    }
-
-    public function setPopupAdd($popupAdd)
-    {
-        //disable popup forms if is not ajax
-        if (\DataHandle\Server::getInstance()->isAjax())
-        {
-            $this->popupAdd = $popupAdd;
-        }
-
-        return $this;
-    }
-
     /**
      * Montagem da tela de adicionar
      */
@@ -380,7 +369,7 @@ class Crud extends \Page\Page
         }
         else
         {
-            $this->byId('btnVoltar')->click(\View\Blend\Popup::getJs('destroy') . ' p(\'' . $this->getPageUrl() . '\');');
+            $this->byId('btnVoltar')->remove();
         }
     }
 
@@ -480,7 +469,7 @@ class Crud extends \Page\Page
      */
     public function isUpdate()
     {
-        return $this->getEvent() == self::EVENT_UPDATE;
+        return $this->getEvent() == self::EVENT_UPDATE || $this->getEvent() == self::EVENT_VIEW;
     }
 
     /**
@@ -519,12 +508,12 @@ class Crud extends \Page\Page
 
             if ($this->isUpdate())
             {
-                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action');
+                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $this->getPageUrl());
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();
 
                 $btnAction = new \View\Div('floating-menu', array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
-                $btnAction->click('$("#fm-action").toggle(\'fast\');');
+                $btnAction->click('$("#fm-action-' . $this->getPageUrl() . '").toggle(\'fast\');');
 
                 $buttons[] = $btnAction;
             }
@@ -632,9 +621,7 @@ class Crud extends \Page\Page
             throw new \UserException('Imposível encontrar chave primária do modelo!');
         }
 
-        $value = $this->getFormValue($pk);
-
-        $model->setValue($pk, $value);
+        $model->setValue($pk, $this->getFormValue($pk));
 
         try
         {
@@ -642,8 +629,16 @@ class Crud extends \Page\Page
 
             if ($ok)
             {
-                toast('Registro removido com sucesso!!');
-                \App::redirect($this->getPageUrl(), TRUE);
+                toast('Registro removido com sucesso!!', 'success');
+
+                if ($this->getPopupAdd())
+                {
+                    \View\Blend\Popup::delete();
+                }
+                else
+                {
+                    \App::addjs('history.back(1);');
+                }
             }
             else
             {
@@ -680,11 +675,10 @@ class Crud extends \Page\Page
         return parent::salvar($model, $defaultRedirect);
     }
 
-    public function defaultRedirect()
+    public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
         \App::dontChangeUrl();
-        toast('OK! Gravado!', 'success');
-
+        toast($mensagem, $type);
         \App::redirect($this->getPageUrl(), TRUE);
     }
 
@@ -751,6 +745,10 @@ class Crud extends \Page\Page
         return $this;
     }
 
+    /**
+     * Edit a value of a model from a Grid
+     * //TODO this method must be passed to \Component\Grid\Grid
+     */
     public function gridEdit()
     {
         \App::dontChangeUrl();
@@ -759,9 +757,6 @@ class Crud extends \Page\Page
         $this->setModelFromIdUrl();
         $model = $this->getModel();
         $column = $model->getColumn($columnName);
-
-        $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
-
         $fieldLayout = $this->getFieldLayout();
 
         if (is_array($fieldLayout))
@@ -771,36 +766,42 @@ class Crud extends \Page\Page
 
         $input = $fieldLayout->getInputField($column);
         $input->setValue($model->getValue($columnName));
-        $input->addClass('full');
         $input->blur("e('saveGridEdit/$pkValue/?columnName={$columnName}');");
 
+        $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
         $this->byId($elementId)->html($input)->attr('onclick', '');
     }
 
+    /**
+     * Save the edited value from Grid
+     * //TODO this method must be passed to \Component\Grid\Grid
+     */
     public function saveGridEdit()
     {
         \App::dontChangeUrl();
+        //get column name from request
         $columnName = Request::get('columnName');
-        $pkValue = str_replace('/', '', Request::get('v'));
-        $value = Request::get($columnName);
+        //set model to page from url
         $this->setModelFromIdUrl();
+        //store model variable to use later
         $model = $this->getModel();
-
-        $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
-
+        //get column from model
+        $column = $model->getColumn($columnName);
+        //get the column property (alias for columna name)
+        $columnProperty = $column->getProperty();
+        //get the posted edited value
+        $value = Request::get($columnProperty);
+        //define the modified value in current model
         $model->setValue($columnName, $value);
 
-        $column = $model->getColumn($columnName);
+        //get pk column to force only update what is neeed
         $pkColumn = $model->getPrimaryKey();
-
+        //lista only columns needed in update
         $columns[$pkColumn . ""] = $pkColumn;
         $columns[$columnName] = $column;
-
+        //update the model in database
         $model->update($columns);
-
-        $td = $this->byId($elementId);
-        $td->html('')->attr('onclick', "e('gridEdit/$pkValue/?columnName={$columnName}');");
-
+        //refresh the page
         \App::refresh(TRUE);
     }
 
