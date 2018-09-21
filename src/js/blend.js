@@ -45,6 +45,11 @@ function startsWith(originalString, searchString)
     return originalString.substr(0, searchString.length) === searchString;
 }
 
+function stripTags(str)
+{
+    return str.replace(/<\/?[^>]+(>|$)/g, "");
+}
+
 //destroy popup on esc
 $(document).keyup(function (e)
 {
@@ -462,9 +467,9 @@ function correctUrl(url)
  * @param {String} formData
  * @returns {Boolean}
  */
-function p(page, formData)
+function p(page, formData, callBack)
 {
-    return r("POST", page, formData);
+    return r("POST", page, formData, callBack);
 }
 
 /**
@@ -554,7 +559,7 @@ function hideLoading()
  * @param {string} formData
  * @returns {Boolean} Boolean always return fase, so it can be use in buttons and onclicks
  */
-function r(type, page, formData)
+function r(type, page, formData, callBack)
 {
     var focused = $(':focus');
 
@@ -585,7 +590,7 @@ function r(type, page, formData)
     //default jquery value https://api.jquery.com/jQuery.ajax/
     var contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
 
-    if (typeof formData === 'undefined')
+    if (typeof formData === 'undefined' || formData == null )
     {
         if ($('input[type=file]').length > 0)
         {
@@ -642,7 +647,8 @@ function r(type, page, formData)
         if (formData instanceof FormData)
         {
             contentType = false;
-        } else if (typeof formData == 'object')
+        } 
+        else if (typeof formData == 'object')
         {
             formData = $.param(formData);
         }
@@ -704,6 +710,11 @@ function r(type, page, formData)
             $('body').append('<script>' + data.script + '</script>');
             //treat js especials
             dataAjax();
+            
+            if ( typeof callBack == 'function')
+            {
+                callBack();
+            }
         }
         ,
         error: function (xhr, ajaxOptions, thrownError)
