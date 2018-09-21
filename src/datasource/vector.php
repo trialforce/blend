@@ -14,6 +14,7 @@ class Vector extends DataSource
      * @var array
      */
     protected $data;
+    protected $fullData;
 
     public function __construct($data)
     {
@@ -22,7 +23,7 @@ class Vector extends DataSource
 
     public function getCount()
     {
-        return count($this->data);
+        return count($this->fullData);
     }
 
     public function getData()
@@ -30,7 +31,13 @@ class Vector extends DataSource
         //faz a ordenação, caso necessário
         if (!is_null($this->getOrderBy()))
         {
-            usort($this->data, array($this, "compareToOrder"));
+            usort($this->fullData, array($this, "compareToOrder"));
+        }
+
+        //make pagination work on array
+        if ($this->getLimit() && $this->getOffset() || $this->getOffset() == '0')
+        {
+            $this->data = array_slice($this->fullData, $this->getOffset(), $this->getLimit());
         }
 
         return $this->data;
@@ -39,13 +46,13 @@ class Vector extends DataSource
     public function setData($data)
     {
         $this->data = $data;
+        $this->fullData = $data;
     }
 
     public function compareToOrder($first, $second)
     {
         $columnName = $this->getOrderBy();
         $orderWay = $this->getOrderWay();
-
         $firstl = '';
         $secondl = '';
 
@@ -86,7 +93,7 @@ class Vector extends DataSource
 
     public function executeAggregator(Aggregator $aggregator)
     {
-        $data = $this->getData();
+        $data = $this->fullData;
         $columnName = $aggregator->getColumnName();
         $money = false;
         $total = 0;
@@ -96,7 +103,6 @@ class Vector extends DataSource
             //TODO make other aggregation methods
             if ($aggregator->getMethod() == Aggregator::METHOD_SUM)
             {
-
                 foreach ($data as $item)
                 {
                     $value = $item->$columnName;
@@ -110,8 +116,11 @@ class Vector extends DataSource
                     if (stripos($value, 'R$') === 0)
                     {
                         $money = true;
-                        $value = \Type\Money::get($value);
-                        $value = $value->toDb();
+                        $value = \Type\Money::get($value)->toDb();
+                    }
+                    else
+                    {
+                        $value = \Type\Decimal::get($value)->toDb();
                     }
 
                     $total += $value;
@@ -126,6 +135,10 @@ class Vector extends DataSource
         if ($money)
         {
             $total = \Type\Money::get($total);
+        }
+        else
+        {
+            $total = \Type\Decimal::get($total);
         }
 
         return $aggregator->getLabelledValue($total);
