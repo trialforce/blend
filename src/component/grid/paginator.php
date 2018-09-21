@@ -1,6 +1,7 @@
 <?php
 
 namespace Component\Grid;
+
 use DataHandle\Request;
 use DataHandle\Cookie;
 

@@ -460,27 +460,20 @@ class Image extends \Disk\File
             }
             else
             {
-                if (!file_exists($this->path))
-                {
-                    $this->sizes['width'] = null;
-                    $this->sizes['height'] = null;
+                $this->sizes['width'] = null;
+                $this->sizes['height'] = null;
 
-                    return $this->sizes;
-                }
-
-                //works without load the image (read from path)
-                $this->sizes = getimagesize($this->path);
-
-                //padroniz format with image magick
-                if (isset($this->sizes[0]) && isset($this->sizes[1]))
+                if (file_exists($this->path))
                 {
-                    $this->sizes['width'] = $this->sizes[0];
-                    $this->sizes['height'] = $this->sizes[1];
-                }
-                else
-                {
-                    $this->sizes['width'] = null;
-                    $this->sizes['height'] = null;
+                    //works without load the image (read from path)
+                    $this->sizes = getimagesize($this->path);
+
+                    //padroniz format with image magick
+                    if (isset($this->sizes[0]) && isset($this->sizes[1]))
+                    {
+                        $this->sizes['width'] = $this->sizes[0];
+                        $this->sizes['height'] = $this->sizes[1];
+                    }
                 }
             }
         }
@@ -524,6 +517,8 @@ class Image extends \Disk\File
         }
 
         $this->copyresampled(0, 0, 0, 0, $width, $height, $this->getWidth(), $this->getHeight());
+
+        return $this;
     }
 
     public function copyresampled($dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH)
@@ -694,7 +689,7 @@ class Image extends \Disk\File
      */
     public function __destruct()
     {
-        if ($this->content && !$this->isUsingImageMagick())
+        if ($this->content && is_resource($this->content) && !$this->isUsingImageMagick())
         {
             imagedestroy($this->content);
         }

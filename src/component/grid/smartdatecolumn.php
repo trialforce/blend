@@ -6,7 +6,7 @@ namespace Component\Grid;
  * Smart date column
  * FIXME muito lenta
  */
-class SmartDateColumn extends \Component\Grid\EditColumn
+class SmartDateColumn extends \Component\Grid\Column
 {
 
     public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT)
@@ -14,12 +14,11 @@ class SmartDateColumn extends \Component\Grid\EditColumn
         parent::__construct($name, $label, $align);
         $this->setAlign(Column::ALIGN_RIGHT);
         $this->setType(\Db\Column::TYPE_DATETIME);
-        $this->setLinkEnabled(FALSE);
     }
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $this->makeEditable($item, $line, $tr, $td);
+        //$this->makeEditable($item, $line, $tr, $td);
         $line = NULL;
         $value = \Component\Grid\Column::getColumnValue($this, $item, $line);
 
@@ -32,14 +31,7 @@ class SmartDateColumn extends \Component\Grid\EditColumn
         $date = \Type\Date::get($value)->getSmartDate();
         $td->setTitle($value);
 
-        //if ($this->getGrid()->getReadOnly() == TRUE || !$this->linkEnabled)
-        //{
-        //return $date;
-        //}
-        //else
-        //{
-        return new \View\A('edit', $date, $this->getEditUrl($item), 'editColumn');
-        //}
+        return $date;
     }
 
 }

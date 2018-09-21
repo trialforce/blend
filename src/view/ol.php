@@ -1,5 +1,7 @@
 <?php
+
 namespace View;
+
 /**
  * An ordered HTML list.
  * Html ol element
@@ -8,11 +10,11 @@ namespace View;
 class Ol extends \View\View
 {
 
-    public function __construct( $id = NULL, $innerHtml = NULL, $class = NULL )
+    public function __construct($id = NULL, $innerHtml = NULL, $class = NULL)
     {
-        $innerHtml = self::arrayToLi( $innerHtml );
-        parent::__construct( 'ol', \NULL, $innerHtml, $class );
-        $this->setId( $id );
+        $innerHtml = self::arrayToLi($innerHtml);
+        parent::__construct('ol', \NULL, $innerHtml, $class);
+        $this->setId($id);
     }
 
     /**
@@ -21,15 +23,15 @@ class Ol extends \View\View
      * @param \View\Td $innerHtml
      * @return \View\Td
      */
-    public static function arrayToLi( $innerHtml )
+    public static function arrayToLi($innerHtml)
     {
-        if ( is_array( $innerHtml ) )
+        if (is_array($innerHtml))
         {
-            foreach ( $innerHtml as $value => $text )
+            foreach ($innerHtml as $value => $text)
             {
-                if ( is_scalar( $text ) )
+                if (is_scalar($text))
                 {
-                    $innerHtml[ $value ] = new \View\Li( \NULL, $text );
+                    $innerHtml[$value] = new \View\Li(\NULL, $text);
                 }
             }
         }

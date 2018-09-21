@@ -23,7 +23,6 @@ class Decimal implements \Type\Generic
 
     public function __construct($value = NULL, $decimals = 2)
     {
-
         if ($value instanceof \Type\Generic)
         {
             $value = $value->toDb();

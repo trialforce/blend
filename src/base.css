@@ -113,7 +113,7 @@ td {
     vertical-align: baseline;
     display: table-cell;
     margin: 0;
-    padding: 8px 10px;
+    padding: 6px;
     text-align: left;
 }
 
@@ -542,7 +542,7 @@ iframe {
     width: 100%;
 }
 
-@media screen and ( max-width: 1250px ) {
+@media screen and ( max-width: 1320px ) {
 
     .hide-in-middle {
         display: none !important;

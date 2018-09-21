@@ -2,6 +2,7 @@
 
 namespace Page;
 
+use DataHandle\Get;
 use DataHandle\Request;
 use DataHandle\Config;
 use DataHandle\Session;
@@ -11,6 +12,8 @@ use DataHandle\Session;
  */
 class Page extends \View\Layout
 {
+
+    protected $popupAdd = FALSE;
 
     /**
      * Listagem de grids da páginas
@@ -40,6 +43,22 @@ class Page extends \View\Layout
         $fields[] = $this->callEvent();
 
         return $fields;
+    }
+
+    public function getPopupAdd()
+    {
+        return $this->popupAdd || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
+    }
+
+    public function setPopupAdd($popupAdd)
+    {
+        //disable popup forms if is not ajax
+        //if (\DataHandle\Server::getInstance()->isAjax())
+        //{
+        $this->popupAdd = $popupAdd;
+        //}
+
+        return $this;
     }
 
     /**
@@ -696,6 +715,7 @@ class Page extends \View\Layout
         {
             $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
             $this->setGrid($grid);
+
             return $grid;
         }
     }
@@ -738,10 +758,10 @@ class Page extends \View\Layout
     /**
      * Default redirect after save
      */
-    public function defaultRedirect()
+    public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
         \App::dontChangeUrl();
-        toast('OK! Gravado!', 'success');
+        toast($mensagem, $type);
         \App::redirect($this->getSearchUrl(), TRUE);
     }
 
@@ -1033,7 +1053,6 @@ class Page extends \View\Layout
 
     public function updateGrid($id)
     {
-        \View\Blend\Popup::delete();
         $gridClass = '\Grid\\' . $id;
         $grid = new $gridClass;
         $table = $grid->createTable();

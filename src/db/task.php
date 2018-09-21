@@ -56,5 +56,21 @@ abstract class Task
      *
      * @return \View\View
      */
-    public abstract function getResultView();
+    public function getResultView()
+    {
+        return new \View\Div(null, nl2br($this->getResult()));
+    }
+
+    /**
+     * After execute, you can get a formated result as text.
+     *
+     * Used to show in shell
+     *
+     * @return string
+     */
+    public function getResultText()
+    {
+        return $this->getResult();
+    }
+
 }

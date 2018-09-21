@@ -153,7 +153,7 @@ class Select extends \View\View
                         new \View\Option($values[0], $values[1], FALSE, $element);
                     }
                 }
-                else //simples array
+                else //simple array
                 {
                     new \View\Option($index . '', $item . '', FALSE, $element);
                 }

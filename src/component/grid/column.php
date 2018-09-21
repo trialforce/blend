@@ -595,9 +595,8 @@ class Column implements \Disk\JsonAvoidPropertySerialize
         //not used in this case
         $line = NULL;
         $tr = NULL;
-        $td = NULL;
 
-        if ($this->getEdit())
+        if ($this->getEdit() && $td)
         {
             $columName = $this->getName();
             $pkValue = self::getColumnValue($this->getGrid()->getIdentificatorColumn(), $item);

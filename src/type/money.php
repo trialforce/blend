@@ -35,11 +35,11 @@ class Money implements \Type\Generic
 
         if ($this->value < 0)
         {
-            return '- R$ ' . number_format(abs($this->value), $this->decimals, ',', '.');
+            return '- <small>R$</small> ' . number_format(abs($this->value), $this->decimals, ',', '.');
         }
         else
         {
-            return 'R$ ' . number_format($this->value, $this->decimals, ',', '.');
+            return '<small>R$</small> ' . number_format($this->value, $this->decimals, ',', '.');
         }
     }
 
@@ -181,7 +181,7 @@ class Money implements \Type\Generic
             }
         }
 
-        return trim($rt ? $rt : "zero" );
+        return trim($rt ? $rt : "zero");
     }
 
 }

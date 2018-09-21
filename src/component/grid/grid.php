@@ -1,6 +1,7 @@
 <?php
 
 namespace Component\Grid;
+
 use DataHandle\Request;
 use DataHandle\Session;
 
@@ -699,6 +700,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         \App::dontChangeUrl();
         $grid = $this;
         $columns = $grid->getColumns();
+        $checks = null;
 
         //get selected columns from file
         $fileReportColumns = $this->getReportColumnsFile();
