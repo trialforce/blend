@@ -98,6 +98,17 @@ class EditColumn extends \Component\Grid\Column
         $editPage = $this->getEditPage();
         $editEvent = $this->getEditEvent();
 
+        $page = \View\View::getDom();
+
+        //change edit event to VIEW, when cannot update
+        if ($page instanceof \Page\Crud)
+        {
+            if ($editEvent == \Page\Crud::EVENT_UPDATE && !$page->verifyPermission(\Page\Crud::EVENT_UPDATE))
+            {
+                $editEvent = \Page\Crud::EVENT_VIEW;
+            }
+        }
+
         $identificator = $this->getGrid()->getIdentificatorColumn();
 
         if (!is_null($this->identificatorColumn))
