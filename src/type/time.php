@@ -237,6 +237,11 @@ class Time implements \Type\Generic
         return new \Type\Decimal($this->hour + ($this->minute / 60));
     }
 
+    public static function now()
+    {
+        return \Type\Date::now()->getValue(\Type\Date::MASK_TIME);
+    }
+
     /**
      * Static get a time type
      *
