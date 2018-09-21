@@ -1,6 +1,7 @@
 <?php
 
 namespace Page;
+
 use DataHandle\Request;
 
 class CrudDropZone extends \Page\Crud
@@ -69,15 +70,27 @@ class CrudDropZone extends \Page\Crud
 
         if (is_array($images))
         {
-            foreach ($images as $image)
+            foreach ($images as $item)
             {
-                $media = new \Disk\Media($image);
+                $file = new \Disk\File($item);
+                $file->isImage();
+
+                $media = new \Disk\Media($item);
                 $thumbFile = $this->getThumbFile($media);
 
-                $img = new \View\Div(NULL, NULL, 'img-back swipebox');
-                $img->css('background-image', "url('{$thumbFile->getUrl() }')");
-                $img->attr('data-href', $thumbFile->getUrl());
-                $img->attr('title', $thumbFile->getBasename(FALSE));
+                $img = new \View\Div(NULL, NULL, 'img-back');
+
+                if ($file->isImage())
+                {
+                    $img->addClass('swipebox');
+                    $img->css('background-image', "url('{$thumbFile->getUrl() }')");
+                    $img->attr('data-href', $thumbFile->getUrl());
+                    $img->attr('title', $thumbFile->getBasename(FALSE));
+                }
+                else
+                {
+                    $img->append(new \View\Ext\Icon('file-o'));
+                }
 
                 $span = new \View\Span(NULL, $media->getBasename(TRUE));
 
@@ -85,7 +98,8 @@ class CrudDropZone extends \Page\Crud
                 $delete->click("return p('{$this->getPageUrl()}/deleteImage/?file=" . $media->getPath() . "')");
 
                 $array = array($img, $span, $delete);
-                $array[] = $this->getImageExtraButton($image);
+
+                $array[] = $this->getImageExtraButton($item);
 
                 $link = new \View\A('', $array, $media->getUrl(), 'image-container');
                 $link->setTarget(\View\A::TARGET_BLANK);
@@ -133,6 +147,11 @@ class CrudDropZone extends \Page\Crud
         }
     }
 
+    public function getAcceptFiles()
+    {
+        return 'image/*';
+    }
+
     public function createDropZone()
     {
         $id = Request::get('v');
@@ -140,27 +159,28 @@ class CrudDropZone extends \Page\Crud
         new \View\Div('myAwesomeDropzone', $imgAll, 'dropzone clearfix');
 
         $uploadUrl = $this->getPageUrl() . '/dropUpload/' . $id . '/';
-
         $pageName = $this->getPageUrl();
+        $acceptedFiles = $this->getAcceptFiles() ? 'acceptedFiles: "' . $this->getAcceptFiles() . '",' : '';
 
-        \App::addJs('
+        $js = '
 Dropzone.autoDiscover = false;
 var myDropzone = new Dropzone("#myAwesomeDropzone",
 {
     url: "' . $uploadUrl . '",
-    acceptedFiles: "image/*",
+    ' . $acceptedFiles . '
     addRemoveLinks: true,
-	dictRemoveFile : \'\',
-	dictDefaultMessage : \'Arraste arquivos ou clique para upload\',
+    dictRemoveFile : \'\',
+    dictDefaultMessage : \'Arraste arquivos ou clique para upload\',
     init: function()
-	{
-		this.on("queuecomplete", function (file) {
-          p(\'' . $pageName . '/updateImages\');
+    {
+        this.on("queuecomplete", function (file) {
+        p(\'' . $pageName . '/updateImages\');
       })
-	}
-}
-);
-');
+    }
+});
+';
+
+        \App::addJs($js);
     }
 
     /**
@@ -182,7 +202,7 @@ var myDropzone = new Dropzone("#myAwesomeDropzone",
     public function listImages($id)
     {
         $path = $this->getCompleteFolderName($id);
-        return \Disk\File::find($path . DS . '*.{jpg,png,gif}', GLOB_BRACE);
+        return \Disk\File::find($path . DS . '*');
     }
 
     /**
@@ -226,7 +246,11 @@ var myDropzone = new Dropzone("#myAwesomeDropzone",
             $tempFile = $_FILES['file']['tmp_name'];
 
             $targetPath = self::getCompleteFolderName($id);
-            mkdir($targetPath, 0777, TRUE);
+
+            if (!file_exists($filename))
+            {
+                mkdir($targetPath, 0777, TRUE);
+            }
 
             $file = new \Disk\File($_FILES['file']['name']);
             $fileName = \Type\Text::get($file->getBasename(FALSE))->toFile('-') . '.' . $file->getExtension();
@@ -234,18 +258,25 @@ var myDropzone = new Dropzone("#myAwesomeDropzone",
 
             $ok = move_uploaded_file($tempFile, $targetFile);
 
-            if ($ok && $targetFile->exists() && $targetFile->isImage() && \DataHandle\Config::get('makeThumb'))
+            if ($ok && $targetFile->exists())
             {
-                $thumbFile = $this->getThumbFile($targetFile);
-                $thumbFile->createFolderIfNeeded();
+                if ($targetFile->isImage() && \DataHandle\Config::get('makeThumb'))
+                {
+                    $thumbFile = $this->getThumbFile($targetFile);
+                    $thumbFile->createFolderIfNeeded();
 
-                $imageObj = new \Media\Image($targetFile->getPath());
+                    $imageObj = new \Media\Image($targetFile->getPath());
 
-                $width = \DataHandle\Config::getDefault('thumbWidth', 300);
-                $height = \DataHandle\Config::get('thumbHeight');
+                    $width = \DataHandle\Config::getDefault('thumbWidth', 300);
+                    $height = \DataHandle\Config::get('thumbHeight');
 
-                $imageObj->resize($width, $height);
-                $imageObj->export($thumbFile);
+                    $imageObj->resize($width, $height);
+                    $imageObj->export($thumbFile);
+                }
+            }
+            else
+            {
+                throw new \UserException('Ops! Problema em enviar arquivo!');
             }
         }
     }
