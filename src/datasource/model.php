@@ -70,7 +70,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      */
     public function getData()
     {
-        if (is_null($this->data) || (is_array($this->data) && count($this->data) == 0))
+        if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
             $this->data = $model->smartFind($this->getSmartFilter(), $this->getExtraFilter(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
@@ -132,7 +132,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      *
      * @return array
      */
-    public function mountColumns()
+    public function mountColumns($availableColumns = null)
     {
         return \DataSource\Model::createColumn($this->model->getColumns(), $this->getOrderBy());
     }
@@ -162,9 +162,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
                 if ($column->getType() == \Db\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column::TYPE_DATETIME || $column->getType() == \Db\Column::TYPE_DATE)
                 {
-                    $gridColumn = new \Component\Grid\SmartDateColumn($column->getName(), $columnLabel, NULL, $column->getType());
-                    //$gridColumn = new \Component\Grid\Column( $column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType() );
-                    //$gridColumn->setAlign( \Component\Grid\Column::ALIGN_RIGHT );
+                    $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
                 }
                 else if ($column->getType() == \Db\Column::TYPE_BOOL || $column->getType() == \Db\Column::TYPE_TINYINT)
                 {

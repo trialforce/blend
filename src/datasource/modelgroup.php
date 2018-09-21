@@ -96,7 +96,7 @@ class ModelGroup extends DataSource
      */
     public function getData()
     {
-        if (is_null($this->data) || (is_array($this->data) && count($this->data) == 0))
+        if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
             $filters = $this->getExtraFilter();
