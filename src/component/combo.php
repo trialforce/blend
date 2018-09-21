@@ -1,6 +1,7 @@
 <?php
 
 namespace Component;
+
 use DataHandle\Request;
 use View\Td;
 use View\Tr;
@@ -47,6 +48,7 @@ abstract class Combo extends \Component\Component
         $this->labelValue->setAttribute('onclick', "comboShowDropdown('$id')");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
         $this->labelValue->setAttribute('data-invalid-id', $id);
+        $this->labelValue->setAttribute('placeholder', 'Pesquisar ...');
 
         $this->inputValue = new \View\InputText($id, NULL, 'inputValue');
         $this->inputValue->setReadOnly(TRUE);
