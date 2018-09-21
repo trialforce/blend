@@ -119,9 +119,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function setAttribute($name, $value)
     {
-        //verifica se o atributo possui algum valor
+        $value = is_array($value) ? implode(' ', $value) : $value;
+
+        //verify if atribute has some value
         if ($name && ( $value || $value === '' || $value === 0 || $value === '0' || $value === false ))
         {
+            //add support for array values
             parent::setAttribute($name, $value . '');
 
             //make the output to js,don't output js the outputjs attribute
@@ -378,12 +381,18 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
-     * Define o atributo html title
+     * Define html title attribute
      *
      * @param string $title
      */
     public function setTitle($title)
     {
+        //title html don't suppor html
+        if (is_string($title))
+        {
+            $title = strip_tags($title);
+        }
+
         return $this->setAttribute('title', $title);
     }
 
@@ -990,7 +999,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             {
                 if (!$dom->verifyPermission($dom->parseEvent($onClick)))
                 {
-                    $this->setAttribute('onclick', "toast('Ação desabilitada2!');");
+                    $this->setAttribute('onclick', "toast('Ação desabilitada!');");
                 }
             }
 
