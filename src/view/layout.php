@@ -1,6 +1,7 @@
 <?php
 
 namespace View;
+
 use \DataHandle\Server;
 use \DataHandle\UserAgent;
 use \DataHandle\Request;
@@ -234,9 +235,14 @@ class Layout extends \DomDocument implements \Countable
         //auto optimize/minimize file if is needed
         if ($file->exists())
         {
-            $fileOptimize = \Disk\File::getFromStorage($file->getBasename(TRUE));
+            $mTime = $file->getMTime();
+            $filePath = str_replace('.css', '', $file->getBasename(TRUE));
+            $filePath = $filePath . '_' . $mTime . '.css';
 
-            if (!$fileOptimize->exists() || ( $file->getMTime() > $fileOptimize->getMTime() ))
+            //$fileOptimize = \Disk\File::getFromStorage($file->getBasename(TRUE));
+            $fileOptimize = \Disk\File::getFromStorage($filePath);
+
+            if (!$fileOptimize->exists() || ( $mTime > $fileOptimize->getMTime() ))
             {
                 $file->load();
 
@@ -245,16 +251,6 @@ class Layout extends \DomDocument implements \Countable
 
             //avoid cache
             $href = $fileOptimize->getUrl();
-
-            //cache control
-            if (defined('APP_VERSION'))
-            {
-                $href .= '?v=' . APP_VERSION;
-            }
-            else
-            {
-                $href .= '?_=' . $file->getMTime();
-            }
         }
 
         $stylesheet = new \View\Link($id, $href, 'stylesheet', 'text/css', $media);
@@ -293,7 +289,11 @@ class Layout extends \DomDocument implements \Countable
         //auto optimize/minimize file if is needed
         if ($file->exists())
         {
-            $fileOptimize = \Disk\File::getFromStorage($file->getBasename(TRUE));
+            $mTime = $file->getMTime();
+            $filePath = str_replace('.js', '', $file->getBasename(TRUE));
+            $filePath = $filePath . '_' . $mTime . '.js';
+
+            $fileOptimize = \Disk\File::getFromStorage($filePath);
 
             $src = $fileOptimize->getUrl();
 
@@ -304,12 +304,6 @@ class Layout extends \DomDocument implements \Countable
                 //TODO make js optimize
                 $fileOptimize->save($file->getContent());
             }
-        }
-
-        //cache control
-        if (defined('APP_VERSION'))
-        {
-            $src .= '?v=' . APP_VERSION;
         }
 
         $script = new \View\Script($src, $content, $type, $async);
