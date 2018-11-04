@@ -696,7 +696,7 @@ class Model
     public static function smartFind($filter = NULL, $extraFilters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL)
     {
         $name = self::getName();
-        return $name::find(self::smartFilters($filter, $extraFilters, $name::getColumns()), $limit, $offset, $orderBy, $orderWay, $returnType);
+        return $name::find($name::smartFilters($filter, $extraFilters, $name::getColumns()), $limit, $offset, $orderBy, $orderWay, $returnType);
     }
 
     /**
