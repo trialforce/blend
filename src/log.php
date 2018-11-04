@@ -113,9 +113,9 @@ class Log
     static $debug = true;
 
     const FOLDER = 'log/';
-    const ERROR_FILE = 'error';
-    const DEBUG_FILE = 'debug';
-    const SQL_FILE = 'sql';
+    const ERROR_FILE = 'error.txt';
+    const DEBUG_FILE = 'debug.txt';
+    const SQL_FILE = 'sql.txt';
 
     protected static $logSql = false;
     protected static $logSqlConsole = false;
@@ -284,7 +284,7 @@ class Log
      * @param int $line
      * @param string $file
      */
-    public static function error($type, $message, $line, $file)
+    public static function error($type, $message, $line, $file, $errorFile = Log::ERROR_FILE)
     {
         $devel = \DataHandle\Config::get('devel');
 
@@ -304,7 +304,7 @@ class Log
         $error .= '$_SERVER' . "\n" . print_r($_SERVER, 1) . PHP_EOL;
         $error .= '$_SESSION' . "\n" . print_r($_SESSION, 1) . PHP_EOL;
 
-        Log::put(Log::ERROR_FILE, $error);
+        Log::put($errorFile, $error);
         $develEmail = \DataHandle\Config::get('develEmail');
 
         if ($develEmail)
