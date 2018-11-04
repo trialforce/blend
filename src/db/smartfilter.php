@@ -161,7 +161,7 @@ class SmartFilter
     {
         $queryString = $this->getQueryString();
 
-        //don't go any further withou and data to filter
+        //don't go any further without and data to filter
         if (strlen(trim($queryString)) == 0)
         {
             return array();
@@ -388,6 +388,8 @@ class SmartFilter
 
         foreach ($where as $cond)
         {
+            $cond instanceof \Db\Cond;
+
             if ($cond->getType() == \Db\Cond::TYPE_HAVING)
             {
                 $filtersHaving[] = $cond;
@@ -395,7 +397,8 @@ class SmartFilter
             else
             {
                 $whereString .= $cond->getWhere($count === 0);
-                $values = array_merge($values, $cond->getValue());
+                $value = $cond->getValue();
+                $values = array_merge($values, is_array($value) ? $value : array());
                 $count++;
             }
         }
