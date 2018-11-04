@@ -88,7 +88,7 @@ class Money implements \Type\Generic
 
         //to avoid warning in toDb and toString
         $value = $value ? $value : 0;
-        $this->value = $value;
+        $this->value = floatval($value);
         return $this;
     }
 
