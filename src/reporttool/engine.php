@@ -470,6 +470,11 @@ class Engine
 
     protected function replaceVariable($var, $value, $content)
     {
+        if (is_array($value))
+        {
+            $value = implode(',', $value);
+        }
+
         return str_replace('{$' . $var . '}', $value, $content);
     }
 
@@ -907,7 +912,7 @@ class Engine
      * @param Mpdf $mpdf mpdf object
      * @param array $fonts_list array
      */
-    protected function addCustomFont($mpdf, $fonts_list)
+    public static function addCustomFontList($mpdf, $fonts_list)
     {
         // Logic from line 1146 mpdf.pdf - $this->available_unifonts = array()...
         foreach ($fonts_list as $f => $fs)
@@ -935,6 +940,16 @@ class Engine
         }
 
         $mpdf->default_available_fonts = $mpdf->available_unifonts;
+    }
+
+    /**
+     * Add a custom font to mpdf
+     * @param Mpdf $mpdf mpdf object
+     * @param array $fonts_list array
+     */
+    protected function addCustomFont($mpdf, $fonts_list)
+    {
+        return self::addCustomFontList($mpdf, $fonts_list);
     }
 
 }
