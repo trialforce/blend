@@ -131,6 +131,16 @@ class Server extends DataHandle
     }
 
     /**
+     * Define if php is running from SHELL
+     *
+     * @return bool
+     */
+    public function isShell()
+    {
+        return defined("STDIN");
+    }
+
+    /**
      * Returns the server url
      *
      * @return string
