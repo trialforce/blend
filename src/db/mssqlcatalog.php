@@ -76,7 +76,6 @@ WHERE c.object_id = OBJECT_ID('$table')";
                 $column->setReferenceField(trim($column->getReferenceField()));
                 $column->setExtra(trim($column->getExtra()));
 
-                //var_dump($column->getName().'-'.$column->getType());
                 if (strtolower($column->getType()) == 'int' || strtolower($column->getType()) == 'mediumint')
                 {
                     $column->setType(\Db\Column::TYPE_INTEGER);
@@ -115,7 +114,6 @@ WHERE c.object_id = OBJECT_ID('$table')";
                 $column->setLabel(trim($label));
 
                 $columns[$column->getName()] = $column;
-                //var_dump($column);
             }
         }
 
