@@ -264,6 +264,30 @@ class App
     }
 
     /**
+     * Make a simple echo of all js
+     */
+    public static function getJsScript()
+    {
+        $jss = \App::getJs();
+
+        $html = '';
+
+        if (count($jss) > 0)
+        {
+            $html .= "<script>\r\n";
+
+            foreach ($jss as $js)
+            {
+                $html .= $js . "\r\n";
+            }
+
+            $html .= "</script>\r\n";
+        }
+
+        return $html;
+    }
+
+    /**
      * Add some javascript to be executed in browser
      *
      * @param string $js
