@@ -35,6 +35,15 @@ class DateTime extends \Filter\Text
         $options[self::COND_TOMORROW] = 'Amanha';
         $options[self::COND_BIRTHDAY] = 'Aniversário';
 
+        $options[self::COND_IGUAL] = '=';
+
+        $options[self::COND_MAIOR] = '>';
+        $options[self::COND_MAIOR_IGUAL] = '>=';
+        $options[self::COND_MENOR] = '<';
+        $options[self::COND_MENOR_IGUAL] = '<=';
+        $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        $options[self::COND_INTERVALO] = 'Intervalo';
+
         $options[self::COND_CURRENT_MONTH] = 'Mês (atual)';
         $options[self::COND_PAST_MONTH] = 'Mês (passado)';
         $options[self::COND_NEXT_MONTH] = 'Mês (próximo)';
@@ -52,15 +61,6 @@ class DateTime extends \Filter\Text
         $options[self::COND_MONTH_FIXED . '11'] = 'Novembro';
         $options[self::COND_MONTH_FIXED . '12'] = 'Dezembro';
 
-        $options[self::COND_IGUAL] = 'Igual';
-        $options[self::COND_INTERVALO] = 'Intervalo';
-        $options[self::COND_MAIOR] = 'Maior';
-        $options[self::COND_MAIOR_IGUAL] = 'Maior ou igual';
-        $options[self::COND_MENOR] = 'Menor';
-        $options[self::COND_MENOR_IGUAL] = 'Menor ou igual';
-        $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
-        $options[\Filter\Text::COND_EMPTY] = 'Vazio';
-        $options[\Filter\Text::COND_NULL] = 'Nulo';
 
         $conditionValue = Request::get($conditionName);
 
@@ -69,15 +69,11 @@ class DateTime extends \Filter\Text
             $conditionValue = self::COND_TODAY;
         }
 
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition span1_5 small');
+        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
+        $select->onPressEnter("$('#buscar').click()");
 
         // js para esconder e mostrar campo
-        $js = "if ( $(this).val() == 'between' ) { showEndDate(1, $(this).attr('id')); }
-               else if ( $(this).val() == 'birthday' ) { showEndDate(2, $(this).attr('id')); }
-               else { showEndDate(0, $(this).attr('id')); }";
-
-        $select->change($js);
-        $this->getCondJs($select);
+        $select->change('filterChangeDate($(this));');
 
         return $select;
     }
@@ -85,9 +81,11 @@ class DateTime extends \Filter\Text
     public function getValue()
     {
         $columnValue = $this->getValueName();
-        $view[] = $input = new \View\InputText($columnValue, Request::get($columnValue), 'small filterInput');
-        $view[] = $label = new \View\Label($columnValue . 'LabelFinal', NULL, 'até', 'small filterInput');
-        $view[] = $hide = new \View\InputText($columnValue . 'Final', Request::get($columnValue . 'Final'), 'small filterInput filterDataFinal');
+        $view[0] = $input = new \View\InputText($columnValue, Request::get($columnValue), 'filterInput');
+        $view[0]->onPressEnter("$('#buscar').click()");
+        $view[1] = $label = new \View\Label($columnValue . 'LabelFinal', NULL, 'até', 'filterInput');
+        $view[2] = $hide = new \View\InputText($columnValue . 'Final', Request::get($columnValue . 'Final'), 'filterInput filterDataFinal');
+        $view[2]->onPressEnter("$('#buscar').click()");
 
         $hide->addStyle('display', 'none');
         $label->addStyle('display', 'none');
@@ -189,8 +187,10 @@ class DateTime extends \Filter\Text
 
             return new \Db\Cond($columnName . ' ' . $conditionValue . ' ? ', $date->toDb(), \Db\Cond::COND_AND, $this->getFilterType());
         }
-
-        return $this->getNullOrEmptyFilter($conditionValue, $columnName);
+        else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+        {
+            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+        }
     }
 
 }

@@ -914,38 +914,6 @@ function popup(action, selector)
 }
 
 /**
- * Mostra e esconde o campo de filtro avançado para escolha da data final quando o filtro de data for between.
- *
- * FIXME função 'importada', precisa ser repensada
- *
- * @param {type} show
- * @param {type} id
- * @returns {undefined}
- */
-function showEndDate(show, id)
-{
-    var toRemove = 'Condition';
-    var prefixo = id.replace(toRemove, '');
-
-    var mascara = ((show === 2) ? '99/99' : '99/99/9999');
-
-    if (show === 1 || show === 2)
-    {
-        $('#' + prefixo + 'Value').show().mask(mascara);
-
-        $('#' + prefixo + 'ValueFinal').show().mask(mascara);
-        $('#' + prefixo + 'ValueLabelFinal').show();
-    } else
-    {
-        $('#' + prefixo + 'Value').show().mask(mascara);
-
-        $('#' + prefixo + 'ValueLabelFinal').hide();
-        $('#' + prefixo + 'ValueFinal').hide();
-        $('#' + prefixo + 'ValueFinal').value = '';
-    }
-}
-
-/**
  * Atualiza o conteúdo dos editores html nicEditor
  *
  * @returns void
@@ -1470,4 +1438,115 @@ function getCookie(variable)
         }
     }
     return "";
+}
+
+function filterChangeText(element)
+{
+    var val = $(element).val();
+    
+    var input = $(element).parent().find('.filterInput');
+    console.log('input', input);
+    
+    if ( val== 'nullorempty' || val == 'today' )
+    { 
+        input.val('').hide();
+        element.addClass('fullWidth');
+    } 
+    else 
+    { 
+        input.show();
+        element.removeClass('fullWidth');
+    } 
+}
+
+function filterChangeInteger(element)
+{
+    var val = $(element).val();
+    var input = $(element).parent().find('.filterInput');
+    
+    if ( val == 'between') 
+    {  
+        element.removeClass('fullWidth');
+        input.show().addClass('filterInput');
+    } 
+    else if (val == 'nullorempty')
+    {
+        input.hide();
+        element.addClass('fullWidth');
+    }
+    else 
+    { 
+        element.removeClass('fullWidth');
+        input.show().removeClass('filterInput');
+        $(element).parent().find('.final').hide();
+    }
+}
+
+function filterChangeDate(element)
+{
+    var val = $(element).val();
+    var input = $(element).parent().find('.filterInput');
+    
+    if ( val== 'nullorempty' 
+            || val == 'today' 
+            || val == 'yesterday' 
+            || val == 'tomorrow' 
+            || val == 'currentmonth' 
+            || val =='pastmonth' 
+            || val == 'nextmonth' 
+            || val.indexOf('month-')==0)
+    { 
+        input.val('').hide();
+        element.addClass('fullWidth');
+    } 
+    else if ( val == 'between' ) 
+    { 
+        input.show();
+        element.removeClass('fullWidth');
+        showEndDate(1, $(element).attr('id')); 
+    }
+    else if ( val == 'birthday' )
+    { 
+        input.show();
+        element.removeClass('fullWidth');
+        showEndDate(2, $(element).attr('id')); 
+    }
+    else 
+    { 
+        input.show();
+        element.removeClass('fullWidth');
+        showEndDate(0, $(element).attr('id')); 
+    }
+}
+
+/**
+ * Mostra e esconde o campo de filtro avançado para escolha da data final quando o filtro de data for between.
+ *
+ * FIXME função 'importada', precisa ser repensada
+ *
+ * @param {type} show
+ * @param {type} id
+ * @returns {undefined}
+ */
+function showEndDate(show, id)
+{
+    var toRemove = 'Condition';
+    var prefixo = id.replace(toRemove, '');
+
+    var mascara = ((show === 2) ? '99/99' : '99/99/9999');
+
+    if (show === 1 || show === 2)
+    {
+        $('#' + prefixo + 'Value').show().mask(mascara);
+
+        $('#' + prefixo + 'ValueFinal').show().mask(mascara);
+        $('#' + prefixo + 'ValueLabelFinal').show();
+    } else
+    {
+        $('#' + prefixo + 'Value').show().mask(mascara);
+
+        $('#' + prefixo + 'ValueLabelFinal').hide();
+        $('#' + prefixo + 'ValueFinal').hide();
+        $('#' + prefixo + 'ValueFinal').value = '';
+    }
 }

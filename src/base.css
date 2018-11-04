@@ -543,6 +543,40 @@ iframe {
 }
 
 @media screen and ( max-width: 1320px ) {
+#advanced-filter {
+    position: relative;
+    font-size: 24px;
+    margin-top: 7px;
+    margin-bottom: 9px;
+    float: right;
+    margin-top: 0;
+    cursor: pointer;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    transition: 0.1s ease-in-out;
+    max-height: 400px;
+}
+
+#advanced-filter:active {
+    background: #ccc;
+}
+
+#advanced-filter .blend-floating-menu {
+    top: 33px;
+    right: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#advanced-filter .blend-floating-menu li {
+    line-height: 16px;
+}
+
+@media screen and ( max-width: 1250px ) {
 
     .hide-in-middle {
         display: none !important;

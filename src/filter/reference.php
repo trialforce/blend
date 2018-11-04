@@ -1,9 +1,7 @@
 <?php
 
 namespace Filter;
-
 use DataHandle\Request;
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -43,7 +41,7 @@ class Reference extends \Filter\Text
     public function getValue()
     {
         $columnValue = $this->getValueName();
-        $class = 'small filterCondition reference';
+        $class = 'filterInput reference';
         $value = Request::get($columnValue);
 
         if ($this->dbColumn->getReferenceField())
@@ -72,17 +70,15 @@ class Reference extends \Filter\Text
         $options[self::COND_EQUALS] = 'Igual';
         $options[self::COND_NOT_EQUALS] = 'Diferente';
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
-        $options[self::COND_EMPTY] = 'Vazio';
-        $options[self::COND_NULL] = 'Nulo';
 
-        $conditionValue = Request::get($conditionName);
+        $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_EQUALS;
 
         if (!$conditionValue)
         {
             $conditionValue = 'like';
         }
 
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'span1_5 small filterCondition');
+        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
         $this->getCondJs($select);
 
         return $select;
@@ -146,8 +142,10 @@ class Reference extends \Filter\Text
         {
             return new \Db\Cond($columnName . ' = ?', $filterValue . '', \Db\Cond::COND_AND, $this->getFilterType());
         }
-
-        return $this->getNullOrEmptyFilter($conditionValue, $columnName);
+        else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+        {
+            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+        }
     }
 
 }

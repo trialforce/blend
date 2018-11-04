@@ -20,15 +20,15 @@ class Boolean extends \Filter\Text
     {
         $columnValue = $this->getValueName();
 
-        $options[''] = 'Sim e não (Ambos)';
         $options['t'] = 'Sim';
         $options['f'] = 'Não';
-        $options['n'] = 'Nulo';
-        $options['nn'] = 'Não nulo';
 
         $value = $this->parseValue(Request::get($columnValue));
 
-        return new \View\Select($columnValue, $options, $value, 'small filterCondition');
+        $input = new \View\Select($columnValue, $options, $value, '');
+        $input->onPressEnter("$('#buscar').click()");
+
+        return $input;
     }
 
     public function parseValue($value)
@@ -44,24 +44,18 @@ class Boolean extends \Filter\Text
     public function getDbCond()
     {
         $filterName = $this->getValueName();
+        $columnName = $this->getColumn()->getName();
         $filterValue = $this->parseValue(Request::get($filterName));
         $cond = NULL;
 
         if ($filterValue == 't')
         {
-            $cond = new \Db\Cond($this->getColumn()->getName() . ' = 1', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            $cond = new \Db\Cond('(' . $columnName . ' = 1 OR ' . $columnName . ' IS NOT NULL)', NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
         else if ($filterValue == 'f')
         {
-            $cond = new \Db\Cond($this->getColumn()->getName() . ' = 0', NULL, \Db\Cond::COND_AND, $this->getFilterType());
-        }
-        else if ($filterValue == 'n')
-        {
-            $cond = new \Db\Cond($this->getColumn()->getName() . ' IS NULL', NULL, \Db\Cond::COND_AND, $this->getFilterType());
-        }
-        else if ($filterValue == 'nn')
-        {
-            $cond = new \Db\Cond($this->getColumn()->getName() . ' IS NOT NULL', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+
+            $cond = new \Db\Cond('(' . $columnName . ' = 0 OR ' . $columnName . ' IS NULL)', NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
 
         return $cond;

@@ -23,8 +23,6 @@ class Text
     const COND_NOT_EQUALS = '!=';
     const COND_STARTSWITH = 'startsWith';
     const COND_ENDSWITH = 'endsWith';
-    const COND_NULL = 'null';
-    const COND_EMPTY = 'empty';
     const COND_NULL_OR_EMPTY = 'nullorempty';
     const FILTER_TYPE_DISABLE = 0;
     const FILTER_TYPE_ENABLE = 1;
@@ -100,7 +98,7 @@ class Text
         //suport description filter
         if (strpos($this->getFilterName(), 'Description') > 0)
         {
-            $label .=' (Texto)';
+            $label .= ' (Texto)';
         }
 
         return $label;
@@ -115,7 +113,10 @@ class Text
     {
         $columnValue = $this->getValueName();
 
-        return new \View\Input($columnValue, \View\Input::TYPE_TEXT, Request::get($columnValue), 'small filterInput');
+        $input = new \View\Input($columnValue, \View\Input::TYPE_TEXT, Request::get($columnValue), 'filterInput');
+        $input->onPressEnter("$('#buscar').click()");
+
+        return $input;
     }
 
     public function getCondition()
@@ -128,8 +129,6 @@ class Text
         $options[self::COND_STARTSWITH] = 'Inicia com';
         $options[self::COND_ENDSWITH] = 'Termina com';
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
-        $options[self::COND_EMPTY] = 'Vazio';
-        $options[self::COND_NULL] = 'Nulo';
 
         $conditionValue = Request::get($conditionName);
 
@@ -138,7 +137,8 @@ class Text
             $conditionValue = 'like';
         }
 
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'span1_5 small filterCondition');
+        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
+        $select->onPressEnter("$('#buscar').click()");
         $this->getCondJs($select);
 
         return $select;
@@ -146,12 +146,7 @@ class Text
 
     protected function getCondJs($select)
     {
-        $valueName = $this->getValueName();
-        $empty = self::COND_EMPTY;
-        $null = self::COND_NULL;
-        $nullOrEmpty = self::COND_NULL_OR_EMPTY;
-
-        $select->change("if ( $(this).val() == '$empty' || $(this).val() == '$null' || $(this).val() == '$nullOrEmpty' || $(this).val() == 'today' ) { $('#$valueName').attr('readonly',true).val('').val(''); } else { $('#$valueName').attr('readonly',false); } ");
+        $select->change("filterChangeText($(this));");
         \App::addJs("$('#{$select->getId()}').change();");
     }
 
@@ -204,38 +199,11 @@ class Text
             {
                 return new \Db\Cond('(' . $columnName . ' like ? )', '%' . $filterValueExt, \Db\Cond::COND_AND, $this->getFilterType());
             }
-        }
-
-        return $this->getNullOrEmptyFilter($conditionValue, $columnName);
-    }
-
-    /**
-     * Retorna o filtro para os casos de null or empty
-     *
-     * @param string $conditionValue
-     * @param string $columnName
-     * @return \Db\Cond
-     */
-    protected function getNullOrEmptyFilter($conditionValue, $columnName)
-    {
-        /* Valores que funcionam só com condição */
-        if (in_array($conditionValue, array(self::COND_NULL, self::COND_EMPTY, self::COND_NULL_OR_EMPTY)))
-        {
-            if ($conditionValue == self::COND_NULL)
-            {
-                return new \Db\Cond('(' . $columnName . ' IS NULL )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
-            }
-            else if ($conditionValue == self::COND_EMPTY)
-            {
-                return new \Db\Cond('(' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
-            }
             else if ($conditionValue == self::COND_NULL_OR_EMPTY)
             {
                 return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
             }
         }
-
-        return NULL;
     }
 
 }

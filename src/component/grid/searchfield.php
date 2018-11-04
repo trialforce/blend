@@ -70,7 +70,6 @@ class SearchField extends \Component\Component
             $innerHtml[] = $this->extraFilters;
         }
 
-        $innerHtml[] = $this->getSearchButton();
         $innerHtml[] = $this->getAdvancedFilters();
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
@@ -147,28 +146,29 @@ class SearchField extends \Component\Component
             $dbModel = $dom->getModel();
         }
 
-        //TODO verify allready created filters
+        $result[] = $this->getSearchButton();
+        $filter = new \View\Ext\Icon('filter');
+        $filter->setId('advanced-filter');
+        $filter->click('$("#fm-filters").toggle(\'fast\');');
+
+        $result[] = $filter;
+
         $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel);
 
-        $result[] = $select = new \View\Select('selectFilters', NULL, NULL, 'selectFilters btn add');
-        $select->change("var id = $(this).val(); $('#'+id+'Filter').show().find('input, select').removeAttr('disabled'); $('#'+id+'Value').focus()");
-        $select->change('addAdvancedFilter')->addOption('', 'Filtro avançado');
+        $fMenu = new \View\Blend\FloatingMenu('fm-filters');
+        $fMenu->hide();
 
-        $gridGroup = \DataHandle\Config::get('gridGroup');
+        $filter->append($fMenu);
 
-        if ($gridGroup)
-        {
-            $result[] = $selectGroup = new \View\Select('selectGroups', NULL, NULL, 'selectFilters btn add');
-            $selectGroup->change('addSearchGroup');
-            $selectGroup->addOption('', 'Agrupamento');
-        }
+        $pageUrl = \View\View::getDom()->getPageUrl();
 
         if (is_array($filters))
         {
             foreach ($filters as $filter)
             {
-                //filter part
-                $select->addOption($filter->getFilterName(), $filter->getFilterLabel());
+                $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
+                $fMenu->addItem(null, null, $filter->getFilterLabel(), $url);
+
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
 
@@ -177,49 +177,10 @@ class SearchField extends \Component\Component
                 {
                     $filterContent[] = $filter->getInput()->append(\Page\Page::getCloseFilterButton());
                 }
-
-                //group part
-                if ($gridGroup)
-                {
-                    $selectGroup->addOption($filter->getFilterName(), $filter->getFilterLabel());
-                }
             }
         }
 
-        $groupType = NULL;
-
-        //create groups views
-        if ($gridGroup)
-        {
-            $groupType = Request::get('group-type');
-            $page = \View\View::getDom();
-
-            if (is_array($groupType))
-            {
-                foreach ($groupType as $name => $value)
-                {
-                    $filterContent[] = $page->createSearchGroupField($grid, $name, $value);
-                }
-            }
-
-            $selectGroup->addOption('*', 'Todos');
-        }
-
-        if (count($filterContent) > 0)
-        {
-            $btnSearch = new \View\Ext\Button('buscar', 'search', 'Buscar', "$('#buscar').click();", '', 'Clique para pesquisa');
-            $btnSearch->setTitle('Buscar');
-            $filterContent[] = $btnSearch;
-        }
-
-        if ($gridGroup && is_array($groupType))
-        {
-            $check[] = new \View\Label(NULL, 'makeGraph', 'Gráfico');
-            $check[] = $select = new \View\Select('makeGraph', \View\Ext\HighChart::listChartTypes(), Request::get('makeGraph'));
-            $select->change("$('#buscar').click();");
-            $filterContent[] = new \View\Span(NULL, $check, 'makeGraphHold');
-        }
-
+        \App::addJs("$('.filterCondition').change();");
         $result[] = new \View\Div('containerFiltros', $filterContent, 'clearfix');
 
         return $result;

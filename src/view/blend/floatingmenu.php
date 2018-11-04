@@ -30,7 +30,8 @@ class FloatingMenu extends \View\Ul
      */
     public function addItem($id, $icon, $label, $action, $class = NULL, $title = NULL, $formChangeAdvice = FALSE)
     {
-        $field = new \View\Span(null, array(new \View\Ext\Icon($icon), $label));
+        $icon = is_string($icon) ? new \View\Ext\Icon($icon) : $icon;
+        $field = new \View\Span(null, array($icon, $label));
 
         $item = new \View\Li($id, $field, $class);
         $item->click($action)->setTitle($title);
