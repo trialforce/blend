@@ -1,6 +1,7 @@
 <?php
 
 namespace Filter;
+
 use DataHandle\Request;
 
 /**
@@ -50,7 +51,7 @@ class Integer extends \Filter\Text
     {
         $columnValue = $this->getValueName();
 
-        $input[0] = new \View\Ext\IntInput($columnValue, Request::get($columnValue), NULL, NULL, '');
+        $input[0] = new \View\Ext\IntInput($columnValue, Request::get($columnValue), NULL, NULL, 'filterInput');
         $input[0]->onPressEnter("$('#buscar').click()");
         $input[1] = new \View\Ext\IntInput($columnValue . 'Final', Request::get($columnValue . 'Final'), NULL, NULL, 'filterInput final');
         $input[1]->onPressEnter("$('#buscar').click()");
@@ -74,6 +75,8 @@ class Integer extends \Filter\Text
         $conditionValue = Request::get($conditionName);
         $filterValue = Request::get($filterName);
         $filterFinalValue = Request::get($filterName . 'Final');
+
+        $cond = null;
 
         if ($conditionValue && isset($filterValue))
         {

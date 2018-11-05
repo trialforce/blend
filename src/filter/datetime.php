@@ -1,6 +1,7 @@
 <?php
 
 namespace Filter;
+
 use DataHandle\Request;
 
 /**

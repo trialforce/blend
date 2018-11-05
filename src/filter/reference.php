@@ -1,7 +1,9 @@
 <?php
 
 namespace Filter;
+
 use DataHandle\Request;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -59,6 +61,8 @@ class Reference extends \Filter\Text
 
             $field = new \View\Select($this->getValueName(), $cValues, $value, $class);
         }
+
+        $field->onPressEnter("$('#buscar').click()");
 
         return $field;
     }
