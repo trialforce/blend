@@ -135,28 +135,7 @@ class Select extends \View\View
         {
             foreach ($searchResult as $index => $item)
             {
-                //allready an option
-                if ($item instanceof \View\Option)
-                {
-                    $element->append($item);
-                }
-                else if (is_object($item))
-                {
-                    //default method for model
-                    if (method_exists($item, 'getOptionValue'))
-                    {
-                        new \View\Option($item->getOptionValue() . '', $item->getOptionLabel() . '', FALSE, $element);
-                    }
-                    else //simple object
-                    {
-                        $values = array_values((array) $item);
-                        new \View\Option($values[0], $values[1], FALSE, $element);
-                    }
-                }
-                else //simple array
-                {
-                    new \View\Option($index . '', $item . '', FALSE, $element);
-                }
+                $option = \View\Option::createOption($item, $index, $element);
             }
         }
 
