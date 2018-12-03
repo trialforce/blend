@@ -558,6 +558,7 @@ iframe {
     border-radius: 50%;
     transition: 0.1s ease-in-out;
     max-height: 400px;
+    margin-right: 0;
 }
 
 #advanced-filter:active {

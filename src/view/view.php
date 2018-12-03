@@ -1187,7 +1187,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
-     * Emultates jquery data function
+     * Emulates jquery data function
      *
      * @param string $data
      * @param string $value
@@ -1493,13 +1493,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
 
         return preg_match('/<\s?[^\>]*\/?\s?>/i', $string);
-
-        /* if ($string != strip_tags($string))
-          {
-          return true;
-          }
-
-          return false; */
     }
 
     public function listAvoidPropertySerialize()
