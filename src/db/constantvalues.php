@@ -32,6 +32,31 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable
     }
 
     /**
+     * Return the an array of object with id and value property
+     *
+     * @return array of \stdClass
+     */
+    public function getObjectArray()
+    {
+        $array = $this->getArray();
+        $result = [];
+
+        if (is_array($array))
+        {
+            foreach ($array as $key => $item)
+            {
+                $stdClass = new \stdClass();
+                $stdClass->id = $key;
+                $stdClass->value = $item;
+
+                $result[] = $stdClass;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Return key description
      *
      * @param int $key
