@@ -96,8 +96,6 @@ class Model
     }
 
     /**
-      =======
-      >>>>>>> bc9e1c4debdb1855e913d1b5bfdcd7753a13642b
      * Return the columns indexed by name
      *
      * @return array of \Db\Column
@@ -986,6 +984,18 @@ class Model
         return $this->getValue($firstColumnName);
     }
 
+    /**
+     * Return the string representation of this Model
+     * Normally the first meaningfull string property
+     * This method call getOptionLabel internally
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getOptionLabel();
+    }
+
     public function getTitleLabel()
     {
         return '';
@@ -1162,6 +1172,28 @@ class Model
     }
 
     /**
+     * Get model related to this property
+     *
+     * @param string $propertyName property name
+     * @param bool $useCache if use cache to get this object
+     * @return \Db\Model
+     */
+    public function getRelatedModel($propertyName, $useCache = false)
+    {
+        $name = self::getName();
+        $columns = $name::getColumns();
+        $column = $columns[$propertyName];
+        $column instanceof \Db\Column;
+
+        $idValue = $this->$propertyName;
+
+        $referenceModelClassName = '\Model\\' . $column->getReferenceTable();
+        $referenceModel = $referenceModelClassName::findOneByPk($idValue, true);
+
+        return $referenceModel;
+    }
+
+    /**
      * Supports the search for variables in the model.
      * Even if they are not declared.
      * In other words variables declared without support models,
@@ -1178,16 +1210,6 @@ class Model
         }
 
         return NULL;
-    }
-
-    /**
-     * Return the name of the class
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 
     /**
