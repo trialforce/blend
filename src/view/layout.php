@@ -34,14 +34,14 @@ class Layout extends \DomDocument implements \Countable
             \View\View::setDom($this);
         }
 
-        if (isset($layout))
+        if (isset($layout) && $layout)
         {
             $this->setLayoutFile($layout);
         }
     }
 
     /**
-     * Calleb by system when the layout is created.
+     * Called by system when the layout is created.
      * Called when is not ajax
      *
      */
@@ -703,16 +703,14 @@ class Layout extends \DomDocument implements \Countable
     {
         //remove comments
         $html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
-
         //trim all lines
         $html = implode(PHP_EOL, array_map('trim', explode(PHP_EOL, $html)));
 
-        $original[] = '&amp;nbsp';
-        $original[] = "\t";
-        $replace[] = '&nbsp;';
-
+        //$original[] = '&amp;nbsp';
+        //$original[] = "\t";
+        //$replace[] = '&nbsp;';
         //simple replace
-        $html = str_replace($original, $replace, $html);
+        //$html = str_replace($original, $replace, $html);
 
         return $html;
     }
