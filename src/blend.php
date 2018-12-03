@@ -108,3 +108,14 @@ function isIterable($obj)
 {
     return is_array($obj) || is_object($obj);
 }
+
+/**
+ * Return an element by it's id
+ * Alias function to \View\View::getDom()->byId
+ * @param string $id
+ * @return \View\View
+ */
+function byId($id)
+{
+    return \View\View::getDom()->byId($id);
+}
