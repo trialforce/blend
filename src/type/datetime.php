@@ -566,7 +566,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Método para obter a data conforme a máscara passada por parâmetro
+     * Method to get formatad date value, using passed mask
      *
      * @param $mask
      * @return string com a data
@@ -583,6 +583,18 @@ class DateTime extends \Validator\Validator
         {
             return '';
         }
+    }
+
+    /**
+     * Method to get formatad date value, using passed mask
+     * Format method to add compatibilty with other libraries
+     *
+     * @param string $mask
+     * @return string
+     */
+    public function format($mask = self::MASK_TIMESTAMP_USER)
+    {
+        return $this->getValue($mask);
     }
 
     /**
