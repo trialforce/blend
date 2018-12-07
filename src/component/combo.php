@@ -153,7 +153,8 @@ abstract class Combo extends \Component\Component
         }
 
         $dataSource = $this->getDataSource();
-        $dataSource->setSmartFilter(trim(Request::get('labelField_' . $id)));
+        $searchValue = trim(Request::get('labelField_' . $id));
+        $this->filterData($dataSource, $searchValue);
 
         if (!$dataSource->getLimit())
         {
@@ -219,6 +220,13 @@ abstract class Combo extends \Component\Component
         {
             $container->show();
         }
+    }
+
+    public function filterData(\DataSource\DataSource $dataSource, $searchText)
+    {
+        $dataSource->setSmartFilter($searchText);
+
+        return $dataSource;
     }
 
 }
