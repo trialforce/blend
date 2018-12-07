@@ -726,7 +726,8 @@ class Model
     }
 
     /**
-     * Order and array of models by a passed property
+     * Order and array of models by a passed property.
+     * Method suppor array of classes ou array of array.
      *
      * @param array $array
      * @param string $property
@@ -738,10 +739,28 @@ class Model
 
         if (is_array($array))
         {
-            foreach ($array as $model)
+            foreach ($array as $item)
             {
-                $index = $model->getValue($property);
-                $result[$index] = $model;
+                //array
+                if (is_array($item))
+                {
+                    $index - $item[$property];
+                }
+                else if (is_object($item))
+                {
+                    //model
+                    if ($item instanceof \Db\Model)
+                    {
+                        $index = $item->getValue($property);
+                    }
+                    //simple object
+                    else
+                    {
+                        $index = $item->$property;
+                    }
+                }
+
+                $result[$index] = $item;
             }
         }
 
