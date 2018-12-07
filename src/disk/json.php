@@ -57,6 +57,32 @@ class Json
     }
 
     /**
+     * Parse json string,same name as JS
+     * Internally calls decode
+     *
+     * @param string $json
+     * @param bool $assoc
+     * @return mixed
+     */
+    public static function parse($json, $assoc = false)
+    {
+        return self::decode($json, $assoc);
+    }
+
+    /**
+     * Stringfy the array
+     * Internally call encode
+     *
+     * @param mixed $value
+     * @param int $options
+     * @return string
+     */
+    public static function stringfy($value, $options = false)
+    {
+        return self::encode($value, $options);
+    }
+
+    /**
      * Decode json string from file
      *
      * @param string $path
@@ -73,7 +99,6 @@ class Json
         }
 
         $content = file_get_contents($path);
-
 
         if (!$content)
         {
