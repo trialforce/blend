@@ -298,9 +298,15 @@ class Log
         $error .= "###############################################" . PHP_EOL;
         $error .= 'Error in ' . date('d/m/y G:i:s:u') . ' = ' . $file . ' on line ' . $line . "\n";
         $error .= $type . ' - ' . $message . PHP_EOL;
-        $error .= print_r(debug_backtrace(), 1) . PHP_EOL;
-        $error .= '$_POST' . "\n" . print_r($_POST, 1) . PHP_EOL;
-        $error .= '$_GET' . "\n" . print_r($_GET, 1) . PHP_EOL;
+
+        //controls especial js erro type, used in API
+        if (strtolower($type) != 'js')
+        {
+            $error .= print_r(debug_backtrace(), 1) . PHP_EOL;
+            $error .= '$_POST' . "\n" . print_r($_POST, 1) . PHP_EOL;
+            $error .= '$_GET' . "\n" . print_r($_GET, 1) . PHP_EOL;
+        }
+
         $error .= '$_SERVER' . "\n" . print_r($_SERVER, 1) . PHP_EOL;
         $error .= '$_SESSION' . "\n" . print_r($_SESSION, 1) . PHP_EOL;
 
@@ -311,7 +317,7 @@ class Log
         {
             $serverUrl = \DataHandle\Server::getInstance()->getHost();
             $mail = new Mailer();
-            $mail->defineHtmlUft8("Erro em " . $serverUrl, nl2br($error), $develEmail);
+            $mail->defineHtmlUft8($type . " in " . $serverUrl, nl2br($error), $develEmail);
             return $mail->send();
         }
     }
