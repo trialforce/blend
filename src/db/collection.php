@@ -5,7 +5,7 @@ namespace Db;
 /**
  * Simple Collection with ArrayAccess suport
  */
-class Collection implements \ArrayAccess, \Iterator, \Countable
+class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
 
     /**
@@ -55,6 +55,73 @@ class Collection implements \ArrayAccess, \Iterator, \Countable
     }
 
     /**
+     * Return the first item of array
+     *
+     * @return mixes
+     */
+    public function first()
+    {
+        return array_values($this->data)[0];
+    }
+
+    public function filter($function)
+    {
+        $new = [];
+
+        foreach ($this->data as $idx => $item)
+        {
+            if ($function($item))
+            {
+                $new[] = $item;
+            }
+        }
+
+        $this->data = $new;
+
+        return $this;
+    }
+
+    public function orderBy($orderBy, $orderWay = NULL)
+    {
+        usort($this->data, function($a, $b) use(&$orderBy)
+        {
+            $valueA = '';
+            $valueB = '';
+
+            if (is_array($a))
+            {
+                $valueA = $a[$orderBy];
+                $valueB = $b[$orderBy];
+            }
+            else if (is_object($a))
+            {
+                $methodA = 'get' . $orderBy;
+                $methodB = 'get' . $orderBy;
+
+                if (method_exists($a, $methodA))
+                {
+                    $valueA = $a->$methodA();
+                    $valueB = $b->$methodB();
+                }
+                else
+                {
+                    $valueA = $a->$orderBy;
+                    $valueB = $b->$orderBy;
+                }
+            }
+
+            return strcmp($valueA, $valueB);
+        });
+
+        if (strtolower($orderWay) != 'desc')
+        {
+            $this->data = array_reverse($this->data);
+        }
+
+        return $this->data;
+    }
+
+    /**
      * Add some item to collection
      *
      * @param string $key
@@ -89,6 +156,16 @@ class Collection implements \ArrayAccess, \Iterator, \Countable
      * @param mixed $value
      */
     public function add($value)
+    {
+        $this->set(NULL, $value);
+    }
+
+    /**
+     * Push a data to array, same effect as add
+     *
+     * @param mixed $value
+     */
+    public function push($value)
     {
         $this->set(NULL, $value);
     }
@@ -275,6 +352,21 @@ class Collection implements \ArrayAccess, \Iterator, \Countable
     public function __unset($name)
     {
         unset($this->data[$name]);
+    }
+
+    public function __toString()
+    {
+        return print_r($this->data, TRUE);
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->data;
+    }
+
+    public function toJson()
+    {
+        return json_encode($this);
     }
 
 }

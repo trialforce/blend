@@ -129,4 +129,27 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable
         return isset($array[$this->position]);
     }
 
+    /**
+     * Return an instance of this constant values
+     *
+     * @return \Db\ConstantValues
+     */
+    public static function getInstance()
+    {
+        $className = get_called_class();
+
+        return new $className();
+    }
+
+    /**
+     * Return simple array of values
+     *
+     * @return array
+     */
+    public static function toArray()
+    {
+        $className = get_called_class();
+        return $className::getInstance()->getArray();
+    }
+
 }

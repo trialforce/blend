@@ -220,6 +220,25 @@ class Cond
         }
     }
 
+    public function getWhereSql($first = false)
+    {
+        $where = $this->filter . ' ';
+
+        //if ($this->getValue())
+        //{
+        //$where = str_replace('?', implode(',', $this->getValue()), $where);
+        //}
+
+        if ($first)
+        {
+            return $where;
+        }
+        else
+        {
+            return $this->condition . ' ' . $where;
+        }
+    }
+
     /**
      * Retorno padrão da condição como string
      *

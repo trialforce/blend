@@ -5,31 +5,33 @@ namespace Db;
 class QueryBuilder
 {
 
+    protected $catalogClass = '\Db\MysqlCatalog';
+    protected $modelName = 'array';
+    protected $conn;
     protected $tableName;
+    protected $join = null;
     protected $columns = ['*'];
     protected $where = null;
     protected $limit = null;
     protected $offset = null;
     protected $orderBy = null;
-    protected $catalog;
-    protected $conn;
 
-    public function __construct($tableName)
+    public function __construct($tableName = null, $catalog = '\Db\MysqlCatalog', $connInfoId = 'default')
     {
         //mysql for default
-        $this->setCatalog(new \Db\MysqlCatalog());
-        $this->setConn(\Db\Conn::getInstance('default'));
+        $this->setCatalogClass($catalog ? $catalog : '\Db\MysqlCatalog');
+        $this->setConn(\Db\Conn::getInstance($connInfoId ? $connInfoId : 'default'));
         $this->setTableName($tableName);
     }
 
-    public function getCatalog()
+    public function getCatalogClass()
     {
-        return $this->catalog;
+        return $this->catalogClass;
     }
 
-    public function setCatalog($catalog)
+    public function setCatalogClass($catalogClass)
     {
-        $this->catalog = $catalog;
+        $this->catalogClass = $catalogClass;
         return $this;
     }
 
@@ -53,9 +55,66 @@ class QueryBuilder
     {
         if ($tableName)
         {
-            $catalog = get_class($this->getCatalog());
+            $catalog = $this->catalogClass;
             $this->tableName = $catalog::parseTableNameForQuery($tableName);
         }
+
+        return $this;
+    }
+
+    public function getJoin()
+    {
+        return $this->join;
+    }
+
+    public function setJoin($join)
+    {
+        $this->join = $join;
+        return $this;
+    }
+
+    function join($type, $tableName, $on, $alias = NULL)
+    {
+        $this->join[] = new \Db\Join($type, $tableName, $on, $alias);
+        return $this;
+    }
+
+    function leftJoin($tableName, $on, $alias = NULL)
+    {
+        $this->join[] = new \Db\Join('left', $tableName, $on, $alias);
+
+        return $this;
+    }
+
+    function rightJoin($tableName, $on, $alias = NULL)
+    {
+        $this->join[] = new \Db\Join('right', $tableName, $on, $alias);
+
+        return $this;
+    }
+
+    function innerJoin($tableName, $on, $alias = NULL)
+    {
+        $this->join[] = new \Db\Join('inner', $tableName, $on, $alias);
+
+        return $this;
+    }
+
+    function fullJoin($tableName, $on, $alias = NULL)
+    {
+        $this->join[] = new \Db\Join('full', $tableName, $on, $alias);
+
+        return $this;
+    }
+
+    function getModelName()
+    {
+        return $this->modelName;
+    }
+
+    function setModelName($modelName)
+    {
+        $this->modelName = $modelName;
 
         return $this;
     }
@@ -76,10 +135,20 @@ class QueryBuilder
         return $this;
     }
 
+    public function limit($limit)
+    {
+        return $this->setLimit($limit);
+    }
+
     public function setOffset($offset)
     {
         $this->offset = $offset;
         return $this;
+    }
+
+    public function Offset($offset)
+    {
+        return $this->setOffset($offset);
     }
 
     public function getColumns()
@@ -95,7 +164,7 @@ class QueryBuilder
 
     public function column($columnName, $alias = NULL)
     {
-        $catalog = get_class($this->getCatalog());
+        $catalog = $this->catalogClass;
 
         if (!is_array($this->columns))
         {
@@ -132,14 +201,19 @@ class QueryBuilder
         return $this;
     }
 
-    public function orderBy($orderBy, $orderWay = NULL)
+    public function orderBy($orderBy)
     {
-        if (!is_array($this->orderBy))
+        return $this->addOrderBy($orderBy);
+    }
+
+    public function addOrderBy($orderBy, $orderWay = NULL)
+    {
+        $catalog = $this->catalogClass;
+
+        if ($this->orderBy && !is_array($this->orderBy))
         {
             $this->orderBy = [$this->orderBy];
         }
-
-        $catalog = get_class($this->getCatalog());
 
         $orderBy = $catalog::parseTableNameForQuery($orderBy);
 
@@ -163,39 +237,29 @@ class QueryBuilder
         return $this;
     }
 
-    public function where($columnName, $param, $value = NULL, $operation = 'AND')
+    public function where($columnName, $param, $value = NULL, $condition = 'AND')
     {
-        $catalog = get_class($this->getCatalog());
-        $operation = $operation ? trim(strtoupper($operation)) : 'AND';
-
-        if (!is_array($this->where))
-        {
-            $this->where = [$this->where];
-        }
-
-        //add suport for two parameters
+        //support only two parameters
         if (!$value)
         {
             $value = $param;
 
             if (is_array($value))
             {
-                $value = "IN ('" . implode("', '", $value) . "')";
-                $param = '';
+                $param = 'IN';
             }
             else
             {
                 $param = '=';
-                $value = ' \'' . $value . '\'';
             }
         }
-        else
-        {
-            $value = ' \'' . $value . '\'';
-        }
 
+        $catalog = $this->catalogClass;
         $columnName = $catalog::parseTableNameForQuery($columnName);
-        $this->where[$operation][] = $columnName . ' ' . $param . $value;
+
+        $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
+
+        $this->where[] = $where;
 
         return $this;
     }
@@ -205,11 +269,11 @@ class QueryBuilder
         return $this->where($columnName, $param, $value, 'OR');
     }
 
-    public function whereRaw($where, $operation = 'AND')
-    {
-        $operation = $operation ? trim(strtoupper($operation)) : 'AND';
-        $this->where[] = $operation . $where;
-    }
+    /* public function whereRaw($where, $operation = 'AND')
+      {
+      $operation = $operation ? trim(strtoupper($operation)) : 'AND';
+      $this->where[] = $operation . $where;
+      } */
 
     protected function mountColumns($format = false)
     {
@@ -230,45 +294,46 @@ class QueryBuilder
 
         if (is_array($orders))
         {
-            $explode = ', ';
-            $orders = implode($explode, $orders);
+            $orders = implode(', ', $orders);
         }
 
         return $orders;
     }
 
-    protected function mountWhere($format = false)
+    protected function getTables()
     {
-        $where = $this->getWhere();
+        $tables = $this->getTableName();
 
-        if (isset($where['AND']))
+        if ($this->join)
         {
-            $and = $where['AND'];
+            $joins = is_array($this->join) ? $this->join : [$this->join];
 
-            if (is_array($and))
+            foreach ($joins as $join)
             {
-                $explode = $format ? " \r\nAND " : ' AND ';
-                $where = implode($explode, $and);
+                $tables .= $join->getSql();
             }
         }
 
-        return $where;
+        return $tables;
     }
 
-    public function getSql($format = false)
+    public function getQuerySql($format = false)
     {
-        $catalog = $this->getCatalog();
+        $catalog = $this->getCatalogClass();
+        $whereStd = \Db\Model::getWhereFromFilters($this->where);
+        $where = $whereStd->sqlParam;
 
-        $tables = $this->getTableName();
-        $columns = $this->mountColumns($format);
-        $limit = $this->getLimit();
-        $offset = $this->getOffset();
-        $groupBy = NULL;
-        $having = NULL;
-        $orderBy = $this->mountOrderBy();
-        $where = $this->mountWhere($format);
+        return $catalog::mountSelect($this->getTables(), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
+    }
 
-        return $catalog::mountSelect($tables, $columns, $where, $limit, $offset, $groupBy, $having, $orderBy, NULL, $format);
+    protected function exec($returnAs)
+    {
+        $catalog = $this->getCatalogClass();
+        $whereStd = \Db\Model::getWhereFromFilters($this->where);
+        $where = $whereStd->sql;
+        $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, TRUE);
+
+        return $this->getConn()->query($sql, $whereStd->args, $returnAs);
     }
 
     public function first()
@@ -276,8 +341,7 @@ class QueryBuilder
         $this->setLimit(1);
         $this->setOffset(NULL);
 
-        $sql = $this->getSql();
-        $result = $this->getConn()->query($sql);
+        $result = $this->exec($this->getModelName());
 
         if ($result)
         {
@@ -285,10 +349,28 @@ class QueryBuilder
         }
     }
 
-    public function get()
+    public function toCollection()
     {
-        $sql = $this->getSql();
-        return $this->getConn()->query($sql);
+        return new \Db\Collection($this->exec($this->getModelName()));
+    }
+
+    public function toArray()
+    {
+        return $result = $this->exec('array');
+    }
+
+    public function aggregation($aggr)
+    {
+        $this->setColumns($aggr . ' AS aggregation');
+
+        $result = $this->exec('array');
+
+        if (isset($result[0]) && isset($result[0]['aggregation']))
+        {
+            return $result[0]['aggregation'];
+        }
+
+        return NULL;
     }
 
 }

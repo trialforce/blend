@@ -283,9 +283,9 @@ class Model
     }
 
     /**
-     * Monta a parte WHERE do sql baseado em filtros \Db\Cond
+     * Mount WHERE based on array of filters
      *
-     * @param array $filters de \Db\Cond
+     * @param array $filters \Db\Cond or \Db\Where
      * @return \stdClass
      * @throws \Exception
      */
@@ -294,17 +294,17 @@ class Model
         $args = array();
         $argsHaving = array();
         $sql = '';
+        $sqlParam = '';
         $having = '';
         $filters = \Db\Model::toArray($filters);
         $count = 0;
         $countHaving = 0;
 
-        //monta todos os WHERE's baseado nos arrays de filtros
         if (count($filters) > 0)
         {
             foreach ($filters as $filter)
             {
-                if (!$filter instanceof \Db\Cond || is_null($filter))
+                if (!($filter instanceof \Db\Cond || $filter instanceof \Db\Where) || is_null($filter))
                 {
                     continue;
                 }
@@ -322,6 +322,7 @@ class Model
                 else
                 {
                     $sql .= $filter->getWhere($count === 0);
+                    $sqlParam .= $filter->getWhereSql($count === 0);
                     $count++;
 
                     if (!is_null($filter->getValue()))
@@ -335,6 +336,7 @@ class Model
         //mount a simple object for return
         $result = new \stdClass();
         $result->sql = $sql;
+        $result->sqlParam = $sqlParam;
         $result->having = $having;
         $result->args = array_merge($args, $argsHaving);
 
@@ -342,7 +344,7 @@ class Model
     }
 
     /**
-     * Monta as colunas que irão no sql de busca
+     * Get the an array with coluns as sql instruction
      *
      * @param array $columns
      * @return string
@@ -382,6 +384,21 @@ class Model
     {
         $name = self::getName();
         return $name::search(NULL, $filters, $limit, $offset, $orderBy, $orderWay, $returnType);
+    }
+
+    /**
+     * Return the Query builder for this Model
+     * @return \Db\QueryBuilder
+     */
+    public static function query()
+    {
+        $name = self::getName();
+        $queryBuilder = new QueryBuilder($name::getTableName(), $name::getCatalogClass(), $name::getConnId());
+
+        $queryBuilder->setColumns($name::getColumnsForFind($name::getColumns()));
+        $queryBuilder->setModelName(get_called_class());
+
+        return $queryBuilder;
     }
 
     /**
@@ -744,7 +761,7 @@ class Model
                 //array
                 if (is_array($item))
                 {
-                    $index - $item[$property];
+                    $index = $item[$property];
                 }
                 else if (is_object($item))
                 {
@@ -762,6 +779,11 @@ class Model
 
                 $result[$index] = $item;
             }
+        }
+
+        if ($result)
+        {
+            ksort($result);
         }
 
         return $result;
@@ -1181,13 +1203,18 @@ class Model
     }
 
     /**
-     * Return a json strin representation of this model
+     * Return a json string representation of this model
      *
      * @return string
      */
-    public function getJson()
+    public function toJson()
     {
         return json_encode($this->getArray());
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->getArray();
     }
 
     /**
