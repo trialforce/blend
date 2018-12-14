@@ -1477,6 +1477,7 @@ function filterChangeInteger(element)
     else 
     { 
         element.removeClass('fullWidth');
+        input.show();
         //input.show().removeClass('filterInput');
         $(element).parent().find('.final').hide();
     }
