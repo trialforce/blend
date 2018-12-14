@@ -300,7 +300,7 @@ class QueryBuilder
         return $orders;
     }
 
-    protected function getTables()
+    protected function getTables($format = FALSE)
     {
         $tables = $this->getTableName();
 
@@ -310,6 +310,11 @@ class QueryBuilder
 
             foreach ($joins as $join)
             {
+                if ($format)
+                {
+                    $tables .= "\r\n";
+                }
+
                 $tables .= $join->getSql();
             }
         }
@@ -323,7 +328,7 @@ class QueryBuilder
         $whereStd = \Db\Model::getWhereFromFilters($this->where);
         $where = $whereStd->sqlParam;
 
-        return $catalog::mountSelect($this->getTables(), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
+        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
     }
 
     protected function exec($returnAs)
