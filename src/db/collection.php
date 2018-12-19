@@ -12,14 +12,23 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * The data of collection
      * @var type
      */
-    protected $data;
+    protected $data = array();
 
-    public function __construct($array = NULL)
+    public function __construct($data = NULL)
     {
-        if (is_array($array))
+        if (is_array($data))
         {
-            $this->setData($array);
+            $this->setData($data);
         }
+    }
+
+    /**
+     *
+     * @return \Db\Collection
+     */
+    public static function create($data)
+    {
+        return new \Db\Collection($data);
     }
 
     /**
@@ -113,12 +122,20 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             return strcmp($valueA, $valueB);
         });
 
+        //apply the order
         if (strtolower($orderWay) != 'desc')
         {
             $this->data = array_reverse($this->data);
         }
 
-        return $this->data;
+        return $this;
+    }
+
+    public function limit($limit, $offset = NULL)
+    {
+        $this->data = array_slice($this->data, $offset, $limit);
+
+        return $this;
     }
 
     /**
@@ -131,12 +148,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         if (is_null($key))
         {
-            return $this->data[] = $value;
+            $this->data[] = $value;
         }
         else
         {
-            return $this->data[$key] = $value;
+            $this->data[$key] = $value;
         }
+
+        return $this;
     }
 
     /**
@@ -157,7 +176,26 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function add($value)
     {
-        $this->set(NULL, $value);
+        //need interface
+        if ($value instanceof \Db\ConstantValues)
+        {
+            $value = $value->getArray();
+        }
+        else if ($value instanceof \Db\Collection)
+        {
+            $value = $value->getData();
+        }
+
+        if (is_array($value))
+        {
+            $this->data = array_merge($this->data, $value);
+        }
+        else
+        {
+            $this->set(NULL, $value);
+        }
+
+        return $this;
     }
 
     /**
@@ -168,6 +206,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     public function push($value)
     {
         $this->set(NULL, $value);
+
+        return $this;
     }
 
     /**

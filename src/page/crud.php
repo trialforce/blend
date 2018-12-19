@@ -846,7 +846,7 @@ class Crud extends \Page\Page
         $label = $column ? $column->getLabel() : $idColumn;
 
         $grid = $this->getGrid();
-        $nomeFiltro = 'filtro' . $idColumn;
+        $nomeFiltro = 'filtro-' . ($column ? $column->getName() : $idColumn);
         $valorFiltro = $this->getFixedFilterValue($nomeFiltro, $defaultValue);
 
         $campo = null;
@@ -854,17 +854,12 @@ class Crud extends \Page\Page
         //create field only if needed
         if (!$onlyFilter)
         {
-            //add support for constant values
-            if ($options instanceof \Db\ConstantValues)
-            {
-                $options = $options->getArray();
-            }
-
             //merge options
-            $todos[''] = $allLabel ? $allLabel : 'Todos';
-            $opcoesFinal = $todos + $options;
+            $all[''] = $allLabel ? $allLabel : 'Todos';
+            $finalOptions = \Db\Collection::create($all);
+            $finalOptions->add($options);
 
-            $campo = new \View\Select($nomeFiltro, $opcoesFinal, $valorFiltro, 'span1');
+            $campo = new \View\Select($nomeFiltro, $finalOptions, $valorFiltro, 'span1');
             $campo->change("$('#buscar').click()");
             $campo->setTitle('Filtra por ' . lcfirst($label));
 

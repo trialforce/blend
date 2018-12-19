@@ -143,7 +143,7 @@ class Where
             $param = $this->param ? $this->param . ' ?' : '';
         }
 
-        $where = $this->filter . ' ' . $param;
+        $where = $this->filter . ' ' . $param . ' ';
 
         if ($first)
         {
@@ -172,7 +172,7 @@ class Where
             $param = $this->param ? $this->param . ' \'' . implode(',', $this->getValue()) . '\'' : '';
         }
 
-        $where = $this->filter . ' ' . $param;
+        $where = $this->filter . ' ' . $param . ' ';
 
         if ($first)
         {

@@ -15,7 +15,7 @@ class SmartFilter
     protected $columns;
     protected $conds;
 
-    public function __construct($modelClass, $columns, $queryString)
+    public function __construct($modelClass, $columns, $queryString = NULL)
     {
         $this->setModelClass($modelClass);
         $this->setColumns($columns);

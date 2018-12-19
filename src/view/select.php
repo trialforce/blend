@@ -113,7 +113,7 @@ class Select extends \View\View
         $element->clearChildren();
 
         //if has default option in array, deactive it
-        if (is_array($searchResult) && array_key_exists('', $searchResult))
+        if (isIterable($searchResult) && isset($searchResult['']))
         {
             $putDefaultOption = false;
         }

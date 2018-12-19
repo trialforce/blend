@@ -541,7 +541,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $columns = $this->getRenderColumns();
         $tr = array();
 
-        if (is_array($data))
+        if (isIterable($data))
         {
             foreach ($data as $index => $item)
             {

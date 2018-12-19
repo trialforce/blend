@@ -157,6 +157,7 @@ class Vector
             foreach ($arrayLine as $columnName => $weight)
             {
                 $column = $model->getColumn($columnName);
+                //dumpDevel($columnName, $column);
 
                 if (!$column)
                 {

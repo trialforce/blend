@@ -14,13 +14,6 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      */
     protected $model;
 
-    /**
-     * Cached data
-     *
-     * @var array
-     */
-    protected $data;
-
     public function __construct($model = NULL)
     {
         $this->setModel($model);
@@ -77,12 +70,6 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         }
 
         return $this->data;
-    }
-
-    public function setData($data)
-    {
-        $this->data = $data;
-        return $this;
     }
 
     /**
@@ -157,50 +144,61 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         {
             foreach ($columns as $column)
             {
-                $columnLabel = $column->getLabel() ? $column->getLabel() : $column->getName();
-                $columnLabel = $columnLabel == 'Código' ? 'Cód' : $columnLabel;
-
-                if ($column->getType() == \Db\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column::TYPE_DATETIME || $column->getType() == \Db\Column::TYPE_DATE)
-                {
-                    $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
-                }
-                else if ($column->getType() == \Db\Column::TYPE_BOOL || $column->getType() == \Db\Column::TYPE_TINYINT)
-                {
-                    $gridColumn = new \Component\Grid\BoolColumn($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
-                }
-                else if ($column->isPrimaryKey())
-                {
-                    $gridColumn = new \Component\Grid\PkColumnEdit($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_COLAPSE, $column->getType());
-                }
-                else
-                {
-                    $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType());
-
-                    if (($column->getType() == \Db\Column::TYPE_INTEGER || $column->getType() == \Db\Column::TYPE_DECIMAL || $column->getType() == \Db\Column::TYPE_TIME) && !$column->getReferenceDescription())
-                    {
-                        $gridColumn->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
-                    }
-                }
-
-                $gridColumn->setIdentificator($column->isPrimaryKey());
-
-                //search column has having filter as default
-                if ($column instanceof \Db\SearchColumn)
-                {
-                    $gridColumn->setFilter(FALSE);
-                }
-
-                //hide text columns by default
-                if ($column->getType() === \Db\Column::TYPE_TEXT)
-                {
-                    $gridColumn->setRender(FALSE);
-                }
-
-                $gridColumns[$column->getName()] = $gridColumn;
+                $gridColumns[$column->getName()] = self::createOneColumn($column);
             }
         }
 
         return $gridColumns;
+    }
+
+    /**
+     * Create one column
+     * 
+     * @param \Db\SearchColumn $column
+     * @return \Component\Grid\Column
+     */
+    public static function createOneColumn($column)
+    {
+        $columnLabel = $column->getLabel() ? $column->getLabel() : $column->getName();
+        $columnLabel = $columnLabel == 'Código' ? 'Cód' : $columnLabel;
+
+        if ($column->getType() == \Db\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column::TYPE_DATETIME || $column->getType() == \Db\Column::TYPE_DATE)
+        {
+            $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
+        }
+        else if ($column->getType() == \Db\Column::TYPE_BOOL || $column->getType() == \Db\Column::TYPE_TINYINT)
+        {
+            $gridColumn = new \Component\Grid\BoolColumn($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
+        }
+        else if ($column->isPrimaryKey())
+        {
+            $gridColumn = new \Component\Grid\PkColumnEdit($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_COLAPSE, $column->getType());
+        }
+        else
+        {
+            $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType());
+
+            if (($column->getType() == \Db\Column::TYPE_INTEGER || $column->getType() == \Db\Column::TYPE_DECIMAL || $column->getType() == \Db\Column::TYPE_TIME) && !$column->getReferenceDescription())
+            {
+                $gridColumn->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
+            }
+        }
+
+        $gridColumn->setIdentificator($column->isPrimaryKey());
+
+        //search column has having filter as default
+        if ($column instanceof \Db\SearchColumn)
+        {
+            $gridColumn->setFilter(FALSE);
+        }
+
+        //hide text columns by default
+        if ($column->getType() === \Db\Column::TYPE_TEXT)
+        {
+            $gridColumn->setRender(FALSE);
+        }
+
+        return $gridColumn;
     }
 
     public function listAvoidPropertySerialize()

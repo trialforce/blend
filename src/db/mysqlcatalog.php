@@ -328,7 +328,7 @@ WHERE index_name = '{$indexName}'";
                 }
                 else
                 {
-                    $explode = explode('AS', $columnName);
+                    $explode = explode(' AS ', $columnName);
 
                     //as
                     if (count($explode) > 1)

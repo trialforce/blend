@@ -166,9 +166,25 @@ class Model
             return $columnName;
         }
 
+        //tablename.columnName
+        if (stripos($columnName, '.'))
+        {
+            $explode = explode('.', $columnName);
+            $columnName = trim($explode[1]);
+        }
+
+        // columname as alias
+        if (stripos($columnName, ' AS '))
+        {
+            //insensitive
+            $columnName = str_replace(array('as', 'As', 'aS'), 'AS', $columnName);
+            $explode = explode(' AS ', $columnName);
+            $columnName = trim($explode[1]);
+        }
+
         $columns = self::getColumns();
 
-        if (isset($columns [$columnName]))
+        if (isset($columns[$columnName]))
         {
             return $columns[$columnName];
         }
@@ -395,7 +411,7 @@ class Model
         $name = self::getName();
         $queryBuilder = new QueryBuilder($name::getTableName(), $name::getCatalogClass(), $name::getConnId());
 
-        $queryBuilder->setColumns($name::getColumnsForFind($name::getColumns()));
+        $queryBuilder->setColumns(array_reverse($name::getColumnsForFind($name::getColumns())));
         $queryBuilder->setModelName(get_called_class());
 
         return $queryBuilder;

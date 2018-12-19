@@ -6,7 +6,7 @@ class QueryBuilder
 {
 
     protected $catalogClass = '\Db\MysqlCatalog';
-    protected $modelName = 'array';
+    protected $modelName = '';
     protected $conn;
     protected $tableName;
     protected $join = null;
@@ -135,8 +135,9 @@ class QueryBuilder
         return $this;
     }
 
-    public function limit($limit)
+    public function limit($limit, $offset = NULL)
     {
+        $this->setOffset($offset);
         return $this->setLimit($limit);
     }
 
@@ -201,14 +202,26 @@ class QueryBuilder
         return $this;
     }
 
-    public function orderBy($orderBy)
+    public function clearOrderBy()
     {
-        return $this->addOrderBy($orderBy);
+        $this->orderBy = null;
+
+        return $this;
+    }
+
+    public function orderBy($orderBy, $orderWay = NULL)
+    {
+        return $this->addOrderBy($orderBy, $orderWay);
     }
 
     public function addOrderBy($orderBy, $orderWay = NULL)
     {
         $catalog = $this->catalogClass;
+
+        if (!$orderBy)
+        {
+            return $this;
+        }
 
         if ($this->orderBy && !is_array($this->orderBy))
         {
@@ -234,6 +247,43 @@ class QueryBuilder
     public function setWhere($where)
     {
         $this->where = $where;
+        return $this;
+    }
+
+    /**
+     * Add a where object, can be \Db\Where or \Db\Cond
+     * or any class that implements getWhere and getWhereSel methods
+     * Or array of this classes.
+     *
+     * @param type $where
+     * @return $this
+     */
+    public function addWhere($where)
+    {
+        if (is_array($where))
+        {
+            $myWhere = $this->where;
+
+            //convert to array if needed
+            if (!is_array($this->where))
+            {
+                if ($this->where)
+                {
+                    $myWhere[] = $this->where;
+                }
+                else //clean array
+                {
+                    $myWhere = array();
+                }
+            }
+
+            $this->where = array_merge($myWhere, $where);
+        }
+        else
+        {
+            $this->where[] = $where;
+        }
+
         return $this;
     }
 
@@ -322,7 +372,7 @@ class QueryBuilder
         return $tables;
     }
 
-    public function getQuerySql($format = false)
+    public function getSelectSql($format = false)
     {
         $catalog = $this->getCatalogClass();
         $whereStd = \Db\Model::getWhereFromFilters($this->where);
@@ -331,7 +381,7 @@ class QueryBuilder
         return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
     }
 
-    protected function exec($returnAs)
+    public function select($returnAs)
     {
         $catalog = $this->getCatalogClass();
         $whereStd = \Db\Model::getWhereFromFilters($this->where);
@@ -341,12 +391,22 @@ class QueryBuilder
         return $this->getConn()->query($sql, $whereStd->args, $returnAs);
     }
 
+    public function update()
+    {
+        throw new Exception('Not implemented yet!');
+    }
+
+    public function delete()
+    {
+        throw new Exception('Not implemented yet!');
+    }
+
     public function first()
     {
         $this->setLimit(1);
         $this->setOffset(NULL);
 
-        $result = $this->exec($this->getModelName());
+        $result = $this->select($this->getModelName());
 
         if ($result)
         {
@@ -356,19 +416,24 @@ class QueryBuilder
 
     public function toCollection()
     {
-        return new \Db\Collection($this->exec($this->getModelName()));
+        //collection by default use objects
+        $modelName = $this->getModelName() ? $this->getModelName() : 'stdClass';
+        return new \Db\Collection($this->select($modelName));
     }
 
     public function toArray()
     {
-        return $result = $this->exec('array');
+        return $result = $this->select('array');
     }
 
     public function aggregation($aggr)
     {
+        //aggregation does not have order by
+        $this->clearOrderBy();
+        $this->limit(null, null);
         $this->setColumns($aggr . ' AS aggregation');
 
-        $result = $this->exec('array');
+        $result = $this->select('array');
 
         if (isset($result[0]) && isset($result[0]['aggregation']))
         {

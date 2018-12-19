@@ -143,6 +143,8 @@ class MountFilter
      */
     public static function getFilters($columns, $dbModel)
     {
+        $filters = null;
+
         if (!is_array($columns) || !$dbModel)
         {
             return NULL;

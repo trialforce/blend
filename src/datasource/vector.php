@@ -26,9 +26,15 @@ class Vector extends DataSource
         return count($this->fullData);
     }
 
+    public function setData($data)
+    {
+        $this->data = $data;
+        $this->fullData = $data;
+    }
+
     public function getData()
     {
-        //faz a ordenação, caso necessário
+        //make order if needed
         if (!is_null($this->getOrderBy()))
         {
             usort($this->fullData, array($this, "compareToOrder"));
@@ -41,12 +47,6 @@ class Vector extends DataSource
         }
 
         return $this->data;
-    }
-
-    public function setData($data)
-    {
-        $this->data = $data;
-        $this->fullData = $data;
     }
 
     public function compareToOrder($first, $second)

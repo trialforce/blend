@@ -1087,7 +1087,7 @@ class Page extends \View\Layout
         $dbModel = $this->getModel();
         $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
         $filter = $mountFilter->getFilter();
-        //\Log::dump($filter);
+
         //choose the filter if is array
         if (is_array($filter))
         {
