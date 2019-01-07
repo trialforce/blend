@@ -83,14 +83,24 @@ class Menu extends \View\View
 
         if (is_array($itens))
         {
+            $lastItemIsSeparator = FALSE;
             foreach ($itens as $value => $item)
             {
                 if ($item === 'separator')
                 {
+                    if ($lastItemIsSeparator)
+                    {
+                        $itens[$value] = NULL;
+                        continue;
+                    }
+
                     $itens[$value] = new \View\Hr();
+                    $lastItemIsSeparator = TRUE;
                 }
                 else if (is_scalar($item))
                 {
+                    $lastItemIsSeparator = FALSE;
+
                     $link = new A(null, $item, $value);
                     $link->setAjax(A::AJAX_NO_FORM_DATA);
                     $link->click('closeMenu()');

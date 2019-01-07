@@ -141,6 +141,12 @@ class Engine
         return $this->content;
     }
 
+    public function setContent($content)
+    {
+        $this->content = $content;
+        return $this;
+    }
+
     function getFooter()
     {
         if (!$this->footer)

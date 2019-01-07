@@ -18,6 +18,12 @@ class EditPopupGrid extends \Component\Grid\Grid
     protected $editMethod = NULL;
 
     /**
+     * Add method
+     * @var string
+     */
+    protected $addMethod = null;
+
+    /**
      * Remove method
      * @var string
      */
@@ -45,7 +51,11 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function __construct($id = NULL, $dataSource = NULL)
     {
         parent::__construct($id, $dataSource);
-        $this->setPaginator(' ');
+    }
+
+    public function getLink($event = NULL, $value = NULL, $params = NULL, $putUrl = TRUE)
+    {
+        return \Component\Component::getLink($event, $value, $params);
     }
 
     /**
@@ -77,7 +87,7 @@ class EditPopupGrid extends \Component\Grid\Grid
     {
         $model = $this->getModel();
         $model->setData(Request::getInstance());
-        $id = Request::get('v');
+        $id = Request::get('v') ? Request::get('v') : Request::get('id');
 
         return $id;
     }
@@ -94,7 +104,13 @@ class EditPopupGrid extends \Component\Grid\Grid
     {
         $dataSource = $this->getDataSource();
         $idValue = $this->getIdValue();
-        $dataSource->addExtraFilter(new \Db\Cond($this->getIdParent() . ' = ?', $idValue));
+
+        if ($idValue)
+        {
+            $dataSource->addExtraFilter(new \Db\Cond($this->getIdParent() . ' = ?', $idValue));
+        }
+
+        \Component\Grid\Grid::addFiltersToDataSource($dataSource);
     }
 
     public function createTable()
@@ -106,7 +122,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $semAcento = \Type\Text::get($label)->toFile();
         $title[] = $label;
 
-        $urlAdd = "p('{$this->getPageName()}/{$this->getEditMethod()}')";
+        $urlAdd = "p('{$this->getPageName()}/{$this->getAddMethod()}')";
         $buttons[] = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar', $urlAdd, \View\Ext\Button::BTN_SUCCESS . ' ' . \View\Ext\Button::BTN_SMALL);
 
         $title[] = new \View\Div('btnSearchButtons', $buttons, 'gridButtonsSearch');
@@ -134,6 +150,23 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function setEditMethod($editMethod)
     {
         $this->editMethod = $editMethod;
+
+        if (!$this->addMethod)
+        {
+            $this->addMethod = $editMethod;
+        }
+
+        return $this;
+    }
+
+    public function getAddMethod()
+    {
+        return $this->addMethod;
+    }
+
+    public function setAddMethod($addMethod)
+    {
+        $this->addMethod = $addMethod;
         return $this;
     }
 

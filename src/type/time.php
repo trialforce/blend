@@ -264,4 +264,36 @@ class Time implements \Type\Generic
         return \Type\Time::get($value)->getValue();
     }
 
+    public static function createBySeconds($value)
+    {
+        $newTime = new \Type\Time(0);
+
+        $horas = 0;
+
+        if ($value >= 3600)
+        {
+            while ($value >= 3600)
+            {
+                $value = $value - 3600;
+                $horas++;
+            }
+        }
+
+        $minutos = 0;
+
+        if ($value >= 60)
+        {
+            while ($value >= 60)
+            {
+                $value = $value - 60;
+                $minutos++;
+            }
+        }
+
+        $newTime->setHour($horas);
+        $newTime->setMinute($minutos);
+        $newTime->setSecond($value);
+        return $newTime;
+    }
+
 }

@@ -236,6 +236,7 @@ class Page extends \View\Layout
 
         if (count($errors) > 0)
         {
+            $campos = '';
             foreach ($errors as $field => $errorMsg)
             {
                 if (is_array($errorMsg))
@@ -245,13 +246,21 @@ class Page extends \View\Layout
                         $arrayErrorMsg[] = $msg;
                         $message = \View\Script::treatStringToJs($msg);
                         $this->byId($field)->setInvalid(true, $message);
+                        $campos .= $model->getColumn($field)->getLabel() . ' | ' . $message . '<br />';
                     }
                 }
             }
 
             if ($arrayErrorMsg)
             {
-                toast('Ops!!Verifique o preenchimento dos campos!', 'danger');
+                if (empty($campos))
+                {
+                    toast('Verifique o preenchimento dos campos.', 'danger');
+                }
+                else
+                {
+                    toast('Verifique o preenchimento dos campos. <br /><br />' . $campos, 'danger');
+                }
 
                 return FALSE;
             }
@@ -760,9 +769,16 @@ class Page extends \View\Layout
      */
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        \App::dontChangeUrl();
-        toast($mensagem, $type);
-        \App::redirect($this->getSearchUrl(), TRUE);
+        if ($this->getPopupAdd())
+        {
+            \View\Blend\Popup::delete();
+        }
+        else
+        {
+            \App::dontChangeUrl();
+            toast($mensagem, $type);
+            \App::redirect($this->getSearchUrl(), TRUE);
+        }
     }
 
     public function saveModelDialog()

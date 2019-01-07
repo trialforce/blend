@@ -523,12 +523,18 @@ class Model
         return $name::aggregation($filters, 'count(' . $value . ')');
     }
 
-    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE)
+    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL)
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
         $hasHaving = strlen($where->having) > 0;
-        $columnNameSql = self::getColumnsForFind($name::getColumns());
+
+        if (!$columns)
+        {
+            $columns = $name::getColumns();
+        }
+
+        $columnNameSql = self::getColumnsForFind($columns);
         $columnsString = \Db\Catalog::implodeColumnNames($columnNameSql);
 
         if ($hasHaving || $forceExternalSelect)

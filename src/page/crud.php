@@ -345,8 +345,6 @@ class Crud extends \Page\Page
     {
         $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
 
-        $popupAddRedirectPage = Request::get('popupAddRedirectPage');
-
         //add popupadd to form, to make ir post corret
         $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
         $body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
@@ -360,17 +358,7 @@ class Crud extends \Page\Page
         $popup->setIcon($this->icon);
         $popup->show();
 
-        if ($popupAddRedirectPage)
-        {
-            $fechar = "p('$popupAddRedirectPage/cancelPopupAddSave');";
-            $this->byId('btnVoltar')->click($fechar);
-            $this->byId('btnVoltar')->removeAttr('data-form-changed-advice');
-            $this->byId('btbClosePopup')->click($fechar);
-        }
-        else
-        {
-            $this->byId('btnVoltar')->remove();
-        }
+        $this->byId('btnVoltar')->click(\View\Blend\Popup::getJs('destroy'));
     }
 
     /**
@@ -504,7 +492,7 @@ class Crud extends \Page\Page
         if (!$this->isSearch())
         {
             $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
-            $btnSalvar->setTitle('Salva/Grava o registro atual no banco de dados!')->setDisabled();
+            $btnSalvar->setTitle('Salva o registro atual no banco de dados!')->setDisabled();
 
             if ($this->isUpdate())
             {
@@ -645,6 +633,10 @@ class Crud extends \Page\Page
                 toast('Problemas ao remover o registro!', 'danger');
             }
         }
+        catch (\UserException $exc)
+        {
+            toast($exc->getMessage(), 'danger');
+        }
         catch (\Exception $exc)
         {
             if ($exc instanceof \PDOException)
@@ -677,9 +669,16 @@ class Crud extends \Page\Page
 
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        \App::dontChangeUrl();
-        toast($mensagem, $type);
-        \App::redirect($this->getPageUrl(), TRUE);
+        if ($this->getPopupAdd())
+        {
+            \View\Blend\Popup::delete();
+        }
+        else
+        {
+            \App::dontChangeUrl();
+            toast($mensagem, $type);
+            \App::redirect($this->getPageUrl(), TRUE);
+        }
     }
 
     /**

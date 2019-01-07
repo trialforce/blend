@@ -119,7 +119,7 @@ class Calendar extends \View\Table
     {
         $today = \Type\Date::now();
         $todayDayTrim = ltrim($today->getDay(), 0);
-        $this->append(new \View\Caption('caption_' . $this->getId(), $this->getMonth() . '/' . $this->getYear()));
+        $this->append(new \View\Caption('caption_' . $this->getId(), \Type\DateTime::getMonthExt($this->getMonth()) . '/' . $this->getYear()));
         $dias = $this->getLastDayofMonth();
 
         $weekDays = $this->getWeekDays();
@@ -207,8 +207,8 @@ class Calendar extends \View\Table
     public function scrollToToday()
     {
         $today = \Type\Date::now();
-        
-        if ( $today->getMonth() == $this->getMonth() )
+
+        if ($today->getMonth() == $this->getMonth())
         {
             $todayDayTrim = ltrim($today->getDay(), 0);
 

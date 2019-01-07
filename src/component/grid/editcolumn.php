@@ -23,6 +23,12 @@ class EditColumn extends \Component\Grid\Column
     protected $editPage = NULL;
 
     /**
+     * Extra params for grid edit link
+     * @var string
+     */
+    protected $editExtraParams = NULL;
+
+    /**
      * if link is enabled
      *
      * @var bool
@@ -82,6 +88,24 @@ class EditColumn extends \Component\Grid\Column
         return $this;
     }
 
+    public function getEditExtraParams()
+    {
+        $params = $this->editExtraParams;
+
+        if (is_array($params))
+        {
+            $params = http_build_query($params);
+        }
+
+        return $params;
+    }
+
+    public function setEditExtraParams($editExtraParams)
+    {
+        $this->editExtraParams = $editExtraParams;
+        return $this;
+    }
+
     public function getIdentificatorColumn()
     {
         return $this->identificatorColumn;
@@ -123,6 +147,7 @@ class EditColumn extends \Component\Grid\Column
 
         $idValue = \Component\Grid\Column::getColumnValue($identificator, $item);
         $url = $editPage . '/' . $editEvent . '/' . $idValue;
+        $url .= $this->getEditExtraParams() ? '?' . $this->getEditExtraParams() : '';
 
         return $url;
     }

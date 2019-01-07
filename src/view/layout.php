@@ -553,7 +553,7 @@ class Layout extends \DomDocument implements \Countable
 
         //caso não encontre elemento cria um falso para não dar
         //erro e facilitar a programação
-        if (!$element instanceof \DOMElement && !stripos($elementId, '\\') > 0)
+        if (!$element instanceof \DOMElement)
         {
             $dataServerClass = Request::get('data-server-class');
             $serverClass = isset($dataServerClass[$elementId]) ? $dataServerClass[$elementId] : NULL;

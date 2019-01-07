@@ -41,7 +41,11 @@ class Date extends \Type\DateTime
 
     public static function now()
     {
-        return new \Type\Date(date(self::MASK_TIMESTAMP_USER));
+        $now = new \Type\Date(date(self::MASK_TIMESTAMP_USER));
+        $now->setHour(0);
+        $now->setMinute(0);
+        $now->setSecond(0);
+        return $now;
     }
 
 }
