@@ -307,56 +307,58 @@ class Model
      */
     public static function getWhereFromFilters($filters)
     {
-        $args = array();
-        $argsHaving = array();
-        $sql = '';
-        $sqlParam = '';
-        $having = '';
-        $filters = \Db\Model::toArray($filters);
-        $count = 0;
-        $countHaving = 0;
+        return \Db\Criteria::createCriteria($filters);
+        /* $filters = is_array($filters) ? array_filter($filters) : array($filters);
+          $args = array();
+          $argsHaving = array();
+          $sql = '';
+          $sqlParam = '';
+          $having = '';
 
-        if (count($filters) > 0)
-        {
-            foreach ($filters as $filter)
-            {
-                if (!($filter instanceof \Db\Cond || $filter instanceof \Db\Where) || is_null($filter))
-                {
-                    continue;
-                }
+          $count = 0;
+          $countHaving = 0;
 
-                if ($filter->getType() === \Db\Cond::TYPE_HAVING)
-                {
-                    $having .= $filter->getWhere($countHaving === 0);
-                    $countHaving++;
+          if (count($filters) > 0)
+          {
+          foreach ($filters as $filter)
+          {
+          if (!($filter instanceof \Db\Cond || $filter instanceof \Db\Where) || is_null($filter))
+          {
+          continue;
+          }
 
-                    if (!is_null($filter->getValue()))
-                    {
-                        $argsHaving = array_merge($argsHaving, $filter->getValue());
-                    }
-                }
-                else
-                {
-                    $sql .= $filter->getWhere($count === 0);
-                    $sqlParam .= $filter->getWhereSql($count === 0);
-                    $count++;
+          if ($filter->getType() === \Db\Cond::TYPE_HAVING)
+          {
+          $having .= $filter->getWhere($countHaving === 0);
+          $countHaving++;
 
-                    if (!is_null($filter->getValue()))
-                    {
-                        $args = array_merge($args, $filter->getValue());
-                    }
-                }
-            }
-        }
+          if (!is_null($filter->getArgs()))
+          {
+          $argsHaving = array_merge($argsHaving, $filter->getArgs());
+          }
+          }
+          else
+          {
+          $sql .= $filter->getWhere($count === 0);
+          $sqlParam .= $filter->getWhereSql($count === 0);
+          $count++;
 
-        //mount a simple object for return
-        $result = new \stdClass();
-        $result->sql = $sql;
-        $result->sqlParam = $sqlParam;
-        $result->having = $having;
-        $result->args = array_merge($args, $argsHaving);
+          if (!is_null($filter->getArgs()))
+          {
+          $args = array_merge($args, $filter->getArgs());
+          }
+          }
+          }
+          }
 
-        return $result;
+          //mount a simple object for return
+          $result = new \Db\Criteria();
+          $result->setSql($sql);
+          $result->setSqlParam($sqlParam);
+          $result->setHaving($having);
+          $result->setArgs(array_merge($args, $argsHaving));
+
+          return $result; */
     }
 
     /**
@@ -386,6 +388,21 @@ class Model
     }
 
     /**
+     * Return the Query builder for this Model
+     * @return \Db\QueryBuilder
+     */
+    public static function query()
+    {
+        $name = self::getName();
+        $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getCatalogClass(), $name::getConnId());
+
+        $queryBuilder->setColumns(array_reverse($name::getColumnsForFind($name::getColumns())));
+        $queryBuilder->setModelName(get_called_class());
+
+        return $queryBuilder;
+    }
+
+    /**
      * Execute a search in database and return a list
      *
      * @param \Db\Cond $filters
@@ -400,21 +417,6 @@ class Model
     {
         $name = self::getName();
         return $name::search(NULL, $filters, $limit, $offset, $orderBy, $orderWay, $returnType);
-    }
-
-    /**
-     * Return the Query builder for this Model
-     * @return \Db\QueryBuilder
-     */
-    public static function query()
-    {
-        $name = self::getName();
-        $queryBuilder = new QueryBuilder($name::getTableName(), $name::getCatalogClass(), $name::getConnId());
-
-        $queryBuilder->setColumns(array_reverse($name::getColumnsForFind($name::getColumns())));
-        $queryBuilder->setModelName(get_called_class());
-
-        return $queryBuilder;
     }
 
     /**
@@ -474,11 +476,11 @@ class Model
         }
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
-        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->sql, $limit, $offset, $groupBy, $where->having, $orderBy, $orderWay);
+        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, $where->getHaving(), $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
 
-        $result = $name::getConn()->query($sql, $where->args, $returnType);
+        $result = $name::getConn()->query($sql, $where->getArgs(), $returnType);
 
         return $result;
     }
@@ -527,7 +529,7 @@ class Model
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
-        $hasHaving = strlen($where->having) > 0;
+        $hasHaving = strlen($where->getHaving()) > 0;
 
         if (!$columns)
         {
@@ -554,14 +556,14 @@ class Model
             $groupBy = $columnsString;
         }
 
-        $sql = \Db\Catalog::mountSelect($tableName, $columns, $where->sql, NULL, NULL, $groupBy, $where->having);
+        $sql = \Db\Catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
 
         if ($hasHaving || $forceExternalSelect)
         {
             $sql = 'SELECT ' . $aggregation . ' as aggregation FROM ( ' . $sql . ') AS ag';
         }
 
-        $result = $name::getConn()->findOne($sql, $where->args);
+        $result = $name::getConn()->findOne($sql, $where->getArgs());
 
         return isset($result) ? $result->aggregation : 0;
     }
@@ -746,9 +748,9 @@ class Model
     {
         $name = self::getName();
         $where = $name::getWhereFromFilters($filters);
-        $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->sql);
+        $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->getSql());
 
-        return $name::getConn()->execute($sql, $where->args);
+        return $name::getConn()->execute($sql, $where->getArgs());
     }
 
     /**
@@ -767,6 +769,7 @@ class Model
     /**
      * Order and array of models by a passed property.
      * Method suppor array of classes ou array of array.
+     * @deprecated since version 14/01/2019 use \Db\Collection
      *
      * @param array $array
      * @param string $property
@@ -774,6 +777,11 @@ class Model
      */
     public static function orderArrayByProperty($array, $property)
     {
+        $collection = new \Db\Collection($array);
+        $collection->indexByProperty($property);
+
+        return $collection->getData();
+
         $result = NULL;
 
         if (is_array($array))

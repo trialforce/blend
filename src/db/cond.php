@@ -3,9 +3,10 @@
 namespace Db;
 
 /**
- * Uma condição para uma query
+ * A condition for a query
+ * @deprecated since version 10/01/2019
  */
-class Cond
+class Cond implements \Db\Filter
 {
 
     /**
@@ -138,12 +139,17 @@ class Cond
         return $this;
     }
 
+    public function getValue()
+    {
+        return $this->getArgs();
+    }
+
     /**
      * Define o valor
      *
      * @return string
      */
-    public function getValue()
+    public function getArgs()
     {
         if (is_null($this->value))
         {
@@ -200,13 +206,18 @@ class Cond
         return $this;
     }
 
+    public function getWhere($first = true)
+    {
+        return $this->getString($first);
+    }
+
     /**
      * Retorna a condição em sql
      *
      * @param string $first define se é o primeiro ou não (deve incluir a condição na frente)
      * @return string
      */
-    public function getWhere($first = false)
+    public function getString($first = false)
     {
         $where = $this->filter . ' ';
 
@@ -220,7 +231,12 @@ class Cond
         }
     }
 
-    public function getWhereSql($first = false)
+    public function getWhereSql($first = true)
+    {
+        return $this->getStringPdo($first);
+    }
+
+    public function getStringPdo($first = false)
     {
         $where = $this->filter . ' ';
 

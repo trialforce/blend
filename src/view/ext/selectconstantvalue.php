@@ -22,7 +22,7 @@ class SelectConstantValue extends \View\Select
         {
             foreach ($constantValues as $value => $label)
             {
-                $options[] = new \View\Option($value, $label);
+                $options[] = \View\Option::createOption($label, $value);
             }
         }
 

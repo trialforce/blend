@@ -116,7 +116,9 @@ abstract class Combo extends \Component\Component
         $indentificatorColumm = $columns[0];
         $labelColumm = $columns[1];
 
-        $dataSource->addExtraFilter(new \Db\Cond($indentificatorColumm->getName() . ' = ?', $value . ''));
+        $where = new \Db\Where($indentificatorColumm->getName(), '=', $value . '');
+
+        $dataSource->addExtraFilter($where);
         $data = $dataSource->getData();
 
         if (is_array($data) && isset($data[0]))

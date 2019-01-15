@@ -5,7 +5,7 @@ namespace Db;
 /**
  * A where condition for a databse query
  */
-class Where
+class Where implements \Db\Filter
 {
 
     /**
@@ -86,6 +86,11 @@ class Where
 
     public function getValue()
     {
+        return $this->getArgs();
+    }
+
+    public function getArgs()
+    {
         if (is_null($this->value))
         {
             return NULL;
@@ -126,13 +131,19 @@ class Where
         return $this;
     }
 
-    public function getWhere($first = false)
+    public function getWhere($first = true)
+    {
+        return $this->getString($first);
+    }
+
+    public function getString($first = false)
     {
         //when it has ? keep as it is
         if (stripos($this->param, '?') !== false)
         {
             $param = $this->param;
         }
+
         //specifs for IN parameter
         else if ($this->param == 'IN')
         {
@@ -155,7 +166,12 @@ class Where
         }
     }
 
-    public function getWhereSql($first = false)
+    public function getWhereSql($first = true)
+    {
+        return $this->getStringPdo($first);
+    }
+
+    public function getStringPdo($first = false)
     {
         //when it has ? keep as it is
         if (stripos($this->param, '?') !== false)
@@ -176,11 +192,11 @@ class Where
 
         if ($first)
         {
-            return $where;
+            return ' ' . $where;
         }
         else
         {
-            return $this->condition . ' ' . $where;
+            return ' ' . $this->condition . ' ' . $where;
         }
     }
 

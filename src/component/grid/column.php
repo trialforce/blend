@@ -478,7 +478,8 @@ class Column implements \Disk\JsonAvoidPropertySerialize
             if ($dbColumn)
             {
                 $cValues = $dbColumn->getConstantValues();
-                if (is_array($cValues) || $cValues instanceof \Db\ConstantValues)
+
+                if (isIterable($cValues) || $cValues instanceof \Db\ConstantValues)
                 {
                     if ($cValues instanceof \Db\ConstantValues)
                     {
@@ -488,9 +489,12 @@ class Column implements \Disk\JsonAvoidPropertySerialize
                     $constantValues = $cValues;
                     $valueConstant = $value;
 
-                    if (is_object($value) && $value instanceof \Type\Generic)
+                    if (is_object($value))
                     {
-                        $value = $value->toDb();
+                        if ($value instanceof \Type\Generic)
+                        {
+                            $value = $value->toDb();
+                        }
                     }
 
                     if (isset($constantValues[$value]))
@@ -500,6 +504,19 @@ class Column implements \Disk\JsonAvoidPropertySerialize
 
                     //if has valueConstant use it
                     $value = $valueConstant;
+
+                    //add supports for simple object inside collection
+                    if (is_object($value))
+                    {
+                        //if is a simple object, it presumes second property
+                        //is the description, and firs is id
+                        $array = array_values((array) $value);
+
+                        if (isset($array[1]))
+                        {
+                            $value = $array[0] . '-' . $array[1];
+                        }
+                    }
                 }
                 else if ($dbColumn->getReferenceDescription())
                 {

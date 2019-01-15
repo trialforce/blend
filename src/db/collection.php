@@ -42,11 +42,21 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Compatibility
+     *
+     * @return int
+     */
+    public function length()
+    {
+        return $this->count();
+    }
+
+    /**
      * Define all data inside collection
      *
      * @param Array $array
      */
-    public function setData(Array $array)
+    public function setData($array)
     {
         $this->data = $array;
 
@@ -188,7 +198,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         if (is_array($value))
         {
-            $this->data = array_merge($this->data, $value);
+            $this->data = $this->data + $value;
         }
         else
         {
@@ -206,6 +216,54 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     public function push($value)
     {
         $this->set(NULL, $value);
+
+        return $this;
+    }
+
+    /**
+     * Index an sort the data by a property
+     *
+     * @param string $property
+     * @return \Db\Collection
+     */
+    public function indexByProperty($property)
+    {
+        $result = NULL;
+        $array = $this->getData();
+
+        if (is_array($array))
+        {
+            foreach ($array as $item)
+            {
+                //array
+                if (is_array($item))
+                {
+                    $index = $item[$property];
+                }
+                else if (is_object($item))
+                {
+                    //model
+                    if ($item instanceof \Db\Model)
+                    {
+                        $index = $item->getValue($property);
+                    }
+                    //simple object
+                    else
+                    {
+                        $index = $item->$property;
+                    }
+                }
+
+                $result[$index] = $item;
+            }
+        }
+
+        if ($result)
+        {
+            ksort($result);
+        }
+
+        $this->setData($result);
 
         return $this;
     }

@@ -2,6 +2,9 @@
 
 namespace Db;
 
+/**
+ * Database Query Builder
+ */
 class QueryBuilder
 {
 
@@ -16,6 +19,20 @@ class QueryBuilder
     protected $offset = null;
     protected $orderBy = null;
 
+    /**
+     * Controle current where grou
+     *
+     * @var int
+     */
+    protected $currentGroupWhere = 0;
+
+    /**
+     * Construct the query builder
+     *
+     * @param string $tableName
+     * @param string $catalog
+     * @param string $connInfoId
+     */
     public function __construct($tableName = null, $catalog = '\Db\MysqlCatalog', $connInfoId = 'default')
     {
         //mysql for default
@@ -239,11 +256,24 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Return all condition\where in query builder
+     *
+     * @return array
+     */
     public function getWhere()
     {
         return $this->where;
     }
 
+    /**
+     * Define/Overwrite the condition/where array
+     *
+     * Note that condition can be grouped by an array
+     *
+     * @param array $where
+     * @return \Db\QueryBuilder
+     */
     public function setWhere($where)
     {
         $this->where = $where;
@@ -251,12 +281,12 @@ class QueryBuilder
     }
 
     /**
-     * Add a where object, can be \Db\Where or \Db\Cond
+     * Add a where object, can be \Db\Where or \Db\Cond ( \Db\Filter )
      * or any class that implements getWhere and getWhereSel methods
      * Or array of this classes.
      *
-     * @param type $where
-     * @return $this
+     * @param mixed $where
+     * @return \Db\QueryBuilder
      */
     public function addWhere($where)
     {
@@ -287,36 +317,77 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a where condition to where list
+     *
+     * @param string $columnName the column name
+     * @param string $param the condition param =, IN , >= etc
+     * @param string $value the filtered value
+     * @param string $condition AND, OR, etc
+     * @return \Db\QueryBuilder
+     */
     public function where($columnName, $param, $value = NULL, $condition = 'AND')
     {
-        //support only two parameters
+        //support two parameters
         if (!$value)
         {
             $value = $param;
-
-            if (is_array($value))
-            {
-                $param = 'IN';
-            }
-            else
-            {
-                $param = '=';
-            }
+            $param = is_array($value) ? 'IN' : '=';
         }
 
         $catalog = $this->catalogClass;
+        //parse column name for current database catalog
         $columnName = $catalog::parseTableNameForQuery($columnName);
-
+        //create the condition
         $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
-
         $this->where[] = $where;
 
         return $this;
     }
 
-    public function whereOr($columnName, $param, $value)
+    /**
+     * Add an "AND" condition
+     *
+     * @param string $columnName column name
+     * @param string $param the condicition param (=, in, >=)
+     * @param string $value the filter value
+     * @return \Db\QueryBuilder
+     */
+    public function and($columnName, $param, $value = NULL)
+    {
+        return $this->where($columnName, $param, $value, 'AND');
+    }
+
+    /**
+     * Add an "OR" condition
+     *
+     * @param string $columnName column name
+     * @param string $param the condicition param (=, in, >=)
+     * @param string $value the filter value
+     * @return \Db\QueryBuilder
+     */
+    public function or($columnName, $param, $value)
     {
         return $this->where($columnName, $param, $value, 'OR');
+    }
+
+    /**
+     * Create a filter group
+     *
+     * @param string $columnName column name
+     * @param string $param the condicition param (=, in, >=)
+     * @param string $value the filter value
+     *
+     * @return \Db\Criteria
+     */
+    public function groupWhere($columnName, $param, $value, $condition = 'AND')
+    {
+        $group = new \Db\Criteria();
+        $group->where($columnName, $param, $value, $condition);
+        $group->setCloseObject($this);
+        $this->where[] = $group;
+
+        return $group;
     }
 
     /* public function whereRaw($where, $operation = 'AND')
@@ -375,8 +446,8 @@ class QueryBuilder
     public function getSelectSql($format = false)
     {
         $catalog = $this->getCatalogClass();
-        $whereStd = \Db\Model::getWhereFromFilters($this->where);
-        $where = $whereStd->sqlParam;
+        $whereStd = \Db\Criteria::createCriteria($this->getWhere());
+        $where = $whereStd->getSqlParam();
 
         return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
     }
@@ -384,11 +455,11 @@ class QueryBuilder
     public function select($returnAs)
     {
         $catalog = $this->getCatalogClass();
-        $whereStd = \Db\Model::getWhereFromFilters($this->where);
-        $where = $whereStd->sql;
+        $whereStd = \Db\Criteria::createCriteria($this->getWhere());
+        $where = $whereStd->getSql();
         $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, TRUE);
 
-        return $this->getConn()->query($sql, $whereStd->args, $returnAs);
+        return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs);
     }
 
     public function update()
