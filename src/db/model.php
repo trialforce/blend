@@ -394,8 +394,8 @@ class Model
     public static function query()
     {
         $name = self::getName();
-        $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getCatalogClass(), $name::getConnId());
-
+        $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getConnId());
+        $queryBuilder->setCatalogClass($name::getCatalogClass());
         $queryBuilder->setColumns(array_reverse($name::getColumnsForFind($name::getColumns())));
         $queryBuilder->setModelName(get_called_class());
 
@@ -1264,7 +1264,7 @@ class Model
         $idValue = $this->$propertyName;
 
         $referenceModelClassName = '\Model\\' . $column->getReferenceTable();
-        $referenceModel = $referenceModelClassName::findOneByPk($idValue, true);
+        $referenceModel = $referenceModelClassName::findOneByPk($idValue, $useCache);
 
         return $referenceModel;
     }
@@ -1296,22 +1296,8 @@ class Model
     public static function getCatalogClass()
     {
         $name = self::getName();
-        $conn = $name::getConnInfo();
-
-        if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
-        {
-            return '\Db\MysqlCatalog';
-        }
-        else if ($conn->getType() == \Db\ConnInfo::TYPE_POSTGRES)
-        {
-            return '\Db\PgsqlCatalog';
-        }
-        else if ($conn->getType() == \Db\ConnInfo::TYPE_MSSQL)
-        {
-            return '\Db\MssqlCatalog';
-        }
-
-        return '\Db\MysqlCatalog';
+        $connInfo = $name::getConnInfo();
+        return $connInfo->getCatalogClass();
     }
 
     /**

@@ -306,9 +306,6 @@ WHERE index_name = '{$indexName}'";
         }
 
         return strlen(trim($table)) > 0 ? '`' . trim($table) . '`' : '';
-
-        # DALVANE
-        # return strlen(trim($table)) > 0 ? trim($table) : '';
     }
 
     /**

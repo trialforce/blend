@@ -3,13 +3,13 @@
 namespace Db;
 
 /**
- * Gerencia informações de conexão com o banco
+ * Manage databse connection information
  */
 class ConnInfo
 {
 
     /**
-     * Mysql/Mari db server
+     * Mysql/Maria db server
      */
     const TYPE_MYSQL = 'mysql';
 
@@ -29,60 +29,60 @@ class ConnInfo
     const TYPE_FIREBIRD = 'firebird';
 
     /**
-     * Identificador
+     * Unique identificator
      *
      * @var string
      */
     protected $id;
 
     /**
-     * Tipo de conexão
+     * Connection type
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Host, endereço do servidor
+     * Host, address of the server
      * @var string
      */
     protected $host;
 
     /**
-     * Nome da base de dados
+     * Database name
      * @var string
      */
     protected $name;
 
     /**
-     * Nome do usuario de conexão
+     * Connection username
      * @var string
      */
     protected $username;
 
     /**
-     * Senha
+     * Conncetion password
      * @var string
      */
     protected $password;
 
     /**
-     * String de conexão com pdo
+     * DNS String for PDFO
      *
      * @var string
      */
     protected $dsn;
 
     /**
-     * Constroi informações de conexão
+     * Construct a connection info
      *
-     * @param string $id
-     * @param string $type
-     * @param string $host
-     * @param string $name
-     * @param string $username
-     * @param string $password
-     * @param string $dsn
+     * @param string $id unique identificator
+     * @param string $type connection type, use constants
+     * @param string $host server address
+     * @param string $name database name
+     * @param string $username username
+     * @param string $password password
+     * @param string $dsn dsn for pdo
      */
     public function __construct($id, $type, $host, $name, $username, $password = NULL, $dsn = NULL)
     {
@@ -99,12 +99,12 @@ class ConnInfo
             $this->makeDsn();
         }
 
-        //auto adiciona a lista de conexões
+        //auto add to connection info list
         \Db\Conn::addConnInfo($this);
     }
 
     /**
-     * Monta o dsn automaticamente
+     * Mount dsn
      */
     protected function makeDsn()
     {
@@ -112,7 +112,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna o id
+     * Return the o unique identificator
      *
      * @return string
      */
@@ -122,7 +122,7 @@ class ConnInfo
     }
 
     /**
-     * Define o id
+     * Define the id
      *
      * @param string $id
      * @return \Db\ConnInfo
@@ -134,7 +134,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna o nome
+     * Return the name of database
      *
      * @return string
      */
@@ -144,7 +144,7 @@ class ConnInfo
     }
 
     /**
-     * Define o nome
+     * Define the name of databse
      *
      * @param stirng $name
      * @return \Db\ConnInfo
@@ -156,7 +156,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna o tipo
+     * Return the connection type
      *
      * @return string
      */
@@ -166,7 +166,7 @@ class ConnInfo
     }
 
     /**
-     * Define o tipo
+     * Define the connection type
      *
      * @param string $type
      * @return \Db\ConnInfo
@@ -178,7 +178,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna o host
+     * Return server address/host
      * @return type
      */
     public function getHost()
@@ -187,7 +187,7 @@ class ConnInfo
     }
 
     /**
-     * Define o host
+     * Define the host
      *
      * @param type $host
      * @return \Db\ConnInfo
@@ -199,7 +199,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna usuário
+     * Return the connection user name
      *
      * @return string
      */
@@ -209,7 +209,7 @@ class ConnInfo
     }
 
     /**
-     * Define usuário
+     * Define the connection user name
      *
      * @param string $username
      * @return \Db\ConnInfo
@@ -221,7 +221,7 @@ class ConnInfo
     }
 
     /**
-     * Retorna senha
+     * Return the password
      * @return string
      */
     public function getPassword()
@@ -230,7 +230,7 @@ class ConnInfo
     }
 
     /**
-     * Define senha
+     * Define the password
      *
      * @param type $password
      * @return \Db\ConnInfo
@@ -242,7 +242,7 @@ class ConnInfo
     }
 
     /**
-     * Obtém string de conexão
+     * Return the DSN connection string
      *
      * @return string
      */
@@ -252,7 +252,8 @@ class ConnInfo
     }
 
     /**
-     * Define o dsn (string de conexão)
+     * Define the DSN connection string
+     *
      * @param type $dsn
      * @return \Db\ConnInfo
      */
@@ -260,6 +261,29 @@ class ConnInfo
     {
         $this->dsn = $dsn;
         return $this;
+    }
+
+    /**
+     * Return the catalog class for this connection info
+     *
+     * @return string
+     */
+    public function getCatalogClass()
+    {
+        if ($this->getType() == \Db\ConnInfo::TYPE_MYSQL)
+        {
+            return '\Db\MysqlCatalog';
+        }
+        else if ($this->getType() == \Db\ConnInfo::TYPE_POSTGRES)
+        {
+            return '\Db\PgsqlCatalog';
+        }
+        else if ($this->getType() == \Db\ConnInfo::TYPE_MSSQL)
+        {
+            return '\Db\MssqlCatalog';
+        }
+
+        return '\Db\MysqlCatalog';
     }
 
 }

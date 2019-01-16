@@ -17,14 +17,8 @@ class QueryBuilder
     protected $where = null;
     protected $limit = null;
     protected $offset = null;
+    protected $groupBy = null;
     protected $orderBy = null;
-
-    /**
-     * Controle current where grou
-     *
-     * @var int
-     */
-    protected $currentGroupWhere = 0;
 
     /**
      * Construct the query builder
@@ -33,11 +27,13 @@ class QueryBuilder
      * @param string $catalog
      * @param string $connInfoId
      */
-    public function __construct($tableName = null, $catalog = '\Db\MysqlCatalog', $connInfoId = 'default')
+    public function __construct($tableName = null, $connInfoId = 'default')
     {
-        //mysql for default
-        $this->setCatalogClass($catalog ? $catalog : '\Db\MysqlCatalog');
-        $this->setConn(\Db\Conn::getInstance($connInfoId ? $connInfoId : 'default'));
+        $conn = \Db\Conn::getInstance($connInfoId ? $connInfoId : 'default');
+        $connInfo = \Db\Conn::getConnInfo($connInfoId);
+
+        $this->setConn($conn);
+        $this->setCatalogClass($connInfo->getCatalogClass());
         $this->setTableName($tableName);
     }
 
@@ -180,6 +176,32 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Define add column to query
+     *
+     * @param type $columns
+     * @return \Db\QueryBuilder
+     */
+    public function columns($columns)
+    {
+        $args = func_get_args();
+
+        //if has 2 or more args, they are the column array
+        if (count($args) > 1)
+        {
+            $columns = $args;
+        }
+        //if is a string separated by comma, explode it
+        else if (is_string($columns) && stripos($columns, ','))
+        {
+            $columns = explode(',', $columns);
+        }
+
+        $this->columns = $columns;
+
+        return $this;
+    }
+
     public function column($columnName, $alias = NULL)
     {
         $catalog = $this->catalogClass;
@@ -205,6 +227,49 @@ class QueryBuilder
     public function columnRaw($columnName)
     {
         $this->columns[] = $columnName;
+        return $this;
+    }
+
+    public function getGroupBy()
+    {
+        return $this->groupBy;
+    }
+
+    public function setGroupBy($groupBy)
+    {
+        $this->groupBy = $groupBy;
+        return $this;
+    }
+
+    /**
+     * Make an group by in query
+     *
+     * @param mixed $groupBy string, array, or multiple method args
+     * @return $this
+     */
+    public function groupBy($groupBy)
+    {
+        $args = func_get_args();
+
+        //if method has 2 or more args, so consider it like an array
+        if (count($args) > 1)
+        {
+            $groupBy = $args;
+        }
+
+        //if is an array, glue it by comma
+        if (is_array($groupBy))
+        {
+            $groupBy = implode(',', $groupBy);
+        }
+
+        //if allready has some group by, add an comma to make command work
+        if ($this->groupBy)
+        {
+            $groupBy = $groupBy . ',';
+        }
+
+        $this->groupBy .= $groupBy;
         return $this;
     }
 
@@ -443,6 +508,12 @@ class QueryBuilder
         return $tables;
     }
 
+    /**
+     * Return the string of sql
+     *
+     * @param bool $format formated or in one line
+     * @return string the select for the query
+     */
     public function getSelectSql($format = false)
     {
         $catalog = $this->getCatalogClass();
@@ -452,26 +523,28 @@ class QueryBuilder
         return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
     }
 
+    /**
+     * Execute the query and return it as you need
+     *
+     * @param string $returnAs array, stdClass or any class you want
+     * @return array array of $returnAs
+     */
     public function select($returnAs)
     {
         $catalog = $this->getCatalogClass();
         $whereStd = \Db\Criteria::createCriteria($this->getWhere());
         $where = $whereStd->getSql();
-        $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, TRUE);
+        $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, TRUE);
 
         return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs);
     }
 
-    public function update()
-    {
-        throw new Exception('Not implemented yet!');
-    }
-
-    public function delete()
-    {
-        throw new Exception('Not implemented yet!');
-    }
-
+    /**
+     * Execute the query and return
+     * the first element of the result
+     *
+     * @return mixed
+     */
     public function first()
     {
         $this->setLimit(1);
@@ -485,6 +558,11 @@ class QueryBuilder
         }
     }
 
+    /**
+     * Return a collection of the defined model name
+     *
+     * @return \Db\Collection the collection with the resulted data
+     */
     public function toCollection()
     {
         //collection by default use objects
@@ -492,11 +570,31 @@ class QueryBuilder
         return new \Db\Collection($this->select($modelName));
     }
 
+    /**
+     * Return data as an array of array
+     * @return array array of array
+     */
     public function toArray()
     {
         return $result = $this->select('array');
     }
 
+    /**
+     * Return data as array of stdClass
+     *
+     * @return array array of stdClass
+     */
+    public function toArrayStdClass()
+    {
+        return $result = $this->select('StdClass');
+    }
+
+    /**
+     * Simple method to make an aggregation
+     *
+     * @param string $aggr the aggregation, Ex.: SUM(price)
+     * @return mixed
+     */
     public function aggregation($aggr)
     {
         //aggregation does not have order by
@@ -512,6 +610,16 @@ class QueryBuilder
         }
 
         return NULL;
+    }
+
+    public function update()
+    {
+        throw new Exception('Not implemented yet!');
+    }
+
+    public function delete()
+    {
+        throw new Exception('Not implemented yet!');
     }
 
 }
