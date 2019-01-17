@@ -394,7 +394,7 @@ class QueryBuilder
     public function where($columnName, $param, $value = NULL, $condition = 'AND')
     {
         //support two parameters
-        if (!$value)
+        if (!$value && $value !== '0' && $value !== 0)
         {
             $value = $param;
             $param = is_array($value) ? 'IN' : '=';
