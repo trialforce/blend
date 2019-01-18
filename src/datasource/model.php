@@ -102,24 +102,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
         }
 
-        $columns[] = $column;
-
         $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
-
-        /* if (!empty($filters))
-          {
-          // SE POSSUÍ FILTROS, ADICIONA AS COLUNAS A QUERY
-          foreach ($filters as $f)
-          {
-          $columnFilter = str_replace(' = ?', '', $f->getFilter());
-          $columnFilter = $model->getColumn($columnFilter);
-          if ($columnFilter)
-          {
-          $columns[] = $columnFilter;
-          }
-          }
-          } */
-
         $result = $model->aggregation($filters, $query, $forceExternalSelect);
 
         if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME)
