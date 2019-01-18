@@ -5,7 +5,7 @@ namespace Component\Grid;
 /**
  * Coluna da grid
  */
-class Column implements \Disk\JsonAvoidPropertySerialize
+class Column
 {
 
     /**
@@ -126,6 +126,13 @@ class Column implements \Disk\JsonAvoidPropertySerialize
      * @var \Component\Grid\Simple
      */
     protected $grid;
+
+    /**
+     * A type to apply a formatt to value
+     *
+     * @var \Type\Generic
+     */
+    protected $formatter;
 
     /**
      * Construct the column
@@ -353,17 +360,162 @@ class Column implements \Disk\JsonAvoidPropertySerialize
         return $this;
     }
 
+    /**
+     * Return the name of the column.
+     * But control '.' as AS
+     *
+     * @deprecated since version 18/01/2019 use \Db\Column::getRealColumnName
+     *
+     * @return string
+     */
     public function getSplitName()
     {
-        $columnName = $this->name;
+        return \Db\Column::getRealColumnName($this->name);
+    }
 
-        if (stripos($columnName, '.') > 0)
+    /**
+     * Return the column value formatter
+     *
+     * @return \Type\Generic
+     */
+    public function getFormatter()
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * Define the column type formatter
+     *
+     * @param \Type\Generic $formatter
+     * @return $this
+     */
+    public function setFormatter(\Type\Generic $formatter)
+    {
+        $this->formatter = $formatter;
+        return $this;
+    }
+
+    /**
+     * Parse and format the value.
+     *
+     * @param object $item
+     *
+     * @return mixed
+     */
+    public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
+    {
+        $value = self::getColumnValue($this, $item, $line);
+        $this->makeEditable($item, $line, $tr, $td);
+
+        if ($this->getFixedHeight())
         {
-            $explode = explode('.', $columnName);
-            $columnName = end($explode);
+            $view = new \View\Div(NULL, $value, 'fixedHeight');
+            $view->setTitle(strip_tags($value));
+            return $view;
+        }
+        else
+        {
+            return $value;
+        }
+    }
+
+    public function makeEditable($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
+    {
+        //not used in this case
+        $line = NULL;
+        $tr = NULL;
+
+        if ($this->getEdit() && $td)
+        {
+            $columName = $this->getName();
+            $pkValue = self::getColumnValue($this->getGrid()->getIdentificatorColumn(), $item);
+            $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
+            $td->click("e('gridEdit/$pkValue/?columnName={$columName}');");
+        }
+    }
+
+    /**
+     * Create the head content
+     */
+    public function getHeadContent(\View\View $tr, \View\View $th)
+    {
+        //sem ordenação, só rola a label
+        if (!$this->getOrder())
+        {
+            return $this->getLabel();
         }
 
-        return $columnName;
+        $orderBy = $this->getGrid()->getDataSource()->getOrderBy();
+        $orderWay = $this->getGrid()->getDataSource()->getOrderWay();
+
+        $newOrderWay = $orderWay == 'asc' ? 'desc' : 'asc';
+
+        $param['orderBy'] = $this->getName();
+        $param['orderWay'] = $newOrderWay;
+
+        //link normal
+        $url = $this->getGrid()->getLink('listar', '', $param);
+        $link = new \View\A('order' . ucfirst($this->getName()), $this->getLabel() . ' ', $url);
+
+        $orderByName = $orderBy;
+
+        if (stripos($orderBy, '.') > 0)
+        {
+            $explode = explode('.', $orderBy);
+            $orderByName = end($explode);
+        }
+
+        if ($orderByName === $this->getSplitName())
+        {
+            $class = 'orderBy ';
+            $class .= $orderWay == 'asc' ? 'fa fa-sort-down' : 'fa fa-sort-up';
+            $i = new \View\I(null, null, $class);
+            $link->appendChild($i);
+        }
+
+        return $link;
+    }
+
+    /**
+     * Used by some column like link and image
+     *
+     * @param string $string
+     * @param \Db\Model $item
+     * @return string
+     */
+    public function replaceDataInString($string, $item)
+    {
+        $identificator = $this->getGrid()->getIdentificatorColumn();
+        $idValue = \Component\Grid\Column::getColumnSimpleValue($identificator, $item);
+
+        //make pk more simple
+        $string = str_replace(':?', $idValue, $string);
+
+        if (is_object($item))
+        {
+            $itemArray = (array) $item;
+        }
+
+        foreach ($itemArray as $property => $val)
+        {
+            $property = str_replace(' * ', '', $property);
+
+            $val = \Component\Grid\Column::getColumnSimpleValue($property, $item);
+
+            if ($val instanceof \Disk\File)
+            {
+                $val = $val->getUrl();
+            }
+
+            $string = str_replace(':' . $property . '?', $val, $string);
+        }
+
+        return $string;
+    }
+
+    public function __toString()
+    {
+        return $this->getName() . '';
     }
 
     /**
@@ -580,138 +732,15 @@ class Column implements \Disk\JsonAvoidPropertySerialize
             }
         }
 
+        $formatter = $column->getFormatter();
+
+        if ($formatter)
+        {
+            $formatter->setValue($value);
+            $value = $formatter->__toString();
+        }
+
         return $value;
-    }
-
-    /**
-     * Parse and format the value.
-     *
-     * @param object $item
-     *
-     * @return mixed
-     */
-    public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
-    {
-        $value = self::getColumnValue($this, $item, $line);
-        $this->makeEditable($item, $line, $tr, $td);
-
-        if ($this->getFixedHeight())
-        {
-            $view = new \View\Div(NULL, $value, 'fixedHeight');
-            $view->setTitle(strip_tags($value));
-            return $view;
-        }
-        else
-        {
-            return $value;
-        }
-    }
-
-    public function makeEditable($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
-    {
-        //not used in this case
-        $line = NULL;
-        $tr = NULL;
-
-        if ($this->getEdit() && $td)
-        {
-            $columName = $this->getName();
-            $pkValue = self::getColumnValue($this->getGrid()->getIdentificatorColumn(), $item);
-            $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
-            $td->click("e('gridEdit/$pkValue/?columnName={$columName}');");
-        }
-    }
-
-    /**
-     * Create the head content
-     */
-    public function getHeadContent(\View\View $tr, \View\View $th)
-    {
-        //sem ordenação, só rola a label
-        if (!$this->getOrder())
-        {
-            return $this->getLabel();
-        }
-
-        $orderBy = $this->getGrid()->getDataSource()->getOrderBy();
-        $orderWay = $this->getGrid()->getDataSource()->getOrderWay();
-
-        $newOrderWay = $orderWay == 'asc' ? 'desc' : 'asc';
-
-        $param['orderBy'] = $this->getName();
-        $param['orderWay'] = $newOrderWay;
-
-        //link normal
-        $url = $this->getGrid()->getLink('listar', '', $param);
-        $link = new \View\A('order' . ucfirst($this->getName()), $this->getLabel() . ' ', $url);
-
-        $orderByName = $orderBy;
-
-        if (stripos($orderBy, '.') > 0)
-        {
-            $explode = explode('.', $orderBy);
-            $orderByName = end($explode);
-        }
-
-        if ($orderByName === $this->getSplitName())
-        {
-            $class = 'orderBy ';
-            $class .= $orderWay == 'asc' ? 'fa fa-sort-down' : 'fa fa-sort-up';
-            $i = new \View\I(null, null, $class);
-            $link->appendChild($i);
-        }
-
-        return $link;
-    }
-
-    /**
-     * Used by some column like link and image
-     *
-     * @param string $string
-     * @param \Db\Model $item
-     * @return string
-     */
-    public function replaceDataInString($string, $item)
-    {
-        $identificator = $this->getGrid()->getIdentificatorColumn();
-        $idValue = \Component\Grid\Column::getColumnSimpleValue($identificator, $item);
-
-        //make pk more simple
-        $string = str_replace(':?', $idValue, $string);
-
-        if (is_object($item))
-        {
-            $itemArray = (array) $item;
-        }
-
-        foreach ($itemArray as $property => $val)
-        {
-            $property = str_replace(' * ', '', $property);
-
-            $val = \Component\Grid\Column::getColumnSimpleValue($property, $item);
-
-            if ($val instanceof \Disk\File)
-            {
-                $val = $val->getUrl();
-            }
-
-
-            $string = str_replace(':' . $property . '?', $val, $string);
-        }
-
-        return $string;
-    }
-
-    public function __toString()
-    {
-        return $this->getName() . '';
-    }
-
-    public function listAvoidPropertySerialize()
-    {
-        $avoid[] = 'grid';
-
-        return $avoid;
     }
 
 }
