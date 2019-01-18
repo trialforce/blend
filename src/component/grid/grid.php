@@ -361,6 +361,8 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                     continue;
                 }
 
+                $column instanceof \Component\Grid\Column;
+
                 $column->setGrid($this);
 
                 //jump column that not render
@@ -369,7 +371,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                     continue;
                 }
 
-                $class = $orderBy == $column->getName() ? 'order-by' : '';
+                $class = \Db\Column::getRealColumnName($orderBy) == \Db\Column::getRealColumnName($column->getName()) ? 'order-by' : '';
 
                 $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
                 $align = str_replace('align', '', $column->getAlign());
