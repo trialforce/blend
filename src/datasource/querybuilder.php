@@ -14,12 +14,19 @@ class QueryBuilder extends DataSource
      */
     protected $queryBuilder;
 
+    /**
+     * A smart filter callback function
+     *
+     * @var function
+     */
+    protected $smartFilterCallback;
+
     public function __construct($queryBuilder = NULL)
     {
         $this->setQueryBuilder($queryBuilder);
     }
 
-    public function getQueryBuilder(): \Db\QueryBuilder
+    public function getQueryBuilder()
     {
         return $this->queryBuilder;
     }
@@ -30,29 +37,88 @@ class QueryBuilder extends DataSource
         return $this;
     }
 
+    public function getSmartFilterCallback()
+    {
+        return $this->smartFilterCallback;
+    }
+
+    public function setSmartFilterCallback($smartFilterCallback)
+    {
+        $this->smartFilterCallback = $smartFilterCallback;
+        return $this;
+    }
+
     public function getQueryBuilderFeeded()
     {
-        $qBuilder = $this->getQueryBuilder()
-                ->orderBy($this->getOrderBy(), $this->getOrderWay())
+        $qBuilder = clone($this->getQueryBuilder());
+        $qBuilder instanceof \Db\QueryBuilder;
+        $qBuilder->orderBy($this->getOrderBy(), $this->getOrderWay())
                 ->limit($this->getLimit(), $this->getOffset())
                 ->addWhere($this->getExtraFilter());
 
+        $filters = $this->mountSmartFilters();
+
+        $qBuilder->addWhere($filters);
+
+        return $qBuilder;
+    }
+
+    /**
+     * Mount the smart function
+     *
+     * @return array of \Db\Filter
+     */
+    public function mountSmartFilters()
+    {
+        $callBack = $this->getSmartFilterCallback();
+
+        if ($callBack)
+        {
+            return $callBack($this);
+        }
+
+        $qBuilder = $this->getQueryBuilder();
         $modelName = $qBuilder->getModelName();
 
         //workaround to make it work like a default model
         if ($modelName)
         {
             $smartFilter = new \Db\SmartFilter($modelName, $this->getSelectedModelColumns(), $this->getSmartFilter());
-            $filters = $smartFilter->createFilters();
-            $qBuilder->addWhere($filters);
+            return $smartFilter->createFilters();
         }
 
-        return $qBuilder;
+        return null;
+    }
+
+    protected function getQueryColumnByRealname($realColumnName)
+    {
+        $qBuilder = $this->getQueryBuilder();
+        $columns = $qBuilder->getColumns();
+
+        foreach ($columns as $column)
+        {
+            $realName = \Db\Column::getRealColumnName($column);
+
+            if ($realColumnName == $realName)
+            {
+                return $column;
+            }
+        }
     }
 
     public function executeAggregator(Aggregator $aggregator)
     {
+        $qBuilder = $this->getQueryBuilderFeeded();
+        $realName = $aggregator->getColumnName();
+        $sqlColumn = $this->getQueryColumnByRealname($realName);
+        $sqlColumn = \Db\Column::getRealSqlColumn($sqlColumn);
 
+        $method = $aggregator->getMethod();
+        $query = $method . '( ' . $sqlColumn . ' )';
+
+        $result = $qBuilder->aggregation($query);
+
+        return $aggregator->getLabelledValue($result);
     }
 
     public function getCount()
@@ -75,7 +141,6 @@ class QueryBuilder extends DataSource
         }
 
         $qBuilder = $this->getQueryBuilderFeeded();
-
         $this->data = $qBuilder->toCollection();
 
         return $this->data;
@@ -88,9 +153,15 @@ class QueryBuilder extends DataSource
         $columns = $qBuilder->getColumns();
         $result = array();
 
-        foreach ($columns as $columName)
+        foreach ($columns as $columnName)
         {
-            $result[$columName] = $modelName::getColumn($columName);
+            $columnName = \Db\Column::getRealColumnName($columnName);
+            $column = $modelName::getColumn($columnName);
+
+            if ($column)
+            {
+                $result[$columnName] = $column;
+            }
         }
 
         return $result;
@@ -105,14 +176,22 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $columnName)
         {
+            //control sql columns with AS
+            $columnName = \Db\Column::getRealColumnName($columnName);
+
             //case it has a model name, vinculate it with the column of model
             if ($modelName)
             {
                 $columnModel = $modelName::getColumn($columnName);
+                $columnModel instanceof \Db\Column;
 
                 if ($columnModel)
                 {
                     $result[$columnName] = \DataSource\Model::createOneColumn($columnModel);
+                }
+                else
+                {
+                    $result[$columnName] = new \Component\Grid\Column($columnName, $columnName, 'alignLeft');
                 }
             }
             else
