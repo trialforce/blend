@@ -5,7 +5,7 @@ namespace Db;
 /**
  * Informations about one database column
  */
-class Column implements \Disk\JsonAvoidPropertySerialize
+class Column
 {
 
     /**
@@ -810,11 +810,62 @@ class Column implements \Disk\JsonAvoidPropertySerialize
         return $this->name;
     }
 
-    public function listAvoidPropertySerialize()
+    /**
+     * Get an sql for the column and return the real column name
+     * if it has ' AS ' consider the content after this.
+     *
+     * If it has table.column, consider only the after .
+     *
+     * @param string $sqlForColumn sql for the column
+     * @return string the real column name
+     */
+    public static function getRealColumnName($sqlForColumn)
     {
-        $avoid[] = 'tableName';
+        $columnName = $sqlForColumn;
 
-        return $avoid;
+        // columname AS alias
+        if (stripos($columnName, ' AS ') > 0)
+        {
+            //insensitive
+            $columnName = str_replace(array(' as ', ' As', 'aS'), ' AS ', $columnName);
+            $explode = explode(' AS ', $columnName);
+            $columnName = trim(end($explode));
+            return $columnName;
+        }
+
+        //tablename.columnName
+        if (stripos($columnName, '.') > 0)
+        {
+            $explode = explode('.', $columnName);
+            $columnName = trim(end($explode));
+
+            return $columnName;
+        }
+
+        return $columnName;
+    }
+
+    /**
+     * Return the sql part of a simple sql column
+     *
+     * @param string $sqlForColumn
+     * @return string
+     */
+    public static function getRealSqlColumn($sqlForColumn)
+    {
+        $result = $sqlForColumn;
+
+        if (stripos($sqlForColumn, ' AS '))
+        {
+            $sqlForColumn = str_replace(array(' as ', ' As', 'aS'), ' AS ', $sqlForColumn);
+
+            $explode = explode(' AS ', $sqlForColumn);
+            unset($explode[count($explode) - 1]);
+
+            $result = implode(' ', $explode);
+        }
+
+        return $result;
     }
 
 }
