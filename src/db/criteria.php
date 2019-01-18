@@ -206,6 +206,16 @@ class Criteria implements \Db\Filter
     }
 
     /**
+     * Only to add compatibilty with \Db\Cond and make legacy code work
+     *
+     * @return null
+     */
+    public function getType()
+    {
+        return null;
+    }
+
+    /**
      * Mount WHERE criteria based on an array of filters
      * \Db\Cond or \Db\Where
      *
@@ -234,10 +244,8 @@ class Criteria implements \Db\Filter
                     continue;
                 }
 
-                //old getType way of having
-                $hasGetType = method_exists($filter, 'getType');
-
-                if ($hasGetType && $filter->getType() === \Db\Cond::TYPE_HAVING)
+                //FIXME old getType way of having
+                if (strtolower($filter->getType()) == \Db\Cond::TYPE_HAVING)
                 {
                     $having .= $filter->getWhere($countHaving === 0);
                     $countHaving++;

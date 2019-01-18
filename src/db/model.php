@@ -166,22 +166,7 @@ class Model
             return $columnName;
         }
 
-        //tablename.columnName
-        if (stripos($columnName, '.'))
-        {
-            $explode = explode('.', $columnName);
-            $columnName = trim($explode[1]);
-        }
-
-        // columname as alias
-        if (stripos($columnName, ' AS '))
-        {
-            //insensitive
-            $columnName = str_replace(array('as', 'As', 'aS'), 'AS', $columnName);
-            $explode = explode(' AS ', $columnName);
-            $columnName = trim($explode[1]);
-        }
-
+        $columnName = \Db\Column::getRealColumnName($columnName);
         $columns = self::getColumns();
 
         if (isset($columns[$columnName]))

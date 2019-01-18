@@ -21,7 +21,7 @@ class Money implements \Type\Generic
      */
     protected $decimals = 2;
 
-    public function __construct($value)
+    public function __construct($value = NULL)
     {
         $this->setValue($value);
     }

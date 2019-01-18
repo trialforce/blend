@@ -811,7 +811,7 @@ class Crud extends \Page\Page
      */
     public function isFiltred()
     {
-        return isset($_REQUEST['q']);
+        return isset($_REQUEST['q']) && $_REQUEST['q'];
     }
 
     /**
@@ -881,7 +881,7 @@ class Crud extends \Page\Page
         if ($valorFiltro || $valorFiltro === '0' && $firstLeter != '@')
         {
             $type = $isSearchColumn ? \Db\Cond::TYPE_HAVING : \Db\Cond::TYPE_NORMAL;
-            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro, $type));
+            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro, 'AND', $type));
         }
 
         return $campo;
@@ -898,7 +898,11 @@ class Crud extends \Page\Page
      */
     public function createFixedIntervalFilter($idColumn, $defaultValueBegin = '', $defaultValueEnd = '', $onlyFilter = false)
     {
+        //the original sql for column can be tableName.columnName
+        $sqlColumn = $idColumn;
         $column = $this->model->getColumn($idColumn);
+        //the parsed columnName
+        $idColumn = $column->getName();
         $label = $column ? $column->getLabel() : $idColumn;
 
         $grid = $this->getGrid();
@@ -943,12 +947,12 @@ class Crud extends \Page\Page
         {
             if ($valorFiltroInicio . '')
             {
-                $ds->addExtraFilter(new \Db\Cond('date(' . $idColumn . ') >= ?', $valorFiltroInicio->toDb()));
+                $ds->addExtraFilter(new \Db\Cond('date(' . $sqlColumn . ') >= ?', $valorFiltroInicio->toDb()));
             }
 
             if ($valorFiltroFim . '')
             {
-                $ds->addExtraFilter(new \Db\Cond('date(' . $idColumn . ') <= ?', $valorFiltroFim->toDb()));
+                $ds->addExtraFilter(new \Db\Cond('date(' . $sqlColumn . ') <= ?', $valorFiltroFim->toDb()));
             }
         }
 

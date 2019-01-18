@@ -305,7 +305,17 @@ WHERE index_name = '{$indexName}'";
             return trim($table);
         }
 
-        return strlen(trim($table)) > 0 ? '`' . trim($table) . '`' : '';
+        //add support for '.'
+        $explode = explode('.', $table);
+
+        $result = null;
+
+        foreach ($explode as $table)
+        {
+            $result[] = strlen(trim($table)) > 0 ? '`' . trim($table) . '`' : '';
+        }
+
+        return implode('.', $result);
     }
 
     /**

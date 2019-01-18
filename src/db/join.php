@@ -65,7 +65,7 @@ class Join
     function getSql()
     {
         $alias = $this->alias ? ' AS ' . $this->alias . ' ' : ' ';
-        return strtoupper($this->type) . ' JOIN ' . $this->tableName . $alias . ' ON ' . $this->on;
+        return ' ' . strtoupper($this->type) . ' JOIN ' . $this->tableName . $alias . ' ON ' . $this->on;
     }
 
 }
