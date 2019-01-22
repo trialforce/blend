@@ -321,7 +321,7 @@ class SmartFilter
         $top = '';
         $limit = '';
 
-        if (strtolower($catalog) == '\db\mssqlcatalog')
+        if (strtolower($catalog) == '\db\catalog\mssql')
         {
             $top = 'TOP 1 ';
         }
@@ -358,7 +358,7 @@ class SmartFilter
 
         if ($filter == $columnName || $filter == $columnLabel)
         {
-            $this->conds[] = new \Db\Cond($columnName . ' = ' . \Db\Catalog::DB_TRUE, NULL, \Db\Cond::COND_OR);
+            $this->conds[] = new \Db\Cond($columnName . ' = ' . \Db\Catalog\Mysql::DB_TRUE, NULL, \Db\Cond::COND_OR);
         }
     }
 

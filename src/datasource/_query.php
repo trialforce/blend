@@ -39,10 +39,10 @@ class Query extends DataSource
      * @param string $tables
      * @param array $fields
      */
-    public function __construct( $tables, array $fields )
+    public function __construct($tables, array $fields)
     {
-        $this->setTable( $tables );
-        $this->setFields( $fields );
+        $this->setTable($tables);
+        $this->setFields($fields);
     }
 
     /**
@@ -60,7 +60,7 @@ class Query extends DataSource
      * @param string $table
      * @return \DataSource\Query
      */
-    public function setTable( $table )
+    public function setTable($table)
     {
         $this->table = $table;
         return $this;
@@ -84,7 +84,7 @@ class Query extends DataSource
     {
         $fields = $this->getFields();
 
-        return implode( ' , ', $fields );
+        return implode(' , ', $fields);
     }
 
     /**
@@ -93,7 +93,7 @@ class Query extends DataSource
      * @param string $fields
      * @return \DataSource\Query
      */
-    public function setFields( $fields )
+    public function setFields($fields)
     {
         $this->fields = $fields;
         return $this;
@@ -113,7 +113,7 @@ class Query extends DataSource
      * @param string $classModel
      * @return \DataSource\Query
      */
-    public function setModelClass( $modelClass )
+    public function setModelClass($modelClass)
     {
         $this->modelClass = $modelClass;
         return $this;
@@ -126,12 +126,12 @@ class Query extends DataSource
      */
     public function getCount()
     {
-        if ( is_null( $this->count ) )
+        if (is_null($this->count))
         {
             $where = $this->getWhere();
-            $sql = \Db\Catalog::mountSelect( $this->getTable(), 'count(*) AS count', $where->sql );
-            $result = \Db\Conn::getInstance()->query( $sql, $where->args, $this->getModelClass() );
-            $this->count = $result[ 0 ]->count;
+            $sql = \Db\Catalog\Mysql::mountSelect($this->getTable(), 'count(*) AS count', $where->sql);
+            $result = \Db\Conn::getInstance()->query($sql, $where->args, $this->getModelClass());
+            $this->count = $result[0]->count;
         }
 
         return $this->count;
@@ -144,11 +144,11 @@ class Query extends DataSource
      */
     public function getData()
     {
-        if ( is_null( $this->data ) )
+        if (is_null($this->data))
         {
             $where = $this->getWhere();
-            $sql = \Db\Catalog::mountSelect( $this->getTable(), $this->getFieldsString(), $where->sql, $this->getLimit(), $this->getOffset(), NULL, $where->having, $this->getOrderBy(), $this->getOrderWay() );
-            $this->data = \Db\Conn::getInstance()->query( $sql, $where->args, $this->getModelClass() );
+            $sql = \Db\Catalog::mountSelect($this->getTable(), $this->getFieldsString(), $where->sql, $this->getLimit(), $this->getOffset(), NULL, $where->having, $this->getOrderBy(), $this->getOrderWay());
+            $this->data = \Db\Conn::getInstance()->query($sql, $where->args, $this->getModelClass());
         }
 
         return $this->data;
@@ -164,15 +164,15 @@ class Query extends DataSource
         $filterColumns = array();
         $columns = $this->getColumns();
 
-        foreach ( $columns as $column )
+        foreach ($columns as $column)
         {
-            if ( $column->getFilter() )
+            if ($column->getFilter())
             {
                 $filterColumns[] = $column;
             }
         }
 
-        return \Db\Model::getWhereFromFilters( \Db\Model::smartFilters( $this->getSmartFilter(), $this->getExtraFilter(), $filterColumns ) );
+        return \Db\Model::getWhereFromFilters(\Db\Model::smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $filterColumns));
     }
 
     /**
@@ -188,7 +188,7 @@ class Query extends DataSource
         return NULL;
     }
 
-    public function executeAggregator( Aggregator $aggregator )
+    public function executeAggregator(Aggregator $aggregator)
     {
 
     }

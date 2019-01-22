@@ -1,28 +1,23 @@
 <?php
 
-namespace Db;
+namespace Db\Catalog;
 
 /**
- * Funções especificas para lidar com o catálogo/esquerma do mysql
+ * Microsoft SQL Server catalog
  */
-class MssqlCatalog
+class Mssql implements \Db\Catalog\Base
 {
 
     /**
-     * Verdadeiro para o banco
+     * True for database
      */
     const DB_TRUE = '1';
 
     /**
-     * Falso para o banco
+     * False for database
      */
     const DB_FALSE = '0';
 
-    /**
-     * Lista as colunas de uma tabela
-     *
-     * @param array $table de \Db\Column
-     */
     public static function listColums($table, $makeCache = TRUE)
     {
         //fazer o cache pode ser um processo demorado
@@ -126,28 +121,18 @@ WHERE c.object_id = OBJECT_ID('$table')";
         return $columns;
     }
 
-    /**
-     * Retorna listagem de tabelas
-     *
-     * @return array
-     */
     public static function listTables()
     {
         $dbName = \Db\Conn::getConnInfo()->getName();
 
         $sql = "SELECT
-    t.NAME AS name,
-	t.NAME AS label
-FROM
-    sys.tables t
-INNER JOIN
-    sys.indexes i ON t.OBJECT_ID = i.object_id
-INNER JOIN
-    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
-INNER JOIN
-    sys.allocation_units a ON p.partition_id = a.container_id
-LEFT OUTER JOIN
-    sys.schemas s ON t.schema_id = s.schema_id
+t.NAME AS name,
+t.NAME AS label
+FROM sys.tables t
+INNER JOIN sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN sys.schemas s ON t.schema_id = s.schema_id
 WHERE
     t.NAME NOT LIKE 'dt%'
     AND t.is_ms_shipped = 0
@@ -205,12 +190,6 @@ ORDER BY name ASC";
         return $result;
     }
 
-    /**
-     * If table exists return an stdClass with name and comment
-     *
-     * @param string $table
-     * @return \stdClass
-     */
     public static function tableExists($table, $makeCache = TRUE)
     {
         if ($makeCache)
@@ -224,18 +203,13 @@ ORDER BY name ASC";
         }
 
         $sql = "SELECT
-    t.NAME AS name,
-	t.NAME AS label
-FROM
-    sys.tables t
-INNER JOIN
-    sys.indexes i ON t.OBJECT_ID = i.object_id
-INNER JOIN
-    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
-INNER JOIN
-    sys.allocation_units a ON p.partition_id = a.container_id
-LEFT OUTER JOIN
-    sys.schemas s ON t.schema_id = s.schema_id
+t.NAME AS name,
+t.NAME AS label
+FROM sys.tables t
+INNER JOIN sys.indexes i ON t.OBJECT_ID = i.object_id
+INNER JOIN sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+INNER JOIN sys.allocation_units a ON p.partition_id = a.container_id
+LEFT OUTER JOIN sys.schemas s ON t.schema_id = s.schema_id
 WHERE
     t.NAME NOT LIKE 'dt%'
     AND t.is_ms_shipped = 0
@@ -258,33 +232,11 @@ ORDER BY name ASC;";
         return null;
     }
 
-    /**
-     * Aqui o Rene deveria ter adicionado um comentário
-     * explicando para que serve essa função.
-     *
-     * @param string $table
-     * @param string $indexName
-     * @return type
-     */
     public static function listTableIndex($table = NULL, $indexName = NULL)
     {
         throw new \UserException('Não implementado');
     }
 
-    /**
-     * Monta uma string de um select.
-     *
-     * @param string $columns as colunas
-     * @param string $tables as tabelas, ou tabela
-     * @param string $where as condições, caso existam
-     * @param string $limit o limite caso exista
-     * @param string $offset o offset caso exist
-     * @param string $groupBy agrupamento
-     * @param string $having having
-     * @param string $orderBy ordernação, caso exista
-     *
-     * @return string
-     */
     public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = FALSE)
     {
         $top = strlen(trim($limit)) > 0 ? 'TOP ' . $limit . ' ' : '';
@@ -306,16 +258,6 @@ ORDER BY name ASC;";
         return $sql;
     }
 
-    /**
-     * Monta um sql de insert
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $values
-     * @param string $pk não usado no mysql
-     *
-     * @return string
-     */
     public static function mountInsert($tables, $columns, $values, $pk = NULL)
     {
         //pk is not used in this case
@@ -324,50 +266,21 @@ ORDER BY name ASC;";
         return "INSERT INTO $tables ( $columns ) VALUES ( $values ) ";
     }
 
-    /**
-     * Retorna o sql para o update
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountUpdate($tables, $columns, $where)
     {
         return "UPDATE $tables SET $columns WHERE $where ;";
     }
 
-    /**
-     * Retorna um sql de remoção
-     *
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountDelete($tables, $where)
     {
         return "DELETE FROM $tables WHERE $where;";
     }
 
-    /**
-     * Ajusta o campo conforme a necessidade do bando
-     *
-     * @param string $columnName
-     * @return string
-     *
-     */
     public static function parseColumnNameForQuery($columnName)
     {
         return " $columnName = :$columnName";
     }
 
-    /**
-     * Adjust the name for the query
-     * Support array as parameter
-     *
-     * @param string or array $table
-     * @return string
-     */
     public static function parseTableNameForQuery($table)
     {
         if (is_array($table))
@@ -389,13 +302,6 @@ ORDER BY name ASC;";
         return strlen(trim($table)) > 0 ? '[' . trim($table) . ']' : '';
     }
 
-    /**
-     * Junto os campos usando o separador do banco
-     *
-     * @param string $columnNames
-     * @return string
-     *
-     */
     public static function implodeColumnNames($columnNames)
     {
         return implode(', ', $columnNames);
@@ -403,7 +309,7 @@ ORDER BY name ASC;";
 
 }
 
-if (!class_exists('\Db\Catalog'))
+/*if (!class_exists('\Db\Catalog'))
 {
 
     class Catalog extends \Db\MssqlCatalog
@@ -411,4 +317,4 @@ if (!class_exists('\Db\Catalog'))
 
     }
 
-}
+}*/

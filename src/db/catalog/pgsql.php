@@ -1,28 +1,23 @@
 <?php
 
-namespace Db;
+namespace Db\Catalog;
 
 /**
- * Funções especificas para lidar com o catálogo/esquerma do mysql
+ * PGSql Catalog
  */
-class Catalog
+class PgSql implements \Db\Catalog\Base
 {
 
     /**
-     * Verdadeiro para o banco
+     * True for database
      */
     const DB_TRUE = 't';
 
     /**
-     * Falso para o banco
+     * False for database
      */
     const DB_FALSE = 'f';
 
-    /**
-     * Lista as colunas de uma tabela
-     *
-     * @param array $table de \Db\Column
-     */
     public static function listColums($table, $makeCache = TRUE)
     {
         $cache = null;
@@ -188,36 +183,6 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         return null;
     }
 
-    /**
-     * Retorna os processos ativos no mysql
-     * @return array
-     */
-    public static function processList()
-    {
-        throw new Exception('dbpgsqlcatalog::killProcess ainda não implementado');
-    }
-
-    /**
-     * Mata um processo
-     *
-     * @param string $processId
-     * @return string
-     */
-    public static function killProcess($processId)
-    {
-        //TODO not implemented
-        $processId = NULL;
-        throw new Exception('dbpgsqlcatalog::killProcess ainda não implementado');
-    }
-
-    /**
-     * Aqui o Rene deveria ter adicionado um comentário
-     * explicando para que serve essa função.
-     *
-     * @param string $table
-     * @param string $indexName
-     * @return type
-     */
     public static function listTableIndex($table, $indexName = NULL)
     {
         //TODO not implemented
@@ -226,33 +191,6 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         throw new Exception('dbpgsqlcatalog::listTableIndex ainda não implementado');
     }
 
-    /**
-     * Retorna uma variável de conexão
-     *
-     * @param string $variableName
-     * @return string
-     */
-    public static function showVariable($variableName)
-    {
-        //TODO not implemented
-        $variableName = NULL;
-        throw new Exception('dbpgsqlcatalog::showVariable ainda não implementado');
-    }
-
-    /**
-     * Monta uma string de um select.
-     *
-     * @param string $columns as colunas
-     * @param string $tables as tabelas, ou tabela
-     * @param string $where as condições, caso existam
-     * @param string $limit o limite caso exista
-     * @param string $offset o offset caso exist
-     * @param string $groupBy agrupamento
-     * @param string $having having
-     * @param string $orderBy ordernação, caso exista
-     *
-     * @return string
-     */
     public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL)
     {
         $sql = 'SELECT ' . $columns;
@@ -268,65 +206,27 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         return $sql;
     }
 
-    /**
-     * Monta um sql de insert
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $values
-     * @param string $pk
-     *
-     * @return string
-     */
     public static function mountInsert($tables, $columns, $values, $pk = NULL)
     {
         $pk = $pk ? "RETURNING $pk" : '';
         return "INSERT INTO $tables ( $columns ) VALUES ( $values ) $pk";
     }
 
-    /**
-     * Retorna o sql para o update
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountUpdate($tables, $columns, $where)
     {
         return "UPDATE $tables SET $columns WHERE $where ;";
     }
 
-    /**
-     * Retorna um sql de remoção
-     *
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountDelete($tables, $where)
     {
         return "DELETE FROM $tables WHERE $where;";
     }
 
-    /**
-     * Ajusta o campo conforme a necessidade do bando
-     *
-     * @param string $columnName
-     * @return string
-     *
-     */
     public static function parseColumnNameForQuery($columnName)
     {
         return " \"$columnName\" = :$columnName";
     }
 
-    /**
-     * Trata o nome da tabela para a consulta
-     *
-     * @param string $table
-     * @return string
-     */
     public static function parseTableNameForQuery($table)
     {
         if ($table)
@@ -339,13 +239,6 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         }
     }
 
-    /**
-     * Junto os campos usando o separador do banco
-     *
-     * @param string $columnNames
-     * @return string
-     *
-     */
     public static function implodeColumnNames($columnNames)
     {
         return '"' . implode('", "', $columnNames) . '"';

@@ -272,18 +272,18 @@ class ConnInfo
     {
         if ($this->getType() == \Db\ConnInfo::TYPE_MYSQL)
         {
-            return '\Db\MysqlCatalog';
+            return '\Db\Catalog\Mysql';
         }
         else if ($this->getType() == \Db\ConnInfo::TYPE_POSTGRES)
         {
-            return '\Db\PgsqlCatalog';
+            return '\Db\Catalog\Pgsql';
         }
         else if ($this->getType() == \Db\ConnInfo::TYPE_MSSQL)
         {
-            return '\Db\MssqlCatalog';
+            return '\Db\Catalog\Mssql';
         }
 
-        return '\Db\MysqlCatalog';
+        return '\Db\Catalog\Mysql';
     }
 
 }

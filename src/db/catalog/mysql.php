@@ -1,28 +1,23 @@
 <?php
 
-namespace Db;
+namespace Db\Catalog;
 
 /**
- * Funções especificas para lidar com o catálogo/esquerma do mysql
+ * Funções especificas para lidar com o catálogo/esquema do mysql
  */
-class MysqlCatalog
+class Mysql implements \Db\Catalog\Base
 {
 
     /**
-     * Verdadeiro para o banco
+     * True for database
      */
     const DB_TRUE = '1';
 
     /**
-     * Falso para o banco
+     * False for datbse
      */
     const DB_FALSE = '0';
 
-    /**
-     * Lista as colunas de uma tabela
-     *
-     * @param array $table de \Db\Column
-     */
     public static function listColums($table, $makeCache = TRUE)
     {
         //fazer o cache pode ser um processo demorado
@@ -90,11 +85,6 @@ class MysqlCatalog
         return $columns;
     }
 
-    /**
-     * Retorna listagem de tabelas
-     *
-     * @return array
-     */
     public static function listTables()
     {
         $dbName = \Db\Conn::getConnInfo()->getName();
@@ -107,12 +97,6 @@ class MysqlCatalog
         return \Db\Conn::getInstance()->query($sql, array($dbName));
     }
 
-    /**
-     * If table exists return an stdClass with name and comment
-     *
-     * @param string $table
-     * @return \stdClass
-     */
     public static function tableExists($table, $makeCache = TRUE)
     {
         if ($makeCache)
@@ -145,14 +129,6 @@ class MysqlCatalog
         return null;
     }
 
-    /**
-     * Aqui o Rene deveria ter adicionado um comentário
-     * explicando para que serve essa função.
-     *
-     * @param string $table
-     * @param string $indexName
-     * @return type
-     */
     public static function listTableIndex($table = NULL, $indexName = NULL)
     {
         if ($indexName)
@@ -191,20 +167,6 @@ WHERE index_name = '{$indexName}'";
         return $result;
     }
 
-    /**
-     * Monta uma string de um select.
-     *
-     * @param string $columns as colunas
-     * @param string $tables as tabelas, ou tabela
-     * @param string $where as condições, caso existam
-     * @param string $limit o limite caso exista
-     * @param string $offset o offset caso exist
-     * @param string $groupBy agrupamento
-     * @param string $having having
-     * @param string $orderBy ordernação, caso exista
-     *
-     * @return string
-     */
     public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = FALSE)
     {
         $lineEnding = $format ? "\r\n" : ' ';
@@ -225,16 +187,6 @@ WHERE index_name = '{$indexName}'";
         return $sql;
     }
 
-    /**
-     * Monta um sql de insert
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $values
-     * @param string $pk não usado no mysql
-     *
-     * @return string
-     */
     public static function mountInsert($tables, $columns, $values, $pk = NULL)
     {
         //pk is not used in this case
@@ -243,50 +195,21 @@ WHERE index_name = '{$indexName}'";
         return "INSERT INTO $tables ( $columns ) VALUES ( $values ) ";
     }
 
-    /**
-     * Retorna o sql para o update
-     *
-     * @param string $columns
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountUpdate($tables, $columns, $where)
     {
         return "UPDATE $tables SET $columns WHERE $where ;";
     }
 
-    /**
-     * Retorna um sql de remoção
-     *
-     * @param string $tables
-     * @param string $where
-     * @return string
-     */
     public static function mountDelete($tables, $where)
     {
         return "DELETE FROM $tables WHERE $where;";
     }
 
-    /**
-     * Ajusta o campo conforme a necessidade do bando
-     *
-     * @param string $columnName
-     * @return string
-     *
-     */
     public static function parseColumnNameForQuery($columnName)
     {
         return " `$columnName` = :$columnName";
     }
 
-    /**
-     * Adjust the name for the query
-     * Support array as parameter
-     *
-     * @param string or array $table
-     * @return string
-     */
     public static function parseTableNameForQuery($table)
     {
         if (is_array($table))
@@ -318,13 +241,6 @@ WHERE index_name = '{$indexName}'";
         return implode('.', $result);
     }
 
-    /**
-     * Junto os campos usando o separador do banco
-     *
-     * @param string $columnNames
-     * @return string
-     *
-     */
     public static function implodeColumnNames($columnNames)
     {
         if (is_array($columnNames))
@@ -364,7 +280,7 @@ WHERE index_name = '{$indexName}'";
 
 }
 
-if (!class_exists('\Db\Catalog'))
+/*if (!class_exists('\Db\Catalog'))
 {
 
     class Catalog extends \Db\MysqlCatalog
@@ -372,4 +288,4 @@ if (!class_exists('\Db\Catalog'))
 
     }
 
-}
+}*/

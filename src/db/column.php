@@ -367,7 +367,7 @@ class Column
         $top = '';
         $limit = '';
 
-        if (strtolower($catalog) == '\db\mssqlcatalog')
+        if (strtolower($catalog) == '\db\catalog\mssql')
         {
             $top = 'TOP 1 ';
         }
@@ -390,9 +390,9 @@ class Column
     {
         $referenceClass = '\Model\\' . $this->getReferenceTable();
         $catalog = $referenceClass::getCatalogClass();
-        $referenceTable = \Db\Catalog::parseTableNameForQuery($referenceClass::getTableName());
+        $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
-        $sql = 'SELECT ' . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $value . ' LIMIT 1 ';
+        $sql = 'SELECT ' . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $value . '';
 
         return $sql;
     }

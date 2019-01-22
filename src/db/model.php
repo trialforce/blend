@@ -48,7 +48,8 @@ class Model
     public static function getLabel()
     {
         $name = self::getName();
-        return \Db\Catalog::tableExists($name::getTableName())->label;
+        $catalog = $name::getCatalogClass();
+        return $catalog::tableExists($name::getTableName())->label;
     }
 
     /**
@@ -118,7 +119,8 @@ class Model
         else
         {
             //or, get from databse
-            $columns = \Db\Catalog::listColums($name::getTableName());
+            $catalog = $name::getCatalogClass();
+            $columns = $catalog::listColums($name::getTableName());
         }
 
         self::$columnsCache[$name] = $columns;
@@ -464,7 +466,6 @@ class Model
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, $where->getHaving(), $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
-
         $result = $name::getConn()->query($sql, $where->getArgs(), $returnType);
 
         return $result;
@@ -522,7 +523,8 @@ class Model
         }
 
         $columnNameSql = self::getColumnsForFind($columns);
-        $columnsString = \Db\Catalog::implodeColumnNames($columnNameSql);
+        $catalog = $name::getCatalogClass();
+        $columnsString = $catalog::implodeColumnNames($columnNameSql);
 
         if ($hasHaving || $forceExternalSelect)
         {
@@ -533,7 +535,8 @@ class Model
             $columns = $aggregation . ' as aggregation ,' . $columnsString;
         }
 
-        $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
+        $catalog = $name::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $groupBy = NULL;
 
         if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
@@ -541,7 +544,7 @@ class Model
             $groupBy = $columnsString;
         }
 
-        $sql = \Db\Catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
+        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
 
         if ($hasHaving || $forceExternalSelect)
         {
@@ -733,7 +736,8 @@ class Model
     {
         $name = self::getName();
         $where = $name::getWhereFromFilters($filters);
-        $sql = \Db\Catalog::mountDelete($name::getTableName(), $where->getSql());
+        $catalog = $name::getCatalogClass();
+        $sql = $catalog::mountDelete($name::getTableName(), $where->getSql());
 
         return $name::getConn()->execute($sql, $where->getArgs());
     }
@@ -813,12 +817,13 @@ class Model
     {
         $name = self::getName();
         $columnValues = $this->getColumnValues($columns, FALSE);
-        $columnNames = \Db\Catalog::implodeColumnNames(array_keys($columnValues));
+        $catalog = $name::getCatalogClass();
+        $columnNames = $catalog ::implodeColumnNames(array_keys($columnValues));
         $columnNameSql = ':' . implode(', :', array_keys($columnValues));
 
-        $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
+        $tableName = $catalog ::parseTableNameForQuery($name::getTableName());
 
-        $sql = \Db\Catalog::mountInsert($tableName, $columnNames, $columnNameSql, $this->getPrimaryKey());
+        $sql = $catalog ::mountInsert($tableName, $columnNames, $columnNameSql, $this->getPrimaryKey());
         $pk = $this->getPrimaryKey();
         $id = $pk->getName();
 
@@ -1008,8 +1013,9 @@ class Model
             throw new \Exception('Tabela sem chave primária, impossível remover!');
         }
 
-        $tableName = \Db\Catalog::parseTableNameForQuery($name::getTableName());
-        $sql = \Db\Catalog::mountDelete($tableName, implode(' AND ', $where));
+        $catalog = $name::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
+        $sql = $catalog::mountDelete($tableName, implode(' AND ', $where));
 
         return $name::getConn()->execute($sql, $args);
     }

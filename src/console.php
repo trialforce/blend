@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Mimics Javascript console.
  *
@@ -13,30 +14,30 @@ class Console
      * @param mixed $var
      * @return Console
      */
-    protected static function generateLog( $vars, $type = 'log' )
+    protected static function generateLog($vars, $type = 'log')
     {
-        if ( is_array( $vars ) )
+        if (is_array($vars))
         {
-            foreach ( $vars as $var )
+            foreach ($vars as $var)
             {
-                if ( is_object( $var ) )
+                if (is_object($var))
                 {
                     //$var = \View\Script::treatStringToJs( print_r( $var, 1 ) );
-                    $class = get_class( $var );
-                    $var = ( array ) $var;
-                    $var = json_encode( $var );
+                    $class = get_class($var);
+                    $var = (array) $var;
+                    $var = json_encode($var);
                     $var = "{  \"$class\": {$var}}";
-                    \App::addJs( "console.{$type}({$var});" );
+                    \App::addJs("console.{$type}({$var});");
                 }
-                else if ( is_array( $var ) )
+                else if (is_array($var))
                 {
-                    $var = json_encode( $var, TRUE );
-                    \App::addJs( "console.{$type}({$var});" );
+                    $var = json_encode($var, TRUE);
+                    \App::addJs("console.{$type}({$var});");
                 }
                 else
                 {
-                    $var = \View\Script::treatStringToJs( $var );
-                    \App::addJs( "console.{$type}('{$var}');" );
+                    $var = \View\Script::treatStringToJs($var);
+                    \App::addJs("console.{$type}('{$var}');");
                 }
             }
         }
@@ -44,11 +45,11 @@ class Console
         return TRUE;
     }
 
-    public static function dir( $var )
+    public static function dir($var)
     {
         $vars = func_get_args();
 
-        foreach ( $vars as $var )
+        foreach ($vars as $var)
         {
             //$var = json_encode( $var );
             //$var = "{  \"Mail\": {$var}}";
@@ -64,10 +65,9 @@ class Console
      * @param mixed $var
      * @return Console
      */
-    public static function log( $var = NULL )
+    public static function log($var = NULL)
     {
-        $var = null;
-        return self::generateLog( func_get_args(), 'log' );
+        return self::generateLog(func_get_args(), 'log');
     }
 
     /**
@@ -77,10 +77,9 @@ class Console
      * @param mixed $var
      * @return Console
      */
-    public static function info( $var )
+    public static function info($var)
     {
-        $var = null;
-        return self::generateLog( func_get_args(), 'info' );
+        return self::generateLog(func_get_args(), 'info');
     }
 
     /**
@@ -89,10 +88,9 @@ class Console
      * @param mixed $var
      * @return Console
      */
-    public static function debug( $var )
+    public static function debug($var)
     {
-        $var = null;
-        return self::generateLog( func_get_args(), 'debug' );
+        return self::generateLog(func_get_args(), 'debug');
     }
 
     /**
@@ -102,10 +100,9 @@ class Console
      * @param mixed $var
      * @return Console
      */
-    public static function warn( $var )
+    public static function warn($var)
     {
-        $var = null;
-        return self::generateLog( func_get_args(), 'debug' );
+        return self::generateLog(func_get_args(), 'debug');
     }
 
     /**
@@ -116,10 +113,9 @@ class Console
      * @return Console
      *
      */
-    public static function error( $var )
+    public static function error($var)
     {
-        $var = null;
-        return self::generateLog( func_get_args(), 'info' );
+        return self::generateLog(func_get_args(), 'info');
     }
 
     /**
@@ -129,7 +125,7 @@ class Console
      */
     public static function clear()
     {
-        \App::addJs( 'console.clear();' );
+        \App::addJs('console.clear();');
 
         return TRUE;
     }
