@@ -331,6 +331,21 @@ class Text implements \Type\Generic
         return (strpos($this->string . '', $beginString) === 0);
     }
 
+    public function startWith($beginString)
+    {
+        return $this->beginsWith($beginString);
+    }
+
+    public function endsWith($endString)
+    {
+        if (!$endString)
+        {
+            return false;
+        }
+
+        return substr($this->string, -strlen($endString)) == $endString;
+    }
+
     /**
      * Valida se determinado texto existe dentro da string.
      *
@@ -347,7 +362,7 @@ class Text implements \Type\Generic
      * o construtor e chamar a função necessária na mesma linha.
      *
      * @param string $string
-     * @return String
+     * @return \Type\Text
      *
      * @example Text::get( $string )->toLower() = retorna a string em formato de usuário
      */
