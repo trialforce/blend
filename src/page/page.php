@@ -1069,11 +1069,18 @@ class Page extends \View\Layout
 
     public function updateGrid($id)
     {
+        //add support for old \Grid and new \Component\Grid
         $gridClass = '\Grid\\' . $id;
+
+        if (!class_exists($gridClass))
+        {
+            $gridClass = '\Component\Grid\\' . $id;
+        }
+
         $grid = new $gridClass;
         $table = $grid->createTable();
 
-        $element = new \View\Div(\View\View::REPLACE_SHARP . "Grid\\$id");
+        $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);
         //remove do dom para não reaparecer
         $element->parentNode->removeChild($element);
@@ -1103,19 +1110,6 @@ class Page extends \View\Layout
         $dbModel = $this->getModel();
         $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
         $filter = $mountFilter->getFilter();
-
-        //choose the filter if is array
-        if (is_array($filter))
-        {
-            if (stripos($originalValue, 'Description') > 0)
-            {
-                $filter = $filter[0];
-            }
-            else
-            {
-                $filter = isset($filter[1]) ? $filter[1] : $filter[0];
-            }
-        }
 
         if ($filter)
         {
