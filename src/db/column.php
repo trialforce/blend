@@ -830,6 +830,11 @@ class Column
             $columnName = str_replace(array(' as ', ' As', 'aS'), ' AS ', $columnName);
             $explode = explode(' AS ', $columnName);
             $columnName = trim(end($explode));
+
+            //remove " from start and end
+            $columnName = ltrim($columnName, '"');
+            $columnName = rtrim($columnName, '"');
+
             return $columnName;
         }
 
@@ -864,6 +869,10 @@ class Column
 
             $result = implode(' ', $explode);
         }
+
+        //remove " from start and end
+        $result = ltrim($result, '"');
+        $result = rtrim($result, '"');
 
         return $result;
     }
