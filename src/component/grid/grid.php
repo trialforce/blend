@@ -371,8 +371,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                     continue;
                 }
 
-                $class = \Db\Column::getRealColumnName($orderBy) == \Db\Column::getRealColumnName($column->getName()) ? 'order-by' : '';
-
                 $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
                 $align = str_replace('align', '', $column->getAlign());
                 $col->setAttribute('align', lcfirst($align));
@@ -538,7 +536,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     protected function mountData()
     {
         $dataSource = $this->getDataSource();
-        $dataSource->setColumns($this->getColumns());
         $data = $dataSource->getData();
         $columns = $this->getRenderColumns();
         $tr = array();
@@ -779,7 +776,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     {
         \App::dontChangeUrl();
         $dataSource = $this->getDataSource();
-        $dataSource->setColumns($this->getColumns());
         $this->addFiltersToDataSource($dataSource);
         $type = str_replace("/", '', Request::get('format'));
         $reportColumns = array_keys(Request::get('reportColumns'));
