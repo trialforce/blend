@@ -378,12 +378,37 @@ class Model
      * Return the Query builder for this Model
      * @return \Db\QueryBuilder
      */
-    public static function query()
+    public static function query($tableNameInColumns = false)
     {
         $name = self::getName();
+        $tableName = $name::getTableName();
+
         $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getConnId());
         $queryBuilder->setCatalogClass($name::getCatalogClass());
-        $queryBuilder->setColumns(array_reverse($name::getColumnsForFind($name::getColumns())));
+
+        $columns = $name::getColumns();
+        $result = array();
+
+        foreach ($columns as $column)
+        {
+
+            $column->setTableName($tableName);
+            $line = $column->getSql();
+
+            //var_dump($line);
+
+            if ($tableNameInColumns && !$column instanceof \Db\SearchColumn)
+            {
+                $line[0] = $tableName . '.' . $line[0];
+            }
+
+            if (is_array($line))
+            {
+                $result = array_merge($line, $result);
+            }
+        }
+
+        $queryBuilder->setColumns(array_reverse($result));
         $queryBuilder->setModelName(get_called_class());
 
         return $queryBuilder;
