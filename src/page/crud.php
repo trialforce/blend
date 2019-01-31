@@ -57,7 +57,7 @@ class Crud extends \Page\Page
 
     public function getPopupAdd()
     {
-        return $this->popupAdd || $this->getFormValue('popupAdd') || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
+        return $this->popupAdd || $this->getFormValue('popupAdd') || Request::get('popupAdd') || Get::get('popupAddRedirectPage');
     }
 
     /**
@@ -213,7 +213,8 @@ class Crud extends \Page\Page
 
         //add popupadd to form, to make ir post corret
         $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
+        $body[] = new \View\Input('popupAdd', \View\Input::TYPE_HIDDEN, 'popupAdd');
+        //$body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
         $body[] = new \View\Input('popupAddInputName', \View\Input::TYPE_HIDDEN, Request::get('popupAddInputName'));
         $body[] = new \View\Input('popupAddPageName', \View\Input::TYPE_HIDDEN, $this->getPageUrl());
 
@@ -366,7 +367,7 @@ class Crud extends \Page\Page
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();
 
-                $btnAction = new \View\Div('floating-menu', array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
+                $btnAction = new \View\Div('floating-menu-' . $this->getPageUrl(), array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
                 $btnAction->click('$("#fm-action-' . $this->getPageUrl() . '").toggle(\'fast\');');
 
                 $buttons[] = $btnAction;
@@ -455,7 +456,16 @@ class Crud extends \Page\Page
         $footer[0]->setAutoFocus();
         $footer[0]->focus();
 
-        $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', 'Confirma remoção do registro?', $footer);
+        $body[] = 'Confirma remoção do registro?';
+
+        //add support for popup remove inside gridpopup
+        if ($this->getPopupAdd())
+        {
+            $body[] = new \View\Input('popupAdd', 'hidden', 'popupAdd');
+            $body[] = new \View\Input('_id', 'hidden', Request::get('_id'));
+        }
+
+        $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', $body, $footer);
         $popup->show();
     }
 
@@ -475,7 +485,14 @@ class Crud extends \Page\Page
             throw new \UserException('Imposível encontrar chave primária do modelo!');
         }
 
-        $model->setValue($pk, $this->getFormValue($pk));
+        $pkValue = $this->getFormValue($pk);
+
+        if ($this->getPopupAdd())
+        {
+            $pkValue = Request::get('_id');
+        }
+
+        $model->setValue($pk, $pkValue);
 
         try
         {
@@ -498,10 +515,13 @@ class Crud extends \Page\Page
             {
                 toast('Problemas ao remover o registro!', 'danger');
             }
+
+            return $ok;
         }
         catch (\UserException $exc)
         {
             toast($exc->getMessage(), 'danger');
+            return false;
         }
         catch (\Exception $exc)
         {
