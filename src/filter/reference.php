@@ -23,7 +23,7 @@ class Reference extends \Filter\Text
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, \Db\Column $dbColumn, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column, \Db\Column $dbColumn = NULL, $filterType = NULL)
     {
         parent::__construct($column, NULL, $filterType);
         $this->setDbColumn($dbColumn);
@@ -34,7 +34,7 @@ class Reference extends \Filter\Text
         return $this->dbColumn;
     }
 
-    public function setDbColumn(\Db\Column $dbColumn)
+    public function setDbColumn($dbColumn)
     {
         $this->dbColumn = $dbColumn;
         return $this;
@@ -46,7 +46,16 @@ class Reference extends \Filter\Text
         $class = 'filterInput reference';
         $value = Request::get($columnValue);
 
-        if ($this->dbColumn->getReferenceField())
+        $formatter = $this->column->getFormatter();
+
+        //add support for a formatter as \Db\ConstantValues
+        if ($formatter instanceof \Db\ConstantValues)
+        {
+            $cValues = $formatter->getArray();
+
+            $field = new \View\Select($this->getValueName(), $cValues, $value, $class);
+        }
+        else if ($this->dbColumn->getReferenceField())
         {
             $field = new \View\Ext\ReferenceField($this->dbColumn, $columnValue, $value, $class);
         }
