@@ -45,6 +45,13 @@ class Column
     protected $name;
 
     /**
+     * Sql for the column
+     *
+     * @var string
+     */
+    protected $sql;
+
+    /**
      * Label
      * @var string
      */
@@ -128,7 +135,7 @@ class Column
     protected $grid;
 
     /**
-     * A type to apply a formatt to value
+     * A type to apply a format to value
      *
      * @var \Type\Generic
      */
@@ -160,6 +167,16 @@ class Column
     }
 
     /**
+     * Return a safe name with accent, spaces or special chars
+     *
+     * @return string
+     */
+    public function getSafeName()
+    {
+        return \Type\Text::get($this->name)->toFile('-')->toHuman();
+    }
+
+    /**
      * Define name
      *
      * @param string $name
@@ -168,7 +185,18 @@ class Column
     public function setName($name)
     {
         $this->name = $name;
+        $this->sql = $name;
         return $this;
+    }
+
+    function getSql()
+    {
+        return $this->sql;
+    }
+
+    function setSql($sql)
+    {
+        $this->sql = $sql;
     }
 
     public function getType()
@@ -370,7 +398,7 @@ class Column
      */
     public function getSplitName()
     {
-        return \Db\Column::getRealColumnName($this->name);
+        return \Db\Column::getRealColumnName($this->getName());
     }
 
     /**
@@ -450,23 +478,16 @@ class Column
 
         $newOrderWay = $orderWay == 'asc' ? 'desc' : 'asc';
 
-        $param['orderBy'] = $this->getName();
+        $param['orderBy'] = $this->getSql();
         $param['orderWay'] = $newOrderWay;
 
-        //link normal
+        //normal link
         $url = $this->getGrid()->getLink('listar', '', $param);
-        $link = new \View\A('order' . ucfirst($this->getName()), $this->getLabel() . ' ', $url);
+        $link = new \View\A('order' . ucfirst($this->getSafeName()), $this->getLabel() . ' ', $url);
 
-        $orderByName = $orderBy;
-
-        if (stripos($orderBy, '.') > 0)
+        if ($orderBy === $this->getSql())
         {
-            $explode = explode('.', $orderBy);
-            $orderByName = end($explode);
-        }
-
-        if ($orderByName === $this->getSplitName())
-        {
+            byId('col-' . $this->getName())->addClass('order-by');
             $class = 'orderBy ';
             $class .= $orderWay == 'asc' ? 'fa fa-sort-down' : 'fa fa-sort-up';
             $i = new \View\I(null, null, $class);
@@ -672,7 +693,7 @@ class Column
                 }
                 else if ($dbColumn->getReferenceDescription())
                 {
-                    $value = $item->getValue($columnName . 'Description');
+                    $value = $item->getValue();
                 }
             }
         }
@@ -686,24 +707,7 @@ class Column
                 $grid = $dom->getGrid();
             }
 
-            $ds = null;
-
-            if ($grid)
-            {
-                $ds = $grid->getDataSource();
-
-                if ($ds instanceof \DataSource\ModelGroup)
-                {
-                    $columns = $ds->getOriginalColumns();
-
-                    if (isset($columns[$columnName]))
-                    {
-                        $dbColumn = $columns[$columnName];
-                        $columnName = $dbColumn->getProperty() ? $dbColumn->getProperty() : $columnName;
-                    }
-                }
-            }
-
+            $ds = $grid ? $grid->getDataSource() : null;
             $methodName = 'get' . $columnName;
 
             if (method_exists($item, $methodName))
@@ -715,7 +719,15 @@ class Column
                 $value = $item->{$columnName};
             }
 
-            if ($ds instanceof \DataSource\Model || $ds instanceof \DataSource\ModelGroup)
+            //add support for description column, when is not a model
+            $columnDescriptionName = $columnName . 'Description';
+
+            if (isset($item->$columnDescriptionName) && $item->$columnDescriptionName)
+            {
+                $value = $item->$columnDescriptionName;
+            }
+
+            if ($ds instanceof \DataSource\Model)
             {
                 $model = $ds->getModel();
                 $column = $model->getColumn($columnName);
