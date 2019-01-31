@@ -903,7 +903,7 @@ class DateTime extends \Validator\Validator
 
     public function toHuman()
     {
-        return $this->getSmartDate();
+        return $this->__toString();
     }
 
     /**
