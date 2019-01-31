@@ -174,10 +174,15 @@ class QueryBuilder extends DataSource
         $columns = $qBuilder->getColumns();
         $result = array();
 
-        foreach ($columns as $columnName)
+        foreach ($columns as $orignalColumnName)
         {
             //control sql columns with AS
-            $columnName = \Db\Column::getRealColumnName($columnName);
+            $columnName = \Db\Column::getRealColumnName($orignalColumnName);
+            $columnSql = \Db\Column::getRealSqlColumn($orignalColumnName);
+            $columnLabel = ucfirst(ltrim($columnName, 'id'));
+
+            $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
+            $obj->setSql($columnSql);
 
             //case it has a model name, vinculate it with the column of model
             if ($modelName)
@@ -187,17 +192,25 @@ class QueryBuilder extends DataSource
 
                 if ($columnModel)
                 {
-                    $result[$columnName] = \DataSource\Model::createOneColumn($columnModel);
-                }
-                else
-                {
-                    $result[$columnName] = new \Component\Grid\Column($columnName, $columnName, 'alignLeft');
+                    $obj = \DataSource\Model::createOneColumn($columnModel);
                 }
             }
-            else
+
+            //add support for ..Description column
+            if (\Type\Text::get($columnName)->endsWith('Description'))
             {
-                $result[$columnName] = new \Component\Grid\Column($columnName, $columnName, 'alignLeft');
+                $originalColumnName = str_replace('Description', '', $columnName);
+
+                if (isset($result[$originalColumnName]))
+                {
+                    $result[$originalColumnName]->setRender(false);
+                }
+
+                $columnLabel = str_replace('Description', '', $columnLabel);
+                $obj->setLabel($columnLabel);
             }
+
+            $result[$columnName] = $obj;
         }
 
         $this->setColumns($result);

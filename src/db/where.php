@@ -162,7 +162,7 @@ class Where implements \Db\Filter
         }
         else
         {
-            return $this->condition . ' ' . $where;
+            return strtoupper($this->condition) . ' ' . $where;
         }
     }
 
@@ -196,13 +196,26 @@ class Where implements \Db\Filter
         }
         else
         {
-            return ' ' . $this->condition . ' ' . $where;
+            return ' ' . strtoupper($this->condition) . ' ' . $where;
         }
     }
 
     public function __toString()
     {
         return $this->getWhere(false);
+    }
+
+    /**
+     * Convert a word or prhase to a contains string
+     *
+     * @param string $word
+     * @param string $start
+     * @param string $end
+     * @return
+     */
+    public static function contains($word)
+    {
+        return '%' . str_replace(' ', '%', $word) . '%';
     }
 
 }

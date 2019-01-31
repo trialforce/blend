@@ -101,6 +101,18 @@ class MountFilter
         if (!$filter)
         {
             $dataType = $dataType == 'bool' ? 'boolean' : $dataType;
+
+            $formatter = $column->getFormatter();
+
+            if ($formatter instanceof \Type\DateTime)
+            {
+                $dataType = 'datetime';
+            }
+            else if ($formatter instanceof \Db\ConstantValues)
+            {
+                $dataType = 'reference';
+            }
+
             $filterClass = '\\Filter\\' . ucfirst($dataType);
             $filter = new $filterClass($column, NULL, $filterType);
         }

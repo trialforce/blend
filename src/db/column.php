@@ -831,9 +831,9 @@ class Column
             $explode = explode(' AS ', $columnName);
             $columnName = trim(end($explode));
 
-            //remove " from start and end
-            $columnName = ltrim($columnName, '"');
-            $columnName = rtrim($columnName, '"');
+            //remove " and ` from start and end
+            $columnName = rtrim(ltrim($columnName, '"'), '"');
+            $columnName = rtrim(ltrim($columnName, '`'), '`');
 
             return $columnName;
         }
@@ -870,9 +870,9 @@ class Column
             $result = implode(' ', $explode);
         }
 
-        //remove " from start and end
-        $result = ltrim($result, '"');
-        $result = rtrim($result, '"');
+        //remove " and ` from start and end
+        $result = rtrim(ltrim($result, '"'), '"');
+        $result = rtrim(ltrim($result, '`'), '`');
 
         return $result;
     }
