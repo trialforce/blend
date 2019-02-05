@@ -14,13 +14,6 @@ class QueryBuilder extends DataSource
      */
     protected $queryBuilder;
 
-    /**
-     * A smart filter callback function
-     *
-     * @var function
-     */
-    protected $smartFilterCallback;
-
     public function __construct($queryBuilder = NULL)
     {
         $this->setQueryBuilder($queryBuilder);
@@ -34,17 +27,6 @@ class QueryBuilder extends DataSource
     public function setQueryBuilder(\Db\QueryBuilder $queryBuilder)
     {
         $this->queryBuilder = $queryBuilder;
-        return $this;
-    }
-
-    public function getSmartFilterCallback()
-    {
-        return $this->smartFilterCallback;
-    }
-
-    public function setSmartFilterCallback($smartFilterCallback)
-    {
-        $this->smartFilterCallback = $smartFilterCallback;
         return $this;
     }
 

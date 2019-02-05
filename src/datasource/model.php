@@ -50,10 +50,35 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         {
             $model = $this->model;
 
-            $this->count = $model->count($model->smartFilters($this->getSmartFilter(), $this->getExtraFilter()));
+            //programatelly callback
+            if ($this->getSmartFilterCallback())
+            {
+                $filters = $this->mountCallBackFilters();
+            }
+            else
+            {
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+            }
+
+            $this->count = $model->count($filters);
         }
 
         return $this->count;
+    }
+
+    protected function mountCallBackFilters()
+    {
+        $filters = null;
+        $callBack = $this->getSmartFilterCallback();
+
+        //programatelly callback
+        if ($callBack)
+        {
+            $filtersCallBack = $callBack($this);
+            $filters = array_merge(is_array($filtersCallBack) ? $filtersCallBack : array(), $this->getExtraFilter());
+        }
+
+        return $filters;
     }
 
     /**
@@ -66,7 +91,16 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
-            $this->data = $model->smartFind($this->getSmartFilter(), $this->getExtraFilter(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
+
+            //programatelly callback
+            if ($this->getSmartFilterCallback())
+            {
+                $this->data = $model->find($this->mountCallBackFilters(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
+            }
+            else
+            {
+                $this->data = $model->smartFind($this->getSmartFilter(), $this->getExtraFilter(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
+            }
         }
 
         return $this->data;

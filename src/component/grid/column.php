@@ -693,7 +693,8 @@ class Column
                 }
                 else if ($dbColumn->getReferenceDescription())
                 {
-                    $value = $item->getValue();
+                    $columnDescriptionName = $columnName . 'Description';
+                    $value = $item->getValue($columnDescriptionName);
                 }
             }
         }
