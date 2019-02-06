@@ -327,6 +327,7 @@ class Column
 
     public function setReferenceTable($table, $field = 'id', $referenceDescription = NULL)
     {
+        $this->constantValues = null;
         $this->referenceTable = $table;
         $this->referenceField = $field;
         $this->referenceDescription = $referenceDescription;
