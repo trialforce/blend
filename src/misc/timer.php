@@ -26,7 +26,17 @@ class Timer
      */
     public function __construct()
     {
-        $this->start = microtime( TRUE );
+        $this->start = microtime(TRUE);
+    }
+
+    /**
+     * Reset timer
+     */
+    public function reset()
+    {
+        $this->start = microtime(TRUE);
+
+        return $this;
     }
 
     /**
@@ -34,17 +44,29 @@ class Timer
      */
     public function stop()
     {
-        $this->end = microtime( TRUE );
+        $this->end = microtime(TRUE);
         return $this;
     }
 
     /**
-     * Get the diference between start and stop
+     * Get the diference between start and stop in seconds
+     *
      * @return float
      */
     public function diff()
     {
         return $this->end - $this->start;
+    }
+
+    /**
+     * Get the diference between start and stop in formated time
+     *
+     * @return type
+     */
+    public function diffFormat()
+    {
+        $diff = $this->diff();
+        return gmdate("H:i:s", $diff);
     }
 
     /**
