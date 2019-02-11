@@ -626,6 +626,11 @@ class Column
      */
     public static function getColumnValue($column, $item)
     {
+        if (!$column)
+        {
+            return null;
+        }
+
         if (is_string($column))
         {
             $columnName = $column;
@@ -731,11 +736,11 @@ class Column
             if ($ds instanceof \DataSource\Model)
             {
                 $model = $ds->getModel();
-                $column = $model->getColumn($columnName);
+                $dbColumn = $model->getColumn($columnName);
 
-                if ($column instanceof \Db\Column)
+                if ($dbColumn instanceof \Db\Column)
                 {
-                    $constantValues = $column->getConstantValues();
+                    $constantValues = $dbColumn->getConstantValues();
 
                     if ($constantValues && isset($constantValues [$value]))
                     {

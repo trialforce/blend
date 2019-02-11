@@ -371,7 +371,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                     continue;
                 }
 
-                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
+                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null);
                 $align = str_replace('align', '', $column->getAlign());
                 $col->setAttribute('align', lcfirst($align));
                 $col->setData('type', $column->getType());
