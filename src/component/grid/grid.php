@@ -371,7 +371,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                     continue;
                 }
 
-                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null, $class);
+                $cols[] = $col = new \View\Col('col-' . $column->getName(), NULL, null);
                 $align = str_replace('align', '', $column->getAlign());
                 $col->setAttribute('align', lcfirst($align));
                 $col->setData('type', $column->getType());
@@ -556,15 +556,59 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $tr = new \View\Tr(NULL, NULL, $index % 2 ? 'alt' : 'normal');
 
         //parse item data to grid
-        $item2 = $this->parseItemData($item);
+        $itemParsed = $this->parseItemData($item);
         $td = array();
+
+        $td[] = $this->createTdMobile($columns, $index, $itemParsed, $tr);
 
         foreach ($columns as $column)
         {
-            $td[] = $this->createTd($column, $index, $item2, $tr);
+            $td[] = $this->createTd($column, $index, $itemParsed, $tr);
         }
 
         return $tr->html($td);
+    }
+
+    protected function createTdMobile($columns, $index, $item, $tr)
+    {
+        $td = new \View\Td(NULL, NULL, 'hide-in-desktop');
+
+        return $td->html($this->createMobileContent($columns, $index, $item, $tr));
+    }
+
+    protected function createMobileContent($columns, $index, $item, $tr)
+    {
+        $tr = array();
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Component\Grid\Column;
+
+            $tr[] = $myTr = new \View\Tr();
+
+            $td = array();
+
+            if (!$column->getIdentificator())
+            {
+                $td[0] = new \View\Td(null, new \View\B(null, $column->getLabel() . ':'), 'td-left');
+            }
+
+            $td[1] = new \View\Td();
+
+            $value = $column->getValue($item, $index, $myTr, $td[1]);
+
+            if ($value instanceof \Type\Generic)
+            {
+                $value = $value->toHuman();
+            }
+
+            $td[1]->html($value);
+
+            $myTr->html($td);
+        }
+
+
+        return new \View\Table(null, $tr, 'table-inner-mobile');
     }
 
     /**
@@ -576,7 +620,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
      */
     protected function createTd(\Component\Grid\Column $column, $index, $item, $tr)
     {
-        $td = new \View\Td(NULL, NULL, $column->getAlign());
+        $td = new \View\Td(NULL, NULL, $column->getAlign() . ' hide-in-mobile');
         $value = $column->getValue($item, $index, $tr, $td);
 
         if ($value instanceof \Type\Generic)

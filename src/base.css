@@ -306,6 +306,10 @@ html[xmlns] .clearfix {
     display: block;
 }
 
+td.hide-in-mobile {
+    display: table-cell;
+}
+
 .center {
     text-align: center;
     margin: 0 auto;
@@ -596,12 +600,16 @@ iframe {
         margin: 0;
         padding: 20px 0;
     }
-
+    
     .hide-in-desktop {
         display: block;
     }
+    
+    td.hide-in-desktop {
+        display: table-cell;
+    }
 
-    .hide-in-mobile {
+    .hide-in-mobile, td.hide-in-mobile {
         display: none;
     }
         
