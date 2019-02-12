@@ -51,9 +51,7 @@ class Reference extends \Filter\Text
         //add support for a formatter as \Db\ConstantValues
         if ($formatter instanceof \Db\ConstantValues)
         {
-            $cValues = $formatter->getArray();
-
-            $field = new \View\Select($this->getValueName(), $cValues, $value, $class);
+            $field = new \View\Select($this->getValueName(), $formatter->getArray(), $value, $class);
         }
         else if ($this->dbColumn->getReferenceField())
         {
@@ -71,6 +69,7 @@ class Reference extends \Filter\Text
             $field = new \View\Select($this->getValueName(), $cValues, $value, $class);
         }
 
+        //$field->setMultiple(true);
         $field->onPressEnter("$('#buscar').click()");
 
         return $field;
@@ -85,11 +84,6 @@ class Reference extends \Filter\Text
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
         $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_EQUALS;
-
-        if (!$conditionValue)
-        {
-            $conditionValue = 'like';
-        }
 
         $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
         $this->getCondJs($select);
@@ -114,14 +108,15 @@ class Reference extends \Filter\Text
                 if (is_array($filterValue))
                 {
                     //optimize for 1 register
-                    if (count($filterValue) == 1 && strlen($filterValue[0]) > 0)
+                    if (count($filterValue) == 1)
                     {
                         return new \Db\Cond($columnName . ' = ? ', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
                     }
-                    else if (count($filterValue) > 1)
+                    else
                     {
                         $filterValue = implode("','", Request::get($filterName));
-                        return new \Db\Cond($columnName . " IN ( '$filterValue' )", NULL, \Db\Cond::COND_AND, $this->getFilterType());
+                        $cond = new \Db\Cond($columnName . " IN ( '$filterValue' )", NULL, \Db\Cond::COND_AND, $this->getFilterType());
+                        return $cond;
                     }
                 }
                 else if ($filterValue || $filterValue === '0')

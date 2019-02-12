@@ -730,6 +730,12 @@ class Crud extends \Page\Page
         $isSearchColumn = $column instanceof \Db\SearchColumn;
         $label = $column ? $column->getLabel() : $idColumn;
 
+        //correcte columns with label starting with "id"
+        if (stripos($label, 'id') == 0)
+        {
+            $label = ucfirst(str_replace('id', '', $label));
+        }
+
         $grid = $this->getGrid();
         $nomeFiltro = 'filtro-' . ($column ? $column->getName() : $idColumn);
         $valorFiltro = $this->getFixedFilterValue($nomeFiltro, $defaultValue);
@@ -744,12 +750,17 @@ class Crud extends \Page\Page
             $finalOptions = \Db\Collection::create($all);
             $finalOptions->add($options);
 
-            $campo = new \View\Select($nomeFiltro, $finalOptions, $valorFiltro, 'span1');
-            $campo->change("$('#buscar').click()");
-            $campo->setTitle('Filtra por ' . lcfirst($label));
+            $field = new \View\Select($nomeFiltro, $finalOptions, $valorFiltro, 'fullWidth');
+            //$field->setMultiple(true);
+            $field->change("$('#buscar').click()");
+            $field->setTitle('Filtra por ' . lcfirst($label));
+
+            $fields = array();
+            $fields[] = new \View\Label(null, $nomeFiltro, $label, 'filterLabel');
+            $fields[] = $field;
 
             //add filter to head
-            $grid->getSearchField()->addExtraFilter($campo);
+            $grid->getSearchField()->addExtraFilter(new \View\Div('main-search', $fields, 'filterField'));
         }
 
         $firstLeter = '';
@@ -767,7 +778,18 @@ class Crud extends \Page\Page
         if ($valorFiltro || $valorFiltro === '0' && $firstLeter != '@')
         {
             $type = $isSearchColumn ? \Db\Cond::TYPE_HAVING : \Db\Cond::TYPE_NORMAL;
-            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro, 'AND', $type));
+            $cond = null;
+
+            if (is_array($valorFiltro))
+            {
+                $cond = new \Db\Cond($idColumn . " IN ('" . implode("','", $valorFiltro) . "')", 'AND', $type);
+            }
+            else
+            {
+                $cond = new \Db\Where($idColumn, '=', $valorFiltro, 'AND', $type);
+            }
+
+            $ds->addExtraFilter($cond);
         }
 
         return $campo;

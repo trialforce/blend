@@ -1,6 +1,7 @@
 <?php
 
 namespace Component\Grid;
+
 use DataHandle\Request;
 
 /**
@@ -71,6 +72,7 @@ class SearchField extends \Component\Component
         }
 
         $innerHtml[] = $this->getAdvancedFilters();
+        $innerHtml[] = $this->getSearchButton();
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
 
@@ -118,12 +120,17 @@ class SearchField extends \Component\Component
         $search = new \View\Input($idQuestion, \View\Input::TYPE_SEARCH, Request::get($idQuestion));
 
         $search->setAttribute('placeholder', 'Pesquisar...')
-                ->setClass('search span3')
+                ->setClass('search fullWidth')
                 ->setValue(Request::get($idQuestion))
                 ->setTitle('Digite o conteúdo a buscar...')
                 ->onPressEnter('$("#' . $idBtn . '").click();');
 
-        return $search;
+
+        $fields = array();
+        $fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
+        $fields[] = $search;
+
+        return new \View\Div('main-search', $fields, 'filterField');
     }
 
     /**
@@ -146,7 +153,6 @@ class SearchField extends \Component\Component
             $dbModel = $dom->getModel();
         }
 
-        $result[] = $this->getSearchButton();
         $filter = new \View\Ext\Icon('filter');
         $filter->setId('advanced-filter');
         $filter->click('$("#fm-filters").toggle(\'fast\');');
