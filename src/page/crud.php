@@ -726,11 +726,45 @@ class Crud extends \Page\Page
      */
     public function createFixedFilter($idColumn, $options, $defaultValue = '', $allLabel = 'Todos', $onlyFilter = false)
     {
+        $grid = $this->getGrid();
+        $ds = $grid->getDataSource();
+        $column = $ds->getColumn(\Db\Column::getRealColumnName($idColumn));
+
+        if (!$column)
+        {
+            return null;
+        }
+
+        $collection = \Db\Collection::create(null)->add($options);
+        $filter = new \Filter\Collection($column, $collection);
+
+        if (!$onlyFilter)
+        {
+            $grid->getSearchField()->addExtraFilter($filter);
+            $filterName = $filter->getFilterName() . 'Value';
+
+            if (!Request::get($filterName))
+            {
+                $this->byId($filterName)->val($defaultValue);
+                Request::set($filterName, $defaultValue);
+            }
+        }
+
+        $cond = $filter->getDbCond();
+
+        if ($cond)
+        {
+            $ds->addExtraFilter($cond);
+        }
+
+        return null;
+        //
+
         $column = $this->model->getColumn($idColumn);
         $isSearchColumn = $column instanceof \Db\SearchColumn;
         $label = $column ? $column->getLabel() : $idColumn;
 
-        //correcte columns with label starting with "id"
+        //correct columns with label starting with "id"
         if (stripos($label, 'id') == 0)
         {
             $label = ucfirst(str_replace('id', '', $label));

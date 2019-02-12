@@ -571,7 +571,7 @@ class Page extends \View\Layout
     /**
      * Return the current grid
      *
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function getGrid()
     {

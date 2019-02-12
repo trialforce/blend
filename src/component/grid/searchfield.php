@@ -41,6 +41,27 @@ class SearchField extends \Component\Component
         return $this->extraFilters;
     }
 
+    function getExtraFilterByName($filterName)
+    {
+        $filters = $this->getExtraFilters();
+
+        if (is_array($filters))
+        {
+            foreach ($filters as $filter)
+            {
+                if ($filter instanceof \Filter\Text)
+                {
+                    if ($filterName == $filter->getFilterName())
+                    {
+                        return $filter;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     function setExtraFilters($extraFilters)
     {
         if (!is_array($extraFilters))
@@ -68,7 +89,18 @@ class SearchField extends \Component\Component
 
         if ($this->extraFilters)
         {
-            $innerHtml[] = $this->extraFilters;
+            $filters = $this->extraFilters;
+
+            foreach ($filters as $filter)
+            {
+                //add support for filter passed as \Filter\Text
+                if ($filter instanceof \Filter\Text)
+                {
+                    $filter = $filter->getInput();
+                }
+
+                $innerHtml[] = $filter;
+            }
         }
 
         $innerHtml[] = $this->getAdvancedFilters();
@@ -125,7 +157,6 @@ class SearchField extends \Component\Component
                 ->setTitle('Digite o conteúdo a buscar...')
                 ->onPressEnter('$("#' . $idBtn . '").click();');
 
-
         $fields = array();
         $fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
         $fields[] = $search;
@@ -172,6 +203,12 @@ class SearchField extends \Component\Component
         {
             foreach ($filters as $filter)
             {
+                //if allready has some extra filter with this name, don't add it again
+                if ($this->getExtraFilterByName($filter->getFilterName()))
+                {
+                    continue;
+                }
+
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $fMenu->addItem(null, null, $filter->getFilterLabel(), $url);
 
