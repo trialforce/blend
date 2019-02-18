@@ -42,16 +42,7 @@ class App
         }
         else
         {
-            //if default page is null return null
-            //TODO verify where this is used
-            if (\DataHandle\Config::get('defaultPage') === NULL)
-            {
-                $page = NULL;
-            }
-            else
-            {
-                $page = \DataHandle\Config::getDefault('defaultPage', '\Page\Main');
-            }
+            $page = \DataHandle\Config::getDefault('defaultPage', \DataHandle\Session::get('user') ? 'Page\Main' : NULL);
         }
 
         return $page;
