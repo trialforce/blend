@@ -119,3 +119,30 @@ function byId($id)
 {
     return \View\View::getDom()->byId($id);
 }
+
+if (!function_exists('filePath'))
+{
+
+    function filePath($class, $extension = 'php')
+    {
+        $class = strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $class));
+        return APP_PATH . DIRECTORY_SEPARATOR . $class . '.' . $extension;
+    }
+
+}
+
+if (!function_exists('loadFile'))
+{
+
+    function loadFile($class)
+    {
+        $fileName = filePath($class, 'php');
+
+        if (is_file($fileName))
+        {
+            require $fileName;
+        }
+    }
+
+    spl_autoload_register('loadFile');
+}
