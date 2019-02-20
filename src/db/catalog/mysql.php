@@ -230,7 +230,6 @@ WHERE index_name = '{$indexName}'";
 
         //add support for '.'
         $explode = explode('.', $table);
-
         $result = null;
 
         foreach ($explode as $table)
@@ -278,14 +277,61 @@ WHERE index_name = '{$indexName}'";
         return $columns;
     }
 
-}
-
-/*if (!class_exists('\Db\Catalog'))
-{
-
-    class Catalog extends \Db\MysqlCatalog
+    public static function mountCreateTable($name, $comment, $columns, $params)
     {
+        $paramStr = '';
+        $pksStr = '';
+        $columnsStr = '';
 
+        if (is_array($params))
+        {
+            foreach ($params as $key => $param)
+            {
+                $paramStr .= strtoupper($key) . "='" . $param . "'\n";
+            }
+        }
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Db\Column;
+            $pks = null;
+
+            if ($column->isPrimaryKey())
+            {
+                $pks[] = '`' . $column->getName() . '`';
+            }
+
+            $columnsStr .= '`' . $column->getName() . '` ';
+
+            if ($column->getSize())
+            {
+                $columnsStr .= $column->getType() . '(' . $column->getSize() . ') ';
+            }
+            else
+            {
+                $columnsStr .= $column->getType() . ' ';
+            }
+
+            $columnsStr .= $column->isNullable() ? 'NULL ' : 'NOT NULL ';
+            $columnsStr .= $column->getLabel() ? " COMMENT '" . $column->getLabel() . "'" : '';
+
+            $columnsStr .= ",\n";
+        }
+
+        if (is_array($pks))
+        {
+            $str = implode(',', $pks);
+            $pksStr = "PRIMARY KEY ({$str})";
+        }
+
+        $sql = "
+CREATE TABLE `{$name}` (
+$columnsStr $pksStr
+)
+COMMENT='$comment'
+$paramStr";
+
+        return $sql;
     }
 
-}*/
+}

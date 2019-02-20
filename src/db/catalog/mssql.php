@@ -307,6 +307,11 @@ ORDER BY name ASC;";
         return implode(', ', $columnNames);
     }
 
+    public static function mountCreateTable($name, $comment, $columns, $params)
+    {
+
+    }
+
 }
 
 /*if (!class_exists('\Db\Catalog'))
