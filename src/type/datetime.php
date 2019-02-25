@@ -51,7 +51,7 @@ class DateTime extends \Validator\Validator
      *
      * @example \Type\DateTime::get( $date ) = retorna a data em formato de usuário
      */
-    public static function get($date)
+    public static function get($date = null)
     {
         return new \Type\DateTime($date);
     }

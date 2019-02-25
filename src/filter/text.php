@@ -96,7 +96,7 @@ class Text
         $column = $this->getColumn();
         $label = $column->getLabel();
 
-        return $label;
+        return ucfirst($label);
     }
 
     public function getLabel()

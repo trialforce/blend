@@ -261,7 +261,7 @@ class Paginator extends \View\Div
             if ($count == 0)
             {
                 $pageName = lcfirst($pageName);
-                $captionMessage = "Nenhum {$pageName} encontrado.";
+                $captionMessage = "Nenhum registro encontrado.";
             }
             else
             {
@@ -307,7 +307,6 @@ class Paginator extends \View\Div
             $content[] = new \View\Span('', $link, 'paginator', 'clearfix');
         }
 
-        //$content[] = new \View\Input( $this->getCountElementId(), \View\Input::TYPE_HIDDEN, $count );
         $this->append($this->createPaginationLimitField());
         $this->append($content);
 

@@ -158,6 +158,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $orignalColumnName)
         {
+
             //control sql columns with AS
             $columnName = \Db\Column::getRealColumnName($orignalColumnName);
             $columnSql = \Db\Column::getRealSqlColumn($orignalColumnName);

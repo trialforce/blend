@@ -41,27 +41,6 @@ class SearchField extends \Component\Component
         return $this->extraFilters;
     }
 
-    function getExtraFilterByName($filterName)
-    {
-        $filters = $this->getExtraFilters();
-
-        if (is_array($filters))
-        {
-            foreach ($filters as $filter)
-            {
-                if ($filter instanceof \Filter\Text)
-                {
-                    if ($filterName == $filter->getFilterName())
-                    {
-                        return $filter;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
     function setExtraFilters($extraFilters)
     {
         if (!is_array($extraFilters))
@@ -190,7 +169,7 @@ class SearchField extends \Component\Component
 
         $result[] = $filter;
 
-        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel);
+        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->getExtraFilters());
 
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $fMenu->hide();
@@ -203,12 +182,6 @@ class SearchField extends \Component\Component
         {
             foreach ($filters as $filter)
             {
-                //if allready has some extra filter with this name, don't add it again
-                if ($this->getExtraFilterByName($filter->getFilterName()))
-                {
-                    continue;
-                }
-
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $fMenu->addItem(null, null, $filter->getFilterLabel(), $url);
 

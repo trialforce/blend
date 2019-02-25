@@ -701,8 +701,16 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         if (method_exists($page, 'getModel'))
         {
+            $grid = $page->getGrid();
+            $extraFilters = null;
             //FIXME optimize 10% if get only what is is post
-            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel());
+            if (method_exists($grid, 'getSearchField'))
+            {
+                $searchField = $grid->getSearchField();
+                $extraFilters = $searchField->getExtraFilters();
+            }
+
+            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
 
             if (is_array($filters))
             {
