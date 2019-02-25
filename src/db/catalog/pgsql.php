@@ -244,4 +244,9 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         return '"' . implode('", "', $columnNames) . '"';
     }
 
+    public static function mountCreateTable($name, $comment, $columns, $params)
+    {
+
+    }
+
 }

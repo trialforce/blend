@@ -38,21 +38,26 @@ class App
         //if a url exists in request
         if ($page)
         {
-            $page = '\page\\' . str_replace('-', '\\', $page);
-        }
-        else
-        {
-            //if default page is null return null
-            //TODO verify where this is used
-            if (\DataHandle\Config::get('defaultPage') === NULL)
+            //add support for module
+            if (stripos($page, '-') === 0)
             {
-                $page = NULL;
+                $explode = explode('-', $page);
+                array_shift($explode);
+                $module = $explode[0];
+                array_shift($explode);
+                $page = $module . '\page\\' . implode('\\', $explode);
             }
             else
             {
-                $page = \DataHandle\Config::getDefault('defaultPage', '\Page\Main');
+                $page = '\page\\' . str_replace('-', '\\', $page);
             }
         }
+        else
+        {
+            $page = \DataHandle\Config::getDefault('defaultPage', \DataHandle\Session::get('user') ? 'Page\Main' : NULL);
+        }
+
+
 
         return $page;
     }

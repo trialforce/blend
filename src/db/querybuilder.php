@@ -29,12 +29,19 @@ class QueryBuilder
      */
     public function __construct($tableName = null, $connInfoId = 'default')
     {
+        $this->setConnInfoId($connInfoId);
+        $this->setTableName($tableName);
+    }
+
+    public function setConnInfoId($connInfoId = null)
+    {
         $conn = \Db\Conn::getInstance($connInfoId ? $connInfoId : 'default');
         $connInfo = \Db\Conn::getConnInfo($connInfoId);
 
         $this->setConn($conn);
         $this->setCatalogClass($connInfo->getCatalogClass());
-        $this->setTableName($tableName);
+
+        return $this;
     }
 
     public function getCatalogClass()

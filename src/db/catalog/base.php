@@ -99,4 +99,14 @@ interface Base
      * @param string $columnNames
      */
     public static function implodeColumnNames($columnNames);
+
+    /**
+     * Create one table
+     *
+     * @param string $name table name
+     * @param string $comment comnent or table label
+     * @param array $columns list of \Db\Column
+     * @param array $params extra parans for table creation
+     */
+    public static function mountCreateTable($name, $comment, $columns, $params);
 }
