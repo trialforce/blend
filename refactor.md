@@ -10,6 +10,13 @@ Motivation: integrate \Validator\Validator and \Type\Generic that became one thi
 # 2019-02-27
 Blend has an initial "module" support. To use it you need to change httaccess. Like the example above.
 
+And you need to activate it in config.
+
+```
+$config['use-module'] = true;
+```
+
+
 ```
 php_flag display_errors 1
 AddDefaultCharset UTF-8
