@@ -728,12 +728,16 @@ class Crud extends \Page\Page
     {
         $grid = $this->getGrid();
         $ds = $grid->getDataSource();
-        $column = $ds->getColumn(\Db\Column::getRealColumnName($idColumn));
+        $realColumnName = \Db\Column::getRealColumnName($idColumn);
+        $column = $ds->getColumn($realColumnName);
 
         if (!$column)
         {
-            return null;
+            $label = ucfirst(str_replace('id', '', $realColumnName));
+            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column::TYPE_VARCHAR);
         }
+
+        $column->setSql($idColumn);
 
         $collection = \Db\Collection::create(null)->add($options);
         $filter = new \Filter\Collection($column, $collection);
@@ -758,75 +762,6 @@ class Crud extends \Page\Page
         }
 
         return null;
-        //
-
-        $column = $this->model->getColumn($idColumn);
-        $isSearchColumn = $column instanceof \Db\SearchColumn;
-        $label = $column ? $column->getLabel() : $idColumn;
-
-        //correct columns with label starting with "id"
-        if (stripos($label, 'id') == 0)
-        {
-            $label = ucfirst(str_replace('id', '', $label));
-        }
-
-        $grid = $this->getGrid();
-        $nomeFiltro = 'filtro-' . ($column ? $column->getName() : $idColumn);
-        $valorFiltro = $this->getFixedFilterValue($nomeFiltro, $defaultValue);
-
-        $campo = null;
-
-        //create field only if needed
-        if (!$onlyFilter)
-        {
-            //merge options
-            $all[''] = $allLabel ? $allLabel : 'Todos';
-            $finalOptions = \Db\Collection::create($all);
-            $finalOptions->add($options);
-
-            $field = new \View\Select($nomeFiltro, $finalOptions, $valorFiltro, 'fullWidth');
-            //$field->setMultiple(true);
-            $field->change("$('#buscar').click()");
-            $field->setTitle('Filtra por ' . lcfirst($label));
-
-            $fields = array();
-            $fields[] = new \View\Label(null, $nomeFiltro, $label, 'filterLabel');
-            $fields[] = $field;
-
-            //add filter to head
-            $grid->getSearchField()->addExtraFilter(new \View\Div('main-search', $fields, 'filterField'));
-        }
-
-        $firstLeter = '';
-        $defaultQuery = Request::get('q');
-
-        if ($defaultQuery)
-        {
-            $firstLeter = $defaultQuery[0];
-        }
-
-        //filter data
-        $ds = $grid->getDataSource();
-
-        //add support for @id parameter
-        if ($valorFiltro || $valorFiltro === '0' && $firstLeter != '@')
-        {
-            $type = $isSearchColumn ? \Db\Cond::TYPE_HAVING : \Db\Cond::TYPE_NORMAL;
-            $cond = null;
-
-            if (is_array($valorFiltro))
-            {
-                $cond = new \Db\Cond($idColumn . " IN ('" . implode("','", $valorFiltro) . "')", 'AND', $type);
-            }
-            else
-            {
-                $cond = new \Db\Where($idColumn, '=', $valorFiltro, 'AND', $type);
-            }
-
-            $ds->addExtraFilter($cond);
-        }
-
-        return $campo;
     }
 
     /**
@@ -860,18 +795,23 @@ class Crud extends \Page\Page
         if (!$onlyFilter)
         {
             //cria campo start
-            $campo = new \View\Ext\DateInput($nomeFiltroInicio, $valorFiltroInicio, 'span1');
+            $campo = new \View\Ext\DateInput($nomeFiltroInicio, $valorFiltroInicio, 'fixed-filter-interval');
             $campo->change("$('#buscar').click()");
             $campo->setTitle('Filtra por ' . lcfirst($label));
-            //add field to head
-            $grid->getSearchField()->addExtraFilter($campo);
 
             //cria campo start
-            $campo2 = new \View\Ext\DateInput($nomeFiltroFim, $valorFiltroFim, 'span1');
+            $campo2 = new \View\Ext\DateInput($nomeFiltroFim, $valorFiltroFim, 'fixed-filter-interval');
             $campo2->change("$('#buscar').click()");
             $campo2->setTitle('Filtra por ' . lcfirst($label));
+
+            $content[] = new \View\Label(null, $nomeFiltroInicio, $label, 'filterLabel');
+            $content[] = $campo;
+            $content[] = $campo2;
+
+            $field = new \View\Div(null, $content, 'filterField');
+
             //add field to head
-            $grid->getSearchField()->addExtraFilter($campo2);
+            $grid->getSearchField()->addExtraFilter($field);
         }
 
         //filter data

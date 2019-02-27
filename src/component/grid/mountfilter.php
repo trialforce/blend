@@ -155,13 +155,26 @@ class MountFilter
      * @param \Dd\Model $dbModel
      * @return array
      */
-    public static function getFilters($columns, $dbModel)
+    public static function getFilters($columns, $dbModel, $fixedFilters = null)
     {
-        $filters = null;
+        $filters = array();
 
         if (!is_array($columns) || !$dbModel)
         {
             return NULL;
+        }
+
+        $extraFilters = array();
+
+        if (is_array($fixedFilters))
+        {
+            foreach ($fixedFilters as $filter)
+            {
+                if ($filter instanceof \Filter\Text)
+                {
+                    $extraFilters[] = $filter->getFilterName();
+                }
+            }
         }
 
         //prepare filters to an array
@@ -174,12 +187,18 @@ class MountFilter
             {
                 foreach ($filter as $filt)
                 {
-                    $filters[$filt->getFilterName()] = $filt;
+                    if (!in_array($filt->getFilterName(), $extraFilters))
+                    {
+                        $filters[$filt->getFilterName()] = $filt;
+                    }
                 }
             }
             else if ($filter)
             {
-                $filters[$column->getSplitName()] = $filter;
+                if (!in_array($filter->getFilterName(), $extraFilters))
+                {
+                    $filters[$filter->getFilterName()] = $filter;
+                }
             }
         }
 

@@ -107,10 +107,11 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         if ($idValue)
         {
-            $dataSource->addExtraFilter(new \Db\Cond($this->getIdParent() . ' = ?', $idValue));
+            $where = new \Db\Where($this->getIdParent(), '=', $idValue);
+            $dataSource->addExtraFilter($where);
         }
 
-        \Component\Grid\Grid::addFiltersToDataSource($dataSource);
+        //\Component\Grid\Grid::addFiltersToDataSource($dataSource);
     }
 
     public function createTable()

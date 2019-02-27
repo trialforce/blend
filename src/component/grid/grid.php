@@ -583,9 +583,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         foreach ($columns as $column)
         {
             $column instanceof \Component\Grid\Column;
-
             $tr[] = $myTr = new \View\Tr();
-
             $td = array();
 
             if (!$column->getIdentificator())
@@ -595,7 +593,15 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
             $td[1] = new \View\Td();
 
-            $value = $column->getValue($item, $index, $myTr, $td[1]);
+            //workaround for editable columns
+            if ($column->getEdit() == true)
+            {
+                $value = \Component\Grid\Column::getColumnValue($column, $item);
+            }
+            else
+            {
+                $value = $column->getValue($item, $index, $myTr, $td[1]);
+            }
 
             if ($value instanceof \Type\Generic)
             {
@@ -603,10 +609,8 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             }
 
             $td[1]->html($value);
-
             $myTr->html($td);
         }
-
 
         return new \View\Table(null, $tr, 'table-inner-mobile');
     }
@@ -701,8 +705,16 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         if (method_exists($page, 'getModel'))
         {
+            $grid = $page->getGrid();
+            $extraFilters = null;
             //FIXME optimize 10% if get only what is is post
-            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel());
+            if (method_exists($grid, 'getSearchField'))
+            {
+                $searchField = $grid->getSearchField();
+                $extraFilters = $searchField->getExtraFilters();
+            }
+
+            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
 
             if (is_array($filters))
             {

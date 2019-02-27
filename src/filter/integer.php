@@ -69,7 +69,7 @@ class Integer extends \Filter\Text
     public function getDbCond()
     {
         $column = $this->getColumn();
-        $columnName = $column->getName();
+        $columnName = $column->getSql();
         $conditionName = $this->getConditionName();
         $filterName = $this->getValueName();
         $conditionValue = Request::get($conditionName);

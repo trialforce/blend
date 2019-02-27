@@ -605,11 +605,11 @@ iframe {
         display: block;
     }
     
-    td.hide-in-desktop {
+    td.hide-in-desktop, .grid td.hide-in-desktop {
         display: table-cell;
     }
 
-    .hide-in-mobile, td.hide-in-mobile {
+    .hide-in-mobile, td.hide-in-mobile , .grid td.hide-in-mobile {
         display: none;
     }
         
