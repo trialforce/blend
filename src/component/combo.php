@@ -67,7 +67,6 @@ abstract class Combo extends \Component\Component
           ');
 
         $this->makeDefaultSearch($id);
-
         $this->setContent($div);
 
         return $div;
