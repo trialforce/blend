@@ -52,86 +52,9 @@ class Page extends \View\Layout
 
     public function setPopupAdd($popupAdd)
     {
-        //disable popup forms if is not ajax
-        //if (\DataHandle\Server::getInstance()->isAjax())
-        //{
         $this->popupAdd = $popupAdd;
-        //}
 
         return $this;
-    }
-
-    /**
-     * Return the current event
-     *
-     * @return string
-     */
-    public function getEvent()
-    {
-        $event = Request::get('e');
-
-        if (!$event)
-        {
-            $event = Request::get('q') ? 'listar' : 'oncreate';
-        }
-
-        return $event;
-    }
-
-    /**
-     * Evita cadastro de eventos em demasia.
-     *
-     * @param string $event
-     * @return string
-     */
-    public function parseEvent($event)
-    {
-        //ajusta alguns eventos para evitar cadastro de em demasia
-        $replace['oncreate'] = 'listar';
-        $replace['confirmaExclusao'] = 'remover';
-        $replace['salvar'] = 'adicionar';
-
-        return str_replace(array_keys($replace), array_values($replace), $event);
-    }
-
-    /**
-     * Executa/chama o evento atual
-     *
-     * @return mixed
-     */
-    public function callEvent()
-    {
-        $event = $this->getEvent();
-
-        if (!$event)
-        {
-            return false;
-        }
-
-        $canDo = $this->verifyPermission($this->parseEvent($event));
-
-        if (!$canDo)
-        {
-            throw new \UserException('Sem permissão para acessar evento <strong>' . ucfirst($event) . '</strong> na página <strong>' . ucfirst($this->getPageUrl()) . '</strong>.');
-        }
-
-        if (method_exists($this, $event))
-        {
-            return $this->$event();
-        }
-    }
-
-    /**
-     * Verify permission to event
-     *
-     * @param string $event
-     * @return boolean
-     */
-    public function verifyPermission($event)
-    {
-        //not used is this case
-        $event = NULL;
-        return true;
     }
 
     /**
@@ -197,20 +120,6 @@ class Page extends \View\Layout
     {
         $this->icon = $icon;
         return $this;
-    }
-
-    /**
-     * Return the url of the page
-     *
-     * @return string
-     */
-    public function getPageUrl()
-    {
-        $moduleSeparator = \DataHandle\Config::get('use-module') ? '/' : '-';
-        $class = str_replace('\\', $moduleSeparator, get_class($this));
-        $class = str_replace(array('Page\\', 'page\\', 'page' . $moduleSeparator, 'Page' . $moduleSeparator), '', $class);
-
-        return strtolower($class);
     }
 
     /**
