@@ -77,8 +77,8 @@ abstract class Combo extends \Component\Component
     {
         $page = \View\View::getDom()->getPageUrl();
         $className = str_replace('\\', '-', get_class($this));
-        //\App::addJs("p('{$page}/comboOnChange/{$id}/?class=$className&hideCombo=true');");
-        \App::addJs("p('{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
+        $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
+        \App::addJs("p('$module{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
     }
 
     public function hideValue()

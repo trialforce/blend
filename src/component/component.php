@@ -1,6 +1,7 @@
 <?php
 
 namespace Component;
+
 use DataHandle\Request;
 
 class Component
@@ -79,7 +80,8 @@ class Component
         }
 
         $params = $params ? '?' . $params : null;
-        return "{$this->getClassUrl()}/{$event}/{$value}{$params}";
+        $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
+        return "$module{$this->getClassUrl()}/{$event}/{$value}{$params}";
     }
 
     public function callEvent()

@@ -206,8 +206,9 @@ class Page extends \View\Layout
      */
     public function getPageUrl()
     {
-        $class = str_replace('\\', '-', get_class($this));
-        $class = str_replace(array('Page\\', 'page\\', 'page-', 'Page-'), '', $class);
+        $moduleSeparator = \DataHandle\Config::get('use-module') ? '/' : '-';
+        $class = str_replace('\\', $moduleSeparator, get_class($this));
+        $class = str_replace(array('Page\\', 'page\\', 'page' . $moduleSeparator, 'Page' . $moduleSeparator), '', $class);
 
         return strtolower($class);
     }
