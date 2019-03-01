@@ -109,13 +109,30 @@ class App
         //case page not exists, try to instanciate a component
         else
         {
-            $componentClassName = '\component\\' . str_replace('-', '\\', Request::get('p'));
+            //try to locate inside module folder
+            $component = Request::get('p');
+            $explode = explode('-', $component);
+            $module = $explode[0];
+            array_shift($explode);
+            $componentClassName = $module . '\Component\\' . implode('\\', $explode);
 
             if (class_exists($componentClassName))
             {
                 $content = new \View\Layout(null, TRUE);
                 $component = new $componentClassName();
                 $component->callEvent();
+            }
+            //if don't find look without module
+            else
+            {
+                $componentClassName = '\component\\' . str_replace('-', '\\', $component);
+
+                if (class_exists($componentClassName))
+                {
+                    $content = new \View\Layout(null, TRUE);
+                    $component = new $componentClassName();
+                    $component->callEvent();
+                }
             }
         }
 

@@ -20,6 +20,12 @@ class Mysql implements \Db\Catalog\Base
 
     public static function listColums($table, $makeCache = TRUE)
     {
+        //no table name, no query
+        if (!$table)
+        {
+            return;
+        }
+
         //fazer o cache pode ser um processo demorado
         set_time_limit(0);
         //FIXME só funciona para base padrão
@@ -36,25 +42,28 @@ class Mysql implements \Db\Catalog\Base
             return $cache->getContent();
         }
 
-        $sql = "SELECT
-                t.TABLE_NAME AS tableName,
-                t.COLUMN_NAME AS name,
-                t.COLUMN_DEFAULT AS defaultValue,
-                t.IS_NULLABLE = 'YES' AS nullable,
-                COALESCE(t.DATA_TYPE, t.NUMERIC_PRECISION) AS type,
-                t.CHARACTER_MAXIMUM_LENGTH AS size,
-                t.COLUMN_KEY = 'PRI' AS isPrimaryKey,
-                t.EXTRA AS extra,
-                t.COLUMN_COMMENT AS label,
-                k.REFERENCED_TABLE_NAME AS referenceTable,
-                k.REFERENCED_COLUMN_NAME AS referenceField
-                FROM INFORMATION_SCHEMA.COLUMNS t
-                    LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k ON t.COLUMN_NAME = k.COLUMN_NAME
-                                                                    AND t.TABLE_SCHEMA = k.CONSTRAINT_SCHEMA
-                                                                    AND t.TABLE_NAME = k.TABLE_NAME
-                  WHERE t.table_name = ?
-                    AND t.table_schema = ?
-               ORDER BY t.ORDINAL_POSITION;";
+        $sql = "
+SELECT
+t.TABLE_NAME AS tableName,
+t.COLUMN_NAME AS name,
+t.COLUMN_DEFAULT AS defaultValue,
+t.IS_NULLABLE = 'YES' AS nullable,
+COALESCE(t.DATA_TYPE, t.NUMERIC_PRECISION) AS type,
+t.CHARACTER_MAXIMUM_LENGTH AS size,
+t.COLUMN_KEY = 'PRI' AS isPrimaryKey,
+t.EXTRA AS extra,
+t.COLUMN_COMMENT AS label,
+k.REFERENCED_TABLE_NAME AS referenceTable,
+k.REFERENCED_COLUMN_NAME AS referenceField,
+k.CONSTRAINT_NAME as referenceName
+FROM INFORMATION_SCHEMA.COLUMNS t
+LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
+ON t.COLUMN_NAME = k.COLUMN_NAME
+AND t.TABLE_SCHEMA = k.CONSTRAINT_SCHEMA
+AND t.TABLE_NAME = k.TABLE_NAME
+WHERE t.table_name = ?
+AND t.table_schema = ?
+ORDER BY t.ORDINAL_POSITION;";
 
         $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column');
 
@@ -99,26 +108,35 @@ class Mysql implements \Db\Catalog\Base
 
     public static function tableExists($table, $makeCache = TRUE)
     {
+        if (!$table)
+        {
+            return null;
+        }
+
+        $dbName = \Db\Conn::getConnInfo()->getName();
+
         if ($makeCache)
         {
             $cache = new \Db\Cache($table . '.table.cache');
-        }
 
-        if (isset($cache) && is_object($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (isset($cache) && is_object($cache->getContent()))
+            {
+                return $cache->getContent();
+            }
         }
 
         $sql = "SELECT TABLE_NAME as name,
                        TABLE_COMMENT as label
                   FROM INFORMATION_SCHEMA.TABLES
-                 WHERE TABLE_NAME = ?;";
+                 WHERE TABLE_NAME = ?
+                 AND TABLE_SCHEMA = ?;
+                 ;";
 
-        $tableData = \Db\Conn::getInstance()->query($sql, array($table));
+        $tableData = \Db\Conn::getInstance()->query($sql, array($table, $dbName));
 
         if (isset($tableData[0]))
         {
-            if (isset($cache))
+            if ($makeCache && isset($cache))
             {
                 $cache->save($tableData[0]);
             }
@@ -282,6 +300,7 @@ WHERE index_name = '{$indexName}'";
         $paramStr = '';
         $pksStr = '';
         $columnsStr = '';
+        $fksStr = '';
 
         if (is_array($params))
         {
@@ -291,30 +310,32 @@ WHERE index_name = '{$indexName}'";
             }
         }
 
+        $pks = null;
+        $fks = null;
+
         foreach ($columns as $column)
         {
+            //avoid searchColumn
+            if ($column instanceof \Db\SearchColumn)
+            {
+                continue;
+            }
+
             $column instanceof \Db\Column;
-            $pks = null;
 
             if ($column->isPrimaryKey())
             {
                 $pks[] = '`' . $column->getName() . '`';
             }
 
-            $columnsStr .= '`' . $column->getName() . '` ';
-
-            if ($column->getSize())
+            if ($column->getReferenceName())
             {
-                $columnsStr .= $column->getType() . '(' . $column->getSize() . ') ';
-            }
-            else
-            {
-                $columnsStr .= $column->getType() . ' ';
+                $referenceModel = $column->getReferenceTable();
+                $referenceTable = $referenceModel::getTableName();
+                $fks[] = self::createFk($column->getReferenceName(), $column->getName(), $referenceTable, $column->getReferenceField());
             }
 
-            $columnsStr .= $column->isNullable() ? 'NULL ' : 'NOT NULL ';
-            $columnsStr .= $column->getLabel() ? " COMMENT '" . $column->getLabel() . "'" : '';
-
+            $columnsStr .= '`' . $column->getName() . '` ' . self::createSqlColumn($column);
             $columnsStr .= ",\n";
         }
 
@@ -323,15 +344,99 @@ WHERE index_name = '{$indexName}'";
             $str = implode(',', $pks);
             $pksStr = "PRIMARY KEY ({$str})";
         }
+        else
+        {
+            $columnsStr = rtrim(trim($columnsStr), ',');
+            $columnsStr .= "\n";
+        }
+
+        if (is_array($fks))
+        {
+            $fksStr = implode(',', $fks);
+
+            //add the comma
+            if ($pksStr)
+            {
+                $fksStr = ',' . $fksStr;
+            }
+        }
 
         $sql = "
 CREATE TABLE `{$name}` (
 $columnsStr $pksStr
+$fksStr
 )
 COMMENT='$comment'
 $paramStr";
 
         return $sql;
+    }
+
+    private static function createSqlColumn(\Db\Column $column)
+    {
+        if ($column->getSize())
+        {
+            $type = $column->getType() . '(' . $column->getSize() . ') ';
+        }
+        else
+        {
+            $type = $column->getType() . ' ';
+        }
+
+        $nullable = $column->isNullable() ? 'NULL ' : 'NOT NULL ';
+        $default = $column->getDefaultValue() ? 'DEFAULT \'' . $column->getDefaultValue() . '\' ' : '';
+
+        //special case of current timestamp, can have other cases, need to verify
+        if (stripos($column->getDefaultValue(), 'CURRENT_TIMESTAMP') === 0)
+        {
+            $default = 'DEFAULT ' . $column->getDefaultValue();
+        }
+
+        $autoIncremento = $column->getExtra() == \Db\Column::EXTRA_AUTO_INCREMENT ? 'AUTO_INCREMENT ' : '';
+        $comment = $column->getLabel() ? "COMMENT '" . $column->getLabel() . "'" : '';
+
+        $sql = trim($type . $nullable . $default . $autoIncremento . $comment);
+
+        return $sql;
+    }
+
+    public static function mountCreateColumn($tableName, $column, $operation = 'ADD')
+    {
+        $operation = strtoupper($operation);
+
+        if ($operation != 'ADD')
+        {
+            $operation = 'CHANGE';
+        }
+
+        $column instanceof \Db\Column;
+        $tableNameParsed = self::parseTableNameForQuery($tableName);
+        $columnNameParsed = self::parseTableNameForQuery($column->getName()) . ' ';
+
+        if ($operation != 'ADD')
+        {
+            $columnNameParsed .= ' ' . $columnNameParsed;
+        }
+
+        $sql = 'ALTER TABLE ' . $tableNameParsed . ' ' . $operation . ' COLUMN ';
+        $sql .= $columnNameParsed . self::createSqlColumn($column);
+
+        return $sql;
+    }
+
+    protected static function createFk($constraintName, $fields, $referenceTable, $referenceFields)
+    {
+        $sql = "CONSTRAINT `$constraintName` FOREIGN KEY (`$fields`) REFERENCES `$referenceTable` (`$referenceFields`) ON UPDATE CASCADE";
+
+        return $sql;
+    }
+
+    public static function mountCreateFk($tableName, $constraintName, $fields, $referenceTable, $referenceFields)
+    {
+        $sql = "ALTER TABLE `$tableName` ADD " . self::createFk($constraintName, $fields, $referenceTable, $referenceFields);
+
+        return $sql;
+        //ALTER TABLE `enderecoCidade`  ADD CONSTRAINT `FK_enderecoCidade_enderecoUf` FOREIGN KEY (`idUf`) REFERENCES `enderecoUf` (`id`) ON UPDATE CASCADE;
     }
 
 }
