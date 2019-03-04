@@ -87,7 +87,7 @@ class SearchField extends \Component\Component
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
 
-        $div = new \View\Div('searchHead', $views);
+        $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
 
         $this->setContent($div);
 

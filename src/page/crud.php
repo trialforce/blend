@@ -61,6 +61,32 @@ class Crud extends \Page\Page
     }
 
     /**
+     * Return the form title element
+     *
+     * @return \View\Span
+     */
+    public function getFormTitle()
+    {
+        $formName = '';
+
+        if (method_exists($this, 'getFormName'))
+        {
+            $formName = $this->getFormName();
+        }
+
+        $btnSearch = null;
+
+        if ($this->getEvent() == 'listar')
+        {
+            $btnSearch = new \View\Ext\Icon('search');
+            $btnSearch->addClass('hide-in-desktop search-icon');
+            $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
+        }
+
+        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
+    }
+
+    /**
      * Get the model
      * //TODO this function has to be renamed, because it's not a get
      * model, it mount the model based on url
@@ -363,12 +389,13 @@ class Crud extends \Page\Page
 
             if ($this->isUpdate())
             {
-                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $this->getPageUrl());
+                $idFMenu = str_replace('/', '-' . $this->getPageUrl());
+                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $idFMenu);
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();
 
                 $btnAction = new \View\Div('floating-menu-' . $this->getPageUrl(), array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
-                $btnAction->click('$("#fm-action-' . $this->getPageUrl() . '").toggle(\'fast\');');
+                $btnAction->click('$("#fm-action-' . $idFMenu . '").toggle(\'fast\');');
 
                 $buttons[] = $btnAction;
             }
