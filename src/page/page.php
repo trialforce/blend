@@ -267,7 +267,7 @@ class Page extends \View\Layout
             $formName = $this->getFormName();
         }
 
-        $title = $this->geFormTitle();
+        $title = $this->getFormTitle();
         $view = null;
 
         if ($this->isSearch())
@@ -289,7 +289,7 @@ class Page extends \View\Layout
 
     /**
      * Return the form title element
-     * 
+     *
      * @return \View\Span
      */
     public function getFormTitle()
