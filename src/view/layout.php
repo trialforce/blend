@@ -85,6 +85,9 @@ class Layout extends \DomDocument implements \Countable
             throw new \UserException('Sem permissão para acessar evento <strong>' . ucfirst($event) . '</strong> na página <strong>' . ucfirst($this->getPageUrl()) . '</strong>.');
         }
 
+        //register the event in html, so when get it from js
+        $this->byId('content')->data('event', $event);
+
         if (method_exists($this, $event))
         {
             return $this->$event();
