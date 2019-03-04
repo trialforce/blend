@@ -5,21 +5,19 @@ namespace View\Ext;
 class ReferenceField extends \View\Select
 {
 
-    public function __construct( \Db\Column $column, $columName, $value = NULL, $class = NULL )
+    public function __construct(\Db\Column $column, $columName, $value = NULL, $class = NULL)
     {
-        parent::__construct( $columName );
+        parent::__construct($columName);
 
-        $referenceTable = $column->getReferenceTable();
-
-        $modelClass = '\Model\\' . $referenceTable;
+        $modelClass = $column->getReferenceModelClass();
         $selectList = $modelClass::findForReference();
 
-        $this->createOptions( $selectList );
-        $this->setClass( $class );
+        $this->createOptions($selectList);
+        $this->setClass($class);
 
-        if ( $value )
+        if ($value)
         {
-            $this->setValue( $value );
+            $this->setValue($value);
         }
     }
 

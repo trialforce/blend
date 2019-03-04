@@ -37,7 +37,14 @@ abstract class Combo extends \Component\Component
             return $this->getContent();
         }
 
+        $name = $this->getId();
         $id = $this->getId();
+
+        if (stripos($id, '['))
+        {
+            $id = str_replace(array('[', ']'), '', $id);
+        }
+
         $div = new \View\Div('container_' . $id, NULL, 'combo');
 
         $input[] = new Div('dropDownContainer_' . $id, null, 'dropDownContainer');
@@ -50,7 +57,7 @@ abstract class Combo extends \Component\Component
         $this->labelValue->setAttribute('data-invalid-id', $id);
         $this->labelValue->setAttribute('placeholder', 'Pesquisar ...');
 
-        $this->inputValue = new \View\InputText($id, NULL, 'inputValue');
+        $this->inputValue = new \View\InputText($name, NULL, 'inputValue');
         $this->inputValue->setReadOnly(TRUE);
 
         $input[] = $this->inputValue;
@@ -67,18 +74,27 @@ abstract class Combo extends \Component\Component
           ');
 
         $this->makeDefaultSearch($id);
-
         $this->setContent($div);
 
         return $div;
     }
 
+    /* public function setName($name)
+      {
+      //parent::setName()
+      }
+
+      public function setId($id)
+      {
+
+      } */
+
     public function makeDefaultSearch($id)
     {
         $page = \View\View::getDom()->getPageUrl();
         $className = str_replace('\\', '-', get_class($this));
-        //\App::addJs("p('{$page}/comboOnChange/{$id}/?class=$className&hideCombo=true');");
-        \App::addJs("p('{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
+        $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
+        \App::addJs("p('$module{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
     }
 
     public function hideValue()
@@ -146,7 +162,7 @@ abstract class Combo extends \Component\Component
         \App::dontChangeUrl();
         $hideCombo = Request::get('hideCombo');
         $layout = \View\View::getDom();
-        //TODO ver o porque da barra
+        //TODO verify why the bar comes in the post
         $id = str_replace('/', '', Request::get('v'));
 
         if (!$hideCombo)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Migration;
+namespace Db\Migration;
 
 abstract class Version
 {
@@ -13,7 +13,7 @@ abstract class Version
 
     /**
      *
-     * @return \Migration\Manager
+     * @return \Db\Migration\Manager
      */
     public function getMigration()
     {

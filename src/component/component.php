@@ -1,6 +1,7 @@
 <?php
 
 namespace Component;
+
 use DataHandle\Request;
 
 class Component
@@ -47,7 +48,11 @@ class Component
      */
     public function getClassUrl()
     {
-        return strtolower(str_replace('\\', '-', str_replace('Component\\', '', get_class($this))));
+        $class = get_class($this);
+        $withOut = str_replace('Component\\', '', $class);
+        $classUrl = strtolower(str_replace('\\', '-', $withOut));
+
+        return $classUrl;
     }
 
     public function getLink($event, $value, $params = null, $putUrl = false)
@@ -79,7 +84,7 @@ class Component
         }
 
         $params = $params ? '?' . $params : null;
-        return "{$this->getClassUrl()}/{$event}/{$value}{$params}";
+        return "component/{$this->getClassUrl()}/{$event}/{$value}{$params}";
     }
 
     public function callEvent()
