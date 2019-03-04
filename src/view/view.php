@@ -72,6 +72,15 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     {
         if ($idName)
         {
+            $id = $idName;
+            $name = $idName;
+
+            //add support for formName
+            if (stripos($idName, '[') > 0)
+            {
+                $id = str_replace(array('[', ']'), '', $id);
+            }
+
             $tagName = $this->tagName;
 
             $putName[] = 'input';
@@ -80,10 +89,10 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
             if (in_array($tagName, $putName))
             {
-                $this->setName($idName);
+                $this->setName($name);
             }
 
-            $this->setId($idName);
+            $this->setId($id);
         }
 
         return $this;
@@ -283,7 +292,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             parent::setAttribute('id', $id);
 
-            //adiciona a lista de elementos para achar a classe corretamente no getElementById
+            //add to element lista to can be finded in getElementById method
             \View\View::getDom()->addToElementList($this);
         }
 

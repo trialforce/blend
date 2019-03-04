@@ -84,7 +84,6 @@ class Component
         }
 
         $params = $params ? '?' . $params : null;
-        //$module = \DataHandle\Config::get('use-module') ? 'component/' : '';
         return "component/{$this->getClassUrl()}/{$event}/{$value}{$params}";
     }
 

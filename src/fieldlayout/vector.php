@@ -164,7 +164,6 @@ class Vector
             foreach ($arrayLine as $columnName => $weight)
             {
                 $column = $model->getColumn($columnName);
-                //dumpDevel($columnName, $column);
 
                 if (!$column)
                 {
@@ -235,11 +234,18 @@ class Vector
      */
     public function getInputField(\Db\Column $column, $weight = NULL)
     {
+        $dom = \View\View::getDom();
         $type = $column->getType();
         $class = $column->getClass();
         $referenceTable = $column->getReferenceTable();
         $constantValues = $column->getConstantValues();
         $property = $column->getProperty();
+
+        //auto apply formname to id and name, to avoid duplicate ids on master form
+        if (method_exists($dom, 'getFormName') && $dom->getFormName())
+        {
+            $property = $dom->getFormName() . '[' . $property . ']';
+        }
 
         //custom class
         if (!is_null($class))
@@ -288,19 +294,11 @@ class Vector
             $field = new \View\Input($property);
         }
 
-        $dom = \View\View::getDom();
         $original = $field;
 
         if ($original instanceof \Component\Component)
         {
             $field = $field->onCreate();
-        }
-
-        //auto apply formname to id and name, to avoid duplicate ids on master form
-        if (method_exists($dom, 'getFormName') && $dom->getFormName())
-        {
-            $field->setName($dom->getFormName() . '[' . $property . ']');
-            $field->setId($dom->getFormName() . $property);
         }
 
         if (self::$weightOnField)
