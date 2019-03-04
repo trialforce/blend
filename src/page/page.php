@@ -260,7 +260,14 @@ class Page extends \View\Layout
      */
     public function getHead()
     {
-        $title = new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle()));
+        $formName = '';
+
+        if (method_exists($this, 'getFormName'))
+        {
+            $formName = $this->getFormName();
+        }
+
+        $title = $this->geFormTitle();
         $view = null;
 
         if ($this->isSearch())
@@ -268,7 +275,7 @@ class Page extends \View\Layout
             $view = $this->getSaveListFields();
         }
 
-        $head[] = new \View\H1('formTitle', $title, 'formTitle');
+        $head[] = new \View\H1($formName . 'formTitle', $title, 'formTitle');
 
         if (is_array($view))
         {
@@ -278,6 +285,23 @@ class Page extends \View\Layout
         $head[] = new \View\Div('btnGroup', $this->getTopButtons($this->getEvent()), 'btnGroup clearfix');
 
         return new \View\Div('pageHead', $head, 'makePopupFade');
+    }
+
+    /**
+     * Return the form title element
+     * 
+     * @return \View\Span
+     */
+    public function getFormTitle()
+    {
+        $formName = '';
+
+        if (method_exists($this, 'getFormName'))
+        {
+            $formName = $this->getFormName();
+        }
+
+        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle()));
     }
 
     /**
