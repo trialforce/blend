@@ -389,7 +389,7 @@ $paramStr";
         //special case of current timestamp, can have other cases, need to verify
         if (stripos($column->getDefaultValue(), 'CURRENT_TIMESTAMP') === 0)
         {
-            $default = 'DEFAULT ' . $column->getDefaultValue();
+            $default = 'DEFAULT ' . $column->getDefaultValue() . ' ';
         }
 
         $autoIncremento = $column->getExtra() == \Db\Column::EXTRA_AUTO_INCREMENT ? 'AUTO_INCREMENT ' : '';
