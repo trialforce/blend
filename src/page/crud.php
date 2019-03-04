@@ -389,7 +389,7 @@ class Crud extends \Page\Page
 
             if ($this->isUpdate())
             {
-                $idFMenu = str_replace('/', '-' . $this->getPageUrl());
+                $idFMenu = str_replace('/', '-' . $this->getPageUrl() . '');
                 $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $idFMenu);
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();

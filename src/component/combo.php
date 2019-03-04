@@ -195,6 +195,7 @@ abstract class Combo extends \Component\Component
                 $tr[] = $link = new Tr(NULL);
 
                 $i = 0;
+
                 foreach ($columns as $column)
                 {
                     if (!$column->getIdentificator())

@@ -17,7 +17,7 @@ class Component
      *
      * @param string $id must be enterelly unique
      */
-    public function __construct($id)
+    public function __construct($id = null)
     {
         $this->setId($id);
     }
@@ -84,7 +84,8 @@ class Component
         }
 
         $params = $params ? '?' . $params : null;
-        return "component/{$this->getClassUrl()}/{$event}/{$value}{$params}";
+        $component = \DataHandle\Config::get('use-module') ? 'component/' : '';
+        return "$component{$this->getClassUrl()}/{$event}/{$value}{$params}";
     }
 
     public function callEvent()
