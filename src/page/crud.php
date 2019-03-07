@@ -389,12 +389,12 @@ class Crud extends \Page\Page
 
             if ($this->isUpdate())
             {
-                $idFMenu = str_replace('/', '-' . $this->getPageUrl() . '');
+                $idFMenu = str_replace('/', '-', $this->getPageUrl());
                 $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $idFMenu);
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();
 
-                $btnAction = new \View\Div('floating-menu-' . $this->getPageUrl(), array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
+                $btnAction = new \View\Div('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
                 $btnAction->click('$("#fm-action-' . $idFMenu . '").toggle(\'fast\');');
 
                 $buttons[] = $btnAction;
@@ -773,8 +773,9 @@ class Crud extends \Page\Page
         {
             $grid->getSearchField()->addExtraFilter($filter);
             $filterName = $filter->getFilterName() . 'Value';
+            $filterValue = Request::get($filterName);
 
-            if (!Request::get($filterName))
+            if (is_null($filterValue))
             {
                 $this->byId($filterName)->val($defaultValue);
                 Request::set($filterName, $defaultValue);
