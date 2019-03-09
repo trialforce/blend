@@ -1,7 +1,6 @@
 <?php
 
 namespace View;
-
 use \DataHandle\Server;
 use \DataHandle\UserAgent;
 use \DataHandle\Request;
@@ -73,22 +72,6 @@ class Layout extends \DomDocument implements \Countable
         }
 
         return $this;
-    }
-
-    /**
-     * Define the title of layout
-     *
-     * Alias to setTitle
-     *
-     * @deprecated since version 10/12/2014
-     *
-     * @param string $string
-     *
-     * @return \View\Layout
-     */
-    public function setPageTitle($title)
-    {
-        return $this->setTitle($title);
     }
 
     /**
@@ -648,37 +631,6 @@ class Layout extends \DomDocument implements \Countable
     }
 
     /**
-     * Converte o layout atual para PDF
-     */
-    public function toPdf()
-    {
-        //Se a chamada for ajax redireciona sem ser ajax.
-        if (\Server::getInstance()->isAjax())
-        {
-            return \App::redirect(\Server::getInstance()->getHost() . \Server::getInstance()->getRequestURI(TRUE));
-        }
-
-        require_once APP_PATH . '/lib/third/mpdf/classes/form.php';
-        require_once APP_PATH . '/lib/third/mpdf/mpdf.php';
-
-        //Instancia página em PDF
-        $mpdf = new \mPDF('', 'A4', '10.5pt', 'Arial', 0, 0, 45, 25, 8, 0);
-
-        $mpdf->dpi = 72;
-        $html = $this->saveHtml();
-
-        $min = \Disk\File::getFromStorage('min.css');
-        $mpdf->WriteHTML(file_get_contents($min), 1);
-        $mpdf->WriteHTML($html);
-
-        //Gera o pdf para desembocar na páginas
-        $mpdf->Output();
-
-        //Exit é dado para poder retornar o conteúdo do pdf direto no navegador.
-        exit();
-    }
-
-    /**
      * Return string representation of layout.
      *
      * Remove double spaces to otimize to page speed
@@ -705,12 +657,6 @@ class Layout extends \DomDocument implements \Countable
         $html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
         //trim all lines
         $html = implode(PHP_EOL, array_map('trim', explode(PHP_EOL, $html)));
-
-        //$original[] = '&amp;nbsp';
-        //$original[] = "\t";
-        //$replace[] = '&nbsp;';
-        //simple replace
-        //$html = str_replace($original, $replace, $html);
 
         return $html;
     }
