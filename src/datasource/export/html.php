@@ -1,6 +1,7 @@
 <?php
 
 namespace DataSource\Export;
+
 use DataHandle\Session;
 
 /**
@@ -146,7 +147,8 @@ p {
 
         new \View\Html(array($head, $body));
 
-        $th = NULL;
+        $th = null;
+        $tr = null;
 
         //list only export columns
         foreach ($columns as $column)

@@ -117,15 +117,22 @@ class Vector
 
         if ($makeTab)
         {
+            $dom = \View\View::getDom();
             $tabs = $this->array;
-
             $tab = new \View\Ext\Tab('fieldLayoutTab');
+            $formName = '';
+
+            //auto apply formname to id and name
+            if (method_exists($dom, 'getFormName') && $dom->getFormName())
+            {
+                $formName = $dom->getFormName();
+            }
 
             foreach ($tabs as $label => $campos)
             {
                 $id = \Type\Text::get($label)->toFile();
                 $this->array = $campos;
-                $tab->add('tab-' . $id, $label, $this->createFieldLayout());
+                $tab->add('tab-' . $formName . $id, $label, $this->createFieldLayout());
             }
 
             return $tab;
@@ -157,7 +164,6 @@ class Vector
             foreach ($arrayLine as $columnName => $weight)
             {
                 $column = $model->getColumn($columnName);
-                //dumpDevel($columnName, $column);
 
                 if (!$column)
                 {
@@ -228,11 +234,18 @@ class Vector
      */
     public function getInputField(\Db\Column $column, $weight = NULL)
     {
+        $dom = \View\View::getDom();
         $type = $column->getType();
         $class = $column->getClass();
         $referenceTable = $column->getReferenceTable();
         $constantValues = $column->getConstantValues();
         $property = $column->getProperty();
+
+        //auto apply formname to id and name, to avoid duplicate ids on master form
+        if (method_exists($dom, 'getFormName') && $dom->getFormName())
+        {
+            $property = $dom->getFormName() . '[' . $property . ']';
+        }
 
         //custom class
         if (!is_null($class))
@@ -281,18 +294,11 @@ class Vector
             $field = new \View\Input($property);
         }
 
-        $dom = \View\View::getDom();
-
         $original = $field;
 
         if ($original instanceof \Component\Component)
         {
             $field = $field->onCreate();
-        }
-
-        if (method_exists($dom, 'getFormName') && $dom->getFormName())
-        {
-            $field->setName($dom->getFormName() . '[' . $property . ']');
         }
 
         if (self::$weightOnField)

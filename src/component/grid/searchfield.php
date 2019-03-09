@@ -1,6 +1,7 @@
 <?php
 
 namespace Component\Grid;
+
 use DataHandle\Request;
 
 /**
@@ -67,14 +68,26 @@ class SearchField extends \Component\Component
 
         if ($this->extraFilters)
         {
-            $innerHtml[] = $this->extraFilters;
+            $filters = $this->extraFilters;
+
+            foreach ($filters as $filter)
+            {
+                //add support for filter passed as \Filter\Text
+                if ($filter instanceof \Filter\Text)
+                {
+                    $filter = $filter->getInput();
+                }
+
+                $innerHtml[] = $filter;
+            }
         }
 
         $innerHtml[] = $this->getAdvancedFilters();
+        $innerHtml[] = $this->getSearchButton();
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
 
-        $div = new \View\Div('searchHead', $views);
+        $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
 
         $this->setContent($div);
 
@@ -118,12 +131,16 @@ class SearchField extends \Component\Component
         $search = new \View\Input($idQuestion, \View\Input::TYPE_SEARCH, Request::get($idQuestion));
 
         $search->setAttribute('placeholder', 'Pesquisar...')
-                ->setClass('search span3')
+                ->setClass('search fullWidth')
                 ->setValue(Request::get($idQuestion))
                 ->setTitle('Digite o conteúdo a buscar...')
                 ->onPressEnter('$("#' . $idBtn . '").click();');
 
-        return $search;
+        $fields = array();
+        $fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
+        $fields[] = $search;
+
+        return new \View\Div('main-search', $fields, 'filterField');
     }
 
     /**
@@ -146,14 +163,13 @@ class SearchField extends \Component\Component
             $dbModel = $dom->getModel();
         }
 
-        $result[] = $this->getSearchButton();
         $filter = new \View\Ext\Icon('filter');
         $filter->setId('advanced-filter');
         $filter->click('$("#fm-filters").toggle(\'fast\');');
 
         $result[] = $filter;
 
-        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel);
+        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->getExtraFilters());
 
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $fMenu->hide();

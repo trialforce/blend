@@ -495,6 +495,17 @@ class Log
         \App::addJs("$(body).prepend('{$content}')");
     }
 
+    /**
+     * Debug backtrace in this exact moment
+     */
+    public static function dumpBackTrace($var = null)
+    {
+        ob_start();
+        debug_print_backtrace();
+        $ob = ob_get_clean();
+        \Log::dump($var . "\r\n" . $ob);
+    }
+
     public static function screen($var = null)
     {
         $vars = func_get_args();

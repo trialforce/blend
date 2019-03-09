@@ -89,6 +89,16 @@ class EditPopupGrid extends \Component\Grid\Grid
         $model->setData(Request::getInstance());
         $id = Request::get('v') ? Request::get('v') : Request::get('id');
 
+        if (!$id)
+        {
+            $dom = \View\View::getDom();
+            $formRequest = \DataHandle\Request::get($dom->getFormName());
+            if (!empty($formRequest))
+            {
+                $id = isset($formRequest['id']) ? $formRequest['id'] : NULL;
+            }
+        }
+
         return $id;
     }
 
@@ -107,10 +117,11 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         if ($idValue)
         {
-            $dataSource->addExtraFilter(new \Db\Cond($this->getIdParent() . ' = ?', $idValue));
+            $where = new \Db\Where($this->getIdParent(), '=', $idValue);
+            $dataSource->addExtraFilter($where);
         }
 
-        \Component\Grid\Grid::addFiltersToDataSource($dataSource);
+        //\Component\Grid\Grid::addFiltersToDataSource($dataSource);
     }
 
     public function createTable()
@@ -123,7 +134,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $title[] = $label;
 
         $urlAdd = "p('{$this->getPageName()}/{$this->getAddMethod()}')";
-        $buttons[] = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar', $urlAdd, \View\Ext\Button::BTN_SUCCESS . ' ' . \View\Ext\Button::BTN_SMALL);
+        $buttons[] = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar', $urlAdd, 'success small');
 
         $title[] = new \View\Div('btnSearchButtons', $buttons, 'gridButtonsSearch');
 

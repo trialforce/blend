@@ -269,6 +269,58 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Create a simple array with key/value, using passed parameter
+     *
+     * @param string $key the key of new array
+     * @param string $value the value of new array
+     * @return array an key/value array
+     */
+    public function toKeyValue($key, $value)
+    {
+        $result = NULL;
+        $array = $this->getData();
+
+        if (is_array($array))
+        {
+            foreach ($array as $item)
+            {
+                //array
+                if (is_array($item))
+                {
+                    $vKey = $item[$key];
+                    $vValue = $item[$vValue];
+                }
+                else if (is_object($item))
+                {
+                    //model
+                    if ($item instanceof \Db\Model)
+                    {
+                        $vKey = $item->getValue($key);
+                        $vValue = $item->getValue($value);
+                    }
+                    //simple object
+                    else
+                    {
+                        $vKey = $item->$key;
+                        $vValue = $item->$value;
+                    }
+                }
+
+                $result[$vKey] = $vValue;
+            }
+        }
+
+        if ($result)
+        {
+            ksort($result);
+        }
+
+        $this->setData($result);
+
+        return $this;
+    }
+
+    /**
      * Get a item from data by key
      *
      * @param string $key

@@ -62,6 +62,13 @@ class MountFilter
     public function getFilter()
     {
         $column = $this->column;
+
+        //avoid columns that end with description
+        if (strpos($column->getName(), 'Description') > 0)
+        {
+            return null;
+        }
+
         $dbModel = $this->dbModel;
 
         if (!$column)
@@ -90,10 +97,22 @@ class MountFilter
             $filter = $this->mountDbColumnFilter($dbColumn, $column);
         }
 
+        //if not find in model, create a default filter based on column type
         if (!$filter)
         {
-            //PHP 7 compatibility
             $dataType = $dataType == 'bool' ? 'boolean' : $dataType;
+
+            $formatter = $column->getFormatter();
+
+            if ($formatter instanceof \Type\DateTime)
+            {
+                $dataType = 'datetime';
+            }
+            else if ($formatter instanceof \Db\ConstantValues)
+            {
+                $dataType = 'reference';
+            }
+
             $filterClass = '\\Filter\\' . ucfirst($dataType);
             $filter = new $filterClass($column, NULL, $filterType);
         }
@@ -113,21 +132,16 @@ class MountFilter
         $filterType = $column->getFilter() ? $column->getFilter() : \Db\Cond::TYPE_NORMAL;
         $filter = NULL;
 
-        if ($dbColumn->getReferenceDescription())
-        {
-            $filter[] = new \Filter\Text($column, $column->getName() . 'Description', \Db\Cond::TYPE_HAVING);
-        }
-
         if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
         {
             //não faz dbcolumn com classes diferentes
             if ($dbColumn->getClass())
             {
-                $filter[] = new \Filter\Integer($column, NULL, $filterType);
+                $filter = new \Filter\Integer($column, NULL, $filterType);
             }
             else
             {
-                $filter[] = new \Filter\Reference($column, $dbColumn, $filterType);
+                $filter = new \Filter\Reference($column, $dbColumn, $filterType);
             }
         }
 
@@ -141,13 +155,26 @@ class MountFilter
      * @param \Dd\Model $dbModel
      * @return array
      */
-    public static function getFilters($columns, $dbModel)
+    public static function getFilters($columns, $dbModel, $fixedFilters = null)
     {
-        $filters = null;
+        $filters = array();
 
         if (!is_array($columns) || !$dbModel)
         {
             return NULL;
+        }
+
+        $extraFilters = array();
+
+        if (is_array($fixedFilters))
+        {
+            foreach ($fixedFilters as $filter)
+            {
+                if ($filter instanceof \Filter\Text)
+                {
+                    $extraFilters[] = $filter->getFilterName();
+                }
+            }
         }
 
         //prepare filters to an array
@@ -160,12 +187,18 @@ class MountFilter
             {
                 foreach ($filter as $filt)
                 {
-                    $filters[$filt->getFilterName()] = $filt;
+                    if (!in_array($filt->getFilterName(), $extraFilters))
+                    {
+                        $filters[$filt->getFilterName()] = $filt;
+                    }
                 }
             }
             else if ($filter)
             {
-                $filters[$column->getSplitName()] = $filter;
+                if (!in_array($filter->getFilterName(), $extraFilters))
+                {
+                    $filters[$filter->getFilterName()] = $filter;
+                }
             }
         }
 

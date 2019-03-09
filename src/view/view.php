@@ -72,6 +72,15 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     {
         if ($idName)
         {
+            $id = $idName;
+            $name = $idName;
+
+            //add support for formName
+            if (stripos($idName, '[') > 0)
+            {
+                $id = str_replace(array('[', ']'), '', $id);
+            }
+
             $tagName = $this->tagName;
 
             $putName[] = 'input';
@@ -80,10 +89,10 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
             if (in_array($tagName, $putName))
             {
-                $this->setName($idName);
+                $this->setName($name);
             }
 
-            $this->setId($idName);
+            $this->setId($id);
         }
 
         return $this;
@@ -283,7 +292,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             parent::setAttribute('id', $id);
 
-            //adiciona a lista de elementos para achar a classe corretamente no getElementById
+            //add to element lista to can be finded in getElementById method
             \View\View::getDom()->addToElementList($this);
         }
 
@@ -966,7 +975,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         if (method_exists($dom, $event))
         {
-            //novo sistema de evento, possibilitando controle de permissões
             return 'p(\'' . $dom->getPageUrl() . '/' . $event . '\')';
         }
 
@@ -997,7 +1005,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
             if (method_exists($dom, $onClick))
             {
-                if (!$dom->verifyPermission($dom->parseEvent($onClick)))
+                if (!$dom->verifyPermission($onClick))
                 {
                     $this->setAttribute('onclick', "toast('Ação desabilitada!');");
                 }
@@ -1510,26 +1518,26 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function parent()
     {
-    $parent = $this->parentNode;
+        $parent = $this->parentNode;
 
-    if ($parent)
-    {
-        if ($parent instanceof \DOMElement)
+        if ($parent)
         {
-            $parentId = $parent->getAttribute('id');
+            if ($parent instanceof \DOMElement)
+            {
+                $parentId = $parent->getAttribute('id');
 
-            return self::getDom()->byId($parentId);
+                return self::getDom()->byId($parentId);
+            }
+        }
+        else
+        {
+            //cria um nulo pra não dar pau
+            $element = new \View\Div( );
+            //remove do dom para não reaparecer
+            $element->remove();
+
+            return $element;
         }
     }
-    else
-    {
-        //cria um nulo pra não dar pau
-        $element = new \View\Div( );
-        //remove do dom para não reaparecer
-        $element->remove();
-
-        return $element;
-    }
-}
 
 }

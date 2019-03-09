@@ -99,4 +99,34 @@ interface Base
      * @param string $columnNames
      */
     public static function implodeColumnNames($columnNames);
+
+    /**
+     * Create one table
+     *
+     * @param string $name table name
+     * @param string $comment comnent or table label
+     * @param array $columns list of \Db\Column
+     * @param array $params extra parans for table creation
+     */
+    public static function mountCreateTable($name, $comment, $columns, $params);
+
+    /**
+     * Create or change one table
+     *
+     * @param string $tableName table name
+     * @param \Db\Column $column column object
+     * @param string $operation operation
+     */
+    public static function mountCreateColumn($tableName, $column, $operation = 'add');
+
+    /**
+     * Mount a sql to create a foreign key
+     *
+     * @param string $tableName
+     * @param string $constraintName
+     * @param string $fields
+     * @param string $referenceTable
+     * @param string $referenceFields
+     */
+    public static function mountCreateFk($tableName, $constraintName, $fields, $referenceTable, $referenceFields);
 }

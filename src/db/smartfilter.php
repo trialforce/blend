@@ -315,7 +315,7 @@ class SmartFilter
         $name = $this->getModelClass();
         $catalog = $name::getCatalogClass();
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
-        $referenceClass = '\Model\\' . $column->getReferenceTable();
+        $referenceClass = $column->getReferenceModelClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
         $top = '';

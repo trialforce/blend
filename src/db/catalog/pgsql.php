@@ -244,4 +244,19 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         return '"' . implode('", "', $columnNames) . '"';
     }
 
+    public static function mountCreateTable($name, $comment, $columns, $params)
+    {
+        throw new \Exception('Not implement yet');
+    }
+
+    public static function mountCreateColumn($tableName, $column, $operation = 'add')
+    {
+        throw new \Exception('Not implement yet');
+    }
+
+    public static function mountCreateFk($tableName, $constraintName, $fields, $referenceTable, $referenceFields)
+    {
+        throw new \Exception('Not implement yet');
+    }
+
 }

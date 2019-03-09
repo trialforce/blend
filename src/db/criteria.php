@@ -294,15 +294,17 @@ class Criteria implements \Db\Filter
     public function getString($first = false)
     {
         $result = $this->execute();
+        $operator = $first ? '' : ' AND ';
 
-        return '(' . $result->getSqlParam() . ')';
+        return $operator . '(' . $result->getSqlParam() . ')';
     }
 
     public function getStringPdo($first = false)
     {
         $result = $this->execute();
+        $operator = $first ? '' : ' AND ';
 
-        return '(' . $result->getSql() . ')';
+        return $operator . '(' . $result->getSql() . ')';
     }
 
 }

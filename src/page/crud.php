@@ -4,7 +4,6 @@ namespace Page;
 
 use DataHandle\Get;
 use DataHandle\Request;
-use \View\Ext\HighChart;
 
 /**
  * Automated CRUD page
@@ -58,7 +57,33 @@ class Crud extends \Page\Page
 
     public function getPopupAdd()
     {
-        return $this->popupAdd || $this->getFormValue('popupAdd') || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
+        return $this->popupAdd || $this->getFormValue('popupAdd') || Request::get('popupAdd') || Get::get('popupAddRedirectPage');
+    }
+
+    /**
+     * Return the form title element
+     *
+     * @return \View\Span
+     */
+    public function getFormTitle()
+    {
+        $formName = '';
+
+        if (method_exists($this, 'getFormName'))
+        {
+            $formName = $this->getFormName();
+        }
+
+        $btnSearch = null;
+
+        if ($this->getEvent() == 'listar')
+        {
+            $btnSearch = new \View\Ext\Icon('search');
+            $btnSearch->addClass('hide-in-desktop search-icon');
+            $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
+        }
+
+        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
     }
 
     /**
@@ -191,139 +216,6 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Create a DataSource for group select
-     *
-     * @return \DataSource\Model
-     */
-    public function getDataSourceAgg()
-    {
-        $contantValues = null;
-        $groupType = Request::get('group-type');
-        $columns = NULL;
-
-        if (is_array($groupType))
-        {
-            $ds = new \DataSource\ModelGroup($this->getModel());
-
-            foreach ($groupType as $name => $agg)
-            {
-                $column = $this->model->getColumn($name);
-                $label = $name;
-                $type = \Db\Column::TYPE_DECIMAL;
-
-                if ($column instanceof \Db\Column)
-                {
-                    $type = $column->getType();
-
-                    if (!$agg || $agg == \Db\GroupColumn::METHOD_GROUP)
-                    {
-                        $label = $column->getLabel();
-                    }
-                    else
-                    {
-                        $label = $column->getLabel() . '(' . \Db\GroupColumn::getMethodLabel($agg) . ')';
-                    }
-
-                    $query = $column->getName();
-
-                    if ($column->getReferenceDescription())
-                    {
-                        $column->setTableName($this->model->getTableName());
-                        $query = $column->getReferenceSql(FALSE);
-
-                        $type = \Db\Column::TYPE_VARCHAR;
-                    }
-                    else if ($column instanceof \Db\Column)
-                    {
-                        $sql = $column->getSql(FALSE);
-                        $query = $sql[0];
-                    }
-
-                    if ($column->getConstantValues())
-                    {
-                        $type = \Db\Column::TYPE_VARCHAR;
-                    }
-                }
-
-                if ($label == '*')
-                {
-                    $query = '*';
-                    $label = \Db\GroupColumn::getMethodLabel($agg) . ' (Tudo)';
-                    $name = $agg;
-                }
-
-                $columns[$name] = new \Db\GroupColumn($label, $agg, $query, $name, $type);
-            }
-
-            $ds->setColumns($columns);
-
-            return $ds;
-        }
-
-        return NULL;
-    }
-
-    /**
-     * Create Group Grif
-     */
-    public function createGroupGrid()
-    {
-        if (Request::get('makeGraph'))
-        {
-            return $this->makeGraph();
-        }
-
-        $gridOld = $this->setDefaultGrid();
-        $searchFieldOld = $gridOld->getSearchField();
-
-        $ds = $this->getDataSourceAgg();
-        $ds->addExtraFilters($gridOld->getDataSource()->getExtraFilter());
-
-        $columnsGrid = $ds->mountColumns();
-
-        $grid = new \Component\Grid\SearchGrid('agg', $ds, 'grid', $columnsGrid);
-        $grid->setSearchField($searchFieldOld);
-        $this->setGrid($grid);
-
-        $grid->setCallInterfaceFunctions(FALSE);
-        $div = $grid->onCreate();
-
-        $views[] = $this->getHead();
-        $views[] = $this->getBodyDiv($div);
-
-        $this->append($views);
-    }
-
-    public function getGraphColor($item)
-    {
-        //not used in this case
-        $item = null;
-        return null;
-    }
-
-    /**
-     * Make Graph/Chart
-     *
-     * @throws \UserException
-     */
-    public function makeGraph()
-    {
-        $chartType = Request::get('makeGraph') ? Request::get('makeGraph') : 'line';
-        $ds = $this->addFiltersToDataSource($this->getDataSourceAgg());
-
-        $chartCont = new HighChart('chartCont', $ds, $chartType);
-        $chartCont->create();
-
-        $grid = $this->setDefaultGrid();
-        $searchField = new \Component\Grid\SearchField($grid, 'searchField');
-        $searchField->onCreate();
-        $this->setFocusOnFirstField();
-
-        $views[] = $this->getHead();
-        $views[] = $this->getBodyDiv(array($searchField, $chartCont));
-    }
-
-    /**
      * Montagem da tela de adicionar
      */
     public function adicionar()
@@ -347,7 +239,8 @@ class Crud extends \Page\Page
 
         //add popupadd to form, to make ir post corret
         $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
+        $body[] = new \View\Input('popupAdd', \View\Input::TYPE_HIDDEN, 'popupAdd');
+        //$body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
         $body[] = new \View\Input('popupAddInputName', \View\Input::TYPE_HIDDEN, Request::get('popupAddInputName'));
         $body[] = new \View\Input('popupAddPageName', \View\Input::TYPE_HIDDEN, $this->getPageUrl());
 
@@ -496,12 +389,13 @@ class Crud extends \Page\Page
 
             if ($this->isUpdate())
             {
-                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $this->getPageUrl());
+                $idFMenu = str_replace('/', '-', $this->getPageUrl());
+                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $idFMenu);
                 $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
                 $this->floatingMenu->hide();
 
-                $btnAction = new \View\Div('floating-menu', array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
-                $btnAction->click('$("#fm-action-' . $this->getPageUrl() . '").toggle(\'fast\');');
+                $btnAction = new \View\Div('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
+                $btnAction->click('$("#fm-action-' . $idFMenu . '").toggle(\'fast\');');
 
                 $buttons[] = $btnAction;
             }
@@ -589,7 +483,16 @@ class Crud extends \Page\Page
         $footer[0]->setAutoFocus();
         $footer[0]->focus();
 
-        $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', 'Confirma remoção do registro?', $footer);
+        $body[] = 'Confirma remoção do registro?';
+
+        //add support for popup remove inside gridpopup
+        if ($this->getPopupAdd())
+        {
+            $body[] = new \View\Input('popupAdd', 'hidden', 'popupAdd');
+            $body[] = new \View\Input('_id', 'hidden', Request::get('_id'));
+        }
+
+        $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', $body, $footer);
         $popup->show();
     }
 
@@ -609,7 +512,14 @@ class Crud extends \Page\Page
             throw new \UserException('Imposível encontrar chave primária do modelo!');
         }
 
-        $model->setValue($pk, $this->getFormValue($pk));
+        $pkValue = $this->getFormValue($pk);
+
+        if ($this->getPopupAdd())
+        {
+            $pkValue = Request::get('_id');
+        }
+
+        $model->setValue($pk, $pkValue);
 
         try
         {
@@ -632,10 +542,13 @@ class Crud extends \Page\Page
             {
                 toast('Problemas ao remover o registro!', 'danger');
             }
+
+            return $ok;
         }
         catch (\UserException $exc)
         {
             toast($exc->getMessage(), 'danger');
+            return false;
         }
         catch (\Exception $exc)
         {
@@ -840,51 +753,43 @@ class Crud extends \Page\Page
      */
     public function createFixedFilter($idColumn, $options, $defaultValue = '', $allLabel = 'Todos', $onlyFilter = false)
     {
-        $column = $this->model->getColumn($idColumn);
-        $isSearchColumn = $column instanceof \Db\SearchColumn;
-        $label = $column ? $column->getLabel() : $idColumn;
-
         $grid = $this->getGrid();
-        $nomeFiltro = 'filtro-' . ($column ? $column->getName() : $idColumn);
-        $valorFiltro = $this->getFixedFilterValue($nomeFiltro, $defaultValue);
+        $ds = $grid->getDataSource();
+        $realColumnName = \Db\Column::getRealColumnName($idColumn);
+        $column = $ds->getColumn($realColumnName);
 
-        $campo = null;
+        if (!$column)
+        {
+            $label = ucfirst(str_replace('id', '', $realColumnName));
+            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column::TYPE_VARCHAR);
+        }
 
-        //create field only if needed
+        $column->setSql($idColumn);
+
+        $collection = \Db\Collection::create(null)->add($options);
+        $filter = new \Filter\Collection($column, $collection);
+
         if (!$onlyFilter)
         {
-            //merge options
-            $all[''] = $allLabel ? $allLabel : 'Todos';
-            $finalOptions = \Db\Collection::create($all);
-            $finalOptions->add($options);
+            $grid->getSearchField()->addExtraFilter($filter);
+            $filterName = $filter->getFilterName() . 'Value';
+            $filterValue = Request::get($filterName);
 
-            $campo = new \View\Select($nomeFiltro, $finalOptions, $valorFiltro, 'span1');
-            $campo->change("$('#buscar').click()");
-            $campo->setTitle('Filtra por ' . lcfirst($label));
-
-            //add filter to head
-            $grid->getSearchField()->addExtraFilter($campo);
+            if (is_null($filterValue))
+            {
+                $this->byId($filterName)->val($defaultValue);
+                Request::set($filterName, $defaultValue);
+            }
         }
 
-        $firstLeter = '';
-        $defaultQuery = Request::get('q');
+        $cond = $filter->getDbCond();
 
-        if ($defaultQuery)
+        if ($cond)
         {
-            $firstLeter = $defaultQuery[0];
+            $ds->addExtraFilter($cond);
         }
 
-        //filter data
-        $ds = $grid->getDataSource();
-
-        //add support for @id parameter
-        if ($valorFiltro || $valorFiltro === '0' && $firstLeter != '@')
-        {
-            $type = $isSearchColumn ? \Db\Cond::TYPE_HAVING : \Db\Cond::TYPE_NORMAL;
-            $ds->addExtraFilter(new \Db\Cond($idColumn . '= ?', $valorFiltro, 'AND', $type));
-        }
-
-        return $campo;
+        return null;
     }
 
     /**
@@ -918,18 +823,23 @@ class Crud extends \Page\Page
         if (!$onlyFilter)
         {
             //cria campo start
-            $campo = new \View\Ext\DateInput($nomeFiltroInicio, $valorFiltroInicio, 'span1');
+            $campo = new \View\Ext\DateInput($nomeFiltroInicio, $valorFiltroInicio, 'fixed-filter-interval');
             $campo->change("$('#buscar').click()");
             $campo->setTitle('Filtra por ' . lcfirst($label));
-            //add field to head
-            $grid->getSearchField()->addExtraFilter($campo);
 
             //cria campo start
-            $campo2 = new \View\Ext\DateInput($nomeFiltroFim, $valorFiltroFim, 'span1');
+            $campo2 = new \View\Ext\DateInput($nomeFiltroFim, $valorFiltroFim, 'fixed-filter-interval');
             $campo2->change("$('#buscar').click()");
             $campo2->setTitle('Filtra por ' . lcfirst($label));
+
+            $content[] = new \View\Label(null, $nomeFiltroInicio, $label, 'filterLabel');
+            $content[] = $campo;
+            $content[] = $campo2;
+
+            $field = new \View\Div(null, $content, 'filterField');
+
             //add field to head
-            $grid->getSearchField()->addExtraFilter($campo2);
+            $grid->getSearchField()->addExtraFilter($field);
         }
 
         //filter data

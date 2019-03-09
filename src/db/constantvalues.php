@@ -2,13 +2,28 @@
 
 namespace Db;
 
-class ConstantValues implements \ArrayAccess, \Iterator, \Countable
+/**
+ * A list of constante values, is iterable, countable, you can access
+ * like an array and work like a column format trough \Type\Generic
+ */
+class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Generic
 {
 
+    /**
+     * Used by \Type\Generic
+     * @var int
+     */
+    private $value = 0;
+
+    /**
+     * Used to array access
+     * @var int
+     */
     private $position = 0;
 
-    public function __construct()
+    public function __construct($value = NULL)
     {
+        $this->setValue($value);
         $this->position = 0;
     }
 
@@ -129,6 +144,38 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable
         return isset($array[$this->position]);
     }
 
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    public function toDb()
+    {
+        return $this->value;
+    }
+
+    public function toHuman()
+    {
+        $array = $this->getArray();
+
+        if (isset($array[$this->value]))
+        {
+            return $array[$this->value];
+        }
+    }
+
+    public function __toString()
+    {
+        return $this->toHuman();
+    }
+
     /**
      * Return an instance of this constant values
      *
@@ -139,6 +186,23 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable
         $className = get_called_class();
 
         return new $className();
+    }
+
+    /**
+     * Return an instance of this constant values
+     *
+     * @return \Db\ConstantValues
+     */
+    public static function get($value)
+    {
+        $className = get_called_class();
+        return new $className($value . '');
+    }
+
+    public static function value($value)
+    {
+        $className = get_called_class();
+        return $className::get($value)->getValue();
     }
 
     /**

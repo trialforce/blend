@@ -96,13 +96,7 @@ class Text
         $column = $this->getColumn();
         $label = $column->getLabel();
 
-        //suport description filter
-        if (strpos($this->getFilterName(), 'Description') > 0)
-        {
-            $label .= ' (Texto)';
-        }
-
-        return $label;
+        return ucfirst($label);
     }
 
     public function getLabel()
@@ -164,45 +158,40 @@ class Text
     public function getDbCond()
     {
         $column = $this->getColumn();
-        $columnName = $column->getName();
+        $columnSql = $column->getSql();
         $conditionName = $this->getConditionName();
         $filterName = $this->getValueName();
         $conditionValue = Request::get($conditionName);
         $filterValue = trim(Request::get($filterName));
 
-        //case of rereference description
-        if (strpos($this->getFilterName(), 'Description') > 0)
+        if ($conditionValue && $conditionValue == self::COND_NULL_OR_EMPTY)
         {
-            $columnName = $this->getFilterName();
+            $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            return $cond;
         }
-
-        if ($conditionValue && (strlen(trim($filterValue)) > 0))
+        else if ($conditionValue && (strlen(trim($filterValue)) > 0))
         {
             $filterValueExt = str_replace(' ', '%', $filterValue);
 
             if ($conditionValue == self::COND_EQUALS)
             {
-                return new \Db\Cond('(' . $columnName . ' = ? )', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_EQUALS, $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_NOT_EQUALS)
             {
-                return new \Db\Cond('(' . $columnName . ' != ? )', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_EQUALS, $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_LIKE)
             {
-                return new \Db\Cond('(' . $columnName . ' like ? )', '%' . $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_STARTSWITH)
             {
-                return new \Db\Cond('(' . $columnName . ' like ? )', $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_ENDSWITH)
             {
-                return new \Db\Cond('(' . $columnName . ' like ? )', '%' . $filterValueExt, \Db\Cond::COND_AND, $this->getFilterType());
-            }
-            else if ($conditionValue == self::COND_NULL_OR_EMPTY)
-            {
-                return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ' )', self::COND_LIKE, '%' . $filterValueExt, \Db\Cond::COND_AND, $this->getFilterType());
             }
         }
     }

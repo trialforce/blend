@@ -677,6 +677,7 @@ class Engine
         {
             $expressionsContent = $matches[0];
             $expressions = $matches[1];
+            $model = $item;
 
             if ($item instanceof \Db\Model)
             {

@@ -34,24 +34,44 @@ class App
     public function getCurrentPage()
     {
         $page = Request::get('p');
+        $module = Request::get('m');
 
-        //if a url exists in request
-        if ($page)
+        if ($module && $module != 'component')
         {
-            $page = '\page\\' . str_replace('-', '\\', $page);
-        }
-        else
-        {
-            //if default page is null return null
-            //TODO verify where this is used
-            if (\DataHandle\Config::get('defaultPage') === NULL)
+            //module\page\pagename
+            $modulePage = $module . '\page\\' . str_replace('-', '\\', $page);
+
+            if (class_exists($modulePage))
             {
-                $page = NULL;
+                $page = $modulePage;
             }
             else
             {
-                $page = \DataHandle\Config::getDefault('defaultPage', '\Page\Main');
+                //page\module\pagename
+                $page = '\page\\' . $module . '\\' . str_replace('-', '\\', $page);
             }
+        }
+        //if a url exists in request
+        else if ($page)
+        {
+            //add support for module in old projects
+            $explode = explode('-', $page);
+            $module = $explode[0];
+            array_shift($explode);
+            $modulePage = $module . '\page\\' . implode('\\', $explode);
+
+            if (class_exists($modulePage))
+            {
+                $page = $modulePage;
+            }
+            else
+            {
+                $page = '\page\\' . str_replace('-', '\\', $page);
+            }
+        }
+        else
+        {
+            $page = \DataHandle\Config::getDefault('defaultPage', \DataHandle\Session::get('user') ? 'Page\Main' : NULL);
         }
 
         return $page;
@@ -89,13 +109,30 @@ class App
         //case page not exists, try to instanciate a component
         else
         {
-            $componentClassName = '\component\\' . str_replace('-', '\\', Request::get('p'));
+            //try to locate inside module folder
+            $component = Request::get('p');
+            $explode = explode('-', $component);
+            $module = $explode[0];
+            array_shift($explode);
+            $componentClassName = $module . '\Component\\' . implode('\\', $explode);
 
             if (class_exists($componentClassName))
             {
                 $content = new \View\Layout(null, TRUE);
                 $component = new $componentClassName();
                 $component->callEvent();
+            }
+            //if don't find look without module
+            else
+            {
+                $componentClassName = '\component\\' . str_replace('-', '\\', $component);
+
+                if (class_exists($componentClassName))
+                {
+                    $content = new \View\Layout(null, TRUE);
+                    $component = new $componentClassName();
+                    $component->callEvent();
+                }
             }
         }
 

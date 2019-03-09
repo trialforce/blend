@@ -307,14 +307,19 @@ ORDER BY name ASC;";
         return implode(', ', $columnNames);
     }
 
-}
-
-/*if (!class_exists('\Db\Catalog'))
-{
-
-    class Catalog extends \Db\MssqlCatalog
+    public static function mountCreateTable($name, $comment, $columns, $params)
     {
-
+        throw new \Exception('Not implement yet');
     }
 
-}*/
+    public static function mountCreateColumn($tableName, $column, $operation = 'add')
+    {
+        throw new \Exception('Not implement yet');
+    }
+
+    public static function mountCreateFk($tableName, $constraintName, $fields, $referenceTable, $referenceFields)
+    {
+        throw new \Exception('Not implement yet');
+    }
+
+}

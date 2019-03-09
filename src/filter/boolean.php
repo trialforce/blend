@@ -1,6 +1,7 @@
 <?php
 
 namespace Filter;
+
 use DataHandle\Request;
 
 /**
@@ -25,7 +26,7 @@ class Boolean extends \Filter\Text
 
         $value = $this->parseValue(Request::get($columnValue));
 
-        $input = new \View\Select($columnValue, $options, $value, '');
+        $input = new \View\Select($columnValue, $options, $value, 'fullWidth');
         $input->onPressEnter("$('#buscar').click()");
 
         return $input;
@@ -50,12 +51,12 @@ class Boolean extends \Filter\Text
 
         if ($filterValue == 't')
         {
-            $cond = new \Db\Cond('(' . $columnName . ' = 1 OR ' . $columnName . ' IS NOT NULL)', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            $cond = new \Db\Where($columnName, '>=', 1, \Db\Cond::COND_AND, $this->getFilterType());
         }
         else if ($filterValue == 'f')
         {
 
-            $cond = new \Db\Cond('(' . $columnName . ' = 0 OR ' . $columnName . ' IS NULL)', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            $cond = new \Db\Where('(' . $columnName . ' = 0 OR ' . $columnName . ' IS NULL)', NULL, NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
 
         return $cond;

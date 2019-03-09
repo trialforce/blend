@@ -154,6 +154,12 @@ class Column
     protected $referenceField;
 
     /**
+     * Foreign key name
+     * @var string
+     */
+    protected $referenceName;
+
+    /**
      * Reference description from related table
      *
      * @var string
@@ -325,11 +331,29 @@ class Column
         return $this->referenceTable;
     }
 
-    public function setReferenceTable($table, $field = 'id', $referenceDescription = NULL)
+    public function getReferenceModelClass()
     {
+        //if allready has  "model" in string, use it
+        if (stripos($this->referenceTable, 'model'))
+        {
+            $modelClass = $this->referenceTable;
+        }
+        //if not, put "model" on start
+        else
+        {
+            $modelClass = '\Model\\' . $this->referenceTable;
+        }
+
+        return $modelClass;
+    }
+
+    public function setReferenceTable($table, $field = 'id', $referenceDescription = NULL, $name = null)
+    {
+        $this->constantValues = null;
         $this->referenceTable = $table;
         $this->referenceField = $field;
         $this->referenceDescription = $referenceDescription;
+        $this->referenceName = $name;
 
         return $this;
     }
@@ -342,6 +366,17 @@ class Column
     public function setReferenceField($referenceField)
     {
         $this->referenceField = $referenceField;
+        return $this;
+    }
+
+    public function getReferenceName()
+    {
+        return $this->referenceName;
+    }
+
+    public function setReferenceName($referenceName)
+    {
+        $this->referenceName = $referenceName;
         return $this;
     }
 
@@ -358,7 +393,7 @@ class Column
 
     public function getReferenceSql($withAs = TRUE)
     {
-        $referenceClass = '\Model\\' . $this->getReferenceTable();
+        $referenceClass = $this->getReferenceModelClass();
         $catalog = $referenceClass::getCatalogClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
@@ -827,9 +862,14 @@ class Column
         if (stripos($columnName, ' AS ') > 0)
         {
             //insensitive
-            $columnName = str_replace(array(' as ', ' As', 'aS'), ' AS ', $columnName);
+            $columnName = str_replace(array(' as ', ' As', ' aS '), ' AS ', $columnName);
             $explode = explode(' AS ', $columnName);
             $columnName = trim(end($explode));
+
+            //remove " and ` from start and end
+            $columnName = rtrim(ltrim($columnName, '"'), '"');
+            $columnName = rtrim(ltrim($columnName, '`'), '`');
+
             return $columnName;
         }
 
@@ -857,13 +897,16 @@ class Column
 
         if (stripos($sqlForColumn, ' AS '))
         {
-            $sqlForColumn = str_replace(array(' as ', ' As', 'aS'), ' AS ', $sqlForColumn);
-
+            $sqlForColumn = str_replace(array(' as ', ' As', ' aS '), ' AS ', $sqlForColumn);
             $explode = explode(' AS ', $sqlForColumn);
             unset($explode[count($explode) - 1]);
 
             $result = implode(' ', $explode);
         }
+
+        //remove " and ` from start and end
+        $result = rtrim(ltrim($result, '"'), '"');
+        $result = rtrim(ltrim($result, '`'), '`');
 
         return $result;
     }

@@ -40,6 +40,73 @@ class Layout extends \DomDocument implements \Countable
     }
 
     /**
+     * Return the current event
+     *
+     * @return string
+     */
+    public function getEvent()
+    {
+        $event = Request::get('e');
+
+        if (!$event)
+        {
+            $event = Request::get('q') ? 'listar' : 'oncreate';
+        }
+
+        return $event;
+    }
+
+    /**
+     * Executes the current event
+     *
+     * @return mixed
+     */
+    public function callEvent()
+    {
+        $event = $this->getEvent();
+
+        if (!$event)
+        {
+            return false;
+        }
+
+        //TODO this piece of code need to be in other plase
+        //adjust some events to avoid overhead of eventos
+        $replace['oncreate'] = 'listar';
+        $replace['confirmaExclusao'] = 'remover';
+        $replace['salvar'] = 'adicionar';
+
+        $parsed = str_replace(array_keys($replace), array_values($replace), $event);
+        $canDo = $this->verifyPermission($parsed);
+
+        if (!$canDo)
+        {
+            throw new \UserException('Sem permissão para acessar evento <strong>' . ucfirst($event) . '</strong> na página <strong>' . ucfirst($this->getPageUrl()) . '</strong>.');
+        }
+
+        //register the event in html, so when get it from js
+        $this->byId('content')->data('event', $event);
+
+        if (method_exists($this, $event))
+        {
+            return $this->$event();
+        }
+    }
+
+    /**
+     * Verify permission to event.
+     * By default user has all permission.
+     * You need to implement a Acl.
+     *
+     * @param string $event
+     * @return boolean
+     */
+    public function verifyPermission($event)
+    {
+        return true;
+    }
+
+    /**
      * Called by system when the layout is created.
      * Called when is not ajax
      *
@@ -52,7 +119,7 @@ class Layout extends \DomDocument implements \Countable
     /**
      * Define the title of layout
      *
-     * @param string $string
+     * @param string $title the page title
      *
      * @return \View\Layout
      */
@@ -175,8 +242,6 @@ class Layout extends \DomDocument implements \Countable
 
     public function loadHTML($source, $options = NULL)
     {
-        //not used in this case
-        $options = NULL;
         $encoding = mb_detect_encoding($source, 'UTF-8,ISO-8859-1', true);
 
         if ($encoding == 'UTF-8')
@@ -598,7 +663,7 @@ class Layout extends \DomDocument implements \Countable
     }
 
     /**
-     * Retorna um seletor jquery
+     * Return a seletor jquery
      *
      * @param string $selector
      * @return \View\Selector
@@ -621,18 +686,35 @@ class Layout extends \DomDocument implements \Countable
     }
 
     /**
-     * Funçao de compatibilidade com \View\Page
+     * Return the url of the page
      *
      * @return string
      */
     public function getPageUrl()
     {
-        return Request::get('p') ? Request::get('p') : 'default';
-    }
+        $className = strtolower(get_class($this));
+        $useModule = \DataHandle\Config::get('use-module');
+        $module = Request::get('m');
 
+        if ($useModule)
+        {
+            $className = str_replace($module . '\\', '', $className);
+            $module .= '/';
+        }
+        else
+        {
+            $module = '';
+        }
+
+        $moduleSeparator = '-';
+        $class = str_replace('\\', $moduleSeparator, $className);
+        $url = $module . str_replace(array('Page\\', 'page\\', 'page' . $moduleSeparator, 'Page' . $moduleSeparator), '', $class);
+
+        return $url;
+    }
+    
     /**
      * Return string representation of layout.
-     *
      * Remove double spaces to otimize to page speed
      *
      * @return string

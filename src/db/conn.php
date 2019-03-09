@@ -412,24 +412,20 @@ class Conn extends \PDO
     }
 
     /**
-     * Retorna informações de uma conexão
+     * Return some connection information
      *
      * @param string $id
      * @return ConnInfo
      */
-    public static function getConnInfo($id = 'default')
+    public static function getConnInfo($id = 'default', $throw = TRUE)
     {
-        //garante o id padrão
-        if (is_null($id))
-        {
-            $id = 'default';
-        }
+        $id = is_null($id) ? 'default' : $id;
 
         if (isset(self::$connInfo[$id]))
         {
             return self::$connInfo[$id];
         }
-        else
+        else if ($throw)
         {
             throw new \Exception("Informações da conexão '$id' não encontradas.");
         }

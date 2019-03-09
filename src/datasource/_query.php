@@ -147,7 +147,7 @@ class Query extends DataSource
         if (is_null($this->data))
         {
             $where = $this->getWhere();
-            $sql = \Db\Catalog::mountSelect($this->getTable(), $this->getFieldsString(), $where->sql, $this->getLimit(), $this->getOffset(), NULL, $where->having, $this->getOrderBy(), $this->getOrderWay());
+            $sql = \Db\Catalog\Mysql::mountSelect($this->getTable(), $this->getFieldsString(), $where->sql, $this->getLimit(), $this->getOffset(), NULL, $where->having, $this->getOrderBy(), $this->getOrderWay());
             $this->data = \Db\Conn::getInstance()->query($sql, $where->args, $this->getModelClass());
         }
 

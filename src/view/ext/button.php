@@ -3,21 +3,10 @@
 namespace View\Ext;
 
 /**
- * Button with icon
+ * Extended button with icon
  */
 class Button extends \View\Button
 {
-
-    const BTN_PRIMARY = 'primary';
-    const BTN_INFO = 'info';
-    const BTN_SUCCESS = 'success';
-    const BTN_WARNING = 'warning';
-    const BTN_DANGER = 'danger';
-    const BTN_INVERSE = 'inverse';
-    const BTN_LINK = 'link';
-    const BTN_FEATURE = 'feature';
-    const BTN_WHITE = 'white';
-    const BTN_SMALL = 'small';
 
     protected $icon;
 
