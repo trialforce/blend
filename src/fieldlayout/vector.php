@@ -247,7 +247,18 @@ class Vector
             $property = $dom->getFormName() . '[' . $property . ']';
         }
 
-        //custom class
+        //TODO padronize 100% and put it on \Db\Column or not?
+        $classes[\Db\Column::TYPE_INTEGER] = '\View\Ext\IntInput';
+        $classes[\Db\Column::TYPE_TIME] = '\View\Ext\TimeInput';
+        $classes[\Db\Column::TYPE_TIMESTAMP] = '\View\Ext\DateTimeInput';
+        $classes[\Db\Column::TYPE_DATETIME] = '\View\Ext\DateTimeInput';
+        $classes[\Db\Column::TYPE_DATE] = ' \View\Ext\DateInput';
+        $classes[\Db\Column::TYPE_TEXT] = '\View\TextArea';
+        $classes[\Db\Column::TYPE_BOOL] = '\View\Ext\CheckboxDb';
+        $classes[\Db\Column::TYPE_TINYINT] = '\View\Ext\CheckboxDb';
+        $classes[\Db\Column::TYPE_VARCHAR] = '\View\Input';
+
+        //class
         if (!is_null($class))
         {
             $field = new $class($property);
@@ -260,36 +271,16 @@ class Vector
         {
             $field = new \View\Ext\SelectConstantValue($column, $property);
         }
-        else if ($type == \Db\Column::TYPE_INTEGER)
-        {
-            $field = new \View\Ext\IntInput($property);
-        }
         else if ($type == \Db\Column::TYPE_DECIMAL)
         {
             $field = new \View\Ext\FloatInput($property, NULL, $column->getSize(), NULL);
         }
-        else if ($type == \Db\Column::TYPE_TIMESTAMP || $type == \Db\Column::TYPE_DATETIME)
+        else if (isset($classes[$type]))
         {
-            $field = new \View\Ext\DateTimeInput($property);
+            $class = $classes[$type];
+            $field = new $class($property);
         }
-        else if ($type == \Db\Column::TYPE_DATE)
-        {
-            $field = new \View\Ext\DateInput($property);
-        }
-        else if ($type == \Db\Column::TYPE_TIME)
-        {
-            $field = new \View\Ext\TimeInput($property);
-        }
-        else if ($type == \Db\Column::TYPE_TEXT)
-        {
-            $field = new \View\TextArea($property);
-            $field->setRows(4);
-        }
-        else if ($type == \Db\Column::TYPE_BOOL || $type == \Db\Column::TYPE_TINYINT)
-        {
-            $field = new \View\Ext\CheckboxDb($property, 1);
-        }
-        else
+        else //fallback
         {
             $field = new \View\Input($property);
         }
@@ -350,6 +341,8 @@ class Vector
         {
             $field->addClass('pkField');
         }
+
+        $field->addClass('field');
 
         return $field;
     }
