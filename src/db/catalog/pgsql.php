@@ -183,7 +183,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         return null;
     }
 
-    public static function listTableIndex($table, $indexName = NULL)
+    public static function listTableIndex($table = NULL, $indexName = NULL)
     {
         //TODO not implemented
         $table = NULL;
@@ -191,7 +191,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         throw new Exception('dbpgsqlcatalog::listTableIndex ainda não implementado');
     }
 
-    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL)
+    public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = false)
     {
         $sql = 'SELECT ' . $columns;
         $sql .= $tables ? ' FROM ' . $tables : '';
@@ -231,7 +231,16 @@ LEFT JOIN information_schema.constraint_column_usage ccu
     {
         if ($table)
         {
-            return '"' . $table . '"';
+            //add support for '.'
+            $explode = explode('.', $table);
+            $result = null;
+
+            foreach ($explode as $table)
+            {
+                $result[] = strlen(trim($table)) > 0 ? '"' . trim($table) . '"' : '';
+            }
+
+            return implode('.', $result);
         }
         else
         {
