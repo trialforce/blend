@@ -224,6 +224,7 @@ class Crud extends \Page\Page
 
         if ($this->popupAdd)
         {
+            \App::dontChangeUrl();
             return $this->getPopup();
         }
         else
@@ -231,16 +232,24 @@ class Crud extends \Page\Page
             $this->append($this->getHead());
             $this->append($this->getBodyDiv($this->mountFieldLayout()));
         }
+
+        $this->adjustFields();
+    }
+
+    public function adjustFields()
+    {
+
     }
 
     public function getPopup()
     {
         $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
 
+        $this->adjustFields();
+
         //add popupadd to form, to make ir post corret
         $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
         $body[] = new \View\Input('popupAdd', \View\Input::TYPE_HIDDEN, 'popupAdd');
-        //$body[] = new \View\Input($this->getInputName('popupAddRedirectPage'), \View\Input::TYPE_HIDDEN, $popupAddRedirectPage);
         $body[] = new \View\Input('popupAddInputName', \View\Input::TYPE_HIDDEN, Request::get('popupAddInputName'));
         $body[] = new \View\Input('popupAddPageName', \View\Input::TYPE_HIDDEN, $this->getPageUrl());
 
@@ -283,6 +292,7 @@ class Crud extends \Page\Page
 
         if ($this->popupAdd)
         {
+            \App::dontChangeUrl();
             return $this->getPopup();
         }
         else
@@ -296,6 +306,8 @@ class Crud extends \Page\Page
         {
             $this->byId('btnRemover')->remove();
         }
+
+        $this->adjustFields();
     }
 
     public function ver()
