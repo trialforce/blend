@@ -1,7 +1,6 @@
 <?php
 
 namespace View;
-
 use \DataHandle\Server;
 use \DataHandle\UserAgent;
 use \DataHandle\Request;
@@ -140,22 +139,6 @@ class Layout extends \DomDocument implements \Countable
         }
 
         return $this;
-    }
-
-    /**
-     * Define the title of layout
-     *
-     * Alias to setTitle
-     *
-     * @deprecated since version 10/12/2014
-     *
-     * @param string $title the title
-     *
-     * @return \View\Layout
-     */
-    public function setPageTitle($title)
-    {
-        return $this->setTitle($title);
     }
 
     /**
@@ -729,7 +712,7 @@ class Layout extends \DomDocument implements \Countable
 
         return $url;
     }
-
+    
     /**
      * Return string representation of layout.
      * Remove double spaces to otimize to page speed
@@ -756,12 +739,6 @@ class Layout extends \DomDocument implements \Countable
         $html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
         //trim all lines
         $html = implode(PHP_EOL, array_map('trim', explode(PHP_EOL, $html)));
-
-        //$original[] = '&amp;nbsp';
-        //$original[] = "\t";
-        //$replace[] = '&nbsp;';
-        //simple replace
-        //$html = str_replace($original, $replace, $html);
 
         return $html;
     }

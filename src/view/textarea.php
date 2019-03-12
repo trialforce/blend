@@ -20,6 +20,8 @@ class TextArea extends \View\View
     public function __construct($idName = NULL, $value = NULL, $class = NULL)
     {
         parent::__construct('textarea', $idName, $value, $class);
+        //a simple default value
+        $this->setRows(4);
     }
 
     /**

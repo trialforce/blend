@@ -396,7 +396,6 @@ class Column
         $referenceClass = $this->getReferenceModelClass();
         $catalog = $referenceClass::getCatalogClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
-
         $tableName = $catalog::parseTableNameForQuery($this->getTableName());
 
         $top = '';

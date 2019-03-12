@@ -369,6 +369,8 @@ $fksStr
 COMMENT='$comment'
 $paramStr";
 
+//echo('<pre>'.$sql.'</pre>');
+
         return $sql;
     }
 
@@ -396,7 +398,7 @@ $paramStr";
         $comment = $column->getLabel() ? "COMMENT '" . $column->getLabel() . "'" : '';
 
         $sql = trim($type . $nullable . $default . $autoIncremento . $comment);
-
+        
         return $sql;
     }
 
@@ -436,7 +438,6 @@ $paramStr";
         $sql = "ALTER TABLE `$tableName` ADD " . self::createFk($constraintName, $fields, $referenceTable, $referenceFields);
 
         return $sql;
-        //ALTER TABLE `enderecoCidade`  ADD CONSTRAINT `FK_enderecoCidade_enderecoUf` FOREIGN KEY (`idUf`) REFERENCES `enderecoUf` (`id`) ON UPDATE CASCADE;
     }
 
 }

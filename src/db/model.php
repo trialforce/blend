@@ -104,6 +104,7 @@ class Model
     public static function getColumns()
     {
         $name = self::getName();
+        $tableName = $name::getTableName();
 
         //get information from cache
         if (isset(self::$columnsCache[$name]))
@@ -121,6 +122,11 @@ class Model
             //or, get from databse
             $catalog = $name::getCatalogClass();
             $columns = $catalog::listColums($name::getTableName());
+        }
+
+        foreach ($columns as $column)
+        {
+            $column->setTableName($tableName);
         }
 
         self::$columnsCache[$name] = $columns;
@@ -357,11 +363,11 @@ class Model
     protected static function getColumnsForFind($columns)
     {
         $result = array();
+        $name = self::getName();
+        $tableName = $name::getTableName();
 
         foreach ($columns as $column)
         {
-            $name = self::getName();
-            $tableName = $name::getTableName();
             $column->setTableName($tableName);
             $line = $column->getSql();
 
@@ -391,7 +397,6 @@ class Model
 
         foreach ($columns as $column)
         {
-
             $column->setTableName($tableName);
             $line = $column->getSql();
 
