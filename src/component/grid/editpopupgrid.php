@@ -92,10 +92,15 @@ class EditPopupGrid extends \Component\Grid\Grid
         if (!$id)
         {
             $dom = \View\View::getDom();
-            $formRequest = \DataHandle\Request::get($dom->getFormName());
-            if (!empty($formRequest))
+
+            if (method_exists($dom, 'getFormName'))
             {
-                $id = isset($formRequest['id']) ? $formRequest['id'] : NULL;
+                $formRequest = \DataHandle\Request::get($dom->getFormName());
+
+                if (!empty($formRequest))
+                {
+                    $id = isset($formRequest['id']) ? $formRequest['id'] : NULL;
+                }
             }
         }
 
@@ -121,7 +126,7 @@ class EditPopupGrid extends \Component\Grid\Grid
             $dataSource->addExtraFilter($where);
         }
 
-        //\Component\Grid\Grid::addFiltersToDataSource($dataSource);
+        \Component\Grid\Grid::addPaginationToDataSource($dataSource);
     }
 
     public function createTable()

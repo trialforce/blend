@@ -676,29 +676,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
      */
     public static function addFiltersToDataSource(\DataSource\DataSource $dataSource)
     {
-        $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
-
-        if (Request::get('orderBy'))
-        {
-            $dataSource->setOrderBy(Request::get('orderBy'));
-        }
-
-        if (Request::get('orderWay'))
-        {
-            $dataSource->setOrderWay(Request::get('orderWay'));
-        }
-
-        if (Request::get('page'))
-        {
-            $dataSource->setPage(Request::get('page'));
-        }
-        else
-        {
-            if (is_null($dataSource->getLimit()))
-            {
-                $dataSource->setPage(0);
-            }
-        }
+        self::addPaginationToDataSource($dataSource);
 
         //this need to be optimized, this is in wrong place, but for compatibily porpouses is here
         $page = \View\View::getDom();
@@ -731,6 +709,39 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         }
 
         return $dataSource->setSmartFilter(Request::get('q'));
+    }
+
+    /**
+     * Add search filters to dataSource
+     *
+     * @param \DataSource\DataSource $dataSource
+     * @return \DataSource\DataSource $dataSource
+     */
+    public static function addPaginationToDataSource(\DataSource\DataSource $dataSource)
+    {
+        $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
+
+        if (Request::get('orderBy'))
+        {
+            $dataSource->setOrderBy(Request::get('orderBy'));
+        }
+
+        if (Request::get('orderWay'))
+        {
+            $dataSource->setOrderWay(Request::get('orderWay'));
+        }
+
+        if (Request::get('page'))
+        {
+            $dataSource->setPage(Request::get('page'));
+        }
+        else
+        {
+            if (is_null($dataSource->getLimit()))
+            {
+                $dataSource->setPage(0);
+            }
+        }
     }
 
     /**
