@@ -903,7 +903,7 @@ class DateTime extends \Validator\Validator
 
     public function toHuman()
     {
-        return $this->__toString();
+        return $this->getValue(self::MASK_TIMESTAMP_USER_WITHOUT_SECOND);
     }
 
     /**
