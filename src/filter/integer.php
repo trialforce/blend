@@ -78,7 +78,7 @@ class Integer extends \Filter\Text
 
         $cond = null;
 
-        if ($conditionValue && isset($filterValue))
+        if ($conditionValue && (strlen(trim($filterValue)) > 0))
         {
             if ($conditionValue == self::COND_BETWEEN)
             {

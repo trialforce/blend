@@ -11,6 +11,8 @@ use DataHandle\Request;
 class Reference extends \Filter\Collection
 {
 
+    const COND_TEXT = 'text';
+
     /**
      *
      * @var \Db\Column
@@ -34,6 +36,47 @@ class Reference extends \Filter\Collection
         return $this;
     }
 
+    public function getCondition()
+    {
+        $conditionName = $this->getConditionName();
+
+        if ($this->dbColumn->getClass())
+        {
+            $options[self::COND_TEXT] = 'Texto';
+        }
+
+        $options[self::COND_EQUALS] = 'Cód - Igual';
+        $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
+        $options[self::COND_NULL_OR_EMPTY] = 'Cód - Nulo ou vazio';
+
+        $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_TEXT;
+
+        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
+        $this->getCondJs($select);
+
+        return $select;
+    }
+
+    public function getDbCond()
+    {
+        $column = $this->getColumn();
+        $columnName = $column->getSql();
+        $conditionName = $this->getConditionName();
+        $filterName = $this->getValueName();
+        $conditionValue = Request::get($conditionName);
+        $filterValue = Request::get($filterName);
+
+        if ($conditionValue && ($filterValue || $filterValue == 0) && $conditionValue == self::COND_TEXT)
+        {
+            $dbColumn = $this->dbColumn;
+            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue));
+        }
+        else
+        {
+            return parent::getDbCond();
+        }
+    }
+
     public function getValue()
     {
         $columnValue = $this->getValueName();
@@ -49,7 +92,14 @@ class Reference extends \Filter\Collection
         }
         else if ($this->dbColumn->getReferenceField())
         {
-            $field = new \View\Ext\ReferenceField($this->dbColumn, $columnValue, $value, $class);
+            if ($this->dbColumn->getClass())
+            {
+                $field = new \View\Input($this->getValueName(), 'texxt', $value, 'filterInput');
+            }
+            else
+            {
+                $field = new \View\Ext\ReferenceField($this->dbColumn, $columnValue, $value, $class);
+            }
         }
         else
         {

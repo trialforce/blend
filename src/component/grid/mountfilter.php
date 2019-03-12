@@ -134,15 +134,7 @@ class MountFilter
 
         if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
         {
-            //não faz dbcolumn com classes diferentes
-            if ($dbColumn->getClass())
-            {
-                $filter = new \Filter\Integer($column, NULL, $filterType);
-            }
-            else
-            {
-                $filter = new \Filter\Reference($column, $dbColumn, $filterType);
-            }
+            $filter = new \Filter\Reference($column, $dbColumn, $filterType);
         }
 
         return $filter;
