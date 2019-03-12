@@ -252,7 +252,7 @@ class Vector
         $classes[\Db\Column::TYPE_TIME] = '\View\Ext\TimeInput';
         $classes[\Db\Column::TYPE_TIMESTAMP] = '\View\Ext\DateTimeInput';
         $classes[\Db\Column::TYPE_DATETIME] = '\View\Ext\DateTimeInput';
-        $classes[\Db\Column::TYPE_DATE] = ' \View\Ext\DateInput';
+        $classes[\Db\Column::TYPE_DATE] = '\View\Ext\DateInput';
         $classes[\Db\Column::TYPE_TEXT] = '\View\TextArea';
         $classes[\Db\Column::TYPE_BOOL] = '\View\Ext\CheckboxDb';
         $classes[\Db\Column::TYPE_TINYINT] = '\View\Ext\CheckboxDb';
