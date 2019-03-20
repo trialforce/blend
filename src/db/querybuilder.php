@@ -398,10 +398,10 @@ class QueryBuilder
      * @param string $condition AND, OR, etc
      * @return \Db\QueryBuilder
      */
-    public function where($columnName, $param, $value = NULL, $condition = 'AND')
+    public function where($columnName, $param = NULL, $value = NULL, $condition = 'AND')
     {
         //support two parameters
-        if (!$value && $value !== '0' && $value !== 0)
+        if (!$value && $value !== '0' && $value !== 0 && $param)
         {
             $value = $param;
             $param = is_array($value) ? 'IN' : '=';
@@ -452,7 +452,7 @@ class QueryBuilder
      *
      * @return \Db\Criteria
      */
-    public function groupWhere($columnName, $param, $value, $condition = 'AND')
+    public function groupWhere($columnName, $param = NULL, $value = NULL, $condition = 'AND')
     {
         $group = new \Db\Criteria();
         $group->where($columnName, $param, $value, $condition);
@@ -461,12 +461,6 @@ class QueryBuilder
 
         return $group;
     }
-
-    /* public function whereRaw($where, $operation = 'AND')
-      {
-      $operation = $operation ? trim(strtoupper($operation)) : 'AND';
-      $this->where[] = $operation . $where;
-      } */
 
     protected function mountColumns($format = false)
     {

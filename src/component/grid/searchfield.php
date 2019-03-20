@@ -191,7 +191,14 @@ class SearchField extends \Component\Component
                 //create the filter if not ajax (reload (F5))
                 if (Request::get($filterNameCondition) || Request::get($filterNameValue) || Request::get($filterNameValue) === '0' || $filter->getFilterType() . '' == '2')
                 {
-                    $filterContent[] = $filter->getInput()->append(\Page\Page::getCloseFilterButton());
+                    $input = $filter->getInput();
+
+                    if ($filter->getFilterType() . '' != '2')
+                    {
+                        $input->append(\Page\Page::getCloseFilterButton());
+                    }
+
+                    $filterContent[] = $input;
                 }
             }
         }

@@ -185,7 +185,8 @@ class Where implements \Db\Filter
         }
         else
         {
-            $param = $this->param ? $this->param . ' \'' . implode(',', $this->getValue()) . '\'' : '';
+            $values = is_array($this->getValue()) ? implode(',', $this->getValue()) : $this->getValue();
+            $param = $this->param ? $this->param . ' \'' . $values . '\'' : '';
         }
 
         $where = $this->filter . ' ' . $param . ' ';

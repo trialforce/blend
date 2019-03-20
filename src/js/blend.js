@@ -926,7 +926,8 @@ function popup(action, selector)
         $('.makePopupFade').addClass('popupFaded');
 
         element.fadeIn(600);
-    } else if (action === 'close')
+    } 
+    else if (action === 'close')
     {
         $('.makePopupFade').removeClass('popupFaded');
 
@@ -940,7 +941,8 @@ function popup(action, selector)
             //restore style
             $('.inner').removeAttr('style');
         });
-    } else if (action === 'destroy')
+    }
+    else if (action === 'destroy')
     {
         $('.makePopupFade').removeClass('popupFaded');
 
@@ -953,7 +955,8 @@ function popup(action, selector)
         }, 300, function () {
             element.remove();
         });
-    } else if (action === 'maximize')
+    } 
+    else if (action === 'maximize')
     {
         element.find('.inner')
                 .css('position', 'fixed')
@@ -1313,7 +1316,8 @@ function cropCanvas(imgSrc, aspectRatio)
     $('#crop-canvas').addClass('is-visible');
 }
 
-function destroyCropCanvas() {
+function destroyCropCanvas() 
+{
     $('#crop-canvas').removeClass('is-visible');
     var jcropApi = $('#crop-image-handler').data('jcrop_api');
     jcropApi.destroy();
