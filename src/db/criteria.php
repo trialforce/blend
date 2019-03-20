@@ -120,16 +120,24 @@ class Criteria implements \Db\Filter
      */
     public function where($columnName, $param, $value = NULL, $condition = 'AND')
     {
-        //support two parameters
-        if (!$value)
+        if (is_null($param) && is_null($value))
         {
-            $value = $param;
-            $param = is_array($value) ? 'IN' : '=';
+            $where = new \Db\WhereRaw($columnName);
+        }
+        else
+        {
+            //support two parameters
+            if (!$value && $value !== '0' && $value !== 0 && $param)
+            {
+                $value = $param;
+                $param = is_array($value) ? 'IN' : '=';
+            }
+
+            //$columnName = $catalog::parseTableNameForQuery($columnName);
+            //create the condition
+            $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
         }
 
-        //$columnName = $catalog::parseTableNameForQuery($columnName);
-        //create the condition
-        $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
         $this->filters[] = $where;
 
         return $this;
