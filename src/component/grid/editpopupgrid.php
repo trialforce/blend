@@ -134,7 +134,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $title[] = $label;
 
         $urlAdd = "p('{$this->getPageName()}/{$this->getAddMethod()}')";
-        $buttons[] = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar', $urlAdd, \View\Ext\Button::BTN_SUCCESS . ' ' . \View\Ext\Button::BTN_SMALL);
+        $buttons[] = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar', $urlAdd, 'success small');
 
         $title[] = new \View\Div('btnSearchButtons', $buttons, 'gridButtonsSearch');
 

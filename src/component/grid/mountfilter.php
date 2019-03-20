@@ -62,6 +62,12 @@ class MountFilter
     public function getFilter()
     {
         $column = $this->column;
+        $column instanceof \Component\Grid\Column;
+
+        if (!$column)
+        {
+            return NULL;
+        }
 
         //avoid columns that end with description
         if (strpos($column->getName(), 'Description') > 0)
@@ -69,29 +75,24 @@ class MountFilter
             return null;
         }
 
+        $filter = NULL;
         $dbModel = $this->dbModel;
-
-        if (!$column)
-        {
-            return NULL;
-        }
-
         $dataType = $column->getType();
-        $filterType = $column->getFilter() ? $column->getFilter() : \Db\Cond::TYPE_NORMAL;
+        $filterType = $column->getFilterType();
 
         //don't mount filter if column don't has data type, or if don't have to be filtered
-        if (!$dataType || !$column->getFilter())
+        if (!$dataType || !$filterType)
         {
             return NULL;
         }
 
+        //try to get column from database/model
         if ($dbModel instanceof \Db\Model)
         {
             $dbColumn = $dbModel::getColumn($column->getSplitName());
         }
 
-        $filter = NULL;
-
+        //verify if is needed to mount the filter by database/model column
         if ($dbColumn instanceof \Db\Column)
         {
             $filter = $this->mountDbColumnFilter($dbColumn, $column);
@@ -101,7 +102,6 @@ class MountFilter
         if (!$filter)
         {
             $dataType = $dataType == 'bool' ? 'boolean' : $dataType;
-
             $formatter = $column->getFormatter();
 
             if ($formatter instanceof \Type\DateTime)
@@ -129,7 +129,6 @@ class MountFilter
      */
     public function mountDbColumnFilter(\Db\Column $dbColumn, Column $column)
     {
-        $filterType = $column->getFilter() ? $column->getFilter() : \Db\Cond::TYPE_NORMAL;
         $filter = NULL;
 
         if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
@@ -137,11 +136,11 @@ class MountFilter
             //não faz dbcolumn com classes diferentes
             if ($dbColumn->getClass())
             {
-                $filter = new \Filter\Integer($column, NULL, $filterType);
+                $filter = new \Filter\Integer($column, NULL, $column->getFilterType());
             }
             else
             {
-                $filter = new \Filter\Reference($column, $dbColumn, $filterType);
+                $filter = new \Filter\Reference($column, $dbColumn, $column->getFilterType());
             }
         }
 

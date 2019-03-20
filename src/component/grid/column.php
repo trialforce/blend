@@ -95,6 +95,7 @@ class Column
     /**
      * Determina se a coluna é filtrável ou não.
      * Ou seja, se irá gerar um filtro automático.
+     * @todo rename to filterType
      *
      * @var boolean
      */
@@ -346,6 +347,11 @@ class Column
     public function getFilter()
     {
         return $this->filter;
+    }
+
+    public function getFilterType()
+    {
+        return $this->filter ? $this->filter : \Db\Cond::TYPE_NORMAL;
     }
 
     public function setFilter($filter)

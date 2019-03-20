@@ -5,7 +5,7 @@ namespace Filter;
 /**
  * Date filter
  */
-class Date extends \Filter\Text
+class Date extends \Filter\DateTime
 {
 
 }
