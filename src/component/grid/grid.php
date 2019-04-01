@@ -308,7 +308,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $view[] = $this->body = new \View\TBody(NULL, $this->mountData());
         $view[] = $this->foot = $this->mountFoot();
 
-        $this->table = new \View\Table($this->getId() . 'Table', $view);
+        $this->table = new \View\Table($this->getId() . 'Table', $view, 'table-grid');
 
         $div = new \View\Div($this->getId(), $this->table, 'grid');
 
@@ -405,6 +405,13 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         $columns = $this->getRenderColumns();
         $td = null;
+        $result = null;
+
+        //try execute all aggregators in one time
+        if (method_exists($dataSource, 'executeAggregators'))
+        {
+            $result = $dataSource->executeAggregators($aggregators);
+        }
 
         foreach ($columns as $column)
         {
@@ -412,9 +419,16 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
             if (isset($aggregators[$column->getName()]) && $aggregators[$column->getName()] instanceof \DataSource\Aggregator)
             {
-                $aggr = $aggregators[$column->getName()];
-
-                $value = $dataSource->executeAggregator($aggr);
+                //try to get from multi aggregator
+                if (isset($result['aggregation' . $column->getName()]))
+                {
+                    $value = $result['aggregation' . $column->getName()];
+                }
+                else
+                {
+                    $aggr = $aggregators[$column->getName()];
+                    $value = $dataSource->executeAggregator($aggr);
+                }
             }
 
             $class = 'aggr ' . $column->getAlign();
