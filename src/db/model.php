@@ -400,8 +400,6 @@ class Model
             $column->setTableName($tableName);
             $line = $column->getSql();
 
-            //var_dump($line);
-
             if ($tableNameInColumns && !$column instanceof \Db\SearchColumn)
             {
                 $line[0] = $tableName . '.' . $line[0];
@@ -541,7 +539,7 @@ class Model
         return $name::aggregation($filters, 'count(' . $value . ')');
     }
 
-    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL)
+    public static function aggregations($filters = array(), $aggregations, $forceExternalSelect = FALSE, $columns = NULL)
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
@@ -554,19 +552,9 @@ class Model
 
         $columnNameSql = self::getColumnsForFind($columns);
         $catalog = $name::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $columnsString = $catalog::implodeColumnNames($columnNameSql);
 
-        if ($hasHaving || $forceExternalSelect)
-        {
-            $columns = $columnsString;
-        }
-        else
-        {
-            $columns = $aggregation . ' as aggregation ,' . $columnsString;
-        }
-
-        $catalog = $name::getCatalogClass();
-        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $groupBy = NULL;
 
         if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
@@ -574,20 +562,44 @@ class Model
             $groupBy = $columnsString;
         }
 
+        $columnsAggregation = NULL;
+
+        foreach ($aggregations as $columnName => $query)
+        {
+            $columnsAggregation[] = $query . ' as aggregation' . $columnName;
+        }
+
+        if ($hasHaving || $forceExternalSelect)
+        {
+            $columns = $columnsString;
+        }
+        else
+        {
+            $columns = implode(',', $columnsAggregation) . ', ' . $columnsString;
+        }
+
         $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
 
         if ($hasHaving || $forceExternalSelect)
         {
-            $sql = 'SELECT ' . $aggregation . ' as aggregation FROM ( ' . $sql . ') AS ag';
+            $sql = 'SELECT ' . implode(',', $columnsAggregation) . ' FROM ( ' . $sql . ') AS ag';
         }
 
         $result = $name::getConn()->findOne($sql, $where->getArgs());
 
-        return isset($result) ? $result->aggregation : 0;
+        return isset($result) ? $result : 0;
+    }
+
+    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL)
+    {
+        $name = self::getName();
+        $result = $name::aggregations($filters, ['aggregation' => $aggregation], $forceExternalSelect, $columns);
+
+        return isset($result) ? $result->aggregationaggregation : 0;
     }
 
     /**
-     * Obtem um registro pelo id
+     * Find one register by its Id
      *
      * @param string $id
      * @param bool $useCache

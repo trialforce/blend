@@ -107,6 +107,69 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
+     * Execute multiple aggregators in one time
+     *
+     * @param Array $aggregators
+     * @return array
+     */
+    public function executeAggregators($aggregators)
+    {
+        $model = $this->model;
+        $connInfoType = $model->getConnInfo()->getType();
+        $forceExternalSelect = FALSE;
+        $querys = NULL;
+
+        foreach ($aggregators as $agg)
+        {
+            $method = $agg->getMethod();
+            $sqlColumn = $agg->getColumnName();
+            $column = $model->getColumn($agg->getColumnName());
+
+            if ($column instanceof \Db\SearchColumn)
+            {
+                $forceExternalSelect = TRUE;
+            }
+
+            $subquery = $method . '( ' . $sqlColumn . ' )';
+
+            if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
+            {
+                $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
+            }
+
+            $querys[$sqlColumn] = $subquery;
+        }
+
+        $parseResult = NULL;
+
+        if (!empty($querys))
+        {
+            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+            $result = $model->aggregations($filters, $querys, $forceExternalSelect);
+
+            if ($result)
+            {
+                foreach ($aggregators as $agg)
+                {
+                    $method = $agg->getMethod();
+                    $column = $model->getColumn($agg->getColumnName());
+                    $propertyName = 'aggregation' . $agg->getColumnName();
+                    $value = $result->$propertyName;
+
+                    if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME)
+                    {
+                        $value = \Type\Time::get($value)->toHuman();
+                    }
+
+                    $parseResult['aggregation' . $agg->getColumnName()] = $agg->getLabelledValue($value);
+                }
+            }
+        }
+
+        return $parseResult;
+    }
+
+    /**
      * Execute aggregator
      *
      * @param \DataSource\Aggregator $aggregator

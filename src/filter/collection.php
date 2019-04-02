@@ -70,10 +70,11 @@ class Collection extends \Filter\Text
         $filterName = $this->getValueName();
         $conditionValue = Request::get($conditionName);
         $filterValue = Request::get($filterName);
+        $hasFilter = ($filterValue || $filterValue == 0);
 
-        if ($conditionValue && ($filterValue || $filterValue == 0))
+        if ($conditionValue)
         {
-            if ($conditionValue == self::COND_EQUALS)
+            if ($conditionValue == self::COND_EQUALS && $hasFilter)
             {
                 //multiple (array)
                 if (is_array($filterValue))
@@ -95,7 +96,7 @@ class Collection extends \Filter\Text
                     return new \Db\Cond($columnName . ' = ?', $filterValue . '', \Db\Cond::COND_AND, $this->getFilterType());
                 }
             }
-            else if ($conditionValue == self::COND_NOT_EQUALS)
+            else if ($conditionValue == self::COND_NOT_EQUALS && $hasFilter)
             {
                 //multiple (array)
                 if (is_array($filterValue))
@@ -116,14 +117,15 @@ class Collection extends \Filter\Text
                     return new \Db\Cond($columnName . ' != ?', $filterValue . '', \Db\Cond::COND_AND, $this->getFilterType());
                 }
             }
+            else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+            {
+                return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            }
         }
+        //fallback
         else if ($filterValue || $filterValue === '0')
         {
             return new \Db\Cond($columnName . ' = ?', $filterValue . '', \Db\Cond::COND_AND, $this->getFilterType());
-        }
-        else if ($conditionValue == self::COND_NULL_OR_EMPTY)
-        {
-            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
     }
 
