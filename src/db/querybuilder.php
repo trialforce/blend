@@ -23,14 +23,25 @@ class QueryBuilder
     /**
      * Construct the query builder
      *
-     * @param string $tableName
-     * @param string $catalog
-     * @param string $connInfoId
+     * @param string $tableName main table name
+     * @param string $connInfoId connection identification
      */
     public function __construct($tableName = null, $connInfoId = 'default')
     {
         $this->setConnInfoId($connInfoId);
         $this->setTableName($tableName);
+    }
+
+    /**
+     * An static alias to construct
+     *
+     * @param string $tableName main table name
+     * @param string $connInfoId connection identification
+     * @return \Db\QueryBuilder
+     */
+    public static function create($tableName = null, $connInfoId = 'default')
+    {
+        return new \Db\QueryBuilder($tableName, $connInfoId);
     }
 
     public function setConnInfoId($connInfoId = null)
