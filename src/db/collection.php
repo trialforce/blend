@@ -215,9 +215,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function push($value)
     {
-        $this->set(NULL, $value);
-
-        return $this;
+        return $this->add($value);
     }
 
     /**

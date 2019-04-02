@@ -43,11 +43,16 @@ class Reference extends \Filter\Collection
         if ($this->dbColumn->getClass())
         {
             $options[self::COND_TEXT] = 'Texto';
+            $options[self::COND_EQUALS] = 'Cód - Igual';
+            $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
+            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Nulo ou vazio';
         }
-
-        $options[self::COND_EQUALS] = 'Cód - Igual';
-        $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
-        $options[self::COND_NULL_OR_EMPTY] = 'Cód - Nulo ou vazio';
+        else
+        {
+            $options[self::COND_EQUALS] = 'Igual';
+            $options[self::COND_NOT_EQUALS] = 'Diferente';
+            $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        }
 
         $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_TEXT;
 

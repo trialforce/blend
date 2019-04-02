@@ -1,6 +1,7 @@
 <?php
 
 namespace View;
+
 use \DataHandle\Server;
 use \DataHandle\UserAgent;
 use \DataHandle\Request;
@@ -574,14 +575,20 @@ class Layout extends \DomDocument implements \Countable
      */
     public function getElementById($elementId, $class = NULL)
     {
-        //se não passou o id não rola né?
+        //without id, no element for you!
         if (!$elementId)
         {
             return NULL;
         }
 
-        //compatibilidade com jquery
+        //compatibility with jquery
         $elementId = str_replace('#', '', $elementId);
+
+        //add support for formName
+        if (stripos($elementId, '[') > 0)
+        {
+            $elementId = str_replace(array('[', ']'), '', $elementId);
+        }
 
         //tenta o atalho pelo elemento registrado
         if (isset($this->elementList[$elementId]))
@@ -712,7 +719,7 @@ class Layout extends \DomDocument implements \Countable
 
         return $url;
     }
-    
+
     /**
      * Return string representation of layout.
      * Remove double spaces to otimize to page speed

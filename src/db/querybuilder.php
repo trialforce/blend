@@ -425,7 +425,7 @@ class QueryBuilder
      * @param string $value the filter value
      * @return \Db\QueryBuilder
      */
-    public function and($columnName, $param, $value = NULL)
+    public function and($columnName, $param = null, $value = NULL)
     {
         return $this->where($columnName, $param, $value, 'AND');
     }
@@ -438,7 +438,7 @@ class QueryBuilder
      * @param string $value the filter value
      * @return \Db\QueryBuilder
      */
-    public function or($columnName, $param, $value)
+    public function or($columnName, $param = NULL, $value)
     {
         return $this->where($columnName, $param, $value, 'OR');
     }
@@ -521,7 +521,7 @@ class QueryBuilder
         $whereStd = \Db\Criteria::createCriteria($this->getWhere());
         $where = $whereStd->getSqlParam();
 
-        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
+        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
     }
 
     /**

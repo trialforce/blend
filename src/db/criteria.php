@@ -255,18 +255,18 @@ class Criteria implements \Db\Filter
                 //FIXME old getType way of having
                 if (strtolower($filter->getType()) == \Db\Cond::TYPE_HAVING)
                 {
-                    $having .= $filter->getWhere($countHaving === 0);
+                    $having .= $filter->getWhere($countHaving === 0) . "\r\n";
                     $countHaving++;
 
                     if (!is_null($filter->getArgs()))
                     {
-                        $argsHaving = array_merge($argsHaving, $filter->getArgs());
+                        $argsHaving = array_merge($argsHaving, $filter->getArgs()) . "\r\n";
                     }
                 }
                 else
                 {
-                    $sql .= $filter->getString($count === 0);
-                    $sqlParam .= $filter->getStringPdo($count === 0);
+                    $sql .= $filter->getString($count === 0) . "\r\n";
+                    $sqlParam .= $filter->getStringPdo($count === 0) . "\r\n";
                     $count++;
 
                     if (!is_null($filter->getArgs()))
