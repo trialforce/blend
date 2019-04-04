@@ -260,7 +260,7 @@ class Criteria implements \Db\Filter
 
                     if (!is_null($filter->getArgs()))
                     {
-                        $argsHaving = array_merge($argsHaving, $filter->getArgs()) . "\r\n";
+                        $argsHaving = array_merge($argsHaving, $filter->getArgs());
                     }
                 }
                 else
