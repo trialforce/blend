@@ -96,6 +96,7 @@ class Where implements \Db\Filter
             return NULL;
         }
 
+        //always convert to array
         if (!is_array($this->value))
         {
             $this->value = [$this->value];
@@ -147,7 +148,9 @@ class Where implements \Db\Filter
         //specifs for IN parameter
         else if ($this->param == 'IN')
         {
-            $param = $this->param . ' (?)';
+            $this->param = $this->param . ' ' . self::parseValuesPdo($this->getValue());
+            $param = $this->param;
+            $this->value = null;
         }
         else
         {
@@ -171,6 +174,49 @@ class Where implements \Db\Filter
         return $this->getStringPdo($first);
     }
 
+    protected static function parseValuePdo($value)
+    {
+        if (is_null($value))
+        {
+            return '';
+        }
+
+        if (stripos($value, '(') === 0)
+        {
+            return $value;
+        }
+
+        return '\'' . $value . '\'';
+    }
+
+    protected static function parseValuesPdo($values)
+    {
+        if (is_array($values))
+        {
+            //array with one position
+            if (count($values) == 1)
+            {
+                return self::parseValuePdo($values[0]);
+            }
+
+            $result = '';
+
+            foreach ($values as $value)
+            {
+                $result .= self::parseValuePdo($value);
+            }
+
+            if (stripos($value, '(') !== 0)
+            {
+                $result = ' (\'' . $result . '\')';
+            }
+
+            return $result;
+        }
+
+        return self::parseValuePdo($values);
+    }
+
     public function getStringPdo($first = false)
     {
         //when it has ? keep as it is
@@ -181,12 +227,11 @@ class Where implements \Db\Filter
         //specifs for IN parameter
         else if ($this->param == 'IN')
         {
-            $param = $this->param . ' (\'' . implode('\',\'', $this->getValue()) . '\')';
+            $param = $this->param . ' ' . self::parseValuesPdo($this->getValue());
         }
         else
         {
-            $values = is_array($this->getValue()) ? implode(',', $this->getValue()) : $this->getValue();
-            $param = $this->param ? $this->param . ' \'' . $values . '\'' : '';
+            $param = $this->param ? $this->param . ' ' . self::parseValuesPdo($this->getValue()) : '';
         }
 
         $where = $this->filter . ' ' . $param . ' ';

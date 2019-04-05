@@ -23,14 +23,25 @@ class QueryBuilder
     /**
      * Construct the query builder
      *
-     * @param string $tableName
-     * @param string $catalog
-     * @param string $connInfoId
+     * @param string $tableName main table name
+     * @param string $connInfoId connection identification
      */
     public function __construct($tableName = null, $connInfoId = 'default')
     {
         $this->setConnInfoId($connInfoId);
         $this->setTableName($tableName);
+    }
+
+    /**
+     * An static alias to construct
+     *
+     * @param string $tableName main table name
+     * @param string $connInfoId connection identification
+     * @return \Db\QueryBuilder
+     */
+    public static function create($tableName = null, $connInfoId = 'default')
+    {
+        return new \Db\QueryBuilder($tableName, $connInfoId);
     }
 
     public function setConnInfoId($connInfoId = null)
@@ -425,7 +436,7 @@ class QueryBuilder
      * @param string $value the filter value
      * @return \Db\QueryBuilder
      */
-    public function and($columnName, $param, $value = NULL)
+    public function and($columnName, $param = null, $value = NULL)
     {
         return $this->where($columnName, $param, $value, 'AND');
     }
@@ -438,7 +449,7 @@ class QueryBuilder
      * @param string $value the filter value
      * @return \Db\QueryBuilder
      */
-    public function or($columnName, $param, $value)
+    public function or($columnName, $param = NULL, $value)
     {
         return $this->where($columnName, $param, $value, 'OR');
     }
@@ -521,7 +532,7 @@ class QueryBuilder
         $whereStd = \Db\Criteria::createCriteria($this->getWhere());
         $where = $whereStd->getSqlParam();
 
-        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), NULL, NULL, $this->mountOrderBy(), NULL, $format);
+        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
     }
 
     /**
