@@ -596,6 +596,7 @@ class Crud extends \Page\Page
     {
         if ($this->getPopupAdd())
         {
+            //TODO update grid
             \View\Blend\Popup::delete();
         }
         else

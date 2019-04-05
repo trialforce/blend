@@ -228,7 +228,9 @@ class Column
           $this->setDefaultValue( $defaultValue );
           $this->setExtra( $extra ); */
         //optimize it to not need it
-        $this->addValidator(new \Validator\Validator(null, $this));
+        $validator = new \Validator\Validator(null);
+        $validator->setColumn($this);
+        $this->addValidator($validator);
 
         return $this;
     }

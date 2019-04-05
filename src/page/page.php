@@ -1011,6 +1011,12 @@ class Page extends \View\Layout
             $gridClass = '\Component\Grid\\' . $id;
         }
 
+        //FIXME this started to be a mess
+        if (!class_exists($gridClass))
+        {
+            $gridClass = $id;
+        }
+
         $grid = new $gridClass;
         $table = $grid->createTable();
 
