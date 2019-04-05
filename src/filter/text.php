@@ -20,6 +20,7 @@ class Text
     protected $filterType = '';
 
     const COND_LIKE = 'like';
+    const COND_NOT_LIKE = 'not like';
     const COND_EQUALS = '=';
     const COND_NOT_EQUALS = '!=';
     const COND_STARTSWITH = 'startsWith';
@@ -119,6 +120,7 @@ class Text
         $conditionName = $this->getConditionName();
 
         $options[self::COND_LIKE] = 'Contém';
+        $options[self::COND_NOT_LIKE] = 'Não contém';
         $options[self::COND_EQUALS] = 'Igual';
         $options[self::COND_NOT_EQUALS] = 'Diferente';
         $options[self::COND_STARTSWITH] = 'Inicia com';
@@ -173,17 +175,17 @@ class Text
         {
             $filterValueExt = str_replace(' ', '%', $filterValue);
 
-            if ($conditionValue == self::COND_EQUALS)
+            if ($conditionValue == self::COND_EQUALS || $conditionValue == self::COND_NOT_EQUALS)
             {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_EQUALS, $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
-            }
-            else if ($conditionValue == self::COND_NOT_EQUALS)
-            {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_EQUALS, $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_LIKE)
             {
                 return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
+            }
+            else if ($conditionValue == self::COND_NOT_LIKE)
+            {
+                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_LIKE, '%' . $filterValueExt . '%', \Db\Cond::COND_AND, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_STARTSWITH)
             {
