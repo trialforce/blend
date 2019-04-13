@@ -756,7 +756,9 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Createa fixed filter
+     * Create a fixed filter
+     *
+     * @deprecated since version 2019-04-13
      *
      * @param string $idColumn
      * @param array $options
@@ -781,18 +783,11 @@ class Crud extends \Page\Page
 
         $collection = \Db\Collection::create(null)->add($options);
         $filter = new \Filter\Collection($column, $collection);
+        $filter->setDefaultValue($defaultValue);
 
         if (!$onlyFilter)
         {
             $grid->getSearchField()->addExtraFilter($filter);
-            $filterName = $filter->getFilterName() . 'Value';
-            $filterValue = Request::get($filterName);
-
-            if (is_null($filterValue))
-            {
-                $this->byId($filterName)->val($defaultValue);
-                Request::set($filterName, $defaultValue);
-            }
         }
 
         $cond = $filter->getDbCond();
@@ -802,11 +797,13 @@ class Crud extends \Page\Page
             $ds->addExtraFilter($cond);
         }
 
-        return null;
+        return $filter;
     }
 
     /**
      * Create a fixed filter interval type
+     *
+     * @deprecated since version 2019-04-13
      *
      * @param string $idColumn
      * @param string $options
@@ -816,70 +813,44 @@ class Crud extends \Page\Page
      */
     public function createFixedIntervalFilter($idColumn, $defaultValueBegin = '', $defaultValueEnd = '', $onlyFilter = false)
     {
-        //the original sql for column can be tableName.columnName
-        $sqlColumn = $idColumn;
-        $column = $this->model->getColumn($idColumn);
-        //the parsed columnName
-        $idColumn = $column->getName();
-        $label = $column ? $column->getLabel() : $idColumn;
-
         $grid = $this->getGrid();
-        $nomeFiltroInicio = 'filtroInicio' . $idColumn;
-        $nomeFiltroFim = 'filtrofim' . $idColumn;
+        $ds = $grid->getDataSource();
+        $realColumnName = \Db\Column::getRealColumnName($idColumn);
+        $column = $ds->getColumn($realColumnName);
 
-        $valorFiltroInicio = new \Type\Date($this->getFixedFilterValue($nomeFiltroInicio, $defaultValueBegin));
-        $valorFiltroFim = new \Type\Date($this->getFixedFilterValue($nomeFiltroFim, $defaultValueEnd));
+        if (!$column)
+        {
+            $label = ucfirst(str_replace('id', '', $realColumnName));
+            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column::TYPE_VARCHAR);
+        }
 
-        $campo = null;
+        $column->setSql($idColumn);
 
-        //create field only if needed
+        $filter = new \Filter\DateInterval($column, $idColumn);
+
+        if ($defaultValueBegin)
+        {
+            $filter->setDefaultValue($defaultValueBegin);
+        }
+
+        if ($defaultValueEnd)
+        {
+            $filter->setDefaultValueFinal($defaultValueEnd);
+        }
+
         if (!$onlyFilter)
         {
-            //cria campo start
-            $campo = new \View\Ext\DateInput($nomeFiltroInicio, $valorFiltroInicio, 'fixed-filter-interval');
-            $campo->change("$('#buscar').click()");
-            $campo->setTitle('Filtra por ' . lcfirst($label));
-
-            //cria campo start
-            $campo2 = new \View\Ext\DateInput($nomeFiltroFim, $valorFiltroFim, 'fixed-filter-interval');
-            $campo2->change("$('#buscar').click()");
-            $campo2->setTitle('Filtra por ' . lcfirst($label));
-
-            $content[] = new \View\Label(null, $nomeFiltroInicio, $label, 'filterLabel');
-            $content[] = $campo;
-            $content[] = $campo2;
-
-            $field = new \View\Div(null, $content, 'filterField');
-
-            //add field to head
-            $grid->getSearchField()->addExtraFilter($field);
+            $grid->getSearchField()->addExtraFilter($filter);
         }
 
-        //filter data
-        $ds = $grid->getDataSource();
+        $cond = $filter->getDbCond();
 
-        $firstLeter = '';
-        $defaultQuery = Request::get('q');
-
-        if ($defaultQuery)
+        if ($cond)
         {
-            $firstLeter = $defaultQuery[0];
+            $ds->addExtraFilter($cond);
         }
 
-        if ($firstLeter != '@')
-        {
-            if ($valorFiltroInicio . '')
-            {
-                $ds->addExtraFilter(new \Db\Cond('date(' . $sqlColumn . ') >= ?', $valorFiltroInicio->toDb()));
-            }
-
-            if ($valorFiltroFim . '')
-            {
-                $ds->addExtraFilter(new \Db\Cond('date(' . $sqlColumn . ') <= ?', $valorFiltroFim->toDb()));
-            }
-        }
-
-        return $campo;
+        return $filter;
     }
 
     /**

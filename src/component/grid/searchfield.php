@@ -188,6 +188,8 @@ class SearchField extends \Component\Component
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
 
+                //$filterCondition = $filter->getConditionValue();
+                //$filterValue = $filter->getFilterValue();
                 //create the filter if not ajax (reload (F5))
                 if (Request::get($filterNameCondition) || Request::get($filterNameValue) || Request::get($filterNameValue) === '0' || $filter->getFilterType() . '' == '2')
                 {
@@ -207,16 +209,6 @@ class SearchField extends \Component\Component
         $result[] = new \View\Div('containerFiltros', $filterContent, 'clearfix');
 
         return $result;
-    }
-
-    public function listAvoidPropertySerialize()
-    {
-        $avoid = parent::listAvoidPropertySerialize();
-        $avoid[] = 'grid';
-        $avoid[] = 'created';
-        $avoid[] = 'extraFilters';
-
-        return $avoid;
     }
 
 }

@@ -179,6 +179,12 @@ class MountFilter
         //prepare filters to an array
         foreach ($columns as $column)
         {
+            //step by the columsn that is not filtered
+            if (!$column->getFilter())
+            {
+                continue;
+            }
+
             $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
             $filter = $mountFilter->getFilter();
 

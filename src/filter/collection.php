@@ -21,6 +21,7 @@ class Collection extends \Filter\Text
     {
         parent::__construct($column, NULL, $filterType);
         $this->setCollection($collection);
+        $this->setDefaultCondition(self::COND_EQUALS);
     }
 
     public function getCollection()
@@ -36,11 +37,7 @@ class Collection extends \Filter\Text
 
     public function getValue()
     {
-        $columnValue = $this->getValueName();
-        $class = 'filterInput reference';
-        $value = Request::get($columnValue);
-
-        $field = new \View\Select($this->getValueName(), $this->collection, $value, $class);
+        $field = new \View\Select($this->getValueName(), $this->collection, $this->getFilterValue(), 'filterInput reference');
         $field->onPressEnter("$('#buscar').click()");
 
         return $field;
@@ -54,9 +51,7 @@ class Collection extends \Filter\Text
         $options[self::COND_NOT_EQUALS] = 'Diferente';
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
-        $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_EQUALS;
-
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
+        $select = new \View\Select($conditionName, $options, $this->getConditionValue(), 'filterCondition');
         $this->getCondJs($select);
 
         return $select;
@@ -66,10 +61,9 @@ class Collection extends \Filter\Text
     {
         $column = $this->getColumn();
         $columnName = $column->getSql();
-        $conditionName = $this->getConditionName();
         $filterName = $this->getValueName();
-        $conditionValue = Request::get($conditionName);
-        $filterValue = Request::get($filterName);
+        $conditionValue = $this->getConditionValue();
+        $filterValue = $this->getFilterValue();
         $hasFilter = ($filterValue || $filterValue == 0);
 
         if ($conditionValue)

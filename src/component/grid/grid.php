@@ -706,6 +706,20 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                 $extraFilters = $searchField->getExtraFilters();
             }
 
+            //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
+            if (is_array($extraFilters))
+            {
+                foreach ($extraFilters as $filter)
+                {
+                    $dbCond = $filter->getDbCond();
+
+                    if ($dbCond)
+                    {
+                        $dataSource->addExtraFilter($dbCond);
+                    }
+                }
+            }
+
             $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
 
             if (is_array($filters))

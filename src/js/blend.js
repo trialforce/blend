@@ -1552,6 +1552,9 @@ function filterChangeDate(element)
 {
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
+    var prefix = $(element).attr('id').replace('Condition', '');
+    var elValue = $('#' + prefix + 'Value');
+    var elValueFinal = $('#' + prefix + 'ValueFinal');
     
     if ( val== 'nullorempty' 
             || val == 'today' 
@@ -1564,56 +1567,24 @@ function filterChangeDate(element)
     { 
         input.val('').hide();
         element.addClass('fullWidth');
+        elValue.value = '';
+        elValueFinal.value = '';
     } 
     else if ( val == 'between' ) 
     { 
         input.show();
         element.removeClass('fullWidth');
-        showEndDate(1, $(element).attr('id')); 
-    }
-    else if ( val == 'birthday' )
-    { 
-        input.show();
-        element.removeClass('fullWidth');
-        showEndDate(2, $(element).attr('id')); 
+        elValue.show().addClass('filterDate');
+        elValueFinal.show().addClass('filterDate');
     }
     else 
     { 
         input.show();
         element.removeClass('fullWidth');
-        showEndDate(0, $(element).attr('id')); 
-    }
-}
-
-/**
- * Mostra e esconde o campo de filtro avançado para escolha da data final quando o filtro de data for between.
- *
- * FIXME função 'importada', precisa ser repensada
- *
- * @param {type} show
- * @param {type} id
- * @returns {undefined}
- */
-function showEndDate(show, id)
-{
-    var toRemove = 'Condition';
-    var prefixo = id.replace(toRemove, '');
-
-    var mascara = ((show === 2) ? '99/99' : '99/99/9999');
-
-    if (show === 1 || show === 2)
-    {
-        $('#' + prefixo + 'Value').show().mask(mascara);
-
-        $('#' + prefixo + 'ValueFinal').show().mask(mascara);
-        $('#' + prefixo + 'ValueLabelFinal').show();
-    } else
-    {
-        $('#' + prefixo + 'Value').show().mask(mascara);
-
-        $('#' + prefixo + 'ValueLabelFinal').hide();
-        $('#' + prefixo + 'ValueFinal').hide();
-        $('#' + prefixo + 'ValueFinal').value = '';
+        elValue.show().removeClass('filterDate');
+        elValueFinal.hide().removeClass('filterDate');
+        elValue.value = '';
+        elValueFinal.value = '';
     }
 }
 

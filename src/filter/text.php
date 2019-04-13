@@ -18,6 +18,8 @@ class Text
     protected $column;
     protected $filterName = NULL;
     protected $filterType = '';
+    protected $defaultValue;
+    protected $defaultCondition;
 
     const COND_LIKE = 'like';
     const COND_NOT_LIKE = 'not like';
@@ -36,6 +38,7 @@ class Text
         $this->setColumn($column);
         $this->setFilterName($filterName);
         $this->setFilterType($filterType);
+        $this->setDefaultCondition('like');
     }
 
     public function getFilterName()
@@ -62,6 +65,28 @@ class Text
     public function setFilterType($filterType)
     {
         $this->filterType = $filterType;
+        return $this;
+    }
+
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
+
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
+        return $this;
+    }
+
+    public function getDefaultCondition()
+    {
+        return $this->defaultCondition;
+    }
+
+    public function setDefaultCondition($defaultCondition)
+    {
+        $this->defaultCondition = $defaultCondition;
         return $this;
     }
 
@@ -109,10 +134,29 @@ class Text
     {
         $columnValue = $this->getValueName();
 
-        $input = new \View\Input($columnValue, \View\Input::TYPE_TEXT, Request::get($columnValue), 'filterInput');
+        $input = new \View\Input($columnValue, \View\Input::TYPE_TEXT, $this->getFilterValue(), 'filterInput');
         $input->onPressEnter("$('#buscar').click()");
 
         return $input;
+    }
+
+    /**
+     * Return condition value, controls default value
+     *
+     * @return mixed condition value, controls default value
+     */
+    public function getConditionValue()
+    {
+        $conditionName = $this->getConditionName();
+        $conditionValue = Request::get($conditionName);
+
+        //get from default condition, if not posted
+        if (!isset($_REQUEST[$conditionName]))
+        {
+            $conditionValue = $this->getDefaultCondition();
+        }
+
+        return $conditionValue;
     }
 
     public function getCondition()
@@ -127,12 +171,7 @@ class Text
         $options[self::COND_ENDSWITH] = 'Termina com';
         $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
-        $conditionValue = Request::get($conditionName);
-
-        if (!$conditionValue)
-        {
-            $conditionValue = 'like';
-        }
+        $conditionValue = $this->getConditionValue();
 
         $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
         $select->onPressEnter("$('#buscar').click()");
@@ -157,14 +196,30 @@ class Text
         return $this->getFilterName() . 'Value';
     }
 
+    /**
+     * Return filter value, controls default value
+     *
+     * @return the filter value, controls default value
+     */
+    public function getFilterValue()
+    {
+        $filterName = $this->getValueName();
+        $filterValue = trim(Request::get($filterName));
+
+        if (!isset($_REQUEST[$filterName]))
+        {
+            $filterValue = $this->getDefaultValue();
+        }
+
+        return $filterValue;
+    }
+
     public function getDbCond()
     {
         $column = $this->getColumn();
         $columnSql = $column->getSql();
-        $conditionName = $this->getConditionName();
-        $filterName = $this->getValueName();
-        $conditionValue = Request::get($conditionName);
-        $filterValue = trim(Request::get($filterName));
+        $conditionValue = $this->getConditionValue();
+        $filterValue = $this->getFilterValue();
 
         if ($conditionValue && $conditionValue == self::COND_NULL_OR_EMPTY)
         {
