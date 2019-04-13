@@ -691,7 +691,8 @@ function r(type, page, formData, callBack)
 
                 formData.append(name, value);
             });
-        } else
+        }
+        else
         {
             formData = $('form').serialize();
 
@@ -1614,4 +1615,30 @@ function showEndDate(show, id)
         $('#' + prefixo + 'ValueFinal').hide();
         $('#' + prefixo + 'ValueFinal').value = '';
     }
+}
+
+//used in grid checkcolumn, need refactor
+function selecteChecks(gridName)
+{
+    $('#'+gridName+'Table .checkBoxcheck').each( function()
+    {
+        if ( $(this).prop('checked') === true )
+        {
+            $(this).parent().parent().addClass('select');
+        }
+        else
+        {
+            $(this).parent().parent().removeClass('select');
+        }
+    });
+}
+
+//used in grid checkcolumn, need refactor
+function selecteCheck(elementId)
+{
+    var element = $('#' + elementId);
+    var checked = !element.prop('checked');
+    element.prop('checked', checked);
+    
+    $('#checkAllcheck').prop('checked', false);
 }

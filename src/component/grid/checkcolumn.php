@@ -3,24 +3,36 @@
 namespace Component\Grid;
 
 /**
- * Coluna de checagem da grid
+ * Checkbox column for grid
+ *
+ * FIXME: need a complete refactor, remove js from here
  */
 class CheckColumn extends \Component\Grid\Column
 {
 
+    /**
+     * The name/id from the checkbox is the counter of the line
+     */
     const NAME_TYPE_LINE = 1;
+
+    /**
+     * The name/id from the checkbox is the id from the model
+     */
     const NAME_TYPE_OBJ_ATTR = 2;
 
+    /**
+     * Define the type of the id
+     * NAME_TYPE_LINE the name/id from the checkbox is the counter of the line
+     * NAME_TYPE_OBJ_ATTR the name/id from the checkbox is the id from the model
+     *
+     * @var int
+     */
     protected $nameType = self::NAME_TYPE_LINE;
 
     public function __construct($name = 'check')
     {
-        //for security
-        if (!$name)
-        {
-            $name = 'check';
-        }
-
+        //define a name for security
+        $name = $name ? $name : 'check';
         parent::__construct($name, '', Column::ALIGN_LEFT, NULL);
         $this->setExport(FALSE);
     }
@@ -37,27 +49,8 @@ class CheckColumn extends \Component\Grid\Column
 
     public function getHeadContent(\View\View $tr, \View\View $th)
     {
-        $js = "
-            function selecteChecks(gridName)
-            {
-                $('#'+gridName+'Table .checkBoxcheck').each( function()
-                {
-                    if ( $(this).prop('checked') === true )
-                    {
-                        $(this).parent().parent().addClass('select');
-                    }
-                    else
-                    {
-                        $(this).parent().parent().removeClass('select');
-                    }
-                }
-                );
-            }";
-
-        \App::addJs($js);
-
         $check = new \View\Ext\CheckboxDb('checkAll' . $this->getName());
-        $th->addClass(Column::ALIGN_LEFT);
+        $th->addClass(Column::ALIGN_COLAPSE);
         $this->getJs();
 
         return $check;
@@ -86,11 +79,10 @@ class CheckColumn extends \Component\Grid\Column
                 $nameValue = $item->getId();
             }
 
-            $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
             $idJs = $this->getIdJs();
-            $check->click("selecteChecks('{$idJs}');");
+            $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
+            $check->click("selecteCheck(this.id); selecteChecks('{$idJs}');");
         }
-
 
         return $check;
     }
@@ -108,10 +100,10 @@ class CheckColumn extends \Component\Grid\Column
         $js = "
             $('#{$gridId} #checkAll{$name}').click( function ()
             {
-                $('#{$gridId} .checkBox{$name}').prop( 'checked',$(this).prop('checked') );
+                var checked = $(this).prop('checked');
+                $('#{$gridId} .checkBox{$name}').prop( 'checked', checked );
                 selecteChecks('{$gridId}');
-            }
-            );";
+            });";
 
         return \App::addJs($js);
     }
