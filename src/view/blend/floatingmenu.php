@@ -34,7 +34,12 @@ class FloatingMenu extends \View\Ul
         $field = new \View\Span(null, array($icon, $label));
 
         $item = new \View\Li($id, $field, $class);
-        $item->click($action)->setTitle($title);
+        $item->setTitle($title);
+
+        if ($action)
+        {
+            $item->click($action);
+        }
 
         if ($formChangeAdvice)
         {

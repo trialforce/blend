@@ -143,17 +143,8 @@ class SearchField extends \Component\Component
         return new \View\Div('main-search', $fields, 'filterField');
     }
 
-    /**
-     * Mount the advance filters
-     *
-     * @param string $idQuestion
-     * @param string $idBtn
-     * @return \View\Div
-     */
-    protected function getAdvancedFilters()
+    protected function getDbModel()
     {
-        $filterContent = NULL;
-        $grid = $this->getGrid();
         $dom = \View\View::getDom();
         $dbModel = null;
 
@@ -163,20 +154,28 @@ class SearchField extends \Component\Component
             $dbModel = $dom->getModel();
         }
 
-        $filter = new \View\Ext\Icon('filter');
-        $filter->setId('advanced-filter');
-        $filter->click('$("#fm-filters").toggle(\'fast\');');
+        return $dbModel;
+    }
 
-        $result[] = $filter;
+    /**
+     * Mount the advance filters
+     *
+     * @param string $idQuestion
+     * @param string $idBtn
+     * @return \View\Div
+     */
+    protected function getAdvancedFilters()
+    {
+        $grid = $this->getGrid();
+        $pageUrl = \View\View::getDom()->getPageUrl();
+        $dbModel = $this->getDbModel();
 
-        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->getExtraFilters());
+        $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$("#fm-filters").toggle(\'fast\');');
 
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
-        $fMenu->hide();
+        $icon->append($fMenu->hide());
 
-        $filter->append($fMenu);
-
-        $pageUrl = \View\View::getDom()->getPageUrl();
+        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->getExtraFilters());
 
         if (is_array($filters))
         {
@@ -184,17 +183,91 @@ class SearchField extends \Component\Component
             {
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $fMenu->addItem(null, null, $filter->getFilterLabel(), $url);
+            }
+        }
 
+        $result[] = $icon;
+        $result[] = $this->createBookmarkMenu();
+        $result[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded($filters), 'clearfix');
+
+        return $result;
+    }
+
+    protected function createBookmarkMenu()
+    {
+        $pageUrl = \View\View::getDom()->getPageUrl();
+
+        $icon = new \View\Ext\Icon('bookmark filter-menu');
+        $icon->setId('bookmark-filter')->click('$("#fm-bookmark").toggle(\'fast\');');
+
+        $menu = new \View\Blend\FloatingMenu('fm-bookmark');
+        $icon->append($menu->hide());
+
+        $saveList = new \Filter\SavedList();
+        $json = $saveList->getObject();
+
+        if (is_object($json) && count($json) > 0)
+        {
+            foreach ($json as $id => $item)
+            {
+                if ($item->page == $pageUrl)
+                {
+                    $content = array();
+                    $span = new \View\Span(null, $item->title);
+                    $span->click("window.location = ('$item->page/?$item->url');");
+
+                    $removeUrl = "return p('$pageUrl/deleteListItem/?savedList=$id');";
+                    $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl);
+
+                    $content[] = $span;
+                    $content[] = $removeIcon;
+
+                    $menu->addItem('save-item-' . $id, null, $content, null);
+                    //$list[] = $option = new \View\Option($id, $item->title);
+                    //$option->setData('url', $item->page . '/?' . $item->url . '&savedList=' . $id);
+                }
+            }
+        }
+
+        $content = array();
+        $span = new \View\Span(null, 'Salvar os filtros da pesquisa atual..');
+        $icon2 = new \View\Ext\Icon('save', 'icon-save-new-item');
+
+        $content[] = $span;
+        $content[] = $icon2;
+
+        $menu->addItem('save-item-new', null, $content, 'saveListItem');
+
+        return $icon;
+    }
+
+    /**
+     * Create the fielters neeed when update grid
+     * @param array $filters the array of filter
+     * @return array the array of fields
+     */
+    protected function createFilterFieldsNeeded($filters)
+    {
+        $filterContent = null;
+        //update the filter js
+        \App::addJs("$('.filterCondition').change();");
+
+        if (is_array($filters))
+        {
+            foreach ($filters as $filter)
+            {
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
 
-                //$filterCondition = $filter->getConditionValue();
-                //$filterValue = $filter->getFilterValue();
+                $needCreation = Request::get($filterNameCondition) || Request::get($filterNameValue) ||
+                        Request::get($filterNameValue) === '0' || $filter->getFilterType() . '' == '2';
+
                 //create the filter if not ajax (reload (F5))
-                if (Request::get($filterNameCondition) || Request::get($filterNameValue) || Request::get($filterNameValue) === '0' || $filter->getFilterType() . '' == '2')
+                if ($needCreation)
                 {
                     $input = $filter->getInput();
 
+                    //if is not fixed put the close button
                     if ($filter->getFilterType() . '' != '2')
                     {
                         $input->append(\Page\Page::getCloseFilterButton());
@@ -205,10 +278,7 @@ class SearchField extends \Component\Component
             }
         }
 
-        \App::addJs("$('.filterCondition').change();");
-        $result[] = new \View\Div('containerFiltros', $filterContent, 'clearfix');
-
-        return $result;
+        return $filterContent;
     }
 
 }
