@@ -1195,9 +1195,10 @@ function setFocusOnFirstField()
     if ($('.popup').length)
     {
         $('.popup').find('input:not([readonly]):not([disabled]):first').focus();
-    } else
+    } 
+    else
     {
-        $('input:not([readonly]):not([disabled]):first').focus();
+        $('.content input:not([readonly]):not([disabled]):first').focus();
     }
 
     return false;
