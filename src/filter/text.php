@@ -362,9 +362,10 @@ class Text
     {
         $values = $this->getConditionValues();
 
+        //without post, with default values
         if (!is_array($values))
         {
-            return null;
+            return $this->createWhere(0);
         }
 
         $wheres = array();
