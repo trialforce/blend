@@ -217,6 +217,13 @@ class Where implements \Db\Filter
         return self::parseValuePdo($values);
     }
 
+    /**
+     * Simulate a string like if PDO was mounting it.
+     * Or, replace the ? with the values
+     *
+     * @param boolean $first
+     * @return string
+     */
     public function getStringPdo($first = false)
     {
         //when it has ? keep as it is

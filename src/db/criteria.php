@@ -269,22 +269,26 @@ class Criteria implements \Db\Filter
                     $sqlParam .= $filter->getStringPdo($count === 0) . "\r\n";
                     $count++;
 
-                    if (!is_null($filter->getArgs()))
+                    $filtersArgs = $filter->getArgs();
+
+                    if (!is_null($filtersArgs))
                     {
-                        $args = array_merge($args, $filter->getArgs());
+                        $args = array_merge($args, $filtersArgs);
                     }
                 }
             }
         }
 
-        //mount a simple object for return
-        $result = new \Db\Criteria();
-        $result->setSql($sql);
-        $result->setSqlParam($sqlParam);
-        $result->setHaving($having);
-        $result->setArgs(array_merge($args, $argsHaving));
+        $argsFinal = array_merge($args, $argsHaving);
 
-        return $result;
+        //mount a simple object for return
+        //$result = new \Db\Criteria();
+        $this->setSql($sql);
+        $this->setSqlParam($sqlParam); //sql with params (? replaced)
+        $this->setHaving($having);
+        $this->setArgs($argsFinal);
+
+        return $this;
     }
 
     /**
@@ -304,7 +308,7 @@ class Criteria implements \Db\Filter
         $result = $this->execute();
         $operator = $first ? '' : ' AND ';
 
-        return $operator . '(' . $result->getSqlParam() . ')';
+        return $operator . '(' . $result->getSql() . ')';
     }
 
     public function getStringPdo($first = false)
@@ -312,7 +316,7 @@ class Criteria implements \Db\Filter
         $result = $this->execute();
         $operator = $first ? '' : ' AND ';
 
-        return $operator . '(' . $result->getSql() . ')';
+        return $operator . '(' . $result->getSqlParam() . ')';
     }
 
 }

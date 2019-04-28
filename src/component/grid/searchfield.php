@@ -259,21 +259,15 @@ class SearchField extends \Component\Component
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
 
-                $needCreation = Request::get($filterNameCondition) || Request::get($filterNameValue) ||
-                        Request::get($filterNameValue) === '0' || $filter->getFilterType() . '' == '2';
+                $filterCondValues = Request::get($filterNameCondition);
+                $filterNameValues = Request::get($filterNameValue);
+
+                $needCreation = is_array($filterCondValues) || is_array($filterNameValues) || $filter->getFilterType() . '' == '2';
 
                 //create the filter if not ajax (reload (F5))
                 if ($needCreation)
                 {
-                    $input = $filter->getInput();
-
-                    //if is not fixed put the close button
-                    if ($filter->getFilterType() . '' != '2')
-                    {
-                        $input->append(\Page\Page::getCloseFilterButton());
-                    }
-
-                    $filterContent[] = $input;
+                    $filterContent[] = $filter->getInput();
                 }
             }
         }

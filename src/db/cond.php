@@ -240,10 +240,10 @@ class Cond implements \Db\Filter
     {
         $where = $this->filter . ' ';
 
-        //if ($this->getValue())
-        //{
-        //$where = str_replace('?', implode(',', $this->getValue()), $where);
-        //}
+        if ($this->getValue())
+        {
+            $where = str_replace('?', implode(',', $this->getValue()), $where);
+        }
 
         if ($first)
         {

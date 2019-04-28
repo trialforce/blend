@@ -946,7 +946,6 @@ class Page extends \View\Layout
         if ($filter)
         {
             $input = $filter->getInput();
-            $input->append(self::getCloseFilterButton());
 
             //remove the filter if exists
             \App::addJs("$('#{$input->getId()}').remove();");
@@ -957,20 +956,6 @@ class Page extends \View\Layout
             //put focus on input field
             \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();");
         }
-    }
-
-    /**
-     * Return the close filter icon
-     *
-     * @return \View\Ext\Icon
-     */
-    public static function getCloseFilterButton()
-    {
-        $icon = new \View\Ext\Icon('cancel');
-        $icon->click('$(this).parent().find(\'input, select\').attr(\'disabled\',\'disabled\'); $(this).parent().hide();');
-        $icon->addClass('removeFilter');
-
-        return $icon;
     }
 
     /**

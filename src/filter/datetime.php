@@ -26,47 +26,14 @@ class DateTime extends \Filter\Text
     const COND_NEXT_MONTH = 'nextmonth';
     const COND_MONTH_FIXED = 'month-';
 
-    protected $defaultValueFinal;
-
     public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
         $this->setDefaultCondition(self::COND_IGUAL);
     }
 
-    public function getDefaultValueFinal()
+    public function getConditionList()
     {
-        return $this->defaultValueFinal;
-    }
-
-    public function setDefaultValueFinal($defaultValueFinal)
-    {
-        $this->defaultValueFinal = $defaultValueFinal;
-        return $this;
-    }
-
-    /**
-     * Return filter value, controls default value
-     *
-     * @return the filter value, controls default value
-     */
-    public function getFilterValueFinal()
-    {
-        $filterName = $this->getValueName() . 'Final';
-        $filterValue = trim(Request::get($filterName));
-
-        if (!isset($_REQUEST[$filterName]))
-        {
-            $filterValue = $this->getDefaultValueFinal();
-        }
-
-        return $filterValue;
-    }
-
-    public function getCondition()
-    {
-        $conditionName = $this->getConditionName();
-
         $options[''] = 'Não filtrar ...';
         $options[self::COND_TODAY] = 'Hoje';
         $options[self::COND_YESTERDAY] = 'Ontem';
@@ -97,37 +64,36 @@ class DateTime extends \Filter\Text
         $options[self::COND_MONTH_FIXED . '11'] = 'Novembro';
         $options[self::COND_MONTH_FIXED . '12'] = 'Dezembro';
 
-        $select = new \View\Select($conditionName, $options, $this->getConditionValue(), 'filterCondition');
-        $select->onPressEnter("$('#buscar').click()");
-
-        // js para esconder e mostrar campo
-        $select->change('filterChangeDate($(this));');
-
-        return $select;
+        return $options;
     }
 
-    public function getValue()
+    protected function getCondJs($select)
+    {
+        $select->change("filterChangeDate($(this));");
+        \App::addJs("$('#{$select->getId()}').change();");
+    }
+
+    public function getInputValue($index = 0)
     {
         $columnValue = $this->getValueName();
-        $view[0] = $input = new \View\Ext\DateInput($columnValue, $this->getFilterValue(), 'filterInput');
+        $view[0] = $input = new \View\Ext\DateInput($columnValue . '[]', $this->getFilterValue($index), 'filterInput');
         $view[0]->onPressEnter("$('#buscar').click()");
-        $view[2] = $hide = new \View\Ext\DateInput($columnValue . 'Final', $this->getFilterValueFinal(), 'filterInput filterDataFinal');
+        $view[2] = $hide = new \View\Ext\DateInput($columnValue . 'Final[]', $this->getFilterValueFinal($index), 'filterInput filterDataFinal final');
         $view[2]->onPressEnter("$('#buscar').click()");
 
         $hide->addStyle('display', 'none');
         return $view;
     }
 
-    public function getDbCond()
+    public function createWhere($index = 0)
     {
         $column = $this->getColumn();
         $columnName = $column->getName();
 
-        $conditionValue = $this->getConditionValue();
-        $filterValue = $this->getFilterValue();
-
-        $filterName = $this->getValueName();
-        $filterValueFinal = $this->getFilterValueFinal();
+        $conditionValue = $this->getConditionValue($index);
+        $filterValue = $this->getFilterValue($index);
+        $filterValueFinal = $this->getFilterValueFinal($index);
+        $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
         if (stripos($conditionValue, self::COND_MONTH_FIXED) === 0)
         {
@@ -136,40 +102,40 @@ class DateTime extends \Filter\Text
 
             $begin = \Type\Date::now()->setMonth($month)->setDay(1);
             $end = \Type\Date::now()->setMonth($month)->setLastDayOfMonth();
-            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_TODAY)
         {
-            return new \Db\Where('DATE(' . $columnName . ')', '=', date('Y-m-d'), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Where('DATE(' . $columnName . ')', '=', date('Y-m-d'), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_YESTERDAY)
         {
 
             $date = \Type\Date::now()->addDay(-1);
-            return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_TOMORROW)
         {
             $date = \Type\Date::now()->addDay(1);
-            return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_CURRENT_MONTH)
         {
             $begin = \Type\Date::now()->setDay(1);
             $end = \Type\Date::now()->setLastDayOfMonth();
-            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_PAST_MONTH)
         {
             $begin = \Type\Date::now()->addMonth(-1)->setDay(1);
             $end = \Type\Date::now()->addMonth(-1)->setLastDayOfMonth();
-            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_NEXT_MONTH)
         {
             $begin = \Type\Date::now()->addMonth(1)->setDay(1);
             $end = \Type\Date::now()->addMonth(1)->setLastDayOfMonth();
-            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_INTERVALO)
         {
@@ -188,7 +154,7 @@ class DateTime extends \Filter\Text
                 }
 
                 $filterValueFinal = \Type\DateTime::get($filterValueFinal);
-                return new \Db\Cond($columnName . ' ' . $conditionValue . ' ? AND ?', array($date->toDb(), $dateFinal->toDb()), \Db\Cond::COND_AND, $this->getFilterType());
+                return new \Db\Cond($columnName . ' ' . $conditionValue . ' ? AND ?', array($date->toDb(), $dateFinal->toDb()), $conditionType, $this->getFilterType());
             }
             else if ($date->getDay())
             {
@@ -211,11 +177,11 @@ class DateTime extends \Filter\Text
                 $columnName = 'DATE(' . $columnName . ')';
             }
 
-            return new \Db\Where($columnName . ' ', $conditionValue, $date->toDb(), \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Where($columnName . ' ', $conditionValue, $date->toDb(), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_NULL_OR_EMPTY)
         {
-            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType, $this->getFilterType());
         }
     }
 

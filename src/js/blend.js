@@ -1507,6 +1507,32 @@ function getCookie(variable)
     return "";
 }
 
+function filterRemove(element)
+{
+    var element = $(element);
+    var parent = element.parent().parent();
+    parent.find('input, select').attr('disabled','disabled'); 
+    parent.hide('fast');
+}
+
+function filterAdd(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    var filterBase = parent.find('.filterBase');
+    var clone = filterBase.clone().removeClass('filterBase');
+    clone.append('<i class="fa fa-trash trashFilter" onclick="filterTrash(this)"></i>');
+    parent.append(clone);
+    dataAjax();    
+}
+
+function filterTrash(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    parent.hide('fast',function(){$(this).remove()});
+}
+
 function filterChangeText(element)
 {
     var val = $(element).val();
@@ -1529,11 +1555,13 @@ function filterChangeInteger(element)
 {
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
+    var inputFinal = $(element).parent().find('.final');
     
     if ( val == 'between') 
     {  
         element.removeClass('fullWidth');
-        input.show().addClass('filterInput');
+        input.show().addClass('filterInterval');
+        inputFinal.show().add('filterInterval');
     } 
     else if (val == 'nullorempty')
     {
@@ -1543,9 +1571,8 @@ function filterChangeInteger(element)
     else 
     { 
         element.removeClass('fullWidth');
-        input.show();
-        //input.show().removeClass('filterInput');
-        $(element).parent().find('.final').hide();
+        input.show().removeClass('filterInterval');
+        inputFinal.hide();
     }
 }
 
@@ -1554,8 +1581,8 @@ function filterChangeDate(element)
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
     var prefix = $(element).attr('id').replace('Condition', '');
-    var elValue = $('#' + prefix + 'Value');
-    var elValueFinal = $('#' + prefix + 'ValueFinal');
+    var elValue = $(element).parent().find('.filterInput');
+    var elValueFinal = $(element).parent().find('.final');
     
     if ( val== 'nullorempty' 
             || val == 'today' 
@@ -1575,15 +1602,15 @@ function filterChangeDate(element)
     { 
         input.show();
         element.removeClass('fullWidth');
-        elValue.show().addClass('filterDate');
-        elValueFinal.show().addClass('filterDate');
+        elValue.show().addClass('filterInterval');
+        elValueFinal.show().addClass('filterInterval');
     }
     else 
     { 
         input.show();
         element.removeClass('fullWidth');
-        elValue.show().removeClass('filterDate');
-        elValueFinal.hide().removeClass('filterDate');
+        elValue.show().removeClass('filterInterval');
+        elValueFinal.hide().removeClass('filterInterval');
         elValue.value = '';
         elValueFinal.value = '';
     }

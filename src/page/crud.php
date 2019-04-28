@@ -790,12 +790,7 @@ class Crud extends \Page\Page
             $grid->getSearchField()->addExtraFilter($filter);
         }
 
-        $cond = $filter->getDbCond();
-
-        if ($cond)
-        {
-            $ds->addExtraFilter($cond);
-        }
+        $ds->addExtraFilter($filter->getDbCond());
 
         return $filter;
     }
@@ -843,12 +838,7 @@ class Crud extends \Page\Page
             $grid->getSearchField()->addExtraFilter($filter);
         }
 
-        $cond = $filter->getDbCond();
-
-        if ($cond)
-        {
-            $ds->addExtraFilter($cond);
-        }
+        $ds->addExtraFilter($filter->getDbCond());
 
         return $filter;
     }

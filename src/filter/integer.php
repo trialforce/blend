@@ -19,82 +19,78 @@ class Integer extends \Filter\Text
     const COND_MENOR_IGUAL = '<=';
     const COND_BETWEEN = 'between';
 
-    public function getCondition()
+    public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
-        $conditionName = $this->getConditionName();
+        parent::__construct($column, $filterName, $filterType);
+        $this->setDefaultCondition(self::COND_IGUAL);
+    }
 
+    protected function getCondJs($select)
+    {
+        $select->change("filterChangeInteger($(this));");
+        \App::addJs("$('#{$select->getId()}').change();");
+    }
+
+    public function getConditionList()
+    {
+        $options = array();
         $options[self::COND_IGUAL] = '=';
-        $options[Text::COND_NOT_EQUALS] = '<>';
         $options[self::COND_MAIOR] = '>';
         $options[self::COND_MAIOR_IGUAL] = '>=';
         $options[self::COND_MENOR] = '<';
         $options[self::COND_MENOR_IGUAL] = '<=';
-        $options[self::COND_BETWEEN] = 'Intervalo';
+        $options[Text::COND_NOT_EQUALS] = '*Diferente';
+        $options[self::COND_BETWEEN] = '*Intervalo';
         $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
-        $conditionValue = Request::get($conditionName);
-
-        if (!$conditionValue)
-        {
-            $conditionValue = self::COND_IGUAL;
-        }
-
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
-        $select->onPressEnter("$('#buscar').click()");
-
-        $select->change('filterChangeInteger($(this));');
-
-        return $select;
+        return $options;
     }
 
-    public function getValue()
+    public function getInputValue($index = 0)
     {
         $columnValue = $this->getValueName();
 
-        $input[0] = new \View\Ext\IntInput($columnValue, Request::get($columnValue), NULL, NULL, 'filterInput');
+        $input[0] = new \View\Ext\IntInput($columnValue . '[]', $this->getFilterValue($index), NULL, NULL, 'filterInput');
         $input[0]->onPressEnter("$('#buscar').click()");
-        $input[1] = new \View\Ext\IntInput($columnValue . 'Final', Request::get($columnValue . 'Final'), NULL, NULL, 'filterInput final');
+        $input[1] = new \View\Ext\IntInput($columnValue . 'Final[]', $this->getFilterValueFinal($index), NULL, NULL, 'filterInput final');
         $input[1]->onPressEnter("$('#buscar').click()");
 
         return $input;
     }
 
-    public function getFilterLabel()
+    public function createWhere($index = 0)
     {
-        $label = parent::getFilterLabel();
-
-        return trim($label) == 'Cod' ? 'Código' : $label;
-    }
-
-    public function getDbCond()
-    {
+        $cond = null;
         $column = $this->getColumn();
         $columnName = $column->getSql();
-        $conditionName = $this->getConditionName();
-        $filterName = $this->getValueName();
-        $conditionValue = Request::get($conditionName);
-        $filterValue = Request::get($filterName);
-        $filterFinalValue = Request::get($filterName . 'Final');
-
-        $cond = null;
+        $conditionValue = $this->getConditionValue($index);
+        $filterValue = $this->getFilterValue($index);
+        $filterFinalValue = $this->getFilterValueFinal($index);
+        $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
         if ($conditionValue && (strlen(trim($filterValue)) > 0))
         {
             if ($conditionValue == self::COND_BETWEEN)
             {
+                $conditionType = \Db\Cond::COND_AND;
                 $values[] = \Type\Decimal::value($filterValue);
                 $values[] = \Type\Decimal::value($filterFinalValue);
 
-                $cond = new \Db\Cond($columnName . ' BETWEEN ? AND ?', $values, \Db\Cond::COND_AND, $this->getFilterType());
+                $cond = new \Db\Cond($columnName . ' BETWEEN ? AND ?', $values, $conditionType, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_NULL_OR_EMPTY)
             {
-                $cond = new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, \Db\Cond::COND_AND, $this->getFilterType());
+                $cond = new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType, $this->getFilterType());
             }
             else
             {
+                if ($conditionValue == self::COND_NOT_EQUALS)
+                {
+                    $conditionType = \Db\Cond::COND_AND;
+                }
+
                 $filterValue = \Type\Decimal::value($filterValue);
-                $cond = new \Db\Cond($columnName . ' ' . $conditionValue . ' ? ', $filterValue, \Db\Cond::COND_AND, $this->getFilterType());
+                $cond = new \Db\Where($columnName, $conditionValue, $filterValue, $conditionType, $this->getFilterType());
             }
         }
 

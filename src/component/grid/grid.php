@@ -711,12 +711,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             {
                 foreach ($extraFilters as $filter)
                 {
-                    $dbCond = $filter->getDbCond();
-
-                    if ($dbCond)
-                    {
-                        $dataSource->addExtraFilter($dbCond);
-                    }
+                    $dataSource->addExtraFilter($filter->getDbCond());
                 }
             }
 
@@ -726,12 +721,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             {
                 foreach ($filters as $filter)
                 {
-                    $dbCond = $filter->getDbCond();
-
-                    if ($dbCond)
-                    {
-                        $dataSource->addExtraFilter($dbCond);
-                    }
+                    $dataSource->addExtraFilter($filter->getDbCond());
                 }
             }
         }

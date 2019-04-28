@@ -5,9 +5,7 @@ namespace Filter;
 use DataHandle\Request;
 
 /**
- * Description of int
- *
- * @author eduardo
+ * Boolean filter
  */
 class Boolean extends \Filter\Text
 {
@@ -17,19 +15,21 @@ class Boolean extends \Filter\Text
         return NULL;
     }
 
-    public function getValue()
+    public function getInputValue($index = 0)
     {
-        $columnValue = $this->getValueName();
-
-        $options['t'] = 'Sim';
-        $options['f'] = 'Não';
-
-        $value = $this->parseValue(Request::get($columnValue));
-
-        $input = new \View\Select($columnValue, $options, $value, 'fullWidth');
+        $input = new \View\Select($columnValue, $this->getConditionList(), $this->parseValue($this->getFilterValue($index)), 'fullWidth');
         $input->onPressEnter("$('#buscar').click()");
 
         return $input;
+    }
+
+    public function getConditionList()
+    {
+        $options = array();
+        $options['t'] = 'Sim';
+        $options['f'] = 'Não';
+
+        return $options;
     }
 
     public function parseValue($value)
@@ -42,11 +42,10 @@ class Boolean extends \Filter\Text
         return $value;
     }
 
-    public function getDbCond()
+    public function createWhere($index = 0)
     {
-        $filterName = $this->getValueName();
         $columnName = $this->getColumn()->getName();
-        $filterValue = $this->parseValue(Request::get($filterName));
+        $filterValue = $this->parseValue($this->getFilterValue($index));
         $cond = NULL;
 
         if ($filterValue == 't')
