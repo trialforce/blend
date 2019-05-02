@@ -30,4 +30,9 @@ interface Filter
      * Return the args of the filter
      */
     function getArgs();
+
+    /**
+     * Get type (normal or having)
+     */
+    function getType();
 }

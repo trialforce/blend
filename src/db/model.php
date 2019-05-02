@@ -301,57 +301,6 @@ class Model
     public static function getWhereFromFilters($filters)
     {
         return \Db\Criteria::createCriteria($filters);
-        /* $filters = is_array($filters) ? array_filter($filters) : array($filters);
-          $args = array();
-          $argsHaving = array();
-          $sql = '';
-          $sqlParam = '';
-          $having = '';
-
-          $count = 0;
-          $countHaving = 0;
-
-          if (count($filters) > 0)
-          {
-          foreach ($filters as $filter)
-          {
-          if (!($filter instanceof \Db\Cond || $filter instanceof \Db\Where) || is_null($filter))
-          {
-          continue;
-          }
-
-          if ($filter->getType() === \Db\Cond::TYPE_HAVING)
-          {
-          $having .= $filter->getWhere($countHaving === 0);
-          $countHaving++;
-
-          if (!is_null($filter->getArgs()))
-          {
-          $argsHaving = array_merge($argsHaving, $filter->getArgs());
-          }
-          }
-          else
-          {
-          $sql .= $filter->getWhere($count === 0);
-          $sqlParam .= $filter->getWhereSql($count === 0);
-          $count++;
-
-          if (!is_null($filter->getArgs()))
-          {
-          $args = array_merge($args, $filter->getArgs());
-          }
-          }
-          }
-          }
-
-          //mount a simple object for return
-          $result = new \Db\Criteria();
-          $result->setSql($sql);
-          $result->setSqlParam($sqlParam);
-          $result->setHaving($having);
-          $result->setArgs(array_merge($args, $argsHaving));
-
-          return $result; */
     }
 
     /**

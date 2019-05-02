@@ -11,9 +11,7 @@ class DateInterval extends \Filter\DateTime
     public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
-        $this->setDefaultCondition(\Filter\DateTime::COND_INTERVALO);
-        $this->setDefaultValue(\Type\Date::now()->setDay(1));
-        $this->setDefaultValueFinal(\Type\Date::now()->setLastDayOfMonth());
+        $this->addDefaultValue(\Filter\DateTime::COND_INTERVALO, \Type\Date::now()->setDay(1), \Type\Date::now()->setLastDayOfMonth());
     }
 
 }

@@ -34,7 +34,7 @@ class Integer extends \Filter\Text
     public function getConditionList()
     {
         $options = array();
-        $options[self::COND_IGUAL] = '=';
+        $options[self::COND_IGUAL] = 'Igual';
         $options[self::COND_MAIOR] = '>';
         $options[self::COND_MAIOR_IGUAL] = '>=';
         $options[self::COND_MENOR] = '<';

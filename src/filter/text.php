@@ -39,14 +39,14 @@ class Text
 
     /**
      * Default value final Used for intervals
-     * @var string
+     * @var array
      */
     protected $defaultValueFinal;
 
     /**
      * Default filter condition
      *
-     * @var string
+     * @var array
      */
     protected $defaultCondition;
 
@@ -121,9 +121,65 @@ class Text
         return $this->defaultValue;
     }
 
+    public function clearDefaultValue()
+    {
+        $this->defaultValue = null;
+        $this->defaultValueFinal = null;
+        $this->defaultCondition = null;
+    }
+
+    /**
+     * Add a default value to filter
+     *
+     * @param string $defaultCondition
+     * @param string $defaultValue
+     * @param string $defaultValueFinal
+     */
+    public function addDefaultValue($defaultCondition, $defaultValue = NULL, $defaultValueFinal = NULL)
+    {
+        if (!$defaultCondition)
+        {
+            return $this;
+        }
+
+        $values = $this->getDefaultValue();
+        $conditions = $this->getDefaultCondition();
+
+        if (count($conditions) == 1 && count($values) == 0)
+        {
+            $this->clearDefaultValue();
+        }
+
+        $this->defaultCondition[] = $defaultCondition;
+
+        if ($defaultValue)
+        {
+            $this->defaultValue[] = $defaultValue;
+        }
+
+        if ($defaultValueFinal)
+        {
+            $this->defaultValueFinal[] = $defaultValueFinal;
+        }
+
+        return $this;
+    }
+
     public function setDefaultValue($defaultValue)
     {
+        if ($defaultValue == null)
+        {
+            return $this;
+        }
+
+        //always convert to array
+        if (!is_array($defaultValue))
+        {
+            $defaultValue = array($defaultValue);
+        }
+
         $this->defaultValue = $defaultValue;
+
         return $this;
     }
 
@@ -134,7 +190,18 @@ class Text
 
     public function setDefaultValueFinal($defaultValueFinal)
     {
+        if ($defaultValue == null)
+        {
+            return $this;
+        }
+
+        if (!is_array($defaultValueFinal))
+        {
+            $defaultValueFinal = array($defaultValueFinal);
+        }
+
         $this->defaultValueFinal = $defaultValueFinal;
+
         return $this;
     }
 
@@ -145,6 +212,16 @@ class Text
 
     public function setDefaultCondition($defaultCondition)
     {
+        if ($defaultCondition == null)
+        {
+            return $this;
+        }
+
+        if (!is_array($defaultCondition))
+        {
+            $defaultCondition = array($defaultCondition);
+        }
+
         $this->defaultCondition = $defaultCondition;
         return $this;
     }
@@ -173,6 +250,12 @@ class Text
         $views[] = self::getAddFilterButton();
 
         $count = count($this->getFilterValues()) - 1;
+
+        //without post, use default values
+        if ($count == -1)
+        {
+            $count = count($this->getDefaultValue()) - 1;
+        }
 
         for ($index = 0; $index < $count; $index++)
         {
@@ -299,7 +382,8 @@ class Text
 
         if (!isset($values[$index]))
         {
-            $value = $this->getDefaultCondition();
+            $defaultValue = $this->getDefaultCondition();
+            $value = isset($defaultValue[$index]) ? $defaultValue[$index] : null;
         }
         else
         {
@@ -315,7 +399,8 @@ class Text
 
         if (!isset($values[$index]))
         {
-            $value = $this->getDefaultValue();
+            $defaultValue = $this->getDefaultValue();
+            $value = isset($defaultValue[$index]) ? $defaultValue[$index] : null;
         }
         else
         {
@@ -343,7 +428,8 @@ class Text
 
         if (!isset($values[$index]))
         {
-            $value = $this->getDefaultValueFinal();
+            $defaultValue = $this->getDefaultValueFinal();
+            $value = isset($defaultValue[$index]) ? $defaultValue[$index] : null;
         }
         else
         {
@@ -383,7 +469,15 @@ class Text
 
         if ($wheres)
         {
-            $criteria = new \Db\Criteria($wheres);
+            //optimize to avoid need of \Db\Criteria
+            if (count($wheres) == 1)
+            {
+                return $wheres[0];
+            }
+            else
+            {
+                $criteria = new \Db\Criteria($wheres);
+            }
         }
 
         return $criteria;
@@ -408,7 +502,6 @@ class Text
 
             if ($conditionValue == self::COND_EQUALS)
             {
-                $conditionType = 'AND';
                 return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType, $this->getFilterType());
             }
             else if ($conditionValue == self::COND_NOT_EQUALS)
@@ -452,9 +545,13 @@ class Text
     public static function getAddFilterButton()
     {
         $icon = new \View\Ext\Icon('plus');
-        $icon->click('filterAdd(this)')->addClass('addFilter');
 
-        return $icon;
+
+        $div = new \View\Div(null, array($icon, 'Adicionar filtro'));
+        $div->addClass('addFilter');
+        $div->click('filterAdd(this)');
+
+        return $div;
     }
 
     public static function getRemoveFilterButton()

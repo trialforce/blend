@@ -23,6 +23,23 @@ class Collection extends \Filter\Text
         $this->setDefaultCondition(self::COND_EQUALS);
     }
 
+    /**
+     * Create a \Filter\Collection, similar to page->createExtraFilter
+     *
+     * @param \Component\Grid\Column $column
+     * @param \Db\Collection $collection
+     * @param array $defaultValue
+     * @return \Filter\Collection
+     */
+    public static function create(\Component\Grid\Column $column, $collection, $defaultValue, $defaultCondition = NULL)
+    {
+        $filter = new \Filter\Collection($column, $collection);
+        $filter->setDefaultValue($defaultValue);
+        $filter->setDefaultCondition($defaultCondition);
+
+        return $filter;
+    }
+
     public function getCollection()
     {
         return $this->collection;

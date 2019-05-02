@@ -19,10 +19,22 @@ class Reference extends \Filter\Collection
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, \Db\Column $dbColumn = NULL, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column, $filterType = NULL)
     {
         parent::__construct($column, NULL, $filterType);
-        $this->setDbColumn($dbColumn);
+
+        $dom = \View\View::getDom();
+
+        if (method_exists($dom, 'getModel'))
+        {
+            $model = $dom->getModel();
+            $dbColumn = $model::getColumn($column->getName());
+            $this->setDbColumn($dbColumn);
+        }
+        else
+        {
+            throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
+        }
 
         if ($this->dbColumn->getClass())
         {
@@ -122,8 +134,9 @@ class Reference extends \Filter\Collection
     {
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
+        $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
 
-        if ($conditionValue && ($filterValue || $filterValue == 0) && $conditionValue == self::COND_TEXT)
+        if ($conditionValue && $conditionValue == self::COND_TEXT && $wasFiltered)
         {
             $dbColumn = $this->dbColumn;
             return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue));

@@ -1521,8 +1521,12 @@ function filterAdd(element)
     var parent = element.parent();
     var filterBase = parent.find('.filterBase');
     var clone = filterBase.clone().removeClass('filterBase');
+    //clear cloned value
+    clone.find('.filterInput').val('');
     clone.append('<i class="fa fa-trash trashFilter" onclick="filterTrash(this)"></i>');
+    clone.hide()
     parent.append(clone);
+    clone.slideDown('fast');
     dataAjax();    
 }
 
@@ -1530,7 +1534,7 @@ function filterTrash(element)
 {
     var element = $(element);
     var parent = element.parent();
-    parent.hide('fast',function(){$(this).remove()});
+    parent.slideUp('fast',function(){$(this).remove()});
 }
 
 function filterChangeText(element)

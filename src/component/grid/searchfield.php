@@ -53,7 +53,24 @@ class SearchField extends \Component\Component
 
     function addExtraFilter($extraFilter)
     {
-        $this->extraFilters[] = $extraFilter;
+        if (!$extraFilter)
+        {
+            return $this;
+        }
+
+        if (is_array($extraFilter))
+        {
+            foreach ($extraFilter as $filter)
+            {
+                $this->extraFilters[] = $filter;
+            }
+        }
+        else
+        {
+            $this->extraFilters[] = $extraFilter;
+        }
+
+        return $this;
     }
 
     public function onCreate()
@@ -111,7 +128,7 @@ class SearchField extends \Component\Component
         $params['orderWay'] = Request::get('orderWay');
         $params = http_build_query($params);
 
-        $url = 'g(\'' . $this->grid->getLink(NULL, NULL, NULL, false) . '\',\'' . $params . '\'+ \'&\' + $(\'form\').serialize())';
+        $url = 'g(\'' . $this->grid->getLink(NULL, NULL, NULL, false) . '\',\'' . $params . '\'+ \'&\' + $(\'.content\').serialize())';
 
         $btnSearch = new \View\Ext\Button('buscar', 'search', 'Buscar', $url, '', 'Clique para pesquisa');
         $btnSearch->setTitle('Buscar');
@@ -197,7 +214,7 @@ class SearchField extends \Component\Component
     {
         $pageUrl = \View\View::getDom()->getPageUrl();
 
-        $icon = new \View\Ext\Icon('bookmark filter-menu');
+        $icon = new \View\Ext\Icon('thumb-tack filter-menu');
         $icon->setId('bookmark-filter')->click('$("#fm-bookmark").toggle(\'fast\');');
 
         $menu = new \View\Blend\FloatingMenu('fm-bookmark');
