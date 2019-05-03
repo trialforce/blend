@@ -291,11 +291,16 @@ class Criteria implements \Db\Filter
                     }
                     else
                     {
-                        $sql .= $filter->getSql($count === 0);
-                        $sqlParam .= $filter->getSqlParam($count === 0);
+                        $sql .= $filter->getString($count === 0);
+                        $sqlParam .= $filter->getStringPdo($count === 0);
                         $count++;
 
                         $filtersArgs = $filter->getArgs();
+
+                        if (!is_null($filtersArgs))
+                        {
+                            $args = array_merge($args, $filtersArgs);
+                        }
                     }
                 }
                 //FIXME old getType way of having
@@ -368,7 +373,7 @@ class Criteria implements \Db\Filter
         }
 
         $operator = $first ? '' : ' AND ';
-        return $operator . '(' . self::cleanSqlString($sql) . ')';
+        return $operator . '(' . self::cleanSqlString($sql) . ') ';
     }
 
     public function getStringPdo($first = false)
@@ -382,7 +387,7 @@ class Criteria implements \Db\Filter
         }
 
         $operator = $first ? '' : ' AND ';
-        return $operator . '(' . self::cleanSqlString($sql) . ')';
+        return $operator . '(' . self::cleanSqlString($sql) . ') ';
     }
 
 }
