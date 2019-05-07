@@ -240,8 +240,6 @@ class SearchField extends \Component\Component
                     $content[] = $removeIcon;
 
                     $menu->addItem('save-item-' . $id, null, $content, null);
-                    //$list[] = $option = new \View\Option($id, $item->title);
-                    //$option->setData('url', $item->page . '/?' . $item->url . '&savedList=' . $id);
                 }
             }
         }
@@ -253,7 +251,8 @@ class SearchField extends \Component\Component
         $content[] = $span;
         $content[] = $icon2;
 
-        $menu->addItem('save-item-new', null, $content, 'saveListItem');
+        $url = "p('{$pageUrl}/saveListItem',$('.content').serialize());";
+        $menu->addItem('save-item-new', null, $content, $url);
 
         return $icon;
     }

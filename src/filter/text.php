@@ -62,7 +62,6 @@ class Text
     const FILTER_TYPE_DISABLE = 0;
     const FILTER_TYPE_ENABLE = 1;
     const FILTER_TYPE_ENABLE_SHOW_ALWAYS = 2;
-    const FILTER_TYPE_ENABLE_HAVING = 'having';
 
     public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
@@ -152,7 +151,7 @@ class Text
 
         $this->defaultCondition[] = $defaultCondition;
 
-        if ($defaultValue)
+        if ($defaultValue || strlen($defaultValue) > 0)
         {
             $this->defaultValue[] = $defaultValue;
         }
@@ -362,7 +361,15 @@ class Text
     public function getConditionValues()
     {
         $conditionName = $this->getConditionName();
-        return Request::get($conditionName);
+        $values = Request::get($conditionName);
+
+        //add support for simples parameters
+        if (is_string($values))
+        {
+            $values = array($values);
+        }
+
+        return $values;
     }
 
     /**
@@ -373,7 +380,15 @@ class Text
     public function getFilterValues()
     {
         $filterName = $this->getValueName();
-        return Request::get($filterName);
+        $values = Request::get($filterName);
+
+        //add support for simples parameters
+        if (is_string($values))
+        {
+            $values = array($values);
+        }
+
+        return $values;
     }
 
     public function getConditionValue($index = 0)
@@ -448,6 +463,11 @@ class Text
     {
         $values = $this->getConditionValues();
 
+        if (!is_array($values))
+        {
+            $values = $this->defaultCondition;
+        }
+
         //without post, with default values
         if (!is_array($values))
         {
@@ -493,7 +513,7 @@ class Text
 
         if ($conditionValue && $conditionValue == self::COND_NULL_OR_EMPTY)
         {
-            $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType, $this->getFilterType());
+            $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType);
             return $cond;
         }
         else if ($conditionValue && (strlen(trim($filterValue)) > 0))
@@ -502,29 +522,29 @@ class Text
 
             if ($conditionValue == self::COND_EQUALS)
             {
-                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
             }
             else if ($conditionValue == self::COND_NOT_EQUALS)
             {
                 $conditionType = 'AND';
-                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
             }
             else if ($conditionValue == self::COND_LIKE)
             {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', $conditionType);
             }
             else if ($conditionValue == self::COND_NOT_LIKE)
             {
                 $conditionType = 'AND';
-                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_LIKE, '%' . $filterValueExt . '%', $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_LIKE, '%' . $filterValueExt . '%', $conditionType);
             }
             else if ($conditionValue == self::COND_STARTSWITH)
             {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, $filterValueExt . '%', $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, $filterValueExt . '%', $conditionType);
             }
             else if ($conditionValue == self::COND_ENDSWITH)
             {
-                return new \Db\Where('(' . $columnSql . ' )', self::COND_LIKE, '%' . $filterValueExt, $conditionType, $this->getFilterType());
+                return new \Db\Where('(' . $columnSql . ' )', self::COND_LIKE, '%' . $filterValueExt, $conditionType);
             }
         }
     }
@@ -548,8 +568,7 @@ class Text
 
 
         $div = new \View\Div(null, array($icon, 'Adicionar filtro'));
-        $div->addClass('addFilter');
-        $div->click('filterAdd(this)');
+        $div->addClass('addFilter')->click('filterAdd(this)');
 
         return $div;
     }

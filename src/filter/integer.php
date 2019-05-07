@@ -35,12 +35,12 @@ class Integer extends \Filter\Text
     {
         $options = array();
         $options[self::COND_IGUAL] = 'Igual';
-        $options[self::COND_MAIOR] = '>';
-        $options[self::COND_MAIOR_IGUAL] = '>=';
-        $options[self::COND_MENOR] = '<';
-        $options[self::COND_MENOR_IGUAL] = '<=';
+        $options[self::COND_MAIOR] = '*Maior';
+        $options[self::COND_MAIOR_IGUAL] = '*Maior igual';
+        $options[self::COND_MENOR] = '*Menor';
+        $options[self::COND_MENOR_IGUAL] = '*Menor igual';
         $options[Text::COND_NOT_EQUALS] = '*Diferente';
-        $options[self::COND_BETWEEN] = '*Intervalo';
+        $options[self::COND_BETWEEN] = 'Intervalo';
         $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
 
         return $options;
@@ -72,7 +72,6 @@ class Integer extends \Filter\Text
         {
             if ($conditionValue == self::COND_BETWEEN)
             {
-                $conditionType = \Db\Cond::COND_AND;
                 $values[] = \Type\Decimal::value($filterValue);
                 $values[] = \Type\Decimal::value($filterFinalValue);
 
@@ -84,10 +83,11 @@ class Integer extends \Filter\Text
             }
             else
             {
-                if ($conditionValue == self::COND_NOT_EQUALS)
-                {
-                    $conditionType = \Db\Cond::COND_AND;
-                }
+                $conditionType = \Db\Cond::COND_AND;
+                /* if ($conditionValue == self::COND_NOT_EQUALS)
+                  {
+                  $conditionType = \Db\Cond::COND_AND;
+                  } */
 
                 $filterValue = \Type\Decimal::value($filterValue);
                 $cond = new \Db\Where($columnName, $conditionValue, $filterValue, $conditionType, $this->getFilterType());

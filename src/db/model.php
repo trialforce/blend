@@ -440,7 +440,7 @@ class Model
         }
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
-        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, $where->getHaving(), $orderBy, $orderWay);
+        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, NULL, $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
         $result = $name::getConn()->query($sql, $where->getArgs(), $returnType);
@@ -492,7 +492,6 @@ class Model
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
-        $hasHaving = strlen($where->getHaving()) > 0;
 
         if (!$columns)
         {
@@ -518,7 +517,8 @@ class Model
             $columnsAggregation[] = $query . ' as aggregation' . $columnName;
         }
 
-        if ($hasHaving || $forceExternalSelect)
+        //FIXME is this still needed?
+        if ($forceExternalSelect)
         {
             $columns = $columnsString;
         }
@@ -527,9 +527,9 @@ class Model
             $columns = implode(',', $columnsAggregation) . ', ' . $columnsString;
         }
 
-        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
+        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, NULL);
 
-        if ($hasHaving || $forceExternalSelect)
+        if ($forceExternalSelect)
         {
             $sql = 'SELECT ' . implode(',', $columnsAggregation) . ' FROM ( ' . $sql . ') AS ag';
         }

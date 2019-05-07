@@ -2,17 +2,14 @@
 
 namespace Filter;
 
-use DataHandle\Request;
-
 /**
- * Description of int
- *
- * @author eduardo
+ * Datetime filter
  */
 class DateTime extends \Filter\Text
 {
 
     const COND_IGUAL = '=';
+    const COND_NOT_EQUALS = '!=';
     const COND_MAIOR = '>';
     const COND_MAIOR_IGUAL = '>=';
     const COND_MENOR = '<';
@@ -37,13 +34,14 @@ class DateTime extends \Filter\Text
         $options[''] = 'Não filtrar ...';
         $options[self::COND_TODAY] = 'Hoje';
         $options[self::COND_YESTERDAY] = 'Ontem';
-        $options[self::COND_TOMORROW] = 'Amanha';
-        $options[self::COND_IGUAL] = '=';
+        $options[self::COND_TOMORROW] = 'Amanhã';
+        $options[self::COND_IGUAL] = 'Igual';
+        $options[self::COND_NOT_EQUALS] = 'Diferente';
 
-        $options[self::COND_MAIOR] = '>';
-        $options[self::COND_MAIOR_IGUAL] = '>=';
-        $options[self::COND_MENOR] = '<';
-        $options[self::COND_MENOR_IGUAL] = '<=';
+        $options[self::COND_MAIOR] = 'Maior';
+        $options[self::COND_MAIOR_IGUAL] = 'Maior ou igual';
+        $options[self::COND_MENOR] = 'Menor';
+        $options[self::COND_MENOR_IGUAL] = 'Menor ou igual';
         $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
         $options[self::COND_INTERVALO] = 'Intervalo';
 
@@ -165,7 +163,7 @@ class DateTime extends \Filter\Text
                 return new \Db\Where('DATE(' . $columnName . ')', '>=', $dateFinal->toDb());
             }
         }
-        //TODO what is this situation?????
+        //this is equal, not equals, greather and etc
         else if ($conditionValue && isset($filterValue) && $filterValue)
         {
             $date = new \Type\DateTime($filterValue);
@@ -177,7 +175,7 @@ class DateTime extends \Filter\Text
                 $columnName = 'DATE(' . $columnName . ')';
             }
 
-            return new \Db\Where($columnName . ' ', $conditionValue, $date->toDb(), $conditionType, $this->getFilterType());
+            return new \Db\Where($columnName, $conditionValue, $date->toDb(), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_NULL_OR_EMPTY)
         {

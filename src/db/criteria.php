@@ -11,7 +11,6 @@ class Criteria implements \Db\Filter
     protected $filters;
     protected $sql;
     protected $sqlParam;
-    protected $having;
     protected $args = array();
     protected $type;
 
@@ -211,22 +210,6 @@ class Criteria implements \Db\Filter
         return $this;
     }
 
-    public function getHaving()
-    {
-        return $this->having;
-    }
-
-    public function setHaving($having)
-    {
-        if ($having && strlen($having) > 0)
-        {
-            $this->setType(\Db\Cond::TYPE_HAVING);
-            $this->having = $having;
-        }
-
-        return $this;
-    }
-
     public function getArgs()
     {
         return $this->args;
@@ -255,13 +238,10 @@ class Criteria implements \Db\Filter
 
         $filters = $this->getFilters();
         $args = array();
-        $argsHaving = array();
         $sql = '';
         $sqlParam = '';
-        $having = '';
 
         $count = 0;
-        $countHaving = 0;
 
         if (count($filters) > 0)
         {
@@ -277,41 +257,16 @@ class Criteria implements \Db\Filter
                 if ($filter instanceof \Db\Criteria)
                 {
                     $filter->execute();
-                    $myHaving = $filter->getHaving();
 
-                    if ($myHaving)
+                    $sql .= $filter->getString($count === 0);
+                    $sqlParam .= $filter->getStringPdo($count === 0);
+                    $count++;
+
+                    $filtersArgs = $filter->getArgs();
+
+                    if (!is_null($filtersArgs))
                     {
-                        $having .= $filter->getHaving();
-                        $countHaving++;
-
-                        if (!is_null($filtersArgs))
-                        {
-                            $argsHaving = array_merge($argsHaving, $filter->getArgs());
-                        }
-                    }
-                    else
-                    {
-                        $sql .= $filter->getString($count === 0);
-                        $sqlParam .= $filter->getStringPdo($count === 0);
-                        $count++;
-
-                        $filtersArgs = $filter->getArgs();
-
-                        if (!is_null($filtersArgs))
-                        {
-                            $args = array_merge($args, $filtersArgs);
-                        }
-                    }
-                }
-                //FIXME old getType way of having
-                else if (strtolower($filter->getType()) == \Db\Cond::TYPE_HAVING)
-                {
-                    $having .= $filter->getString($countHaving === 0);
-                    $countHaving++;
-
-                    if (!is_null($filter->getArgs()))
-                    {
-                        $argsHaving = array_merge($argsHaving, $filter->getArgs());
+                        $args = array_merge($args, $filtersArgs);
                     }
                 }
                 else
@@ -330,14 +285,11 @@ class Criteria implements \Db\Filter
             }
         }
 
-        $argsFinal = array_merge($args, $argsHaving);
-
         //filters does not import any, it's a new created filters
         $this->setFilters(null);
         $this->setSql($sql);
         $this->setSqlParam($sqlParam); //sql with params (? replaced)
-        $this->setHaving($having);
-        $this->setArgs($argsFinal);
+        $this->setArgs($args);
 
         //mark as executed
         $this->executed = true;

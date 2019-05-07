@@ -314,12 +314,14 @@ class Page extends \View\Layout
 
         $question[] = new \View\Input('saveList[url]', \View\Input::TYPE_HIDDEN, \Filter\SavedList::mountUrl());
         $question[] = 'Utilize algo que tenha significado!';
-        $question[] = $input = new \View\Input('saveList[title]', \View\Input::TYPE_TEXT, '');
+        $question[] = new \View\Br();
+        $question[] = new \View\Br();
+        $question[] = $input = new \View\Input('saveList[title]', \View\Input::TYPE_TEXT, null, 'fullWidth');
         $input->onPressEnter("$('#ok').click()");
 
-        \View\Blend\Popup::prompt('Defina o título da consulta', $question, 'saveListItemConfirm')->show();
+        \View\Blend\Popup::prompt('Defina o título da pesquisa', $question, 'saveListItemConfirm')->show();
 
-        \App::addJs("$('#saveListtitle').focus();");
+        \App::addJs('setTimeout( function(){$("#saveListtitle").focus();},200)');
     }
 
     /**
@@ -536,9 +538,20 @@ class Page extends \View\Layout
         {
             $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
             $this->setGrid($grid);
+            $this->setDefaultFilters($grid);
 
             return $grid;
         }
+    }
+
+    /**
+     * A Simple method that is used to define the default filters of this page
+     *
+     * @param \Commponent\Grid\SearchGrid $grid
+     */
+    public function setDefaultFilters(\Component\Grid\SearchGrid $grid)
+    {
+
     }
 
     public function salvar($model = NULL, $defaultRedirect = TRUE)

@@ -9,17 +9,6 @@ class Where implements \Db\Filter
 {
 
     /**
-     * Normal where
-     */
-    const TYPE_NORMAL = '';
-
-    /**
-     * Having where, define that the condiction has to be inserted in having
-     * part of the query
-     */
-    const TYPE_HAVING = 'having';
-
-    /**
      * The filter
      *
      * @var string
@@ -46,18 +35,12 @@ class Where implements \Db\Filter
      */
     protected $condition;
 
-    /**
-     * Condition type
-     */
-    protected $type;
-
-    public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and', $type = self::TYPE_NORMAL)
+    public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and')
     {
         $this->condition = $condition ? $condition : 'and';
         $this->param = $param;
         $this->filter = $filter;
         $this->value = $value;
-        $this->type = $type;
     }
 
     public function getCondition()
@@ -118,17 +101,6 @@ class Where implements \Db\Filter
     {
         $this->value = $value;
 
-        return $this;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function setType($type)
-    {
-        $this->type = $type;
         return $this;
     }
 

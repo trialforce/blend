@@ -2,11 +2,8 @@
 
 namespace Filter;
 
-use DataHandle\Request;
-
 /**
  * Reference field filter
- *
  */
 class Reference extends \Filter\Collection
 {
@@ -120,26 +117,17 @@ class Reference extends \Filter\Collection
         return $field;
     }
 
-    /* public function getCondition()
-      {
-      $conditionName = $this->getConditionName();
-
-      $select = new \View\Select($conditionName . '[]',$this->getConditionList(), $this->ge, 'filterCondition');
-      $this->getCondJs($select);
-
-      return $select;
-      } */
-
     public function createWhere($index = 0)
     {
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
+        $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
         if ($conditionValue && $conditionValue == self::COND_TEXT && $wasFiltered)
         {
             $dbColumn = $this->dbColumn;
-            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue));
+            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue), $conditionType);
         }
         else
         {

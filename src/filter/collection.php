@@ -69,16 +69,6 @@ class Collection extends \Filter\Text
         return $options;
     }
 
-    /* public function getInputCondition()
-      {
-      $conditionName = $this->getConditionName();
-
-      $select = new \View\Select($conditionName, $options, $this->getConditionValue(), 'filterCondition');
-      $this->getCondJs($select);
-
-      return $select;
-      } */
-
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
@@ -87,64 +77,66 @@ class Collection extends \Filter\Text
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
-        $hasFilter = ($filterValue || $filterValue == 0);
+        $hasFilter = (strlen($filterValue) > 0);
 
-        if ($conditionValue)
+        if (!$conditionValue || !$hasFilter)
         {
-            if ($conditionValue == self::COND_EQUALS && $hasFilter)
-            {
-                //multiple (array)
-                if (is_array($filterValue))
-                {
-                    //optimize for 1 register
-                    if (count($filterValue) == 1)
-                    {
-                        return new \Db\Cond($columnName . ' = ? ', $filterValue, $conditionType, $this->getFilterType());
-                    }
-                    else
-                    {
-                        $filterValue = implode("','", Request::get($filterName));
-                        $cond = new \Db\Cond($columnName . " IN ( '$filterValue' )", NULL, $conditionType, $this->getFilterType());
-                        return $cond;
-                    }
-                }
-                else if ($filterValue || $filterValue === '0')
-                {
-                    return new \Db\Cond($columnName . ' = ?', $filterValue . '', $conditionType, $this->getFilterType());
-                }
-            }
-            else if ($conditionValue == self::COND_NOT_EQUALS && $hasFilter)
-            {
-                $conditionType = \Db\Cond::COND_AND;
+            return null;
+        }
 
-                //multiple (array)
-                if (is_array($filterValue))
+        if ($conditionValue == self::COND_EQUALS)
+        {
+            //multiple (array)
+            if (is_array($filterValue))
+            {
+                //optimize for 1 register
+                if (count($filterValue) == 1)
                 {
-                    //optimize for 1 register
-                    if (count($filterValue) == 1 && strlen($filterValue[0]) > 0)
-                    {
-                        return new \Db\Cond($columnName . ' != ? ', $filterValue, $conditionType, $this->getFilterType());
-                    }
-                    else if (count($filterValue) > 1)
-                    {
-                        $filterValue = implode("','", Request::get($filterName));
-                        return new \Db\Cond($columnName . " NOT IN ( '$filterValue' )", NULL, $conditionType, $this->getFilterType());
-                    }
+                    return new \Db\Cond($columnName . ' = ? ', $filterValue, $conditionType);
                 }
-                else if ($filterValue || $filterValue === '0')
+                else
                 {
-                    return new \Db\Cond($columnName . ' != ?', $filterValue . '', $conditionType, $this->getFilterType());
+                    $filterValue = implode("','", Request::get($filterName));
+                    $cond = new \Db\Cond($columnName . " IN ( '$filterValue' )", NULL, $conditionType);
+                    return $cond;
                 }
             }
-            else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+            else
             {
-                return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType, $this->getFilterType());
+                return new \Db\Where($columnName, $conditionValue, $filterValue . '', $conditionType);
             }
         }
-        //fallback
-        else if ($filterValue || $filterValue === '0')
+        else if ($conditionValue == self::COND_NOT_EQUALS)
         {
-            return new \Db\Cond($columnName . ' = ?', $filterValue . '', $conditionType, $this->getFilterType());
+            $conditionType = \Db\Cond::COND_AND;
+
+            //multiple (array)
+            if (is_array($filterValue))
+            {
+                //optimize for 1 register
+                if (count($filterValue) == 1 && strlen($filterValue[0]) > 0)
+                {
+                    return new \Db\Cond($columnName . ' != ? ', $filterValue, $conditionType);
+                }
+                else if (count($filterValue) > 1)
+                {
+                    $filterValue = implode("','", Request::get($filterName));
+                    return new \Db\Cond($columnName . " NOT IN ( '$filterValue' )", NULL, $conditionType);
+                }
+            }
+            else if ($filterValue || $filterValue === '0')
+            {
+                return new \Db\Cond($columnName . ' != ?', $filterValue . '', $conditionType);
+            }
+        }
+        else if ($conditionValue == self::COND_NULL_OR_EMPTY)
+        {
+            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType);
+        }
+        //fallback
+        else
+        {
+            return new \Db\Cond($columnName . ' = ?', $filterValue . '', $conditionType);
         }
     }
 

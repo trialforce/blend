@@ -282,9 +282,16 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
         $gridColumn->setIdentificator($column->isPrimaryKey());
 
-        //search column has having filter as default
+        //search column has no filter as default
         if ($column instanceof \Db\SearchColumn)
         {
+            $sqls = $column->getSql(FALSE);
+
+            if (isset($sqls[0]))
+            {
+                $gridColumn->setSql($sqls[0]);
+            }
+
             $gridColumn->setFilter(FALSE);
         }
 

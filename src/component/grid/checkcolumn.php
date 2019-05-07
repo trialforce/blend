@@ -3,38 +3,27 @@
 namespace Component\Grid;
 
 /**
- * Checkbox column for grid
- *
- * FIXME: need a complete refactor, remove js from here
+ * Coluna de checagem da grid
  */
 class CheckColumn extends \Component\Grid\Column
 {
 
-    /**
-     * The name/id from the checkbox is the counter of the line
-     */
     const NAME_TYPE_LINE = 1;
-
-    /**
-     * The name/id from the checkbox is the id from the model
-     */
     const NAME_TYPE_OBJ_ATTR = 2;
 
-    /**
-     * Define the type of the id
-     * NAME_TYPE_LINE the name/id from the checkbox is the counter of the line
-     * NAME_TYPE_OBJ_ATTR the name/id from the checkbox is the id from the model
-     *
-     * @var int
-     */
     protected $nameType = self::NAME_TYPE_LINE;
 
     public function __construct($name = 'check')
     {
-        //define a name for security
-        $name = $name ? $name : 'check';
+        //for security
+        if (!$name)
+        {
+            $name = 'check';
+        }
+
         parent::__construct($name, '', Column::ALIGN_LEFT, NULL);
         $this->setExport(FALSE);
+        $this->setWidth('3%');
     }
 
     function getNameType()
@@ -49,8 +38,38 @@ class CheckColumn extends \Component\Grid\Column
 
     public function getHeadContent(\View\View $tr, \View\View $th)
     {
+        $gridId = $this->getIdJs();
+        $name = $this->getName();
+
+        $js = "
+            function selecteChecks(gridName)
+            {
+                $('#'+gridName+'Table .checkBoxcheck').each( function()
+                {
+                    if ( $(this).prop('checked') === true )
+                    {
+                        $(this).parent().parent().addClass('select');
+                    }
+                    else
+                    {
+                        $(this).parent().parent().removeClass('select');
+                    }
+                });
+            }
+
+            function selecteCheck(elementId)
+            {
+                var element = $('#' + elementId);
+                var selecionado = !element.prop('checked');
+                element.prop('checked', selecionado);
+
+                $('#checkAllcheck').prop('checked', false);
+            }";
+
+        \App::addJs($js);
+
         $check = new \View\Ext\CheckboxDb('checkAll' . $this->getName());
-        $th->addClass(Column::ALIGN_COLAPSE);
+        $th->addClass(Column::ALIGN_LEFT);
         $this->getJs();
 
         return $check;
@@ -81,8 +100,10 @@ class CheckColumn extends \Component\Grid\Column
 
             $idJs = $this->getIdJs();
             $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
+            $check->addStyle('margin', '0 6px');
             $check->click("selecteCheck(this.id); selecteChecks('{$idJs}');");
         }
+
 
         return $check;
     }
@@ -100,8 +121,8 @@ class CheckColumn extends \Component\Grid\Column
         $js = "
             $('#{$gridId} #checkAll{$name}').click( function ()
             {
-                var checked = $(this).prop('checked');
-                $('#{$gridId} .checkBox{$name}').prop( 'checked', checked );
+                var selecionado = $(this).prop('checked');
+                $('#{$gridId} .checkBox{$name}').prop( 'checked', selecionado );
                 selecteChecks('{$gridId}');
             });";
 

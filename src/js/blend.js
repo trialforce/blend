@@ -1520,14 +1520,23 @@ function filterAdd(element)
     var element = $(element);
     var parent = element.parent();
     var filterBase = parent.find('.filterBase');
+    var filterConditionValue = filterBase.find('.filterCondition').val();
     var clone = filterBase.clone().removeClass('filterBase');
-    //clear cloned value
-    clone.find('.filterInput').val('');
+
+    //add remove button
     clone.append('<i class="fa fa-trash trashFilter" onclick="filterTrash(this)"></i>');
+    //clear cloned value
+    clone.find('.filterInput').val('').removeAttr('data-on-press-enter-converted');
+    //restore condition value (clone is not filling it)
+    clone.find('.filterCondition').val(filterConditionValue);
+    
+    //show with animation
     clone.hide()
     parent.append(clone);
     clone.slideDown('fast');
-    dataAjax();    
+    
+    //process ajax fields
+    dataAjax();
 }
 
 function filterTrash(element)
