@@ -277,8 +277,10 @@ class SearchField extends \Component\Component
 
                 $filterCondValues = Request::get($filterNameCondition);
                 $filterNameValues = Request::get($filterNameValue);
+                $hasCondValues = is_array($filterCondValues) || is_string($filterCondValues);
+                $hasFilterValues = is_array($filterNameValues) || is_string($filterNameValues);
 
-                $needCreation = is_array($filterCondValues) || is_array($filterNameValues) || $filter->getFilterType() . '' == '2';
+                $needCreation = $hasCondValues || $hasFilterValues || $filter->getFilterType() . '' == '2';
 
                 //create the filter if not ajax (reload (F5))
                 if ($needCreation)
