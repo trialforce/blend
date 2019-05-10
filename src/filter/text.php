@@ -63,6 +63,13 @@ class Text
     const FILTER_TYPE_ENABLE = 1;
     const FILTER_TYPE_ENABLE_SHOW_ALWAYS = 2;
 
+    /**
+     * Create a text filter
+     *
+     * @param \Component\Grid\Column $column the grid column
+     * @param string $filterName the filter name
+     * @param string $filterType the filter type
+     */
     public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
         $this->setColumn($column);
@@ -426,15 +433,22 @@ class Text
     }
 
     /**
-     * Return filter value, controls default value
+     * Return filter final value, controls default value
      *
-     * @return the filter value, controls default value
+     * @return the filter final value, controls default value
      */
     public function getFilterValuesFinal()
     {
         $filterName = $this->getValueName() . 'Final';
+        $values = Request::get($filterName);
 
-        return Request::get($filterName);
+        //add support for simples parameters
+        if (is_string($values))
+        {
+            $values = array($values);
+        }
+
+        return $values;
     }
 
     public function getFilterValueFinal($index = 0)
