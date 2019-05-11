@@ -1574,7 +1574,7 @@ function filterChangeInteger(element)
     {  
         element.removeClass('fullWidth');
         input.show().addClass('filterInterval');
-        inputFinal.show().add('filterInterval');
+        inputFinal.removeAttr('disabled').add('filterInterval').show();
     } 
     else if (val == 'nullorempty')
     {
@@ -1585,7 +1585,7 @@ function filterChangeInteger(element)
     { 
         element.removeClass('fullWidth');
         input.show().removeClass('filterInterval');
-        inputFinal.hide();
+        inputFinal.hide().attr('disabled','disabled');
     }
 }
 
@@ -1616,17 +1616,26 @@ function filterChangeDate(element)
         input.show();
         element.removeClass('fullWidth');
         elValue.show().addClass('filterInterval');
-        elValueFinal.show().addClass('filterInterval');
+        elValueFinal.removeAttr('disabled').addClass('filterInterval').show();
     }
     else 
     { 
         input.show();
         element.removeClass('fullWidth');
         elValue.show().removeClass('filterInterval');
-        elValueFinal.hide().removeClass('filterInterval');
+        elValueFinal.hide().attr('disabled','disabled').removeClass('filterInterval');
         elValue.value = '';
         elValueFinal.value = '';
     }
+}
+
+function filterChangeBoolean(element)
+{
+    var val = $(element).val();
+    var input = $(element).parent().find('.filterInput');
+
+    input.val('').hide();
+    element.addClass('fullWidth');
 }
 
 //used in grid checkcolumn, need refactor

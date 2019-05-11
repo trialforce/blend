@@ -10,6 +10,9 @@ use DataHandle\Request;
 class Boolean extends \Filter\Text
 {
 
+    const COND_TRUE = 't';
+    const COND_FALSE = 'f';
+
     public function getCondition()
     {
         return NULL;
@@ -17,7 +20,7 @@ class Boolean extends \Filter\Text
 
     public function getInputValue($index = 0)
     {
-        $input = new \View\Select($columnValue, $this->getConditionList(), $this->parseValue($this->getFilterValue($index)), 'fullWidth');
+        $input = new \View\Select($this->getValueName() . '[]', $this->getConditionList(), $this->parseValue($this->getFilterValue($index)), 'filterInput fullWidth');
         $input->onPressEnter("$('#buscar').click()");
 
         return $input;
@@ -26,10 +29,15 @@ class Boolean extends \Filter\Text
     public function getConditionList()
     {
         $options = array();
-        $options['t'] = 'Sim';
-        $options['f'] = 'Não';
-
+        $options[self::COND_TRUE] = 'Sim';
+        $options[self::COND_FALSE] = 'Não';
         return $options;
+    }
+
+    protected function getCondJs($select)
+    {
+        $select->change("filterChangeBoolean($(this));");
+        \App::addJs("$('#{$select->getId()}').change();");
     }
 
     public function parseValue($value)
@@ -45,16 +53,15 @@ class Boolean extends \Filter\Text
     public function createWhere($index = 0)
     {
         $columnName = $this->getColumn()->getName();
-        $filterValue = $this->parseValue($this->getFilterValue($index));
-        $cond = NULL;
+        $conditionValue = $this->getConditionValue($index);
 
-        if ($filterValue == 't')
+        $cond = NULL;
+        if ($conditionValue == self::COND_TRUE)
         {
             $cond = new \Db\Where($columnName, '>=', 1, \Db\Cond::COND_AND, $this->getFilterType());
         }
-        else if ($filterValue == 'f')
+        else if ($conditionValue == self::COND_FALSE)
         {
-
             $cond = new \Db\Where('(' . $columnName . ' = 0 OR ' . $columnName . ' IS NULL)', NULL, NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
 
