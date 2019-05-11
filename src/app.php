@@ -204,7 +204,7 @@ class App
     {
         //if someting has beem echoed, respect it and avoid default flux
         $echoed = ob_get_contents();
-        ob_end_clean();
+        @ob_end_clean();
 
         if ($echoed)
         {
