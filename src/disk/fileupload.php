@@ -92,7 +92,7 @@ class FileUpload extends \Disk\File
             mkdir($dir, 0777, TRUE);
         }
 
-        $ok = move_uploaded_file($this->tmpName, $dest); //faz upload
+        $ok = move_uploaded_file($this->tmpName, $dest . ''); //faz upload
         $this->setPath($dest . '');
 
         if ($ok && $this->exists())
