@@ -86,7 +86,7 @@ class DateTime extends \Filter\Text
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
-        $columnName = $column->getName();
+        $columnName = $column->getSql();
 
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);

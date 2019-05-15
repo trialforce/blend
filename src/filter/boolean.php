@@ -52,7 +52,7 @@ class Boolean extends \Filter\Text
 
     public function createWhere($index = 0)
     {
-        $columnName = $this->getColumn()->getName();
+        $columnName = $this->getColumn()->getSql();
         $conditionValue = $this->getConditionValue($index);
 
         $cond = NULL;
