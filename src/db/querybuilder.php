@@ -9,6 +9,7 @@ class QueryBuilder
 {
 
     protected $catalogClass = '\Db\MysqlCatalog';
+    protected $connInfoId = 'default';
     protected $modelName = '';
     protected $conn;
     protected $tableName;
@@ -46,13 +47,19 @@ class QueryBuilder
 
     public function setConnInfoId($connInfoId = null)
     {
-        $conn = \Db\Conn::getInstance($connInfoId ? $connInfoId : 'default');
-        $connInfo = \Db\Conn::getConnInfo($connInfoId);
+        $this->connInfoId = $connInfoId ? $connInfoId : 'default';
+        $conn = \Db\Conn::getInstance($this->connInfoId);
+        $connInfo = \Db\Conn::getConnInfo($this->connInfoId);
 
         $this->setConn($conn);
         $this->setCatalogClass($connInfo->getCatalogClass());
 
         return $this;
+    }
+
+    public function getConnInfoId()
+    {
+        return $this->connInfoId;
     }
 
     public function getCatalogClass()
@@ -87,7 +94,8 @@ class QueryBuilder
         if ($tableName)
         {
             $catalog = $this->catalogClass;
-            $this->tableName = $catalog::parseTableNameForQuery($tableName);
+            $prefix = \DataHandle\Config::get('dbprefix-' . $this->getConnInfoId());
+            $this->tableName = $catalog::parseTableNameForQuery($prefix . $tableName);
         }
 
         return $this;
@@ -411,18 +419,28 @@ class QueryBuilder
      */
     public function where($columnName, $param = NULL, $value = NULL, $condition = 'AND')
     {
-        //support two parameters
-        if (!$value && $value !== '0' && $value !== 0 && $param)
-        {
-            $value = $param;
-            $param = is_array($value) ? 'IN' : '=';
-        }
-
         $catalog = $this->catalogClass;
-        //parse column name for current database catalog
         $columnName = $catalog::parseTableNameForQuery($columnName);
-        //create the condition
         $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
+        $this->where[] = $where;
+
+        return $this;
+    }
+
+    /**
+     * Add a compare condition to where list
+     *
+     * @param string $columnName the column name
+     * @param string $param the condition param =, IN , >= etc
+     * @param string $value the field that is to be compared
+     * @param string $condition AND, OR, etc
+     * @return \Db\QueryBuilder
+     */
+    public function compare($columnName, $param = NULL, $compare = NULL, $condition = 'AND')
+    {
+        $catalog = $this->catalogClass;
+        $columnName = $catalog::parseTableNameForQuery($columnName);
+        $where = new \Db\Compare($columnName, $param, $compare, $condition ? $condition : 'AND');
         $this->where[] = $where;
 
         return $this;
@@ -524,7 +542,7 @@ class QueryBuilder
      * Return the string of sql
      *
      * @param bool $format formated or in one line
-     * @return string the select for the query
+     * @return \Type\Text the select for the query
      */
     public function getSelectSql($format = false)
     {
@@ -532,7 +550,8 @@ class QueryBuilder
         $whereStd = \Db\Criteria::createCriteria($this->getWhere());
         $where = $whereStd->getSqlParam();
 
-        return $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
+        $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
+        return new \Type\Text($select);
     }
 
     /**

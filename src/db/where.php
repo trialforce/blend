@@ -37,6 +37,13 @@ class Where implements \Db\Filter
 
     public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and')
     {
+        //support two parameters
+        if (!$value && $value !== '0' && $value !== 0 && $param)
+        {
+            $value = $param;
+            $param = is_array($value) ? 'IN' : '=';
+        }
+
         $this->condition = $condition ? $condition : 'and';
         $this->param = $param;
         $this->filter = $filter;
@@ -104,6 +111,16 @@ class Where implements \Db\Filter
         return $this;
     }
 
+    public function __toString()
+    {
+        return $this->getString(false);
+    }
+
+    /**
+     * @deprecated since version 15/05/2019
+     * @param boolean $first if is first where
+     * @return string the resultant where
+     */
     public function getWhere($first = true)
     {
         return $this->getString($first);
@@ -139,11 +156,6 @@ class Where implements \Db\Filter
         {
             return strtoupper($this->condition) . ' ' . $where;
         }
-    }
-
-    public function getWhereSql($first = true)
-    {
-        return $this->getStringPdo($first);
     }
 
     protected static function parseValuePdo($value)
@@ -190,6 +202,16 @@ class Where implements \Db\Filter
     }
 
     /**
+     * @deprecated since version 15/05/2019
+     * @param type $first
+     * @return type
+     */
+    public function getWhereSql($first = true)
+    {
+        return $this->getStringPdo($first);
+    }
+
+    /**
      * Simulate a string like if PDO was mounting it.
      * Or, replace the ? with the values
      *
@@ -223,11 +245,6 @@ class Where implements \Db\Filter
         {
             return ' ' . strtoupper($this->condition) . ' ' . $where;
         }
-    }
-
-    public function __toString()
-    {
-        return $this->getWhere(false);
     }
 
     /**

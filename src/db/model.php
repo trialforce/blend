@@ -92,8 +92,17 @@ class Model
      */
     public static function getTableName()
     {
-        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
-        return lcfirst($tableName);
+
+        $name = self::getName();
+        $tableName = str_replace(array('\Model\\', '\\'), '', $name);
+        return $name::getTablePrefix() . lcfirst($tableName);
+    }
+
+    public static function getTablePrefix()
+    {
+        $name = self::getName();
+        $prefixName = 'dbprefix-' . $name::getConnId();
+        return \DataHandle\Config::getDefault($prefixName, '');
     }
 
     /**
@@ -384,7 +393,7 @@ class Model
     }
 
     /**
-     *
+     * Execute a search in database ans return a list
      * @param type $columns
      * @param \Db\Cond $filters
      * @param type $limit
