@@ -309,6 +309,29 @@ class Model
      */
     public static function getWhereFromFilters($filters)
     {
+        $name = self::getName();
+        if (!is_array($filters))
+        {
+            $filters = array($filters);
+        }
+
+        foreach ($filters as $filter)
+        {
+            if (!$filter)
+            {
+                continue;
+            }
+
+            $filter instanceof \Db\Where;
+            $column = $name::getColumn($filter->getFilter());
+
+            if ($column && $column instanceof \Db\SearchColumn)
+            {
+                $searchSql = $column->getSql(false);
+                $filter->setFilter($searchSql[0]);
+            }
+        }
+
         return \Db\Criteria::createCriteria($filters);
     }
 
