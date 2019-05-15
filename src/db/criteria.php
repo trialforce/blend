@@ -252,35 +252,15 @@ class Criteria implements \Db\Filter
                     continue;
                 }
 
-                //add suppor for \Db\Criteria inside \Db\Criteria
-                //FIXME need full padronization with \Db\Where
-                if ($filter instanceof \Db\Criteria)
+                $sql .= $filter->getString($count === 0);
+                $sqlParam .= $filter->getStringPdo($count === 0);
+                $count++;
+
+                $filtersArgs = $filter->getArgs();
+
+                if (!is_null($filtersArgs))
                 {
-                    $filter->execute();
-
-                    $sql .= $filter->getString($count === 0);
-                    $sqlParam .= $filter->getStringPdo($count === 0);
-                    $count++;
-
-                    $filtersArgs = $filter->getArgs();
-
-                    if (!is_null($filtersArgs))
-                    {
-                        $args = array_merge($args, $filtersArgs);
-                    }
-                }
-                else
-                {
-                    $sql .= $filter->getString($count === 0);
-                    $sqlParam .= $filter->getStringPdo($count === 0);
-                    $count++;
-
-                    $filtersArgs = $filter->getArgs();
-
-                    if (!is_null($filtersArgs))
-                    {
-                        $args = array_merge($args, $filtersArgs);
-                    }
+                    $args = array_merge($args, $filtersArgs);
                 }
             }
         }
