@@ -413,6 +413,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function rewind()
     {
+        if (!is_array($this->data))
+        {
+            $this->data = array();
+        }
+
         return reset($this->data);
     }
 
