@@ -633,7 +633,7 @@ function r(type, page, formData, callBack)
         }
     }
 
-    //disable focused element, perhaphs a button or link
+    //disable focused element, perhaps a button or link
     if (typeof focused.get(0) != 'undefined')
     {
         if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
@@ -979,7 +979,7 @@ function popup(action, selector)
 }
 
 /**
- * Atualiza o conteúdo dos editores html nicEditor
+ * Update the content of html editor nicEditor and CkEditor
  *
  * @returns void
  */
@@ -1008,6 +1008,16 @@ function updateEditors()
             }
         }
     });
+    
+    //add support for ckeditor 4
+    if ( typeof CKEDITOR == 'object')
+    {
+        for ( var instance in CKEDITOR.instances )
+        {
+          console.log(instance);
+          CKEDITOR.instances[instance].updateElement();
+        }
+    }
 }
 
 function comboShowDropdown(id)
