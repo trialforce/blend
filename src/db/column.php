@@ -857,7 +857,8 @@ class Column
      */
     public static function getRealColumnName($sqlForColumn)
     {
-        $columnName = $sqlForColumn;
+        //convert for string if is an object
+        $columnName = $sqlForColumn . '';
 
         // columname AS alias
         if (stripos($columnName, ' AS ') > 0)

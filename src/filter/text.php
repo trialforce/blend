@@ -390,7 +390,7 @@ class Text
         $values = Request::get($filterName);
 
         //add support for simples parameters
-        if (is_string($values))
+        if (is_string($values) || is_null($values))
         {
             $values = array($values);
         }

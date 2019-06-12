@@ -398,7 +398,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $dataSource = $this->getDataSource();
         $aggregators = $dataSource->getAggregator();
 
-        if (count($aggregators) == 0)
+        if (!is_array($aggregators) || (is_array($aggregators) && count($aggregators) == 0 ))
         {
             return;
         }

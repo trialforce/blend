@@ -85,7 +85,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
     public function filter($function)
     {
-        $new = [];
+        $new = array();
 
         foreach ($this->data as $idx => $item)
         {
@@ -100,6 +100,13 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this;
     }
 
+    /**
+     * Order the colletion by some property
+     *
+     * @param string $orderBy order by
+     * @param string $orderWay order way
+     * @return $this
+     */
     public function orderBy($orderBy, $orderWay = NULL)
     {
         usort($this->data, function($a, $b) use(&$orderBy)
@@ -141,6 +148,12 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this;
     }
 
+    /**
+     * Apply a limit to the collection
+     * @param int $limit limit
+     * @param int $offset offset
+     * @return $this
+     */
     public function limit($limit, $offset = NULL)
     {
         $this->data = array_slice($this->data, $offset, $limit);
