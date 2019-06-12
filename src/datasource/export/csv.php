@@ -58,7 +58,7 @@ class Csv
 
                 foreach ($exportColumns as $column)
                 {
-                    $columsLine[] = '"' . \Component\Grid\Column::getColumnValue($column, $model) . '"';
+                    $columsLine[] = '"' . strip_tags(\Component\Grid\Column::getColumnValue($column, $model)) . '"';
                 }
 
                 $csv .= implode(';', $columsLine) . PHP_EOL;
@@ -111,7 +111,7 @@ class Csv
     {
         $aggregators = $dataSource->getAggregator();
 
-        if (count($aggregators) == 0)
+        if (!is_array($aggregators) || count($aggregators) == 0)
         {
             return '';
         }
