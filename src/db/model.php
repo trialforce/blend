@@ -177,6 +177,11 @@ class Model
      */
     public static function getColumn($columnName)
     {
+        if (!$columnName)
+        {
+            return null;
+        }
+
         //maximize compability
         if ($columnName instanceof \Db\Column)
         {
@@ -186,7 +191,7 @@ class Model
         $columnName = \Db\Column::getRealColumnName($columnName);
         $columns = self::getColumns();
 
-        if (isset($columns[$columnName]))
+        if (isset($columns) && isset($columns[$columnName]))
         {
             return $columns[$columnName];
         }
@@ -310,6 +315,7 @@ class Model
     public static function getWhereFromFilters($filters)
     {
         $name = self::getName();
+
         if (!is_array($filters))
         {
             $filters = array($filters);

@@ -144,7 +144,7 @@ class Page extends \View\Layout
         $arrayErrorMsg = NULL;
         $errors = $model->validate();
 
-        if (count($errors) > 0)
+        if (is_array($errors) && count($errors) > 0)
         {
             $campos = '';
             foreach ($errors as $field => $errorMsg)
