@@ -5,6 +5,10 @@ html {
     min-height: 100%;
 }
 
+html *[onclick] {
+    cursor: pointer;
+}
+
 body {
     margin:0;
     padding:0;
