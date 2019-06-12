@@ -51,7 +51,7 @@ class DateTime extends \Validator\Validator
      *
      * @example \Type\DateTime::get( $date ) = retorna a data em formato de usuário
      */
-    public static function get($date = null)
+    public static function get($date = null, $column = NULL)
     {
         return new \Type\DateTime($date);
     }
@@ -954,8 +954,8 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Retorna a data no formato utc.
-     * Utilizado pelos xmls de nfs-e nfe
+     * Return the date in UTC format
+     * Used by nfs-e nfe XML's
      *
      * @return string
      */
@@ -963,6 +963,15 @@ class DateTime extends \Validator\Validator
     {
         $withZone = $withZone ? '\Z' : '';
         return date("Y-m-d\TH:i:s" . $withZone, $this->getTimestampUnix());
+    }
+
+    /**
+     * Return a instance of PHP DateTime
+     * @return \DateTime
+     */
+    public function getPhpDatetime()
+    {
+        return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
     }
 
     /**
