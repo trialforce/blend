@@ -234,11 +234,7 @@ function dataAjax()
     //multipleSelect();
     seletMenuItem();
 
-    var ua = navigator.userAgent.toLowerCase();
-    var isAndroid = ua.indexOf("android") > -1;
-    var isIphone = ua.indexOf("iphone") > -1;
-
-    if (isAndroid || isIphone)
+    if (isAndroid() || isIos())
     {
         $('.dateinput').not('[readonly]').each(function () {
             $(this).mask('99/99/9999');
@@ -251,7 +247,8 @@ function dataAjax()
         $('.timeinput').not('[readonly]').each(function () {
             $(this).mask('99:99:99');
         });
-    } else if (typeof $().datetimepicker === 'function')
+    } 
+    else if (typeof $().datetimepicker === 'function')
     {
         $('.dateinput').not('[readonly]').datetimepicker({
             timepicker: false,
@@ -284,10 +281,12 @@ function dataAjax()
             mask: true,
             step: 15
         });
-    } else
+    } 
+    else
     {
         //fallback to default date of browser
-        $('.dateinput').each(function () {
+        $('.dateinput').each(function ()
+        {
             var element = $(this);
             var value = element.val();
 
@@ -351,6 +350,16 @@ function dataAjax()
         e.preventDefault();
         e.stopPropagation();
     });
+    
+    //add system class
+    if ( isIos())
+    {
+        $('body').removeClass('os-ios').addClass('os-ios');
+    }
+    else if ( isAndroid())
+    {
+        $('body').removeClass('os-android').addClass('os-android');
+    }   
 
     hideLoading();
 
@@ -1014,7 +1023,6 @@ function updateEditors()
     {
         for ( var instance in CKEDITOR.instances )
         {
-          console.log(instance);
           CKEDITOR.instances[instance].updateElement();
         }
     }
@@ -1672,4 +1680,15 @@ function selecteCheck(elementId)
     element.prop('checked', checked);
     
     $('#checkAllcheck').prop('checked', false);
+}
+
+function isAndroid()
+{
+    return navigator.userAgent.toLowerCase().indexOf("android") > -1;
+}
+
+function isIos() 
+{
+    var ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
 }

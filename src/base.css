@@ -605,6 +605,18 @@ i.fa.filter-menu .blend-floating-menu li span .fa-trash,
     margin-top: 20px;
 }
 
+.os-ios {
+    
+}
+
+.os-ios select {
+    -webkit-appearance: none;
+    padding: 0 !important;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='black'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 99% 50%;
+}
+
 @media screen and ( max-width: 1250px ) {
 
     .hide-in-middle {
