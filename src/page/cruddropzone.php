@@ -123,8 +123,10 @@ class CrudDropZone extends \Page\Crud
     {
         \App::dontChangeUrl();
         $file = Request::get('file');
+        $label = basename($file);
+
         $confirmationLink = "return p('{$this->getPageUrl()}/deleteImageConfirm/?file=" . $file . "')";
-        \View\Blend\Popup::prompt('Confirma remoção de imagem', 'Arquivo: ' . $file, $confirmationLink, \View\Blend\Popup::getJs('destroy'))->setId('deleteConfirm')->show();
+        \View\Blend\Popup::prompt('Confirma remoção de imagem', 'Arquivo: ' . $label, $confirmationLink, \View\Blend\Popup::getJs('destroy'))->setId('deleteConfirm')->show();
     }
 
     public function deleteImageConfirm()
@@ -138,18 +140,13 @@ class CrudDropZone extends \Page\Crud
         if ($file->exists() && $file->remove())
         {
             $thumbFile->remove(); //remove thumb
-            toast('Arquivo ' . $file . ' excluído com sucesso!');
+            toast('Arquivo ' . $file->getBasename() . ' excluído com sucesso!');
             $this->updateImages();
         }
         else
         {
             toast('Impossível remover arquivo! Procure administrador!', 'danger');
         }
-    }
-
-    public function getAcceptFiles()
-    {
-        return 'image/*';
     }
 
     public function createDropZone()
@@ -181,56 +178,6 @@ var myDropzone = new Dropzone("#myAwesomeDropzone",
 ';
 
         \App::addJs($js);
-    }
-
-    /**
-     * Return folder name
-     *
-     * @return string
-     */
-    public function getFolderName()
-    {
-        return $this->getPageUrl();
-    }
-
-    /**
-     * List images
-     *
-     * @param int $id
-     * @return array
-     */
-    public function listImages($id)
-    {
-        $path = $this->getCompleteFolderName($id);
-        return \Disk\File::find($path . DS . '*');
-    }
-
-    /**
-     *
-     * @param int $id
-     * @return \Disk\Media
-     */
-    public function getCompleteFolderName($id)
-    {
-        return new \Disk\Media($this->getFolderName() . '/' . $id . '/');
-    }
-
-    /**
-     * Get thumb file
-     *
-     * @param \Disk\File $file
-     * @return \Disk\File
-     */
-    public function getThumbFile(\Disk\File $file)
-    {
-        if (\DataHandle\Config::get('makeThumb'))
-        {
-            return new \Disk\Media($file->getDirname() . '/thumb/' . $file->getBasename(TRUE));
-        }
-        else
-        {
-            return $file;
-        }
     }
 
     /**
@@ -278,6 +225,61 @@ var myDropzone = new Dropzone("#myAwesomeDropzone",
             {
                 throw new \UserException('Ops! Problema em enviar arquivo!');
             }
+        }
+    }
+
+    /**
+     * Return folder name
+     *
+     * @return string
+     */
+    public function getFolderName()
+    {
+        return $this->getPageUrl();
+    }
+
+    public function getAcceptFiles()
+    {
+        return 'image/*';
+    }
+
+    /**
+     * List images
+     *
+     * @param int $id
+     * @return array
+     */
+    public function listImages($id)
+    {
+        $path = $this->getCompleteFolderName($id);
+        return \Disk\File::find($path . DS . '*');
+    }
+
+    /**
+     *
+     * @param int $id
+     * @return \Disk\Media
+     */
+    public function getCompleteFolderName($id)
+    {
+        return new \Disk\Media($this->getFolderName() . '/' . $id . '/');
+    }
+
+    /**
+     * Get thumb file
+     *
+     * @param \Disk\File $file
+     * @return \Disk\File
+     */
+    public function getThumbFile(\Disk\File $file)
+    {
+        if (\DataHandle\Config::get('makeThumb'))
+        {
+            return new \Disk\Media($file->getDirname() . '/thumb/' . $file->getBasename(TRUE));
+        }
+        else
+        {
+            return $file;
         }
     }
 
