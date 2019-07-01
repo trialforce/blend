@@ -47,6 +47,14 @@ class Menu extends \View\View
                 {
                     $views[$value] = new \View\Hr();
                 }
+                else if (stripos($value, 'http') === 0)
+                {
+                    $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, $value, null, '_BLANK');
+                    $link->setAjax(false);
+                    $link->click('window.open(this.href);');
+                    $views[$value] = new Li('li_' . $value, $link);
+                    $views[$value]->click("return openSubMenu(this);");
+                }
                 else
                 {
                     $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, $value);
