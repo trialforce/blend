@@ -231,7 +231,7 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         $newColumns['remove'] = $removeColumn = new \Component\Grid\LinkColumn('remove', 'Remover');
         $removeColumn->setUrl($this->getRemoveMethod());
-        $removeColumn->setIcon('trash-o');
+        $removeColumn->setIcon('trash');
         $removeColumn->setOrder(FALSE);
         $removeColumn->setGrid($this);
 
