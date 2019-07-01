@@ -12,6 +12,16 @@ class ModelApi extends \Db\Model
     protected $idMobile;
 
     /**
+     * Used to test connect
+     *
+     * @return boolean
+     */
+    public function ping()
+    {
+        return true;
+    }
+
+    /**
      * Define the mobile identification
      *
      * @param string $idMobile
@@ -111,8 +121,6 @@ class ModelApi extends \Db\Model
         $orderBy = null;
         $orderWay = null;
 
-        \log::debug($_REQUEST);
-
         if (isset($_REQUEST))
         {
             $params = $_REQUEST;
@@ -170,8 +178,6 @@ class ModelApi extends \Db\Model
                     }
                 }
             }
-
-            \Log::debug($wheres);
         }
 
         $result = $name::smartFind($smartSearch, $wheres, $limit, $offset, $orderBy, $orderWay, 'array');

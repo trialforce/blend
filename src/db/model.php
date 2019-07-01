@@ -329,12 +329,16 @@ class Model
             }
 
             $filter instanceof \Db\Where;
-            $column = $name::getColumn($filter->getFilter());
 
-            if ($column && $column instanceof \Db\SearchColumn)
+            if (method_exists($filter, 'getFilter'))
             {
-                $searchSql = $column->getSql(false);
-                $filter->setFilter($searchSql[0]);
+                $column = $name::getColumn($filter->getFilter());
+
+                if ($column && $column instanceof \Db\SearchColumn)
+                {
+                    $searchSql = $column->getSql(false);
+                    $filter->setFilter($searchSql[0]);
+                }
             }
         }
 

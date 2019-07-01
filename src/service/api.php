@@ -71,7 +71,7 @@ class Api
         //get default connection, may not work every time
         $conn = \Db\Conn::getInstance();
         $conn->beginTransaction();
-        $params = $_REQUEST ? (array) $_REQUEST : array();
+        $params[] = Request::getInstance();
         $result = call_user_func_array(array($obj, $metodo), $params);
 
         if ($conn->inTransaction())
