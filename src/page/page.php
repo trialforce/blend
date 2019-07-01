@@ -218,7 +218,7 @@ class Page extends \View\Layout
      */
     protected function getBodyDiv($fields)
     {
-        return new \View\Div('divLegal', $fields, $this->getEvent() . ' ' . $this->getPageUrl() . ' makePopupFade clearfix');
+        return new \View\Div('divLegal', $fields, $this->getEvent() . ' page-' . $this->getPageUrl() . ' makePopupFade clearfix');
     }
 
     public function getTopButtonsSearch()
