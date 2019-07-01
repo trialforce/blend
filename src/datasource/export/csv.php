@@ -45,7 +45,7 @@ class Csv
 
         $beforeGridExportRow = \View\View::getDom() instanceof \Page\BeforeGridExportRow;
 
-        if (is_array($data))
+        if (isIterable($data))
         {
             foreach ($data as $index => $model)
             {
@@ -58,7 +58,8 @@ class Csv
 
                 foreach ($exportColumns as $column)
                 {
-                    $columsLine[] = '"' . strip_tags(\Component\Grid\Column::getColumnValue($column, $model)) . '"';
+                    $value = strip_tags(\Component\Grid\Column::getColumnValue($column, $model));
+                    $columsLine[] = '"' . $value . '"';
                 }
 
                 $csv .= implode(';', $columsLine) . PHP_EOL;
@@ -133,7 +134,7 @@ class Csv
             {
                 $aggr = $aggregators[$column->getName()];
 
-                $value = $dataSource->executeAggregator($aggr);
+                $value = strip_tags($dataSource->executeAggregator($aggr));
             }
 
             $class = '';
