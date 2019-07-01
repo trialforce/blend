@@ -4,7 +4,7 @@ namespace Db;
 
 /**
  * A condition for a query
- * @deprecated since version 10/01/2019
+ * @deprecated since version 2019-01-01
  */
 class Cond implements \Db\Filter
 {
