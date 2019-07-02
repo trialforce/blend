@@ -966,11 +966,36 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Bota a data no exato dia útil do mês.
-     * Exemplo:
-     * O quinto dia útil de 01/07/2013 é 07/07/2013
+     * Add a specific amount of working days
      *
-     * @param type $workingDay
+     * @param int $daysToAdd working days to add
+     * @return $this
+     */
+    public function addWorkingDay($daysToAdd)
+    {
+        $amount = $daysToAdd;
+
+        while ($amount > 0)
+        {
+            $this->addDay(1);
+
+            while (!$this->isWorkingDay())
+            {
+                $this->addDay(1);
+            }
+
+            $amount--;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the day to the exactely working day
+     * Example:
+     * The five working day of 07/2013 is 07/07/2013
+     *
+     * @param int $workingDay
      * @return \Type\DateTime
      */
     public function setWorkingDay($workingDay)
