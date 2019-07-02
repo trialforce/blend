@@ -51,7 +51,7 @@ class DateTime extends \Validator\Validator
      *
      * @example \Type\DateTime::get( $date ) = retorna a data em formato de usuário
      */
-    public static function get($date = null)
+    public static function get($date = null, $column = NULL)
     {
         return new \Type\DateTime($date);
     }
@@ -954,8 +954,8 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Retorna a data no formato utc.
-     * Utilizado pelos xmls de nfs-e nfe
+     * Return the date in UTC format
+     * Used by nfs-e nfe XML's
      *
      * @return string
      */
@@ -966,7 +966,22 @@ class DateTime extends \Validator\Validator
     }
 
     /**
+<<<<<<< HEAD
      * Add a specific amount of working days
+=======
+     * Return a instance of PHP DateTime
+     * @return \DateTime
+     */
+    public function getPhpDatetime()
+    {
+        return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
+    }
+
+    /**
+     * Bota a data no exato dia útil do mês.
+     * Exemplo:
+     * O quinto dia útil de 01/07/2013 é 07/07/2013
+>>>>>>> 0e32fdb668cdcf370955173490ce2a7bec037681
      *
      * @param int $daysToAdd working days to add
      * @return $this

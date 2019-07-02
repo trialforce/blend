@@ -5,6 +5,10 @@ html {
     min-height: 100%;
 }
 
+html *[onclick] {
+    cursor: pointer;
+}
+
 body {
     margin:0;
     padding:0;
@@ -546,7 +550,7 @@ iframe {
     width: 100%;
 }
 
-#advanced-filter {
+i.fa.filter-menu {
     position: relative;
     font-size: 24px;
     margin-top: 7px;
@@ -559,25 +563,58 @@ iframe {
     height: 40px;
     line-height: 40px;
     text-align: center;
-    border-radius: 50%;
-    transition: 0.1s ease-in-out;
+    transition: 0.2s ease-in-out;
     max-height: 400px;
     margin-right: 0;
+    border-radius: 50%;
 }
 
-#advanced-filter:active {
+i.fa.filter-menu:active {
     background: #ccc;
 }
 
-#advanced-filter .blend-floating-menu {
+i.fa.filter-menu .blend-floating-menu {
     top: 33px;
     right: 6px;
     max-height: 400px;
     overflow-y: auto;
 }
 
-#advanced-filter .blend-floating-menu li {
-    line-height: 16px;
+i.fa.filter-menu .blend-floating-menu li {
+    line-height: 24px;
+    position: relative;
+}
+
+i.fa.filter-menu .blend-floating-menu li span {
+    display: block;
+    margin-right: 10px;
+}
+
+i.fa.filter-menu .blend-floating-menu li span .fa-trash,
+#icon-save-new-item {
+    position: absolute;
+    margin-right: 0;
+    line-height: 22px;
+    text-align: center;
+    top: 0;
+    right: 0px;
+    width: 22px;
+}
+
+#save-item-new {
+    margin-top: 20px;
+}
+
+.os-ios {
+    
+}
+
+.os-ios select {
+    -webkit-appearance: none;
+    padding: 0 !important;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='black'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 99% 50%;
 }
 
 @media screen and ( max-width: 1250px ) {

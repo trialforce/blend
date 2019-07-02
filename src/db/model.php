@@ -92,8 +92,17 @@ class Model
      */
     public static function getTableName()
     {
-        $tableName = str_replace(array('\Model\\', '\\'), '', self::getName());
-        return lcfirst($tableName);
+
+        $name = self::getName();
+        $tableName = str_replace(array('\Model\\', '\\'), '', $name);
+        return $name::getTablePrefix() . lcfirst($tableName);
+    }
+
+    public static function getTablePrefix()
+    {
+        $name = self::getName();
+        $prefixName = 'dbprefix-' . $name::getConnId();
+        return \DataHandle\Config::getDefault($prefixName, '');
     }
 
     /**
@@ -168,6 +177,11 @@ class Model
      */
     public static function getColumn($columnName)
     {
+        if (!$columnName)
+        {
+            return null;
+        }
+
         //maximize compability
         if ($columnName instanceof \Db\Column)
         {
@@ -177,7 +191,7 @@ class Model
         $columnName = \Db\Column::getRealColumnName($columnName);
         $columns = self::getColumns();
 
-        if (isset($columns[$columnName]))
+        if (isset($columns) && isset($columns[$columnName]))
         {
             return $columns[$columnName];
         }
@@ -300,58 +314,35 @@ class Model
      */
     public static function getWhereFromFilters($filters)
     {
+        $name = self::getName();
+
+        if (!is_array($filters))
+        {
+            $filters = array($filters);
+        }
+
+        foreach ($filters as $filter)
+        {
+            if (!$filter)
+            {
+                continue;
+            }
+
+            $filter instanceof \Db\Where;
+
+            if (method_exists($filter, 'getFilter'))
+            {
+                $column = $name::getColumn($filter->getFilter());
+
+                if ($column && $column instanceof \Db\SearchColumn)
+                {
+                    $searchSql = $column->getSql(false);
+                    $filter->setFilter($searchSql[0]);
+                }
+            }
+        }
+
         return \Db\Criteria::createCriteria($filters);
-        /* $filters = is_array($filters) ? array_filter($filters) : array($filters);
-          $args = array();
-          $argsHaving = array();
-          $sql = '';
-          $sqlParam = '';
-          $having = '';
-
-          $count = 0;
-          $countHaving = 0;
-
-          if (count($filters) > 0)
-          {
-          foreach ($filters as $filter)
-          {
-          if (!($filter instanceof \Db\Cond || $filter instanceof \Db\Where) || is_null($filter))
-          {
-          continue;
-          }
-
-          if ($filter->getType() === \Db\Cond::TYPE_HAVING)
-          {
-          $having .= $filter->getWhere($countHaving === 0);
-          $countHaving++;
-
-          if (!is_null($filter->getArgs()))
-          {
-          $argsHaving = array_merge($argsHaving, $filter->getArgs());
-          }
-          }
-          else
-          {
-          $sql .= $filter->getWhere($count === 0);
-          $sqlParam .= $filter->getWhereSql($count === 0);
-          $count++;
-
-          if (!is_null($filter->getArgs()))
-          {
-          $args = array_merge($args, $filter->getArgs());
-          }
-          }
-          }
-          }
-
-          //mount a simple object for return
-          $result = new \Db\Criteria();
-          $result->setSql($sql);
-          $result->setSqlParam($sqlParam);
-          $result->setHaving($having);
-          $result->setArgs(array_merge($args, $argsHaving));
-
-          return $result; */
     }
 
     /**
@@ -435,7 +426,7 @@ class Model
     }
 
     /**
-     *
+     * Execute a search in database ans return a list
      * @param type $columns
      * @param \Db\Cond $filters
      * @param type $limit
@@ -491,7 +482,7 @@ class Model
         }
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
-        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, $where->getHaving(), $orderBy, $orderWay);
+        $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, NULL, $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
         $result = $name::getConn()->query($sql, $where->getArgs(), $returnType);
@@ -543,7 +534,6 @@ class Model
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
-        $hasHaving = strlen($where->getHaving()) > 0;
 
         if (!$columns)
         {
@@ -569,7 +559,8 @@ class Model
             $columnsAggregation[] = $query . ' as aggregation' . $columnName;
         }
 
-        if ($hasHaving || $forceExternalSelect)
+        //FIXME is this still needed?
+        if ($forceExternalSelect)
         {
             $columns = $columnsString;
         }
@@ -578,9 +569,9 @@ class Model
             $columns = implode(',', $columnsAggregation) . ', ' . $columnsString;
         }
 
-        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, $where->getHaving());
+        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, NULL);
 
-        if ($hasHaving || $forceExternalSelect)
+        if ($forceExternalSelect)
         {
             $sql = 'SELECT ' . implode(',', $columnsAggregation) . ' FROM ( ' . $sql . ') AS ag';
         }

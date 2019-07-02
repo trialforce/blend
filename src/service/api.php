@@ -50,8 +50,6 @@ class Api
     {
         $model = Request::get('p');
         $metodo = Request::get('e');
-        $id = Request::get('v');
-
         $this->verifyPermission();
 
         $modelClass = $this->getModelClass();
@@ -62,26 +60,7 @@ class Api
             throw new \Exception('Modelo API inexistente!');
         }
 
-        //instantiate the object
-        if ($id)
-        {
-            $obj = $modelClass::findOneByPk($id);
-            $obj instanceof \Db\Model;
-
-            if ($obj->getId() != $id)
-            {
-                throw new \UserException('Registro não encontrado ' . $id);
-            }
-
-            foreach ($_REQUEST as $key => $val)
-            {
-                $obj->setValue($key, $val);
-            }
-        }
-        else
-        {
-            $obj = new $modelClass();
-        }
+        $obj = new $modelClass();
 
         if (!method_exists($obj, $metodo))
         {
@@ -92,8 +71,8 @@ class Api
         //get default connection, may not work every time
         $conn = \Db\Conn::getInstance();
         $conn->beginTransaction();
-        $parametros = isset($_REQUEST['params']) ? (array) $_REQUEST['params'] : array();
-        $result = call_user_func_array(array($obj, $metodo), $parametros);
+        $params[] = Request::getInstance();
+        $result = call_user_func_array(array($obj, $metodo), $params);
 
         if ($conn->inTransaction())
         {

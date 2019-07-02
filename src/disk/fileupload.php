@@ -47,9 +47,91 @@ class FileUpload extends \Disk\File
         {
             throw new \Exception('Formato de arquivo não permitido! Formato: ' . $this->getExt());
         }
-        else if ($this->error == 1)
+        else if ($this->error > 0)
         {
-            throw new \Exception('Erro no envio do arquivo!');
+            throw new \Exception($this->codeToMessage($this->error));
+        }
+    }
+
+    private function codeToMessage($code)
+    {
+        $maxUploadFileSize = new \Type\Bytes(self::getMaxUploadFileSize());
+
+        switch ($code)
+        {
+            case UPLOAD_ERR_INI_SIZE:
+                $message = "Arquivo maior que o LIMITE de {$maxUploadFileSize}";
+                break;
+            case UPLOAD_ERR_FORM_SIZE:
+                $message = "Arquivo maior que o LIMITE do formulário!";
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $message = "O arquivo foi enviado parcialmente!";
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $message = "Nenhum arquivo enviado";
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                $message = "Diretório temporário inexistente!";
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
+                $message = "Falha ao salvar arquivo no disco!";
+                break;
+            case UPLOAD_ERR_EXTENSION:
+                $message = "Upload bloqueado por extensão!";
+                break;
+
+            default:
+                $message = "Erro desconhecido!";
+                break;
+        }
+        return $message;
+    }
+
+    /**
+     * Returns a file size limit in bytes based on the PHP upload_max_filesize and post_max_size
+     *
+     * @staticvar type $maxSize
+     * @return type
+     */
+    static function getMaxUploadFileSize()
+    {
+        static $maxSize = -1;
+
+        if ($maxSize < 0)
+        {
+            // Start with post_max_size.
+            $postMaxSize = self::parseSize(ini_get('post_max_size'));
+            $uploadMax = self::parseSize(ini_get('upload_max_filesize'));
+
+            if ($postMaxSize > 0)
+            {
+                $maxSize = $postMaxSize;
+            }
+
+            // If upload_max_size is less, then reduce. Except if upload_max_size is zero, which indicates no limit.
+            if ($uploadMax > 0 && $uploadMax < $maxSize)
+            {
+                $maxSize = $uploadMax;
+            }
+        }
+
+        return $maxSize;
+    }
+
+    protected static function parseSize($size)
+    {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
+        $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+
+        if ($unit)
+        {
+            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        }
+        else
+        {
+            return round($size);
         }
     }
 
@@ -92,7 +174,7 @@ class FileUpload extends \Disk\File
             mkdir($dir, 0777, TRUE);
         }
 
-        $ok = move_uploaded_file($this->tmpName, $dest); //faz upload
+        $ok = move_uploaded_file($this->tmpName, $dest . ''); //faz upload
         $this->setPath($dest . '');
 
         if ($ok && $this->exists())

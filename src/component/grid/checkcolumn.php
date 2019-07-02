@@ -23,6 +23,7 @@ class CheckColumn extends \Component\Grid\Column
 
         parent::__construct($name, '', Column::ALIGN_LEFT, NULL);
         $this->setExport(FALSE);
+        $this->setWidth('3%');
     }
 
     function getNameType()
@@ -37,6 +38,9 @@ class CheckColumn extends \Component\Grid\Column
 
     public function getHeadContent(\View\View $tr, \View\View $th)
     {
+        $gridId = $this->getIdJs();
+        $name = $this->getName();
+
         $js = "
             function selecteChecks(gridName)
             {
@@ -50,8 +54,16 @@ class CheckColumn extends \Component\Grid\Column
                     {
                         $(this).parent().parent().removeClass('select');
                     }
-                }
-                );
+                });
+            }
+
+            function selecteCheck(elementId)
+            {
+                var element = $('#' + elementId);
+                var selecionado = !element.prop('checked');
+                element.prop('checked', selecionado);
+
+                $('#checkAllcheck').prop('checked', false);
             }";
 
         \App::addJs($js);
@@ -86,9 +98,10 @@ class CheckColumn extends \Component\Grid\Column
                 $nameValue = $item->getId();
             }
 
-            $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
             $idJs = $this->getIdJs();
-            $check->click("selecteChecks('{$idJs}');");
+            $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
+            $check->addStyle('margin', '0 6px');
+            $check->click("selecteCheck(this.id); selecteChecks('{$idJs}');");
         }
 
 
@@ -108,10 +121,10 @@ class CheckColumn extends \Component\Grid\Column
         $js = "
             $('#{$gridId} #checkAll{$name}').click( function ()
             {
-                $('#{$gridId} .checkBox{$name}').prop( 'checked',$(this).prop('checked') );
+                var selecionado = $(this).prop('checked');
+                $('#{$gridId} .checkBox{$name}').prop( 'checked', selecionado );
                 selecteChecks('{$gridId}');
-            }
-            );";
+            });";
 
         return \App::addJs($js);
     }

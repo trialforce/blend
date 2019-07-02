@@ -2,11 +2,8 @@
 
 namespace Filter;
 
-use DataHandle\Request;
-
 /**
  * Reference field filter
- *
  */
 class Reference extends \Filter\Collection
 {
@@ -19,10 +16,31 @@ class Reference extends \Filter\Collection
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, \Db\Column $dbColumn = NULL, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column, $filterType = NULL)
     {
         parent::__construct($column, NULL, $filterType);
-        $this->setDbColumn($dbColumn);
+
+        $dom = \View\View::getDom();
+
+        if (method_exists($dom, 'getModel'))
+        {
+            $model = $dom->getModel();
+            $dbColumn = $model::getColumn($column->getName());
+            $this->setDbColumn($dbColumn);
+        }
+        else
+        {
+            throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
+        }
+
+        if ($this->dbColumn->getClass())
+        {
+            $this->setDefaultCondition(self::COND_TEXT);
+        }
+        else
+        {
+            $this->setDefaultCondition(self::COND_EQUALS);
+        }
     }
 
     public function getDbColumn()
@@ -36,9 +54,9 @@ class Reference extends \Filter\Collection
         return $this;
     }
 
-    public function getCondition()
+    public function getConditionList()
     {
-        $conditionName = $this->getConditionName();
+        $options = array();
 
         if ($this->dbColumn->getClass())
         {
@@ -54,56 +72,31 @@ class Reference extends \Filter\Collection
             $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
         }
 
-        $conditionValue = Request::get($conditionName) ? Request::get($conditionName) : self::COND_TEXT;
-
-        $select = new \View\Select($conditionName, $options, $conditionValue, 'filterCondition');
-        $this->getCondJs($select);
-
-        return $select;
+        return $options;
     }
 
-    public function getDbCond()
-    {
-        $column = $this->getColumn();
-        $columnName = $column->getSql();
-        $conditionName = $this->getConditionName();
-        $filterName = $this->getValueName();
-        $conditionValue = Request::get($conditionName);
-        $filterValue = Request::get($filterName);
-
-        if ($conditionValue && ($filterValue || $filterValue == 0) && $conditionValue == self::COND_TEXT)
-        {
-            $dbColumn = $this->dbColumn;
-            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue));
-        }
-        else
-        {
-            return parent::getDbCond();
-        }
-    }
-
-    public function getValue()
+    public function getInputValue($index = 0)
     {
         $columnValue = $this->getValueName();
         $class = 'filterInput reference';
-        $value = Request::get($columnValue);
-
+        $value = $this->getFilterValue($index);
         $formatter = $this->column->getFormatter();
 
         //add support for a formatter as \Db\ConstantValues
         if ($formatter instanceof \Db\ConstantValues)
         {
-            $field = new \View\Select($this->getValueName(), $formatter->getArray(), $value, $class);
+            $field = new \View\Select($this->getValueName() . '[]', $formatter->getArray(), $value, $class);
         }
         else if ($this->dbColumn->getReferenceField())
         {
             if ($this->dbColumn->getClass())
             {
-                $field = new \View\Input($this->getValueName(), 'texxt', $value, 'filterInput');
+                $field = new \View\Input($this->getValueName() . '[]', 'text', $value, 'filterInput');
             }
             else
             {
                 $field = new \View\Ext\ReferenceField($this->dbColumn, $columnValue, $value, $class);
+                $field->setName($field->getName() . '[]');
             }
         }
         else
@@ -115,13 +108,33 @@ class Reference extends \Filter\Collection
                 $cValues = $cValues->getArray();
             }
 
-            $field = new \View\Select($this->getValueName(), $cValues, $value, $class);
+            $field = new \View\Select($this->getValueName() . '[]', $cValues, $value, $class);
         }
 
         //$field->setMultiple(true);
         $field->onPressEnter("$('#buscar').click()");
 
         return $field;
+    }
+
+    public function createWhere($index = 0)
+    {
+        $conditionValue = $this->getConditionValue($index);
+        $filterValue = $this->getFilterValue($index);
+        $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
+        $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
+
+        if ($conditionValue && $conditionValue == self::COND_TEXT && $wasFiltered)
+        {
+            $dbColumn = $this->dbColumn;
+            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue), $conditionType);
+        }
+        else
+        {
+            return parent::createWhere($index);
+        }
+
+        return null;
     }
 
 }

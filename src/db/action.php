@@ -60,7 +60,10 @@ abstract class Action
      *
      * @return \View\View
      */
-    public abstract function getResultView();
+    public function getResultView()
+    {
+        return new \View\Pre($this->getResult());
+    }
 
     /**
      * Execute a task in background
@@ -80,6 +83,19 @@ abstract class Action
         $model = strtolower(implode('-', $explode));
 
         return self::executeBackGround($model, $action, $id);
+    }
+
+    /**
+     * Simple execute an action now and get it's result
+     *
+     * @param \Db\Model $model
+     * @return mixed
+     */
+    public static function executeNow($model)
+    {
+        $className = get_called_class();
+        $action = new $className($model);
+        return $action->execute();
     }
 
     /**

@@ -2,6 +2,9 @@
 
 namespace View\Ext;
 
+/**
+ * A calendar of a month
+ */
 class Calendar extends \View\Table
 {
 
@@ -27,11 +30,20 @@ class Calendar extends \View\Table
     protected $weekDays = array('D', 'S', 'T', 'Q', 'Q', 'S', 'S');
 
     /**
-     * Day indexed data, used to create calender with content
+     * Day indexed data, used to create calendar with content
      * @var array
      */
     protected $dataDay;
 
+    /**
+     * Construct the calendar
+     *
+     * @param string $id calendar id
+     * @param int $month calendar month
+     * @param int $year calendar year
+     * @param string $class css class
+     * @param \View\View $father
+     */
     public function __construct($id = NULL, $month = NULL, $year = NULL, $class = NULL, $father = NULL)
     {
         parent::__construct($id, NULL, $class, $father);
@@ -46,22 +58,31 @@ class Calendar extends \View\Table
         }
     }
 
-    public function getMonth()
-    {
-        return $this->month;
-    }
-
-    public function getYear()
-    {
-        return $this->year;
-    }
-
+    /**
+     * Set month
+     * @param int $month
+     * @return $this
+     */
     public function setMonth($month)
     {
         $this->month = $month;
         return $this;
     }
 
+    /**
+     * Return the current month
+     * @return int
+     */
+    public function getMonth()
+    {
+        return $this->month;
+    }
+
+    /**
+     * Set year
+     * @param int $year
+     * @return $this
+     */
     public function setYear($year)
     {
         $this->year = $year;
@@ -69,21 +90,12 @@ class Calendar extends \View\Table
     }
 
     /**
-     * Define week days
-     *
-     * @param array $weekDays
+     * Return the year
+     * @return int
      */
-    public function setWeekDays($weekDays)
+    public function getYear()
     {
-        $this->weekDays = $weekDays;
-    }
-
-    /**
-     * Set complete week day
-     */
-    public function setCompleteWeekDays()
-    {
-        $this->weekDays = array('Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado');
+        return $this->year;
     }
 
     /**
@@ -96,17 +108,51 @@ class Calendar extends \View\Table
         return $this->weekDays;
     }
 
+    /**
+     * Define week days labels
+     *
+     * @param array $weekDays
+     */
+    public function setWeekDays($weekDays)
+    {
+        $this->weekDays = $weekDays;
+    }
+
+    /**
+     * Set complete week day
+     * A shortcut method to full day name in labels
+     *
+     * @todo need to use system language
+     */
+    public function setCompleteWeekDays()
+    {
+        $this->weekDays = array('Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado');
+    }
+
+    /**
+     * Return the data indexed by day
+     *
+     * @return array
+     */
     public function getDataDay()
     {
         return $this->dataDay;
     }
 
+    /**
+     * Define the data indexed by dia
+     * @param array $dataDay
+     */
     public function setDataDay($dataDay)
     {
         $this->dataDay = $dataDay;
     }
 
-    public function getLastDayofMonth()
+    /**
+     * Return the last day of calendar month
+     * @return int
+     */
+    protected function getLastDayofMonth()
     {
         $date = new \Type\DateTime();
         $date->setDay(1)->setMonth($this->getMonth())->setYear($this->getYear());
@@ -115,13 +161,9 @@ class Calendar extends \View\Table
         return $lastDayOfMonth;
     }
 
-    public function onCreate($createSpan = FALSE)
+    protected function createThs()
     {
-        $today = \Type\Date::now();
-        $todayDayTrim = ltrim($today->getDay(), 0);
-        $this->append(new \View\Caption('caption_' . $this->getId(), \Type\DateTime::getMonthExt($this->getMonth()) . '/' . $this->getYear()));
-        $dias = $this->getLastDayofMonth();
-
+        $ths = array();
         $weekDays = $this->getWeekDays();
 
         foreach ($weekDays as $weekDay)
@@ -129,21 +171,42 @@ class Calendar extends \View\Table
             $ths[] = new \View\Th(NULL, $weekDay);
         }
 
-        $trTh = new \View\Tr(NULL, $ths);
+        return $ths;
+    }
+
+    protected function createCaption()
+    {
+        $caption = new \View\Caption('caption_' . $this->getId(), \Type\DateTime::getMonthExt($this->getMonth()) . '/' . $this->getYear());
+        return $caption;
+    }
+
+    /**
+     * Create the calendar
+     *
+     * @param bool $createSpan create a span inside TD
+     */
+    public function onCreate($createSpan = FALSE)
+    {
+        $today = \Type\Date::now();
+        $todayDayTrim = ltrim($today->getDay(), 0);
+        $totalDaysOfMonth = $this->getLastDayofMonth();
+        $this->append($this->createCaption());
+
+        $trTh = new \View\Tr(NULL, $this->createThs());
         $this->append(new \View\THead(NULL, $trTh));
 
         $myTr = new \View\Tr(NULL);
 
-        for ($i = 1; $i <= $dias; $i++)
+        for ($i = 1; $i <= $totalDaysOfMonth; $i++)
         {
-            $diaSemana = date("w", mktime(0, 0, 0, $this->getMonth(), $i, $this->getYear()));
+            $dayOfWeek = date("w", mktime(0, 0, 0, $this->getMonth(), $i, $this->getYear()));
 
             $cont = 0;
 
-            //pula dias iniciais
+            //jump initial days
             if ($i == 1)
             {
-                while ($cont < $diaSemana)
+                while ($cont < $dayOfWeek)
                 {
                     $tds[] = new \View\Td(NULL, NULL);
 
@@ -187,7 +250,7 @@ class Calendar extends \View\Table
 
             $tds[] = new \View\Td($this->getId() . '_day_' . $i, $myValue, $class);
 
-            if ($diaSemana == 6)
+            if ($dayOfWeek == 6)
             {
                 $myTr->append($tds);
                 $this->append($myTr);

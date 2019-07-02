@@ -26,7 +26,7 @@ class SearchColumn extends \Db\Column
     public function __construct($label = NULL, $name = NULL, $type = NULL, $query = NULL)
     {
         parent::__construct($label, $name, $type);
-        $this->query = $query;
+        $this->setQuery($query);
     }
 
     /**
@@ -46,6 +46,12 @@ class SearchColumn extends \Db\Column
      */
     public function setQuery($query)
     {
+        //convert a \Db\Query to a simple string to searchColumn
+        if ($query instanceof \Db\QueryBuilder)
+        {
+            $query = $query->getSelectSql()->replace('SELECT', '')->__toString();
+        }
+
         $this->query = $query;
     }
 

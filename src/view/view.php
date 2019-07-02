@@ -319,16 +319,14 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
-     * Adiciona uma classe css ao elemento.
-     * Guarda as que já existem.
+     * Adds a class to one element, don't mess with previous add classes
+     * It's possiblte to add multiple classes at one time.
      *
-     * Pode adicionar várias classes, nos parâmetros da função
-     *
-     * @param string $args
+     * @param string $classToAdd class to add
      *
      * @return \View\View
      */
-    public function addClass($args)
+    public function addClass($classToAdd)
     {
         //args is not used, is overwritred with func_get_args
         //$args = null;
@@ -342,19 +340,23 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         $this->setClass(trim($class));
 
+        if ($this->getOutputJs())
+        {
+            \App::addJs($this->getSelector() . ".addClass('{$classToAdd}');");
+        }
+
         return $this;
     }
 
     /**
-     * Remove uma classe css ao elemento.
+     * Remove one css class from element
+     * It's possiblte to remove multiple classes at one time.
      *
-     * Pode adicionar várias classes, nos parâmetros da função
-     *
-     * @param string $class
+     * @param string $classToRemove
      *
      * @return \View\View
      */
-    public function removeClass($class)
+    public function removeClass($classToRemove)
     {
         $class = $this->getClass();
         $classes = func_get_args();
@@ -374,6 +376,11 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         else
         {
             $this->removeAttribute('class');
+        }
+
+        if ($this->getOutputJs())
+        {
+            \App::addJs($this->getSelector() . ".removeClass('{$classToRemove}');");
         }
 
         return $this;

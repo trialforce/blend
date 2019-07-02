@@ -228,7 +228,9 @@ class Column
           $this->setDefaultValue( $defaultValue );
           $this->setExtra( $extra ); */
         //optimize it to not need it
-        $this->addValidator(new \Validator\Validator(null, $this));
+        $validator = new \Validator\Validator(null);
+        $validator->setColumn($this);
+        $this->addValidator($validator);
 
         return $this;
     }
@@ -855,7 +857,8 @@ class Column
      */
     public static function getRealColumnName($sqlForColumn)
     {
-        $columnName = $sqlForColumn;
+        //convert for string if is an object
+        $columnName = $sqlForColumn . '';
 
         // columname AS alias
         if (stripos($columnName, ' AS ') > 0)
