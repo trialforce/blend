@@ -80,6 +80,10 @@ ORDER BY t.ORDINAL_POSITION;";
                 {
                     $column->setType(\Db\Column::TYPE_INTEGER);
                 }
+                else if (strtolower($column->getType()) == 'float')
+                {
+                    $column->setType(\Db\Column::TYPE_DECIMAL);
+                }
 
                 $columns[$column->getName()] = $column;
             }
