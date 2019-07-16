@@ -31,6 +31,11 @@ function blend_shutdown()
         {
             return;
         }
+        //avoid outdated phpmailer in php 7.2
+        else if (stripos($error['file'], 'phpmailer') > 0)
+        {
+            return;
+        }
         //avoid weird xmlwriter error
         else if (stripos($error['message'], 'XMLWriter') === 0)
         {
