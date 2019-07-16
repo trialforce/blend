@@ -72,16 +72,7 @@ class Model
      */
     public static function getName()
     {
-        //necessary because namespace, add support for API classes
-        $name = get_called_class();
-
-        if (stripos($name, 'api') === 0)
-        {
-            $name = 'Model\\' . str_replace('Api\\', '', $name);
-        }
-
-        $name = '\\' . $name;
-        return $name;
+        return '\\' . get_called_class();
     }
 
     /**

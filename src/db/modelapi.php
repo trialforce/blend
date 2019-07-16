@@ -62,6 +62,31 @@ class ModelApi extends \Db\Model
         return parent::update($columns);
     }
 
+    public static function getTableName()
+    {
+        $tableName = parent::getTableName();
+
+        if (stripos($tableName, 'api') === 0)
+        {
+            $tableName = lcfirst(str_replace('api', '', $tableName));
+        }
+
+        return $tableName;
+    }
+
+    public static function getModelName()
+    {
+        //necessary because namespace, add support for API classes
+        $name = get_called_class();
+
+        if (stripos($name, 'api') === 0)
+        {
+            $name = 'Model\\' . str_replace('Api\\', '', $name);
+        }
+
+        return $name;
+    }
+
     public static function createUniqueIdMobile()
     {
         //start with ZERO means created in backend
@@ -113,7 +138,7 @@ class ModelApi extends \Db\Model
      */
     public static function list()
     {
-        $name = self::getName();
+        $name = self::getModelName();
         $wheres = null;
         $smartSearch = null;
         $limit = null;
