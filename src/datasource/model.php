@@ -125,6 +125,11 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             $sqlColumn = $agg->getColumnName();
             $column = $model->getColumn($agg->getColumnName());
 
+            if (!$column)
+            {
+                continue;
+            }
+
             if ($column instanceof \Db\SearchColumn)
             {
                 $forceExternalSelect = TRUE;
