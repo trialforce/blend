@@ -16,12 +16,17 @@ class Date extends \Type\DateTime
         return $this->getValue(self::MASK_DATE_USER);
     }
 
+    public function toHuman()
+    {
+        return $this->getValue(self::MASK_DATE_USER);
+    }
+
     public function getValue($mask = self::MASK_DATE_USER)
     {
         return parent::getValue($mask);
     }
 
-    public static function get($date)
+    public static function get($date = NULL, $column = NULL)
     {
         return new \Type\Date($date);
     }

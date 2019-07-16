@@ -54,7 +54,7 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Gener
     public function getObjectArray()
     {
         $array = $this->getArray();
-        $result = [];
+        $result = array();
 
         if (is_array($array))
         {

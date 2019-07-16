@@ -95,7 +95,10 @@ class MountFilter
         //verify if is needed to mount the filter by database/model column
         if ($dbColumn instanceof \Db\Column)
         {
-            $filter = $this->mountDbColumnFilter($dbColumn, $column);
+            if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
+            {
+                $filter = new \Filter\Reference($column, $column->getFilterType());
+            }
         }
 
         //if not find in model, create a default filter based on column type
@@ -115,33 +118,6 @@ class MountFilter
 
             $filterClass = '\\Filter\\' . ucfirst($dataType);
             $filter = new $filterClass($column, NULL, $filterType);
-        }
-
-        return $filter;
-    }
-
-    /**
-     * Mount a filter based on a \Db\Column
-     *
-     * @param \Db\Column $dbColumn
-     * @param \Component\Grid\Column $column
-     * @return \Filter\Reference
-     */
-    public function mountDbColumnFilter(\Db\Column $dbColumn, Column $column)
-    {
-        $filter = NULL;
-
-        if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
-        {
-            //não faz dbcolumn com classes diferentes
-            if ($dbColumn->getClass())
-            {
-                $filter = new \Filter\Integer($column, NULL, $column->getFilterType());
-            }
-            else
-            {
-                $filter = new \Filter\Reference($column, $dbColumn, $column->getFilterType());
-            }
         }
 
         return $filter;
@@ -179,6 +155,12 @@ class MountFilter
         //prepare filters to an array
         foreach ($columns as $column)
         {
+            //step by the columsn that is not filtered
+            if (!$column->getFilter())
+            {
+                continue;
+            }
+
             $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
             $filter = $mountFilter->getFilter();
 
@@ -201,9 +183,9 @@ class MountFilter
             }
         }
 
+        //call order in filters
         if (is_array($filters))
         {
-            //call order in filters
             usort($filters, 'self::filterSort');
         }
 

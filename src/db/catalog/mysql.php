@@ -80,6 +80,10 @@ ORDER BY t.ORDINAL_POSITION;";
                 {
                     $column->setType(\Db\Column::TYPE_INTEGER);
                 }
+                else if (strtolower($column->getType()) == 'float')
+                {
+                    $column->setType(\Db\Column::TYPE_DECIMAL);
+                }
 
                 $columns[$column->getName()] = $column;
             }
@@ -231,6 +235,7 @@ WHERE index_name = '{$indexName}'";
 
     public static function parseTableNameForQuery($table)
     {
+        //add support for a list of tables
         if (is_array($table))
         {
             foreach ($table as $index => $value)
@@ -241,19 +246,24 @@ WHERE index_name = '{$indexName}'";
             return $table;
         }
 
-        //is numeric or function
-        if (is_numeric($table) || stripos($table, '(') > 0 || stripos($table, '(') === 0)
+        //is numeric or function, or has left join
+        if (is_numeric($table) ||
+                stripos($table, '(') > 0 ||
+                stripos($table, '(') === 0 ||
+                stripos($table, ' ON ') > 0
+        )
         {
             return trim($table);
         }
 
-        //add support for '.'
+        //add support for 'table.field'
         $explode = explode('.', $table);
         $result = null;
 
         foreach ($explode as $table)
         {
-            $result[] = strlen(trim($table)) > 0 ? '`' . trim($table) . '`' : '';
+            $table = trim($table);
+            $result[] = strlen($table) > 0 ? '`' . $table . '`' : '';
         }
 
         return implode('.', $result);
@@ -290,7 +300,6 @@ WHERE index_name = '{$indexName}'";
             }
         }
 
-        //$columns = '`'.implode('`,`', $columnNames).'`';
         $columns = implode(',', $columnNames);
 
         return $columns;
@@ -369,8 +378,6 @@ $fksStr
 )
 COMMENT='$comment'
 $paramStr";
-
-//echo('<pre>'.$sql.'</pre>');
 
         return $sql;
     }

@@ -589,11 +589,6 @@ class Image extends \Disk\File
         $exts[] = self::EXT_GIF;
         $exts[] = self::EXT_PNG;
 
-        if (\Media\ImageMagick::isInstalled())
-        {
-            $exts[] = self::EXT_PSD;
-        }
-
         return in_array($this->getExtension(), $exts);
     }
 

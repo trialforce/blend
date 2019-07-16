@@ -137,6 +137,11 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
             $subquery = $method . '( ' . $sqlColumn . ' )';
 
+            if (!$column)
+            {
+                throw new \UserException('Column ' . $sqlColumn . ' não encontrada na agregação de dados!');
+            }
+
             if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
             {
                 $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
@@ -287,9 +292,16 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
         $gridColumn->setIdentificator($column->isPrimaryKey());
 
-        //search column has having filter as default
+        //search column has no filter as default
         if ($column instanceof \Db\SearchColumn)
         {
+            $sqls = $column->getSql(FALSE);
+
+            if (isset($sqls[0]))
+            {
+                $gridColumn->setSql($sqls[0]);
+            }
+
             $gridColumn->setFilter(FALSE);
         }
 

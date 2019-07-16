@@ -336,7 +336,7 @@ class SmartFilter
 
     protected function filterByContantValues($filter, \Db\Column $column)
     {
-        $columnName = $column->getName();
+        $columnSql = $column->getSql(FALSE);
         $filter = \Type\Text::get($filter)->toASCII()->toLower();
         $cValues = $column->getConstantValues();
 
@@ -346,7 +346,7 @@ class SmartFilter
 
             if ($filter == $info)
             {
-                $this->conds[] = new \Db\Cond($columnName . ' = ?', $value, \Db\Cond::COND_OR);
+                $this->conds[] = new \Db\Where($columnSql[0], '=', $value, \Db\Cond::COND_OR);
             }
         }
     }
@@ -372,7 +372,6 @@ class SmartFilter
     protected function mergeFilters($where)
     {
         $filters = array();
-        $filtersHaving = array();
 
         //force empty query for zero return
         if (( is_array($where) && count($where) == 0 ) || !is_array($where))
@@ -390,24 +389,17 @@ class SmartFilter
         {
             $cond instanceof \Db\Cond;
 
-            if ($cond->getType() == \Db\Cond::TYPE_HAVING)
-            {
-                $filtersHaving[] = $cond;
-            }
-            else
-            {
-                $whereString .= $cond->getWhere($count === 0);
-                $value = $cond->getValue();
-                $values = array_merge($values, is_array($value) ? $value : array());
-                $count++;
-            }
+            $whereString .= $cond->getWhere($count === 0);
+            $value = $cond->getValue();
+            $values = array_merge($values, is_array($value) ? $value : array());
+            $count++;
         }
 
         $whereString .= ')';
 
         $filters[] = new \Db\Cond($whereString, $values, \Db\Cond::COND_AND);
 
-        return array_merge($filters, $filtersHaving);
+        return $filters;
     }
 
 }

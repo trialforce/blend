@@ -2,12 +2,10 @@
 
 namespace Filter;
 
-use DataHandle\Request;
-
 /**
  * Check filter
+ * FIXME where is this used???
  *
- * @author eduardo
  */
 class Check extends \Filter\Text
 {
@@ -17,16 +15,16 @@ class Check extends \Filter\Text
         return NULL;
     }
 
-    public function getValue()
+    public function getInputValue($index)
     {
         $columnValue = $this->getValueName();
 
-        return new \View\Ext\CheckboxDb($columnValue, 1, Request::get($columnValue) == 1, 'small filterCondition');
+        return new \View\Ext\CheckboxDb($columnValue, 1, $this->getFilterValue($index) == 1, 'small filterCondition');
     }
 
     public function getDbCond()
     {
-        return new \Db\Cond($this->getColumn()->getName() . ' = 1');
+        return new \Db\Where($this->getColumn()->getName(), '=', '1');
     }
 
 }

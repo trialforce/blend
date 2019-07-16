@@ -3,17 +3,28 @@
 namespace View\Ext;
 
 /**
- * Botstrapicon
+ * Font awesome icon
  */
 class Icon extends \View\I
 {
 
-    public function __construct( $icon )
+    /**
+     * Construct a font-awesome icon
+     * @param string $icon the icon css class
+     * @param string $id the id (optional)
+     * @param string $onClick the on click (optional)
+     */
+    public function __construct($icon, $id = NULL, $onClick = NULL)
     {
-        $icon = str_replace( 'cancel', 'times', $icon );
-        $class = 'fa fa-' . $icon;
+        //FIXME still needed?
+        $icon = str_replace('cancel', 'times', $icon);
 
-        parent::__construct( null, null, $class );
+        parent::__construct($id, null, 'fa fa-' . $icon);
+
+        if ($onClick)
+        {
+            $this->click($onClick);
+        }
     }
 
 }

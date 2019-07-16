@@ -234,11 +234,7 @@ function dataAjax()
     //multipleSelect();
     seletMenuItem();
 
-    var ua = navigator.userAgent.toLowerCase();
-    var isAndroid = ua.indexOf("android") > -1;
-    var isIphone = ua.indexOf("iphone") > -1;
-
-    if (isAndroid || isIphone)
+    if (isAndroid() || isIos())
     {
         $('.dateinput').not('[readonly]').each(function () {
             $(this).mask('99/99/9999');
@@ -251,7 +247,8 @@ function dataAjax()
         $('.timeinput').not('[readonly]').each(function () {
             $(this).mask('99:99:99');
         });
-    } else if (typeof $().datetimepicker === 'function')
+    } 
+    else if (typeof $().datetimepicker === 'function')
     {
         $('.dateinput').not('[readonly]').datetimepicker({
             timepicker: false,
@@ -284,10 +281,12 @@ function dataAjax()
             mask: true,
             step: 15
         });
-    } else
+    } 
+    else
     {
         //fallback to default date of browser
-        $('.dateinput').each(function () {
+        $('.dateinput').each(function ()
+        {
             var element = $(this);
             var value = element.val();
 
@@ -351,6 +350,16 @@ function dataAjax()
         e.preventDefault();
         e.stopPropagation();
     });
+    
+    //add system class
+    if ( isIos())
+    {
+        $('body').removeClass('os-ios').addClass('os-ios');
+    }
+    else if ( isAndroid())
+    {
+        $('body').removeClass('os-android').addClass('os-android');
+    }   
 
     hideLoading();
 
@@ -633,7 +642,7 @@ function r(type, page, formData, callBack)
         }
     }
 
-    //disable focused element, perhaphs a button or link
+    //disable focused element, perhaps a button or link
     if (typeof focused.get(0) != 'undefined')
     {
         if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
@@ -691,7 +700,8 @@ function r(type, page, formData, callBack)
 
                 formData.append(name, value);
             });
-        } else
+        }
+        else
         {
             formData = $('form').serialize();
 
@@ -978,7 +988,7 @@ function popup(action, selector)
 }
 
 /**
- * Atualiza o conteúdo dos editores html nicEditor
+ * Update the content of html editor nicEditor and CkEditor
  *
  * @returns void
  */
@@ -1007,6 +1017,15 @@ function updateEditors()
             }
         }
     });
+    
+    //add support for ckeditor 4
+    if ( typeof CKEDITOR == 'object')
+    {
+        for ( var instance in CKEDITOR.instances )
+        {
+          CKEDITOR.instances[instance].updateElement();
+        }
+    }
 }
 
 function comboShowDropdown(id)
@@ -1194,9 +1213,10 @@ function setFocusOnFirstField()
     if ($('.popup').length)
     {
         $('.popup').find('input:not([readonly]):not([disabled]):first').focus();
-    } else
+    } 
+    else
     {
-        $('input:not([readonly]):not([disabled]):first').focus();
+        $('.content input:not([readonly]):not([disabled]):first').focus();
     }
 
     return false;
@@ -1505,6 +1525,45 @@ function getCookie(variable)
     return "";
 }
 
+function filterRemove(element)
+{
+    var element = $(element);
+    var parent = element.parent().parent();
+    parent.find('input, select').attr('disabled','disabled'); 
+    parent.hide('fast');
+}
+
+function filterAdd(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    var filterBase = parent.find('.filterBase');
+    var filterConditionValue = filterBase.find('.filterCondition').val();
+    var clone = filterBase.clone().removeClass('filterBase');
+
+    //add remove button
+    clone.append('<i class="fa fa-trash trashFilter" onclick="filterTrash(this)"></i>');
+    //clear cloned value
+    clone.find('.filterInput').val('').removeAttr('data-on-press-enter-converted');
+    //restore condition value (clone is not filling it)
+    clone.find('.filterCondition').val(filterConditionValue);
+    
+    //show with animation
+    clone.hide()
+    parent.append(clone);
+    clone.slideDown('fast');
+    
+    //process ajax fields
+    dataAjax();
+}
+
+function filterTrash(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    parent.slideUp('fast',function(){$(this).remove()});
+}
+
 function filterChangeText(element)
 {
     var val = $(element).val();
@@ -1527,11 +1586,13 @@ function filterChangeInteger(element)
 {
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
+    var inputFinal = $(element).parent().find('.final');
     
     if ( val == 'between') 
     {  
         element.removeClass('fullWidth');
-        input.show().addClass('filterInput');
+        input.show().addClass('filterInterval');
+        inputFinal.removeAttr('disabled').add('filterInterval').show();
     } 
     else if (val == 'nullorempty')
     {
@@ -1541,9 +1602,8 @@ function filterChangeInteger(element)
     else 
     { 
         element.removeClass('fullWidth');
-        input.show();
-        //input.show().removeClass('filterInput');
-        $(element).parent().find('.final').hide();
+        input.show().removeClass('filterInterval');
+        inputFinal.hide().attr('disabled','disabled');
     }
 }
 
@@ -1551,6 +1611,9 @@ function filterChangeDate(element)
 {
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
+    var prefix = $(element).attr('id').replace('Condition', '');
+    var elValue = $(element).parent().find('.filterInput');
+    var elValueFinal = $(element).parent().find('.final');
     
     if ( val== 'nullorempty' 
             || val == 'today' 
@@ -1563,55 +1626,69 @@ function filterChangeDate(element)
     { 
         input.val('').hide();
         element.addClass('fullWidth');
+        elValue.value = '';
+        elValueFinal.value = '';
     } 
     else if ( val == 'between' ) 
     { 
         input.show();
         element.removeClass('fullWidth');
-        showEndDate(1, $(element).attr('id')); 
-    }
-    else if ( val == 'birthday' )
-    { 
-        input.show();
-        element.removeClass('fullWidth');
-        showEndDate(2, $(element).attr('id')); 
+        elValue.show().addClass('filterInterval');
+        elValueFinal.removeAttr('disabled').addClass('filterInterval').show();
     }
     else 
     { 
         input.show();
         element.removeClass('fullWidth');
-        showEndDate(0, $(element).attr('id')); 
+        elValue.show().removeClass('filterInterval');
+        elValueFinal.hide().attr('disabled','disabled').removeClass('filterInterval');
+        elValue.value = '';
+        elValueFinal.value = '';
     }
 }
 
-/**
- * Mostra e esconde o campo de filtro avançado para escolha da data final quando o filtro de data for between.
- *
- * FIXME função 'importada', precisa ser repensada
- *
- * @param {type} show
- * @param {type} id
- * @returns {undefined}
- */
-function showEndDate(show, id)
+function filterChangeBoolean(element)
 {
-    var toRemove = 'Condition';
-    var prefixo = id.replace(toRemove, '');
+    var val = $(element).val();
+    var input = $(element).parent().find('.filterInput');
 
-    var mascara = ((show === 2) ? '99/99' : '99/99/9999');
+    input.val('').hide();
+    element.addClass('fullWidth');
+}
 
-    if (show === 1 || show === 2)
+//used in grid checkcolumn, need refactor
+function selecteChecks(gridName)
+{
+    $('#'+gridName+'Table .checkBoxcheck').each( function()
     {
-        $('#' + prefixo + 'Value').show().mask(mascara);
+        if ( $(this).prop('checked') === true )
+        {
+            $(this).parent().parent().addClass('select');
+        }
+        else
+        {
+            $(this).parent().parent().removeClass('select');
+        }
+    });
+}
 
-        $('#' + prefixo + 'ValueFinal').show().mask(mascara);
-        $('#' + prefixo + 'ValueLabelFinal').show();
-    } else
-    {
-        $('#' + prefixo + 'Value').show().mask(mascara);
+//used in grid checkcolumn, need refactor
+function selecteCheck(elementId)
+{
+    var element = $('#' + elementId);
+    var checked = !element.prop('checked');
+    element.prop('checked', checked);
+    
+    $('#checkAllcheck').prop('checked', false);
+}
 
-        $('#' + prefixo + 'ValueLabelFinal').hide();
-        $('#' + prefixo + 'ValueFinal').hide();
-        $('#' + prefixo + 'ValueFinal').value = '';
-    }
+function isAndroid()
+{
+    return navigator.userAgent.toLowerCase().indexOf("android") > -1;
+}
+
+function isIos() 
+{
+    var ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
 }

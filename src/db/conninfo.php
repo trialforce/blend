@@ -67,6 +67,12 @@ class ConnInfo
     protected $password;
 
     /**
+     * Connection charset
+     * @var string
+     */
+    protected $charset = 'UTF-8';
+
+    /**
      * DNS String for PDFO
      *
      * @var string
@@ -82,9 +88,9 @@ class ConnInfo
      * @param string $name database name
      * @param string $username username
      * @param string $password password
-     * @param string $dsn dsn for pdo
+     * @param string $charset charset
      */
-    public function __construct($id, $type, $host, $name, $username, $password = NULL, $dsn = NULL)
+    public function __construct($id, $type, $host, $name, $username, $password = NULL, $charset = NULL)
     {
         $this->id = $id;
         $this->type = $type;
@@ -92,12 +98,8 @@ class ConnInfo
         $this->name = trim($name);
         $this->username = $username;
         $this->password = $password;
-        $this->dsn = $dsn;
-
-        if (is_null($this->dsn))
-        {
-            $this->makeDsn();
-        }
+        $this->charset = $charset;
+        $this->makeDsn();
 
         //auto add to connection info list
         \Db\Conn::addConnInfo($this);
@@ -108,7 +110,8 @@ class ConnInfo
      */
     protected function makeDsn()
     {
-        $this->dsn = $this->type . ':host=' . $this->host . ';dbname=' . $this->name;
+        $charset = strlen($this->charset) > 0 ? 'charset=' . $this->charset . ';' : '';
+        $this->dsn = $this->type . ':' . $charset . 'host=' . $this->host . ';dbname=' . $this->name;
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace Filter;
 
 /**
- * Date filter
+ * Tiny int filter
  */
 class TinyInt extends Boolean
 {

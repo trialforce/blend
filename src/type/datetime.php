@@ -51,7 +51,7 @@ class DateTime extends \Validator\Validator
      *
      * @example \Type\DateTime::get( $date ) = retorna a data em formato de usuário
      */
-    public static function get($date = null)
+    public static function get($date = null, $column = NULL)
     {
         return new \Type\DateTime($date);
     }
@@ -886,21 +886,6 @@ class DateTime extends \Validator\Validator
         return \Type\DateTime::get($value)->getValue();
     }
 
-    /**
-     * Coloca automáticamente a data para o próximo dia de semana.
-     * Exemplo :
-     * 1 - 01/11/2013 - Sexta-feira
-     * 2 - Manda para a próxima segunda
-     * 3 - A data fica 04/11/2013
-     *
-     * @param type $diaSemana (Vide linha dayname na tabela do link http://www.php.net/manual/en/datetime.formats.relative.php)
-     */
-    public function setNextDayOfWeek($diaSemana)
-    {
-        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
-        return $this;
-    }
-
     public function toHuman()
     {
         return $this->getValue(self::MASK_TIMESTAMP_USER_WITHOUT_SECOND);
@@ -942,7 +927,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Verify is isToday
+     * Verify if the current date is isToday
      *
      * @return string
      */
@@ -954,8 +939,8 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Retorna a data no formato utc.
-     * Utilizado pelos xmls de nfs-e nfe
+     * Return the date in UTC format
+     * Used by nfs-e nfe XML's
      *
      * @return string
      */
@@ -966,11 +951,64 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Bota a data no exato dia útil do mês.
-     * Exemplo:
-     * O quinto dia útil de 01/07/2013 é 07/07/2013
+     * Add a specific amount of working days
+     * Return a instance of PHP DateTime
+     * @return \DateTime
+     */
+    public function getPhpDatetime()
+    {
+        return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
+    }
+
+    /**
+     * Put the date in the next DAY OF WEEK
+     * Note dayname linha int this table
+     * http://www.php.net/manual/en/datetime.formats.relative.php
      *
-     * @param type $workingDay
+     * Example :
+     * 1 - 01/11/2013 - Friday
+     * 2 - Send to next SUNDAY
+     * 3 - New date is 04/11/2013
+     *
+     * @param int $diaSemana
+     */
+    public function setNextDayOfWeek($diaSemana)
+    {
+        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
+        return $this;
+    }
+
+    /**
+     * Add a specific amount of working days
+     *
+     * @param int $daysToAdd working days to add
+     * @return $this
+     */
+    public function addWorkingDay($daysToAdd)
+    {
+        $amount = $daysToAdd;
+
+        while ($amount > 0)
+        {
+            $this->addDay(1);
+
+            while (!$this->isWorkingDay())
+            {
+                $this->addDay(1);
+            }
+
+            $amount--;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the day to the exactely working day
+     * Example:
+     * The five working day of 07/2013 is 07/07/2013
+     *
+     * @param int $workingDay
      * @return \Type\DateTime
      */
     public function setWorkingDay($workingDay)
@@ -997,7 +1035,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Verify is is working day (not weekend)
+     * Verify is current date is working day (not weekend)
      *
      * @return boolean
      */
@@ -1013,6 +1051,12 @@ class DateTime extends \Validator\Validator
         return TRUE;
     }
 
+    /**
+     * Validate passed date
+     *
+     * @param string $value
+     * @return string
+     */
     public function validate($value = NULL)
     {
         $error = parent::validate($value);

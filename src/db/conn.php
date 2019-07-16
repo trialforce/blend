@@ -383,7 +383,6 @@ class Conn extends \PDO
             }
         });
 
-
         return preg_replace($keys, $values, $query, 1);
     }
 

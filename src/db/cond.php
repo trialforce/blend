@@ -4,7 +4,7 @@ namespace Db;
 
 /**
  * A condition for a query
- * @deprecated since version 10/01/2019
+ * @deprecated since version 2019-01-01
  */
 class Cond implements \Db\Filter
 {
@@ -23,16 +23,6 @@ class Cond implements \Db\Filter
      * Operador de negação
      */
     const COND_NOT = 'NOT';
-
-    /**
-     * Uma condição normal
-     */
-    const TYPE_NORMAL = '';
-
-    /**
-     * Define que a condição deve ser incluida na parte Having da query
-     */
-    const TYPE_HAVING = 'having';
 
     /**
      * O filtro
@@ -55,35 +45,26 @@ class Cond implements \Db\Filter
     protected $condition;
 
     /**
-     * Tipo de condição normal, ou having
-     */
-    protected $type;
-
-    /**
      * Cria uma condição para o banco.
      *
      * A quantidade de ? deve ser igual a quantidade de argumentos.
      *
      * Então é possível fazer filtros de duas formas;
      * 1)
-     *
      *  $filters[ ] = new \Db\Cond( 'usuario = ?', $usuario );
      *  $filters[ ] = new \Db\Cond( 'senha = ?', $senha , \Db\Cond::COND_AND );
      * 2)
-     *
      *  $filters[ ] = new \Db\Cond( '(usuario = ? AND Senha)', array($usuario, $senha));
      *
      * @param string $filter
      * @param mixed $value pode ser simples ou array
      * @param string $condition condição
-     * @param string $type tipo, normal ou having
      */
-    public function __construct($filter = NULL, $value = NULL, $condition = self::COND_AND, $type = self::TYPE_NORMAL)
+    public function __construct($filter = NULL, $value = NULL, $condition = self::COND_AND)
     {
         $this->setCondition($condition);
         $this->filter = $filter;
         $this->value = $value;
-        $this->type = $type;
     }
 
     /**
@@ -184,28 +165,6 @@ class Cond implements \Db\Filter
         return $this;
     }
 
-    /**
-     * Retorna o tipo da condição, normal ou having
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Define o tipo da condição, normal ou having
-     * @param string $type
-     *
-     * @return \Db\Cond
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-        return $this;
-    }
-
     public function getWhere($first = true)
     {
         return $this->getString($first);
@@ -240,10 +199,10 @@ class Cond implements \Db\Filter
     {
         $where = $this->filter . ' ';
 
-        //if ($this->getValue())
-        //{
-        //$where = str_replace('?', implode(',', $this->getValue()), $where);
-        //}
+        if ($this->getValue())
+        {
+            $where = str_replace('?', implode(',', $this->getValue()), $where);
+        }
 
         if ($first)
         {

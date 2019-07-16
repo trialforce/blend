@@ -89,7 +89,8 @@ p {
         {
             $titleExtra = '';
             $savedList = \DataHandle\Request::get('savedList');
-            $list = $dom->getSavedListObject();
+            $saveList = new \Filter\SavedList();
+            $list = $saveList->getObject();
 
             if (isset($list->$savedList))
             {

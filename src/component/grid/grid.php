@@ -398,7 +398,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $dataSource = $this->getDataSource();
         $aggregators = $dataSource->getAggregator();
 
-        if (count($aggregators) == 0)
+        if (!is_array($aggregators) || (is_array($aggregators) && count($aggregators) == 0 ))
         {
             return;
         }
@@ -706,18 +706,22 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
                 $extraFilters = $searchField->getExtraFilters();
             }
 
+            //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
+            if (is_array($extraFilters))
+            {
+                foreach ($extraFilters as $filter)
+                {
+                    $dataSource->addExtraFilter($filter->getDbCond());
+                }
+            }
+
             $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
 
             if (is_array($filters))
             {
                 foreach ($filters as $filter)
                 {
-                    $dbCond = $filter->getDbCond();
-
-                    if ($dbCond)
-                    {
-                        $dataSource->addExtraFilter($dbCond);
-                    }
+                    $dataSource->addExtraFilter($filter->getDbCond());
                 }
             }
         }

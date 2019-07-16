@@ -5,31 +5,39 @@ namespace Filter;
 use DataHandle\Request;
 
 /**
- * Description of int
- *
- * @author eduardo
+ * Boolean filter
  */
 class Boolean extends \Filter\Text
 {
+
+    const COND_TRUE = 't';
+    const COND_FALSE = 'f';
 
     public function getCondition()
     {
         return NULL;
     }
 
-    public function getValue()
+    public function getInputValue($index = 0)
     {
-        $columnValue = $this->getValueName();
-
-        $options['t'] = 'Sim';
-        $options['f'] = 'Não';
-
-        $value = $this->parseValue(Request::get($columnValue));
-
-        $input = new \View\Select($columnValue, $options, $value, 'fullWidth');
+        $input = new \View\Select($this->getValueName() . '[]', $this->getConditionList(), $this->parseValue($this->getFilterValue($index)), 'filterInput fullWidth');
         $input->onPressEnter("$('#buscar').click()");
 
         return $input;
+    }
+
+    public function getConditionList()
+    {
+        $options = array();
+        $options[self::COND_TRUE] = 'Sim';
+        $options[self::COND_FALSE] = 'Não';
+        return $options;
+    }
+
+    protected function getCondJs($select)
+    {
+        $select->change("filterChangeBoolean($(this));");
+        \App::addJs("$('#{$select->getId()}').change();");
     }
 
     public function parseValue($value)
@@ -42,20 +50,18 @@ class Boolean extends \Filter\Text
         return $value;
     }
 
-    public function getDbCond()
+    public function createWhere($index = 0)
     {
-        $filterName = $this->getValueName();
-        $columnName = $this->getColumn()->getName();
-        $filterValue = $this->parseValue(Request::get($filterName));
-        $cond = NULL;
+        $columnName = $this->getColumn()->getSql();
+        $conditionValue = $this->getConditionValue($index);
 
-        if ($filterValue == 't')
+        $cond = NULL;
+        if ($conditionValue == self::COND_TRUE)
         {
             $cond = new \Db\Where($columnName, '>=', 1, \Db\Cond::COND_AND, $this->getFilterType());
         }
-        else if ($filterValue == 'f')
+        else if ($conditionValue == self::COND_FALSE)
         {
-
             $cond = new \Db\Where('(' . $columnName . ' = 0 OR ' . $columnName . ' IS NULL)', NULL, NULL, \Db\Cond::COND_AND, $this->getFilterType());
         }
 

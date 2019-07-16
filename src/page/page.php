@@ -144,7 +144,7 @@ class Page extends \View\Layout
         $arrayErrorMsg = NULL;
         $errors = $model->validate();
 
-        if (count($errors) > 0)
+        if (is_array($errors) && count($errors) > 0)
         {
             $campos = '';
             foreach ($errors as $field => $errorMsg)
@@ -218,7 +218,7 @@ class Page extends \View\Layout
      */
     protected function getBodyDiv($fields)
     {
-        return new \View\Div('divLegal', $fields, $this->getEvent() . ' ' . $this->getPageUrl() . ' makePopupFade clearfix');
+        return new \View\Div('divLegal', $fields, $this->getEvent() . ' page-' . $this->getPageUrl() . ' makePopupFade clearfix');
     }
 
     public function getTopButtonsSearch()
@@ -232,25 +232,20 @@ class Page extends \View\Layout
     }
 
     /**
-     * Return save list fields
+     * Return the form title element
      *
-     * @return \View\Ext\Button
+     * @return \View\Span
      */
-    public function getSaveListFields()
+    public function getFormTitle()
     {
-        $pageUrl = $this->getPageUrl();
-        $view[] = $savedList = new \View\Select('savedList', $this->getSavedListOptions(), Request::get('savedList'), 'savedList');
-        $savedList->change("var url = $(this).find('option:selected').data('url'); if (typeof url !== 'undefined'){ window.location = url } else { window.location='{$pageUrl}'}");
+        $formName = '';
 
-        $params['orderBy'] = Request::get('orderBy');
-        $params['orderWay'] = Request::get('orderWay');
+        if (method_exists($this, 'getFormName'))
+        {
+            $formName = $this->getFormName();
+        }
 
-        $url = http_build_query($params);
-
-        $view[] = new \View\Ext\Button('saveListItem', 'save', '', "return g('{$this->getPageUrl()}/saveListItem/','{$url}'+ '&' + $('form').serialize())", 'add');
-        $view[] = new \View\Ext\Button('deleteListItem', 'trash', '', 'deleteListItem', 'add');
-
-        return $view;
+        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle()));
     }
 
     /**
@@ -272,7 +267,7 @@ class Page extends \View\Layout
 
         if ($this->isSearch())
         {
-            $view = $this->getSaveListFields();
+            //$view = $this->getSaveListFields();
         }
 
         $head[] = new \View\H1($formName . 'formTitle', $title, 'formTitle');
@@ -288,79 +283,26 @@ class Page extends \View\Layout
     }
 
     /**
-     * Return the form title element
+     * Return save list fields
      *
-     * @return \View\Span
+     * @return \View\Ext\Button
      */
-    public function getFormTitle()
+    public function getSaveListFields()
     {
-        $formName = '';
+        $pageUrl = $this->getPageUrl();
+        $savedList = new \Filter\SavedList();
+        $view[] = $savedList = new \View\Select('savedList', $savedList->getOptions($pageUrl), Request::get('savedList'), 'savedList');
+        $savedList->change("var url = $(this).find('option:selected').data('url'); if (typeof url !== 'undefined'){ window.location = url } else { window.location='{$pageUrl}'}");
 
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
+        $params['orderBy'] = Request::get('orderBy');
+        $params['orderWay'] = Request::get('orderWay');
 
-        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle()));
-    }
+        $url = http_build_query($params);
 
-    /**
-     * Return saved list file
-     *
-     * @return \Disk\File
-     */
-    public function getSavedListFile()
-    {
-        return new \Disk\File(\Disk\Media::getMediaPath() . 'savedlist.json');
-    }
+        $view[] = new \View\Ext\Button('saveListItem', 'save', '', "return g('{$this->getPageUrl()}/saveListItem/','{$url}'+ '&' + $('form').serialize())", 'add');
+        $view[] = new \View\Ext\Button('deleteListItem', 'trash', '', 'deleteListItem', 'add');
 
-    /**
-     *
-     * @return stdClass
-     */
-    public function getSavedListObject()
-    {
-        $file = $this->getSavedListFile();
-
-        $folder = $file->getFolder();
-
-        if ($folder->isWritable() && !$file->exists())
-        {
-            $file->save('');
-        }
-
-        if (!$file->exists())
-        {
-            throw new \Exception('Impossível criar arquivo de pesquisas verifique permissão no arquivo ' . $file->getPath() . ' ');
-        }
-
-        $file->load();
-        return json_decode($file->getContent());
-    }
-
-    /**
-     *
-     * @return array of  \View\Option
-     */
-    public function getSavedListOptions()
-    {
-        $json = $this->getSavedListObject();
-        $list = NULL;
-        $page = $this->getPageUrl();
-
-        if (is_object($json) && count($json) > 0)
-        {
-            foreach ($json as $id => $item)
-            {
-                if ($item->page == $page)
-                {
-                    $list[] = $option = new \View\Option($id, $item->title);
-                    $option->setData('url', $item->page . '/?' . $item->url . '&savedList=' . $id);
-                }
-            }
-        }
-
-        return $list;
+        return $view;
     }
 
     /**
@@ -370,37 +312,16 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
 
-        $parts = $_GET;
-        unset($parts['p']);
-        unset($parts['e']);
-        unset($parts['v']);
-        unset($parts['formChanged']);
-        unset($parts['selectFilters']);
-        unset($parts['selectGroups']);
-        unset($parts['_']);
-        unset($parts['paginationLimit']);
-        unset($parts['savedList']);
-
-        if (strlen($parts['q']) == 0)
-        {
-            unset($parts['q']);
-        }
-
-        if (isset($parts['makeGraph']) && strlen($parts['makeGraph']) == 0)
-        {
-            unset($parts['makeGraph']);
-        }
-
-        $url = http_build_query($parts);
-
-        $question[] = new \View\Input('saveList[url]', \View\Input::TYPE_HIDDEN, $url);
+        $question[] = new \View\Input('saveList[url]', \View\Input::TYPE_HIDDEN, \Filter\SavedList::mountUrl());
         $question[] = 'Utilize algo que tenha significado!';
-        $question[] = $input = new \View\Input('saveList[title]', \View\Input::TYPE_TEXT, '');
+        $question[] = new \View\Br();
+        $question[] = new \View\Br();
+        $question[] = $input = new \View\Input('saveList[title]', \View\Input::TYPE_TEXT, null, 'fullWidth');
         $input->onPressEnter("$('#ok').click()");
 
-        \View\Blend\Popup::prompt('Defina o título da consulta', $question, 'saveListItemConfirm')->show();
+        \View\Blend\Popup::prompt('Defina o título da pesquisa', $question, 'saveListItemConfirm')->show();
 
-        \App::addJs("$('#saveList\\\\[title\\\\]').focus().val( $('#savedList option:selected').html() )");
+        \App::addJs('setTimeout( function(){$("#saveListtitle").focus();},200)');
     }
 
     /**
@@ -409,40 +330,14 @@ class Page extends \View\Layout
     public function saveListItemConfirm()
     {
         \App::dontChangeUrl();
-        $file = $this->getSavedListFile();
-        $list = $this->getSavedListObject();
+        $saveList = new \Filter\SavedList();
+        $request = (Object) Request::get('saveList');
+        $item = $saveList->save($this->getPageUrl(), $request->url, $request->title);
 
-        //avoid empty object
-        if (!$list instanceof \stdClass)
+        if ($item)
         {
-            $list = new \stdClass();
-        }
-
-        $saveList = (Object) Request::get('saveList');
-        $saveList->page = $this->getPageUrl();
-        $id = \Type\Text::get($saveList->title)->toFile() . '';
-
-        $list->$id = $saveList;
-
-        if (defined('JSON_PRETTY_PRINT'))
-        {
-            $json = json_encode($list, JSON_PRETTY_PRINT);
-        }
-        else
-        {
-            $json = json_encode($list);
-        }
-
-        if ($file->isWritable())
-        {
-            $file->save($json);
-
             toast('Pesquisa salva!');
-            \App::redirect($this->getPageUrl() . '/?' . $saveList->url . '&savedList=' . $id);
-        }
-        else
-        {
-            throw new \Exception('Impossível salvar pesquisa verifique permissão no arquivo ' . $file->getPath() . ' ');
+            \App::redirect($this->getPageUrl() . '/?' . $item->url . '&savedList=' . $item->id);
         }
     }
 
@@ -451,14 +346,18 @@ class Page extends \View\Layout
      */
     public function deleteListItem()
     {
-        $json = $this->getSavedListObject();
+        \App::dontChangeUrl();
+        $saveList = new \Filter\SavedList();
+        $json = $saveList->getObject();
         $id = Request::get('savedList');
 
         if (isset($json->$id))
         {
             $item = $json->$id;
             $title = $item->title;
-            \View\Blend\Popup::prompt('Confirmação', 'Comfirmação remoção da lista <strong>' . $title . '</strong>?', 'deleteListItemConfirm')->show();
+            $content[] = 'Comfirmação remoção da lista <strong>' . $title . '</strong>?';
+            $content[] = new \View\Input('savedList', 'hidden', $id, '');
+            \View\Blend\Popup::prompt('Confirmação', $content, 'deleteListItemConfirm')->show();
         }
         else
         {
@@ -473,32 +372,13 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
 
-        $file = $this->getSavedListFile();
-        $list = $this->getSavedListObject();
+        $saveList = new \Filter\SavedList();
+        $ok = $saveList->delete(Request::get('savedList'));
 
-        $id = Request::get('savedList');
-
-        unset($list->$id);
-
-        if (defined('JSON_PRETTY_PRINT'))
+        if ($ok)
         {
-            $json = json_encode($list, JSON_PRETTY_PRINT);
-        }
-        else
-        {
-            $json = json_encode($list);
-        }
-
-        if ($file->isWritable())
-        {
-            $file->save($json);
-
             toast('Pesquisa removida!');
             \App::redirect($this->getPageUrl());
-        }
-        else
-        {
-            throw new \Exception('Impossível remover pesquisa verifique permissão!');
         }
     }
 
@@ -658,9 +538,20 @@ class Page extends \View\Layout
         {
             $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
             $this->setGrid($grid);
+            $this->setDefaultFilters($grid);
 
             return $grid;
         }
+    }
+
+    /**
+     * A Simple method that is used to define the default filters of this page
+     *
+     * @param \Commponent\Grid\SearchGrid $grid
+     */
+    public function setDefaultFilters(\Component\Grid\SearchGrid $grid)
+    {
+
     }
 
     public function salvar($model = NULL, $defaultRedirect = TRUE)
@@ -896,16 +787,6 @@ class Page extends \View\Layout
         return $file;
     }
 
-    public function convert(\Disk\Media $uploadFile)
-    {
-        if (\Media\ImageMagick::isInstalled() && $uploadFile->getExtension() == \Media\Image::EXT_PSD)
-        {
-            $image = new \Media\Image($uploadFile, TRUE);
-            $image->setExtension(\Media\Image::EXT_PNG);
-            $image->export($image);
-        }
-    }
-
     /**
      * Function called when media is selected
      */
@@ -970,6 +851,30 @@ class Page extends \View\Layout
     }
 
     /**
+     * Result of crop an image by image upload
+     */
+    public function cropImage()
+    {
+        \App::dontChangeUrl();
+
+        $href = Request::get('imageHandlerHref');
+        $elementId = Request::get('imageHandlerId');
+        $file = new \Disk\Media($href);
+        $path = $file->getPath();
+        $img = new \Media\Image($path);
+
+        $targ_w = Request::get('w');
+        $targ_h = Request::get('h');
+
+        $img->crop(Request::get('x'), Request::get('y'), $targ_w, $targ_h, Request::get('w'), Request::get('h'));
+        $img->export($path);
+
+        \App::addJs('destroyCropCanvas();');
+        $img2 = \View\Ext\ImageUpload::getImg($href . '?_=' . rand());
+        $this->byId('imgResult_' . $elementId)->html($img2);
+    }
+
+    /**
      * Set focus on first field
      *
      * @return false
@@ -1011,6 +916,12 @@ class Page extends \View\Layout
             $gridClass = '\Component\Grid\\' . $id;
         }
 
+        //FIXME this started to be a mess
+        if (!class_exists($gridClass))
+        {
+            $gridClass = $id;
+        }
+
         $grid = new $gridClass;
         $table = $grid->createTable();
 
@@ -1048,7 +959,6 @@ class Page extends \View\Layout
         if ($filter)
         {
             $input = $filter->getInput();
-            $input->append(self::getCloseFilterButton());
 
             //remove the filter if exists
             \App::addJs("$('#{$input->getId()}').remove();");
@@ -1059,96 +969,6 @@ class Page extends \View\Layout
             //put focus on input field
             \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();");
         }
-    }
-
-    /**
-     * Return the close filter icon
-     *
-     * @return \View\Ext\Icon
-     */
-    public static function getCloseFilterButton()
-    {
-        $icon = new \View\Ext\Icon('cancel');
-        $icon->click('$(this).parent().find(\'input, select\').attr(\'disabled\',\'disabled\'); $(this).parent().hide();');
-        $icon->addClass('removeFilter');
-
-        return $icon;
-    }
-
-    /**
-     * Create a search group field
-     * @param \Page\Grid $grid
-     * @param string $name
-     * @param string $value
-     * @return \View\Div|boolean
-     */
-    public static function createSearchGroupField($grid, $name, $value = NULL)
-    {
-        if (!$grid instanceof \Component\Grid\Grid)
-        {
-            return false;
-        }
-
-        //$grid->remove();
-        $column = $grid->getColumn($name);
-
-        $groupTypes = \Db\GroupColumn::listGroupTypes();
-
-        foreach ($groupTypes as $groupName => $label)
-        {
-            $options[] = new \View\Option($groupName, $label);
-        }
-
-        $id = 'group-type[' . $name . ']';
-
-        $label = $column instanceof \Component\Grid\Column ? $column->getLabel() : 'Todos';
-
-        $view[] = new \View\Label(NULL, $id, 'Agrupar: ' . $label, 'filterLabel small');
-
-        $view[] = $select = new \View\Select($id, $options, $name, 'filterCondition group small');
-        $select->setValue($value);
-
-        $view[] = self::getCloseFilterButton();
-
-        return new \View\Div(NULL, $view, 'filterField');
-    }
-
-    /**
-     * Add search group
-     */
-    public function addSearchGroup()
-    {
-        \App::dontChangeUrl();
-        \App::setResponse('NULL'); //for grid
-        $grid = $this->setDefaultGrid();
-        $name = Request::get('selectGroups');
-        $div[] = self::createSearchGroupField($grid, $name);
-
-        $this->byId('containerFiltros')->append($div);
-    }
-
-    /**
-     * Result of crop an image by image upload
-     */
-    public function cropImage()
-    {
-        \App::dontChangeUrl();
-
-        $href = Request::get('imageHandlerHref');
-        $elementId = Request::get('imageHandlerId');
-        $file = new \Disk\Media($href);
-        $path = $file->getPath();
-        $img = new \Media\Image($path);
-
-        $targ_w = Request::get('w');
-        $targ_h = Request::get('h');
-
-        $img->crop(Request::get('x'), Request::get('y'), $targ_w, $targ_h, Request::get('w'), Request::get('h'));
-        $img->export($path);
-
-        \App::addJs('destroyCropCanvas();');
-        $img = \View\Ext\ImageUpload::getImg($href . '?_=' . rand());
-        $this->byId('imgResult_' . $elementId)->html($img);
     }
 
     /**
@@ -1179,7 +999,7 @@ class Page extends \View\Layout
      */
     public function addToolTip($selector, $message)
     {
-        \App::addJs($js = "toolTip('{$selector}', '{$message}');");
+        \App::addJs("toolTip('{$selector}', '{$message}');");
     }
 
 }
