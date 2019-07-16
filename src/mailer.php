@@ -203,4 +203,18 @@ class Mailer extends \PhpMailer
         $this->Body .= '<img src="' . $link . '" alt="mail logo" height="1" width="1" />';
     }
 
+    public function Send()
+    {
+        $emailTest = \DataHandle\Config::get('emailTest');
+
+        if ($emailTest)
+        {
+            $this->ClearAllRecipients();
+
+            $this->addAddress($emailTest);
+        }
+
+        return parent::Send();
+    }
+
 }
