@@ -886,21 +886,6 @@ class DateTime extends \Validator\Validator
         return \Type\DateTime::get($value)->getValue();
     }
 
-    /**
-     * Coloca automáticamente a data para o próximo dia de semana.
-     * Exemplo :
-     * 1 - 01/11/2013 - Sexta-feira
-     * 2 - Manda para a próxima segunda
-     * 3 - A data fica 04/11/2013
-     *
-     * @param type $diaSemana (Vide linha dayname na tabela do link http://www.php.net/manual/en/datetime.formats.relative.php)
-     */
-    public function setNextDayOfWeek($diaSemana)
-    {
-        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
-        return $this;
-    }
-
     public function toHuman()
     {
         return $this->getValue(self::MASK_TIMESTAMP_USER_WITHOUT_SECOND);
@@ -942,7 +927,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Verify is isToday
+     * Verify if the current date is isToday
      *
      * @return string
      */
@@ -966,9 +951,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-<<<<<<< HEAD
      * Add a specific amount of working days
-=======
      * Return a instance of PHP DateTime
      * @return \DateTime
      */
@@ -978,10 +961,25 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Bota a data no exato dia útil do mês.
-     * Exemplo:
-     * O quinto dia útil de 01/07/2013 é 07/07/2013
->>>>>>> 0e32fdb668cdcf370955173490ce2a7bec037681
+     * Put the date in the next DAY OF WEEK
+     * Note dayname linha int this table
+     * http://www.php.net/manual/en/datetime.formats.relative.php
+     *
+     * Example :
+     * 1 - 01/11/2013 - Friday
+     * 2 - Send to next SUNDAY
+     * 3 - New date is 04/11/2013
+     *
+     * @param int $diaSemana
+     */
+    public function setNextDayOfWeek($diaSemana)
+    {
+        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
+        return $this;
+    }
+
+    /**
+     * Add a specific amount of working days
      *
      * @param int $daysToAdd working days to add
      * @return $this
@@ -1037,7 +1035,7 @@ class DateTime extends \Validator\Validator
     }
 
     /**
-     * Verify is is working day (not weekend)
+     * Verify is current date is working day (not weekend)
      *
      * @return boolean
      */
@@ -1053,6 +1051,12 @@ class DateTime extends \Validator\Validator
         return TRUE;
     }
 
+    /**
+     * Validate passed date
+     *
+     * @param string $value
+     * @return string
+     */
     public function validate($value = NULL)
     {
         $error = parent::validate($value);
