@@ -244,7 +244,7 @@ class Model
     {
         $pksV = array_values(self::getPrimaryKeys());
 
-        return $pksV[0];
+        return isset($pksV[0]) ? $pksV[0] : null;
     }
 
     /**
@@ -867,14 +867,14 @@ class Model
 
         $sql = $catalog ::mountInsert($tableName, $columnNames, $columnNameSql, $this->getPrimaryKey());
         $pk = $this->getPrimaryKey();
-        $id = $pk->getName();
+        $id = $pk ? $pk->getName() : '';
 
         //postgres faz query e já retorna id
         if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
         {
             $ok = $name::getConn()->query($sql, $columnValues);
 
-            if ($pk->isAutoPrimaryKey())
+            if ($pk && $pk->isAutoPrimaryKey())
             {
                 $this->$id = $ok[0]->{$id};
             }
@@ -885,7 +885,7 @@ class Model
             $ok = $conn->execute($sql, $columnValues);
 
             //somente suporta popular com chave única
-            if ($pk->isAutoPrimaryKey())
+            if ($pk && $pk->isAutoPrimaryKey())
             {
                 $this->$id = $conn->lastInsertId();
             }
