@@ -220,7 +220,8 @@ WHERE index_name = '{$indexName}'";
 
     public static function mountDelete($tables, $where)
     {
-        return "DELETE FROM $tables WHERE $where;";
+        $where = $where ? 'WHERE ' . $where : '';
+        return "DELETE FROM $tables $where;";
     }
 
     public static function parseColumnNameForQuery($columnName)
@@ -398,7 +399,7 @@ $paramStr";
         $comment = $column->getLabel() ? "COMMENT '" . $column->getLabel() . "'" : '';
 
         $sql = trim($type . $nullable . $default . $autoIncremento . $comment);
-        
+
         return $sql;
     }
 

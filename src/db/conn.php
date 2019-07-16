@@ -303,7 +303,7 @@ class Conn extends \PDO
 
         $diffTime = $timer->stop()->diff();
         self::addSqlLog(self::$lastSql, count($result), $diffTime, $this->id);
-        self::$totalSqlTime += $diffTime + "";
+        self::$totalSqlTime += $diffTime;
 
         return $result;
     }
@@ -374,7 +374,15 @@ class Conn extends \PDO
         }
 
         // Walk the array to see if we can add single-quotes to strings
-        array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
+        //array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
+        array_walk($values, function(&$v, $k)
+        {
+            if (!is_numeric($v) && $v != "NULL")
+            {
+                $v = "'" . $v . "'";
+            }
+        });
+
 
         return preg_replace($keys, $values, $query, 1);
     }

@@ -413,6 +413,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function rewind()
     {
+        if (!is_array($this->data))
+        {
+            return null;
+        }
+
         return reset($this->data);
     }
 
@@ -437,6 +442,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function key()
     {
+        if (!is_array($this->data))
+        {
+            return null;
+        }
+
         return key($this->data);
     }
 
@@ -461,6 +471,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function valid()
     {
+        if (!is_array($this->data))
+        {
+            return null;
+        }
+
         return key($this->data) !== null;
     }
 
