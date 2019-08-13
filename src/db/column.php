@@ -3,7 +3,7 @@
 namespace Db;
 
 /**
- * Informations about one database column
+ * Information about one database column
  */
 class Column
 {
@@ -219,15 +219,6 @@ class Column
         $this->isPrimaryKey = $isPrimaryKey;
         $this->defaultValue = $defaultValue;
         $this->extra = $extra;
-        /* $this->setLabel( $label );
-          $this->setName( $name );
-          $this->setType( $type );
-          $this->setSize( $size );
-          $this->setNullable( $nullable );
-          $this->setIsPrimaryKey( $isPrimaryKey );
-          $this->setDefaultValue( $defaultValue );
-          $this->setExtra( $extra ); */
-        //optimize it to not need it
         $validator = new \Validator\Validator(null);
         $validator->setColumn($this);
         $this->addValidator($validator);
@@ -393,7 +384,14 @@ class Column
         return $this;
     }
 
-    public function getReferenceSql($withAs = TRUE)
+    /**
+     * Get the sql that is use to feel the reference value/label
+     *
+     * @param bool $withAs get the sql with the AS
+     * @param string $referencedColumn is possible to pass a referencedColumn, used in \Db\SearchColumn, pass null to the default value
+     * @return string the reference sql
+     */
+    public function getReferenceSql($withAs = TRUE, $referencedColumn = NULL)
     {
         $referenceClass = $this->getReferenceModelClass();
         $catalog = $referenceClass::getCatalogClass();
@@ -403,6 +401,9 @@ class Column
         $top = '';
         $limit = '';
 
+        //control the case of SQL SERVER
+        //THE top/limit in the SQL is used to avoid sql problens, when we have more register that enters in the query, we only need the first
+        //normally a integrity problem in the database
         if (strtolower($catalog) == '\db\catalog\mssql')
         {
             $top = 'TOP 1 ';
@@ -412,7 +413,9 @@ class Column
             $limit = ' LIMIT 1 ';
         }
 
-        $sql = '( SELECT ' . $top . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $tableName . '.' . $this->getName() . $limit . ')';
+        $referencedColumn = $referencedColumn ? $referencedColumn : $tableName . '.' . $this->getName();
+
+        $sql = '( SELECT ' . $top . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $referencedColumn . $limit . ')';
 
         if ($withAs)
         {
@@ -818,6 +821,16 @@ class Column
     }
 
     /**
+     * Return the name of the column
+     *
+     * @return String
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
      * List distinct types
      *
      * @return array
@@ -834,16 +847,6 @@ class Column
         $types[self::TYPE_TEXT] = 'Área de texto';
 
         return $types;
-    }
-
-    /**
-     * Return the name of the column
-     *
-     * @return String
-     */
-    public function __toString()
-    {
-        return $this->name;
     }
 
     /**

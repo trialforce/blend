@@ -18,10 +18,10 @@ class SearchColumn extends \Db\Column
     /**
      * Construct the search column
      *
-     * @param string $label
-     * @param string $name
-     * @param string $type
-     * @param string $query
+     * @param string $label the label of the column
+     * @param string $name the name of the colum (the AS of the select
+     * @param string $type the column type
+     * @param string $query the column subselect
      */
     public function __construct($label = NULL, $name = NULL, $type = NULL, $query = NULL)
     {
@@ -55,6 +55,17 @@ class SearchColumn extends \Db\Column
         $this->query = $query;
     }
 
+    public function getReferenceSql($withAs = TRUE, $referencedColumn = NULL)
+    {
+        if (!$referencedColumn)
+        {
+            $columnQuery = $this->getQuery();
+            $referencedColumn = "( SELECT $columnQuery )";
+        }
+
+        return parent::getReferenceSql($withAs, $referencedColumn);
+    }
+
     /**
      * Return the query to use in sql
      *
@@ -72,6 +83,11 @@ class SearchColumn extends \Db\Column
         }
 
         $result[] = $sql;
+
+        if ($this->getReferenceDescription())
+        {
+            $result[] = $this->getReferenceSql(TRUE);
+        }
 
         return $result;
     }
