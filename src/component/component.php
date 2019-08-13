@@ -196,6 +196,16 @@ class Component
         return $this;
     }
 
+    public function getDom()
+    {
+        return \View\View::getDom();
+    }
+
+    public function byId($id)
+    {
+        return $this->getDom()->byId($id);
+    }
+
     /**
      * Verify if component content is created
      * Used to avoid double creation
