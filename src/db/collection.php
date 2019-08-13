@@ -74,6 +74,17 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Return all the data as array
+     * Alias to getdata
+     *
+     * @return Array
+     */
+    public function toArray()
+    {
+        return $this->data;
+    }
+
+    /**
      * Return the first item of array
      *
      * @return mixes
