@@ -58,6 +58,7 @@ class Text
     const COND_STARTSWITH = 'startsWith';
     const COND_ENDSWITH = 'endsWith';
     const COND_NULL_OR_EMPTY = 'nullorempty';
+    const COND_NOT_NULL_OR_EMPTY = 'notnullorempty';
     //filter type
     const FILTER_TYPE_DISABLE = 0;
     const FILTER_TYPE_ENABLE = 1;
@@ -326,7 +327,8 @@ class Text
         $options[self::COND_NOT_EQUALS] = '*Diferente';
         $options[self::COND_STARTSWITH] = 'Inicia com';
         $options[self::COND_ENDSWITH] = 'Termina com';
-        $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
+        $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não Vazio';
 
         return $options;
     }
@@ -525,10 +527,16 @@ class Text
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
-        if ($conditionValue && $conditionValue == self::COND_NULL_OR_EMPTY)
+        if ($conditionValue)
         {
-            $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType);
-            return $cond;
+            if ($conditionValue == self::COND_NULL_OR_EMPTY)
+            {
+                return new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType);
+            }
+            else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
+            {
+                return new \Db\Where('( (' . $columnSql . ') IS NOT NULL AND (' . $columnSql . ') != \'\' )', NULL, NULL, $conditionType);
+            }
         }
         else if ($conditionValue && (strlen(trim($filterValue)) > 0))
         {

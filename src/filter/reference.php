@@ -63,13 +63,15 @@ class Reference extends \Filter\Collection
             $options[self::COND_TEXT] = 'Texto';
             $options[self::COND_EQUALS] = 'Cód - Igual';
             $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
-            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Nulo ou vazio';
+            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Vazio';
+            $options[self::COND_NOT_NULL_OR_EMPTY] = 'Cód - Não vazio';
         }
         else
         {
             $options[self::COND_EQUALS] = 'Igual';
             $options[self::COND_NOT_EQUALS] = 'Diferente';
-            $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+            $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
+            $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não vazio';
         }
 
         return $options;
@@ -111,7 +113,6 @@ class Reference extends \Filter\Collection
             $field = new \View\Select($this->getValueName() . '[]', $cValues, $value, $class);
         }
 
-        //$field->setMultiple(true);
         $field->onPressEnter("$('#buscar').click()");
 
         return $field;
