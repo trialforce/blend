@@ -6,7 +6,7 @@ namespace Db;
  * Integrates the database with php.
  * Utilizes active Record concept.
  */
-class Model
+class Model implements \jsonSerialize
 {
 
     /**

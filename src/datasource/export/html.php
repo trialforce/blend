@@ -231,7 +231,7 @@ p {
     {
         $aggregators = $dataSource->getAggregator();
 
-        if (count($aggregators) == 0)
+        if (!is_array($aggregators) || count($aggregators) == 0)
         {
             return;
         }

@@ -23,7 +23,8 @@ class Text implements \Type\Generic
 
     public function __construct($string = null)
     {
-        $this->setValue($string);
+        //convert to string
+        $this->setValue($string . '');
     }
 
     /**

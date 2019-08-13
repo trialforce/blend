@@ -224,8 +224,8 @@ WHERE index_name = '{$indexName}'";
 
     public static function mountDelete($tables, $where)
     {
-        $where = $where ? "WHERE $where" : '';
-        return "DELETE FROM $tables $where";
+        $where = $where ? 'WHERE ' . $where : '';
+        return "DELETE FROM $tables $where;";
     }
 
     public static function parseColumnNameForQuery($columnName)

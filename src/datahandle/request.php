@@ -26,9 +26,29 @@ class Request extends DataHandle
      */
     public function setVar($var, $value)
     {
+        //RESOLVE A PHP BUG see https://www.php.net/variables.external
+        $var = str_replace('.', '_', $var);
         parent::setVar($var, $value);
 
         $_REQUEST[$var] = $value;
+    }
+
+    public function getVar($var)
+    {
+        $var = str_replace('.', '_', $var);
+        return parent::getVar($var);
+    }
+
+    public static function get($var)
+    {
+        $var = str_replace('.', '_', $var);
+        return parent::get($var);
+    }
+
+    public static function getDefault($var, $defaultValue)
+    {
+        $var = str_replace('.', '_', $var);
+        return parent::getDefault($var, $defaultValue);
     }
 
     /**

@@ -106,6 +106,7 @@ class DataHandle
      */
     public static function getDefault($var, $defaultValue)
     {
+        $var = str_replace('.', '_', $var);
         $value = self::get($var);
 
         if (!$value || (is_string($value) && mb_strlen($value) === 0))
@@ -127,6 +128,7 @@ class DataHandle
     {
         if ($var)
         {
+            $var = str_replace('.', '_', $var);
             $this->$var = $value;
         }
     }

@@ -196,7 +196,7 @@ class Text
 
     public function setDefaultValueFinal($defaultValueFinal)
     {
-        if ($defaultValue == null)
+        if ($defaultValueFinal == null)
         {
             return $this;
         }

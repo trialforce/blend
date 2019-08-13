@@ -716,7 +716,7 @@ class Engine
             {
                 ob_start();
                 $expression = html_entity_decode($expression);
-                eval('echo (' . $expression . ');');
+                @eval('echo (' . $expression . ');');
                 $result = ob_get_contents();
                 ob_end_clean();
                 $find = $expressionsContent[$idx];
