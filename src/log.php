@@ -492,7 +492,7 @@ class Log
         $content = \View\Script::treatStringToJs($content);
         ob_get_clean();
 
-        \App::addJs("$(body).prepend('{$content}')");
+        \App::addJs("$('body').prepend('{$content}')");
     }
 
     /**
