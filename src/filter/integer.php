@@ -22,7 +22,7 @@ class Integer extends \Filter\Text
     public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
-        $this->setDefaultCondition(self::COND_IGUAL);
+        //$this->setDefaultCondition(self::COND_IGUAL);
     }
 
     protected function getCondJs($select)
@@ -68,7 +68,7 @@ class Integer extends \Filter\Text
         $filterValue = $this->getFilterValue($index);
         $filterFinalValue = $this->getFilterValueFinal($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
-        $hasFilter = (strlen(trim($filterValue)) > 0);
+        $isFiltered = (strlen(trim($filterValue)) > 0);
 
         if ($conditionValue)
         {
@@ -76,11 +76,11 @@ class Integer extends \Filter\Text
             {
                 $cond = new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' OR ' . $columnName . ' = 0)', NULL, $conditionType, $this->getFilterType());
             }
-            if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
+            else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
             {
                 $cond = new \Db\Cond('(' . $columnName . ' IS NOT NULL AND ' . $columnName . ' != \'\' AND ' . $columnName . ' != 0)', NULL, $conditionType, $this->getFilterType());
             }
-            else if ($hasFilter)
+            else if ($isFiltered)
             {
                 if ($conditionValue == self::COND_BETWEEN)
                 {

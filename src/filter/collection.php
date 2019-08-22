@@ -16,7 +16,7 @@ class Collection extends \Filter\Text
      */
     protected $collection;
 
-    public function __construct(\Component\Grid\Column $column, $collection, $filterType = NULL)
+    public function __construct($column, $collection, $filterType = NULL)
     {
         parent::__construct($column, NULL, $filterType);
         $this->setCollection($collection);
@@ -73,7 +73,7 @@ class Collection extends \Filter\Text
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
-        $columnName = $column->getSql();
+        $columnName = $column ? $column->getSql() : $this->getFilterName();
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);

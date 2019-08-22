@@ -94,6 +94,11 @@ class DateTime extends \Filter\Text
         $filterValueFinal = $this->getFilterValueFinal($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
+        //add support for clean value
+        $filterValue = str_replace('__/__/____', '', $filterValue);
+
+        $isFiltered = (strlen(trim($filterValue)) > 0);
+
         if (stripos($conditionValue, self::COND_MONTH_FIXED) === 0)
         {
             $explode = explode('-', $conditionValue);
@@ -109,7 +114,6 @@ class DateTime extends \Filter\Text
         }
         else if ($conditionValue == self::COND_YESTERDAY)
         {
-
             $date = \Type\Date::now()->addDay(-1);
             return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), $conditionType, $this->getFilterType());
         }
@@ -165,8 +169,9 @@ class DateTime extends \Filter\Text
             }
         }
         //this is equal, not equals, greather and etc
-        else if ($conditionValue && isset($filterValue) && $filterValue)
+        else if ($conditionValue && $isFiltered)
         {
+            \Log::dump('$filterValue=' . $filterValue);
             $date = new \Type\DateTime($filterValue);
 
             //filter on by date, without time

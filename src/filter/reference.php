@@ -16,13 +16,18 @@ class Reference extends \Filter\Collection
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column, $filterType = NULL, $dbColumn = null)
     {
         parent::__construct($column, NULL, $filterType);
 
         $dom = \View\View::getDom();
 
-        if (method_exists($dom, 'getModel'))
+        if ($dbColumn)
+        {
+            $this->dbColumn = $dbColumn;
+        }
+        //perhaps this if can be removed
+        else if (method_exists($dom, 'getModel'))
         {
             $model = $dom->getModel();
             $dbColumn = $model::getColumn($column->getName());
@@ -58,7 +63,7 @@ class Reference extends \Filter\Collection
     {
         $options = array();
 
-        if ($this->dbColumn->getClass())
+        if ($this->dbColumn && $this->dbColumn->getClass())
         {
             $options[self::COND_TEXT] = 'Texto';
             $options[self::COND_EQUALS] = 'Cód - Igual';
