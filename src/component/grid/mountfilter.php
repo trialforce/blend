@@ -97,7 +97,7 @@ class MountFilter
         {
             if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
             {
-                $filter = new \Filter\Reference($column, $column->getFilterType());
+                $filter = new \Filter\Reference($column, $column->getFilterType(), $dbColumn);
             }
         }
 

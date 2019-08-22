@@ -484,7 +484,7 @@ class Column
 
         $newOrderWay = $orderWay == 'asc' ? 'desc' : 'asc';
 
-        $param['orderBy'] = $this->getSql();
+        $param['orderBy'] = $this->getSafeName();
         $param['orderWay'] = $newOrderWay;
 
         //normal link
@@ -525,7 +525,7 @@ class Column
 
         foreach ($itemArray as $property => $val)
         {
-            $property = str_replace(' * ', '', $property);
+            $property = str_replace(' * ', '', $property);
 
             $val = \Component\Grid\Column::getColumnSimpleValue($property, $item);
 

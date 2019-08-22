@@ -15,11 +15,8 @@ class CheckColumn extends \Component\Grid\Column
 
     public function __construct($name = 'check')
     {
-        //for security
-        if (!$name)
-        {
-            $name = 'check';
-        }
+        //security
+        $name = $name ? $name : 'check';
 
         parent::__construct($name, '', Column::ALIGN_LEFT, NULL);
         $this->setExport(FALSE);
