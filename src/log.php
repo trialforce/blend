@@ -489,15 +489,11 @@ class Log
             var_dump($var);
         }
 
-        $content = '<pre class="var-dump">
-<a href="#" onclick="$(this).parent().remove(); return false;">Fechar (X)</a>
-' . ob_get_contents() . '
-</pre>';
-
+        $content = '<pre class="var-dump"><a href="#" onclick="$(this).parent().remove(); return false;">Fechar </a>' . ob_get_contents() . '</pre>';
         $content = \View\Script::treatStringToJs($content);
         ob_get_clean();
 
-        \App::addJs("$('body').prepend('{$content}')");
+        \App::addJs("$('body').prepend(`{$content}`)");
     }
 
     /**

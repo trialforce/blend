@@ -3,7 +3,8 @@
 namespace DataSource;
 
 /**
- * Datasource de modelo
+ * \Db\Model datasource
+ * A \Datasource that uses \Db\Model as it's source
  */
 class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 {
@@ -13,6 +14,12 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      * @var \Db\Model
      */
     protected $model;
+
+    /**
+     * Use only datasouce columns for search
+     * @var bool
+     */
+    protected $useColumnsForSearch = false;
 
     public function __construct($model = NULL)
     {
@@ -37,6 +44,17 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     public function setModel($model)
     {
         $this->model = $model;
+    }
+
+    public function getUseColumnsForSearch()
+    {
+        return $this->useColumnsForSearch ? true : false;
+    }
+
+    public function setUseColumnsForSearch($useColumnsForSearch)
+    {
+        $this->useColumnsForSearch = $useColumnsForSearch;
+        return $this;
     }
 
     /**
@@ -99,11 +117,38 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             }
             else
             {
-                $this->data = $model->smartFind($this->getSmartFilter(), $this->getExtraFilter(), $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
+                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columns);
+                $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
             }
         }
 
         return $this->data;
+    }
+
+    /**
+     * Return the list of \Db\Column that represents the datasource columns
+     *
+     * @return array of \Db\Column
+     */
+    public function getDbColumns()
+    {
+        $dsColumns = $this->getColumns();
+        $model = $this->getModel();
+        $result = array();
+
+        foreach ($dsColumns as $dsColumn)
+        {
+            $dsColumn instanceof \Component\Grid\Column;
+            $dbColumn = $model->getColumn($dsColumn->getName());
+
+            if ($dbColumn instanceof \Db\Column)
+            {
+                $result[$dbColumn->getName()] = $dbColumn;
+            }
+        }
+
+        return $result;
     }
 
     /**

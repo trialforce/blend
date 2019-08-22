@@ -89,6 +89,11 @@ class Model implements \JsonSerializable
         return $name::getTablePrefix() . lcfirst($tableName);
     }
 
+    /**
+     * Return the table prefix
+     *
+     * @return string
+     */
     public static function getTablePrefix()
     {
         $name = self::getName();
@@ -124,6 +129,7 @@ class Model implements \JsonSerializable
             $columns = $catalog::listColums($name::getTableName());
         }
 
+        //define the tablename of columns in needed
         foreach ($columns as $column)
         {
             $column->setTableName($tableName);
@@ -716,10 +722,11 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Monta filtros para busca automágica alá Google
+     * Mount filters to automatic search like Google
      *
-     * @param string $filter
-     * @param array $extraFilters
+     * @param string $filter the "google" query string question
+     * @param array $extraFilters extra filter to be added to the filters
+     * @param array $columns columns to be considered in smartFilter
      *
      * @return array
      */
@@ -733,7 +740,9 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Executa uma busca automágica alá google
+     * Execute a automatic search like Google
+     *
+     * @deprecated since version 2019-09-20
      *
      * @param array $filter
      * @param array $extraFilters

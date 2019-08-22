@@ -308,24 +308,8 @@ class Layout extends \DomDocument implements \Countable
         return $this;
     }
 
-    /**
-     * Adiciona um script ao layout
-     *
-     * TODO make it work with ajax
-     *
-     * @param string $src utilizado quando o script é externo
-     * @param string $content utilizado quando o script é inline
-     */
-    function addScript($src = NULL, $content = NULL, $type = \View\Script::TYPE_JAVASCRIPT, $id = NULL, $async = FALSE)
+    protected function getScriptFile($src)
     {
-        $heads = $this->getElementsByTagName('head');
-        $head = $heads->item(0);
-
-        if (!$head)
-        {
-            return $this;
-        }
-
         if (is_file($src))
         {
             $file = new \Disk\File($src);
@@ -355,9 +339,46 @@ class Layout extends \DomDocument implements \Countable
             }
         }
 
-        $script = new \View\Script($src, $content, $type, $async);
+        return $src;
+    }
+
+    /**
+     * Add a script to layout
+     *
+     * TODO make it work with ajax
+     *
+     * @param string $src used when is a external script
+     * @param string $content used when is a inline script
+     */
+    function addScript($src = NULL, $content = NULL, $type = \View\Script::TYPE_JAVASCRIPT, $id = NULL, $async = FALSE)
+    {
+        $head = $this->getElementsByTagName('head')->item(0);
+        $newSrc = $this->getScriptFile($src);
+
+        $script = new \View\Script($newSrc, $content, $type, $async);
         $script->setId($id);
-        $head->appendChild($script);
+
+        if ($head)
+        {
+            $head->appendChild($script);
+        }
+        else
+        {
+            $this->append($script);
+        }
+
+        return $script;
+    }
+
+    function addScriptEnd($src, $id = NULL, $async = TRUE)
+    {
+        $newSrc = $this->getScriptFile($src);
+
+        $script = new \View\Script($newSrc, null, \View\Script::TYPE_JAVASCRIPT, $async);
+        $script->setId($id);
+        $this->getHtml()->appendChild($script);
+
+        return $script;
     }
 
     /**
@@ -505,6 +526,17 @@ class Layout extends \DomDocument implements \Countable
         $bodys = $this->getElementsByTagName('body');
 
         return new \View\DomContainer($bodys->item(0));
+    }
+
+    /**
+     * Return the html element
+     * @return \View\DomContainer
+     */
+    public function getHtml()
+    {
+        $htmls = $this->getElementsByTagName('html');
+
+        return new \View\DomContainer($htmls->item(0));
     }
 
     /**
@@ -746,6 +778,22 @@ class Layout extends \DomDocument implements \Countable
         $html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
         //trim all lines
         $html = implode(PHP_EOL, array_map('trim', explode(PHP_EOL, $html)));
+        //breaks script in other tag
+        $html = str_replace('</script>', "</script>\r\n", $html);
+        $html = str_replace('</main>', "</main>\r\n", $html);
+        $html = str_replace('</header>', "</header>\r\n", $html);
+        $html = str_replace('</p>', "</p>\r\n", $html);
+        $html = str_replace('<br>', "<br/>\r\n", $html);
+        $html = str_replace('</a>', "\r\n</a>", $html);
+
+        $html = str_replace("\r\n", 'NEW_LINE', $html);
+        $html = str_replace("\r\n", 'NEW_LINE', $html);
+        $html = str_replace(array("\r", "\n"), 'NEW_LINE', $html);
+        $html = str_replace(array("\r", "\n"), 'NEW_LINE', $html);
+        $html = str_replace('NEW_LINE', "\r\n", $html);
+
+        //remove two blank lines
+        $html = str_replace("\r\n\r\n", "\r\n", $html);
 
         return $html;
     }

@@ -1,29 +1,9 @@
 "use strict";
-
-$.ajaxSetup({
-    xhrFields: {
-        withCredentials: true
-    }
-})
-
-/**
- * handle the back and forward buttons
- */
+//handle the back and forward buttons
 var formChangedAdvice = false;
-/**
- * used to open current tab when f5
- */
-var hashOriginal = window.location.hash;
 var invalidHover = true;
 var lastUrl = correctUrl(window.location.href);
 var avoidUrlRegister = false;
-
-$(window).bind('popstate', function (event)
-{
-    var href = window.location.href;
-    avoidUrlRegister = true;
-    p(href, true);
-});
 
 //avoid console.log problems
 if (!window.console)
@@ -33,6 +13,55 @@ if (!window.console)
     {
     };
 }
+
+if (typeof $ == 'function')
+{
+    $(window).bind('popstate', function (event)
+    {
+        var href = window.location.href;
+        avoidUrlRegister = true;
+        p(href, true);
+    });
+}
+
+/*window.popstate = function (event)
+{
+    var href = window.location.href;
+    avoidUrlRegister = true;
+    console.log(href);
+    p(href, true);
+};*/
+
+//destroy popup on esc
+document.keyup = function (e)
+{
+    if (e.which === 27)
+    {
+        popup('destroy');
+    }
+};
+
+//Loading without ajax
+window.onload =  function ()
+{
+    dataAjax();
+        
+    /**
+     * Add support to play method in jquery
+     *
+     * @returns {jQuery.fn@call;each}
+     */
+    jQuery.fn.play = function () {
+        return this.each(function () {
+            
+            if (typeof this.play === 'function')
+            {
+                this.play();
+            }
+        });
+    };
+};
+
 
 //polyfill to old browser
 function startsWith(originalString, searchString)
@@ -50,31 +79,6 @@ function stripTags(str)
     return str.replace(/<\/?[^>]+(>|$)/g, "");
 }
 
-//destroy popup on esc
-$(document).keyup(function (e)
-{
-    if (e.which === 27)
-    {
-        popup('destroy');
-    }
-});
-
-/**
- * Loading without ajax
- */
-$(document).ready(function ()
-{
-    dataAjax();
-
-    if ($(hashOriginal + '.item').length == 1)
-    {
-        setTimeout(function () {
-            selectTab(hashOriginal);
-        }, 300);
-    }
-
-});
-
 /**
  * Parse data-ajax attribute, to make a link ajax
  *
@@ -82,6 +86,10 @@ $(document).ready(function ()
  */
 function dataAjax()
 {
+	blendJs();
+    //clear the function to avoid calling more times
+    blendJs = function(){};
+	
     //links
     $("[data-ajax]").each(function ()
     {
@@ -175,10 +183,10 @@ function dataAjax()
 
                     element.parent().append(myDiv);
                 },
-                        function ()
-                        {
-                            $(element).parent().find(".hint").remove();
-                        });
+                function ()
+                {
+                    $(element).parent().find(".hint").remove();
+                });
             }
         } else
         {
@@ -339,12 +347,6 @@ function dataAjax()
         }
     });
 
-    //esconde menu
-    /*$('#content').hover(function ( ) 
-     {
-     $('.subMenu').hide()
-     });*/
-
     //Disable user interaction with select buttons readonly.
     $("select[readonly]").live("focus mousedown mouseup click", function (e) {
         e.preventDefault();
@@ -359,8 +361,8 @@ function dataAjax()
     else if ( isAndroid())
     {
         $('body').removeClass('os-android').addClass('os-android');
-    }   
-
+    }
+    
     hideLoading();
 
     return false;
@@ -368,12 +370,8 @@ function dataAjax()
 
 function multipleSelect()
 {
-    var ua = navigator.userAgent.toLowerCase();
-    var isAndroid = ua.indexOf("android") > -1;
-    var isIphone = ua.indexOf("iphone") > -1;
-
     //nao faz se for android ou iphone
-    if (isAndroid || isIphone)
+    if (isAndroid() || isIos())
     {
         return;
     }
@@ -510,7 +508,13 @@ function updateUrl(page)
 
 function correctUrl(url)
 {
-    var base = $('base').attr('href');
+    var bases = document.getElementsByTagName('base');
+    var base = '';
+    
+    if ( bases )
+    {
+        base = bases[0].href;
+    }
 
     //make full url
     if (!startsWith(url, base))
@@ -1240,21 +1244,6 @@ function seletMenuItem()
     });
 }
 
-/**
- * Add support to play method in jquery
- *
- * @returns {jQuery.fn@call;each}
- */
-jQuery.fn.play = function () {
-    return this.each(function () {
-
-        if (typeof this.play === 'function')
-        {
-            this.play();
-        }
-    });
-};
-
 function selectTab(tabItemId)
 {
     tabItemId = tabItemId.replace('#', '');
@@ -1530,14 +1519,16 @@ function filterRemove(element)
     var element = $(element);
     var parent = element.parent().parent();
     parent.find('input, select').attr('disabled','disabled'); 
-    parent.hide('fast');
+    parent.hide('fast', function(){ parent.remove() } );
 }
 
 function filterAdd(element)
 {
     var element = $(element);
     var parent = element.parent();
+    
     var filterBase = parent.find('.filterBase');
+    console.log(filterBase);
     var filterConditionValue = filterBase.find('.filterCondition').val();
     var clone = filterBase.clone().removeClass('filterBase');
 
@@ -1555,6 +1546,8 @@ function filterAdd(element)
     
     //process ajax fields
     dataAjax();
+    
+    return false;
 }
 
 function filterTrash(element)
@@ -1570,7 +1563,7 @@ function filterChangeText(element)
     
     var input = $(element).parent().find('.filterInput');
     
-    if ( val== 'nullorempty' || val == 'today' )
+    if ( val == 'nullorempty' || val == 'notnullorempty' || val == 'today' )
     { 
         input.val('').hide();
         element.addClass('fullWidth');
@@ -1594,7 +1587,7 @@ function filterChangeInteger(element)
         input.show().addClass('filterInterval');
         inputFinal.removeAttr('disabled').add('filterInterval').show();
     } 
-    else if (val == 'nullorempty')
+    else if (val == 'nullorempty'|| val == 'notnullorempty')
     {
         input.hide();
         element.addClass('fullWidth');
@@ -1616,6 +1609,7 @@ function filterChangeDate(element)
     var elValueFinal = $(element).parent().find('.final');
     
     if ( val== 'nullorempty' 
+            || val == 'notnullorempty'
             || val == 'today' 
             || val == 'yesterday' 
             || val == 'tomorrow' 

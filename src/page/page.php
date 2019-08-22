@@ -988,7 +988,7 @@ class Page extends \View\Layout
      */
     public function getMainForm()
     {
-        return $this->byId('content');
+        return $this->byId('content', '\View\Div');
     }
 
     /**

@@ -338,11 +338,13 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $class .= ' ' . $var;
         }
 
-        $this->setClass(trim($class));
-
         if ($this->getOutputJs())
         {
             \App::addJs($this->getSelector() . ".addClass('{$classToAdd}');");
+        }
+        else
+        {
+            $this->setClass(trim($class));
         }
 
         return $this;
