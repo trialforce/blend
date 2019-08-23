@@ -87,6 +87,12 @@ class Engine
      */
     protected $footer;
 
+    /**
+     * Margin
+     * @var array
+     */
+    protected $margin = array(0, 0, 0, 0);
+
     public function __construct($layoutPath = NULL)
     {
         $this->layout = new \View\Layout(NULL, TRUE);
@@ -104,6 +110,30 @@ class Engine
 
         $this->setPageSize(self::PAGE_SIZE_A4);
         $this->setSubtitle(''); //default
+        $this->setMargin(0, 0, 0, 0);
+    }
+
+    /**
+     * Margins in milimeter mm
+     * @param int $left left margin
+     * @param int $right right margin
+     * @param int $top top margin
+     * @param int $bottom bottom margin
+     * @return $this
+     */
+    public function setMargin($left = 0, $right = 0, $top = 0, $bottom = 0)
+    {
+        $this->margin['left'] = $left;
+        $this->margin['right'] = $right;
+        $this->margin['top'] = $top;
+        $this->margin['bottom'] = $bottom;
+
+        return $this;
+    }
+
+    public function getMargin()
+    {
+        return $this->margin;
     }
 
     protected function parseLayout()
@@ -863,7 +893,14 @@ class Engine
      */
     protected function getMpdfObj()
     {
-        return new \mPDF('utf-8', $this->getPageSize(), 0, '', 0, 0, 0, 0, 0, 0);
+        if (\DataHandle\Config::get('wkpdf-path'))
+        {
+            return new \ReportTool\WkPdf('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
+        }
+        else
+        {
+            return new \mPDF('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
+        }
     }
 
     /**
