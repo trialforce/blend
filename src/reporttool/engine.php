@@ -93,6 +93,12 @@ class Engine
      */
     protected $margin = array(0, 0, 0, 0);
 
+    /**
+     * Export file path
+     * @var string
+     */
+    protected $exportFile = null;
+
     public function __construct($layoutPath = NULL)
     {
         $this->layout = new \View\Layout(NULL, TRUE);
@@ -110,7 +116,7 @@ class Engine
 
         $this->setPageSize(self::PAGE_SIZE_A4);
         $this->setSubtitle(''); //default
-        $this->setMargin(0, 0, 0, 0);
+        $this->setMargin(5, 5, 5, 5);
     }
 
     /**
@@ -150,15 +156,80 @@ class Engine
         return $layoutPath;
     }
 
+    /**
+     * Define the current layout
+     *
+     * @param \View\Layout $layout
+     * @return $this
+     */
+    public function setLayout(\View\Layout $layout)
+    {
+        $this->layout = $layout;
+        return $this;
+    }
+
+    /**
+     * Define a custom html as the default layout
+     *
+     * @param string $html
+     * @return $this
+     */
+    public function setHtml($html)
+    {
+        $this->getLayout()->loadHTML($html);
+
+        return $this;
+    }
+
+    /**
+     * Define a layout from html body string
+     *
+     * @return \ReportTool\Engine
+     */
+    public function loadFromBody($body)
+    {
+        $head = "<title>{$this->getTitle()}</title>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width'>";
+
+        $html = "<html>
+                    <head>
+                    $head
+                    </head>
+                    <body>
+                    <!--default-->$body<!--!default-->
+                    </body>
+                </html>";
+
+        $this->getLayout()->loadHTML($html);
+
+        return $this;
+    }
+
+    /**
+     * Get the default layout
+     * @return \View\Layout
+     */
     public function getLayout()
     {
         return $this->layout;
     }
 
-    public function setLayout(\View\Layout $layout)
+    /**
+     * Define a layout path to be used
+     *
+     * @param string $layoutPath layout file name
+     * @return $this
+     */
+    public function setLayoutPath($layoutPath)
     {
-        $this->layout = $layout;
+        $this->layoutPath = $layoutPath;
         return $this;
+    }
+
+    public function getLayoutPath()
+    {
+        return $this->layoutPath;
     }
 
     function getHeader()
@@ -283,17 +354,6 @@ class Engine
     public function getPageSize()
     {
         return $this->getParam('pageSize');
-    }
-
-    public function getLayoutPath()
-    {
-        return $this->layoutPath;
-    }
-
-    public function setLayoutPath($layoutPath)
-    {
-        $this->layoutPath = $layoutPath;
-        return $this;
     }
 
     /**
@@ -829,6 +889,11 @@ class Engine
         return nl2br($value) . '';
     }
 
+    public function setExportFile($exportFile)
+    {
+        $this->exportFile = $exportFile;
+    }
+
     /**
      * Retorna o arquivo
      *
@@ -837,8 +902,13 @@ class Engine
      */
     public function getExportFile($type = 'html')
     {
-        $relativePath = strtolower('report/' . $this->layoutPath . '_' . rand()) . '.' . $type;
-        return \Disk\File::getFromStorage($relativePath);
+        if (!$this->exportFile)
+        {
+            $relativePath = strtolower('report/' . $this->layoutPath . '_' . rand()) . '.' . $type;
+            $this->exportFile = \Disk\File::getFromStorage($relativePath);
+        }
+
+        return $this->exportFile;
     }
 
     /**
@@ -924,31 +994,6 @@ class Engine
 
         $file = $this->generateFile($type);
         $file->outputInline();
-    }
-
-    /**
-     * Load a report from body string
-     *
-     * @return \ReportTool\Engine
-     */
-    public function loadFromBody($body)
-    {
-        $head = "<title>{$this->getTitle()}</title>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width'>";
-
-        $html = "<html>
-                    <head>
-                    $head
-                    </head>
-                    <body>
-                    <!--default-->$body<!--!default-->
-                    </body>
-                </html>";
-
-        $this->getLayout()->loadHTML($html);
-
-        return $this;
     }
 
     /**
