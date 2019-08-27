@@ -737,7 +737,19 @@ class Crud extends \Page\Page
      */
     public function isFiltred()
     {
-        return isset($_REQUEST['q']) && $_REQUEST['q'];
+        $q = Request::get('q');
+        $isFiltred = strlen($q) > 0;
+        $request = Request::getInstance();
+
+        foreach ($request as $var => $value)
+        {
+            if (stripos($var, 'value') > 0)
+            {
+                $isFiltred = true;
+            }
+        }
+
+        return $isFiltred;
     }
 
     /**
