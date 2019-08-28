@@ -1703,7 +1703,7 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
         init: function()
         {
             this.on("queuecomplete", function (file) {
-            p( $pageName + '/updateImages');
+            p( pageName + '/updateImages');
           })
         }
     });
