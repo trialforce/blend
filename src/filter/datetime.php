@@ -171,7 +171,6 @@ class DateTime extends \Filter\Text
         //this is equal, not equals, greather and etc
         else if ($conditionValue && $isFiltered)
         {
-            \Log::dump('$filterValue=' . $filterValue);
             $date = new \Type\DateTime($filterValue);
 
             //filter on by date, without time
