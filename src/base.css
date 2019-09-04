@@ -609,6 +609,12 @@ i.fa.filter-menu .blend-floating-menu li span .fa-trash,
     
 }
 
+select[readonly]
+{
+    pointer-events: none;
+    touch-action: none;
+}
+
 .os-ios select {
     -webkit-appearance: none;
     padding: 0 !important;

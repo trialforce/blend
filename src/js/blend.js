@@ -347,12 +347,6 @@ function dataAjax()
             return showFormChangedAdvice();
         }
     });
-
-    //Disable user interaction with select buttons readonly.
-    $("select[readonly]").live("focus mousedown mouseup click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
     
     //add system class
     if ( isIos())
