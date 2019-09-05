@@ -1705,7 +1705,7 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
 
 function createCkEditor(id)
 {
-    var editor = CKEDITOR.replace( id ,{extraPlugins: 'blend'});
+    var editor = CKEDITOR.replace( id );
     
     //active the save button when editor changes
     editor.on('change', function() 
@@ -1721,7 +1721,6 @@ function createCkEditor(id)
         }
     });
 
-    // Then, we set up the key combination
     editor.keystrokeHandler.keystrokes[CKEDITOR.CTRL + 83 /*S*/] = 'blendSave';
 }
         
