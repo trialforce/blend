@@ -1702,3 +1702,26 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
         }
     });
 }
+
+function createCkEditor(id)
+{
+    var editor = CKEDITOR.replace( id ,{extraPlugins: 'blend'});
+    
+    //active the save button when editor changes
+    editor.on('change', function() 
+    {
+        $('#btnSalvar').removeAttr('disabled');
+    });
+
+    editor.addCommand('blendSave', 
+    {
+        exec : function(editor, data) 
+        {
+            $('#btnSalvar').click();
+        }
+    });
+
+    // Then, we set up the key combination
+    editor.keystrokeHandler.keystrokes[CKEDITOR.CTRL + 83 /*S*/] = 'blendSave';
+}
+        

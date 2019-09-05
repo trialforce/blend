@@ -84,7 +84,7 @@ class LinkColumn extends \Component\Grid\Column
             $originalValue = $originalValue->getUrl();
         }
 
-        $value[] = strip_tags($originalValue ? $originalValue : $this->getLabel());
+        $value[] = strip_tags($originalValue);
 
         if (strlen($this->getIcon()) > 0)
         {
@@ -93,7 +93,7 @@ class LinkColumn extends \Component\Grid\Column
 
         $url = $this->replaceDataInString($this->getUrl(), $item);
 
-        $link = new \View\A('edit', $value, $url, null, $this->getTarget());
+        $link = new \View\A('edit', $this->getLabel(), $url, null, $this->getTarget());
 
         if ($this->getHint())
         {
