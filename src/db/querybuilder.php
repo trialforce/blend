@@ -467,7 +467,7 @@ class QueryBuilder
      * @param string $value the filter value
      * @return \Db\QueryBuilder
      */
-    public function or($columnName, $param = NULL, $value)
+    public function or($columnName, $param = NULL, $value = NULL)
     {
         return $this->where($columnName, $param, $value, 'OR');
     }

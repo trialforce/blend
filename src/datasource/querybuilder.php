@@ -14,6 +14,12 @@ class QueryBuilder extends DataSource
      */
     protected $queryBuilder;
 
+    /**
+     *
+     * @var \Db\Collection
+     */
+    protected $data;
+
     public function __construct($queryBuilder = NULL)
     {
         $this->setQueryBuilder($queryBuilder);
@@ -125,7 +131,28 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilderFeeded();
         $this->data = $qBuilder->toCollection();
 
+        $this->adjustColumnAlign();
+
         return $this->data;
+    }
+
+    public function adjustColumnAlign()
+    {
+        $data = $this->getData();
+        $firstItem = $data->first();
+        $columns = $this->getColumns();
+
+        foreach ($columns as $idx => $column)
+        {
+            $value = \Component\Grid\Column::getColumnValue($column, $firstItem);
+
+            if (\Type\Integer::isNumeric($value))
+            {
+                $columns[$idx]->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
+            }
+        }
+
+        $this->setColumns($columns);
     }
 
     public function getSelectedModelColumns()
@@ -162,10 +189,10 @@ class QueryBuilder extends DataSource
             //control sql columns with AS
             $columnName = \Db\Column::getRealColumnName($orignalColumnName);
             $columnSql = \Db\Column::getRealSqlColumn($orignalColumnName);
-            $columnLabel = ucfirst(ltrim($columnName, 'id'));
+            $columnLabel = self::columnNameToLabel($columnName);
 
             $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
-            $obj->setSql($columnSql);
+            $obj->setFilter(TRUE)->setSql($columnSql);
 
             //case it has a model name, vinculate it with the column of model
             if ($modelName)
@@ -193,12 +220,29 @@ class QueryBuilder extends DataSource
                 $obj->setLabel($columnLabel);
             }
 
+            //if (\Type\Integer::isNumeric($value))
+
             $result[$columnName] = $obj;
         }
 
         $this->setColumns($result);
 
         return $result;
+    }
+
+    public static function columnNameToLabel($columnName)
+    {
+        $columnLabel = $columnName;
+        //remove "id" in the begin
+        if (substr($columnName, 0, strlen('id')) == 'id')
+        {
+            $columnLabel = str_replace('id', '', $columnName);
+        }
+
+        //split by uppercase letter
+        $split = preg_split('/(?=[A-Z])/', $columnLabel);
+        //implode using space
+        return ucfirst(implode(' ', $split));
     }
 
 }
