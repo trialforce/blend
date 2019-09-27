@@ -294,7 +294,9 @@ ORDER BY name ASC;";
         }
 
         //is numeric or function
-        if (is_numeric($table) || stripos($table, '(') > 0 || stripos($table, '(') === 0)
+        $hasAlias = stripos(trim($table), ' ') > 0;
+
+        if ($hasAlias || is_numeric($table) || stripos($table, '(') > 0 || stripos($table, '(') === 0)
         {
             return trim($table);
         }
