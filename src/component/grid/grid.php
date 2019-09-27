@@ -133,7 +133,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     }
 
     /**
-     * Retorna as colunas da grid
+     * Retturn the columns of the grid
+     *
+     * @deprecated since version 2019-09-25 Use getDatasource->getColumns()
      *
      * @return array
      */
@@ -144,6 +146,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
     /**
      * Retorna as colunas da grid que são visíveis
+     *
+     * @todo pass this método to datasource
+     *
      * @return array
      */
     public function getRenderColumns()
@@ -294,6 +299,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
      */
     protected function createTable()
     {
+        //only force the getData, to make any changes in data that is needed
+        //the data is not used here (but getData is cached, so it's okay)
+        $this->getDataSource()->getData();
         $view = array();
 
         if ($this->getTitle())
@@ -497,7 +505,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         $viewTr->html($th);
 
-
         return $views;
     }
 
@@ -694,35 +701,33 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         //this need to be optimized, this is in wrong place, but for compatibily porpouses is here
         $page = \View\View::getDom();
+        $model = method_exists($page, 'getModel') ? $page->getModel() : null;
 
-        if (method_exists($page, 'getModel'))
+        $grid = $page->getGrid();
+        $extraFilters = null;
+        //FIXME optimize 10% if get only what is is post
+        if (method_exists($grid, 'getSearchField'))
         {
-            $grid = $page->getGrid();
-            $extraFilters = null;
-            //FIXME optimize 10% if get only what is is post
-            if (method_exists($grid, 'getSearchField'))
+            $searchField = $grid->getSearchField();
+            $extraFilters = $searchField->getExtraFilters();
+        }
+
+        //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
+        if (is_array($extraFilters))
+        {
+            foreach ($extraFilters as $filter)
             {
-                $searchField = $grid->getSearchField();
-                $extraFilters = $searchField->getExtraFilters();
+                $dataSource->addExtraFilter($filter->getDbCond());
             }
+        }
 
-            //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
-            if (is_array($extraFilters))
+        $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $model, $extraFilters);
+
+        if (is_array($filters))
+        {
+            foreach ($filters as $filter)
             {
-                foreach ($extraFilters as $filter)
-                {
-                    $dataSource->addExtraFilter($filter->getDbCond());
-                }
-            }
-
-            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
-
-            if (is_array($filters))
-            {
-                foreach ($filters as $filter)
-                {
-                    $dataSource->addExtraFilter($filter->getDbCond());
-                }
+                $dataSource->addExtraFilter($filter->getDbCond());
             }
         }
 
