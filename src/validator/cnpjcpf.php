@@ -5,7 +5,7 @@ namespace Validator;
 /**
  * Validator and type or brasizilian CPF/CPNJ
  */
-class CnpjCpf extends \Validator\Validator
+class CnpjCpf extends \Validator\Validator implements \JsonSerializable
 {
 
     public function getValue()
@@ -38,6 +38,11 @@ class CnpjCpf extends \Validator\Validator
     public function toDb()
     {
         return self::unmask($this->value);
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
     public function validate($value = NULL)

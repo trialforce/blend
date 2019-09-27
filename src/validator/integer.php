@@ -6,7 +6,7 @@ namespace Validator;
  * Integer validator
  *
  */
-class Integer extends \Validator\Validator
+class Integer extends \Validator\Validator implements \JsonSerializable
 {
 
     /**
@@ -142,6 +142,11 @@ class Integer extends \Validator\Validator
         }
 
         return $error;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
 }

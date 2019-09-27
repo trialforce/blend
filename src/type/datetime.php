@@ -13,7 +13,7 @@ namespace Type;
  * Started atr Solis - Cooperativa de Soluções Livres Ltda. e Univates - Centro Universitário.
  *
  * */
-class DateTime extends \Validator\Validator
+class DateTime extends \Validator\Validator implements \JsonSerializable
 {
 
     const MASK_DATE_USER = 'd/m/Y';
@@ -1072,6 +1072,11 @@ class DateTime extends \Validator\Validator
         }
 
         return $error;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
 }

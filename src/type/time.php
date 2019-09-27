@@ -5,7 +5,7 @@ namespace Type;
 /**
  * Time type
  */
-class Time implements \Type\Generic
+class Time implements \Type\Generic, \JsonSerializable
 {
 
     /**
@@ -224,6 +224,11 @@ class Time implements \Type\Generic
     {
         $this->useMilesecond = $useMilesecond;
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
     /**

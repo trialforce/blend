@@ -15,6 +15,7 @@ class Html
         $style = new \View\Style(NULL, '
 body {
     font-family: \'Arial\';
+    font-size:12px;
 }
 
 header {
@@ -36,7 +37,7 @@ tbody {
     display:table-row-group;
 }
 
-table td{
+table td {
     border: solid 1px black;
     padding: 4px 6px;
     font-size: 8px;
@@ -52,7 +53,7 @@ table th{
 .h1 {
     font-size: 14px;
     margin-bottom: 10px;
-    width: 80%;
+    width: 100%;
     float: left;
 }
 
@@ -73,6 +74,155 @@ p {
 ');
 
         return $style;
+    }
+
+    /**
+     * Create a html file based on datasource
+     *
+     * @param \DataSource\DataSource $dataSource
+     * @param string $relativePath
+     * @param array $reportColumns
+     * @param string $pageSize
+     * @return \Disk\File
+     */
+    public static function create(\DataSource\DataSource $dataSource, $relativePath, $reportColumns = NULL, $pageSize = NULL)
+    {
+        //pagesize is not used in html format
+        $pageSize = null;
+        $layout = self::generate($dataSource, $reportColumns);
+
+        $path = str_replace('\\', '_', strtolower($relativePath) . '.html');
+        $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $path);
+        //remove file to avoid error
+        $file->remove();
+        $file->save($layout . '');
+
+        return $file;
+    }
+
+    /**
+     * Create a html file based on datasource
+     *
+     * @param \DataSource\DataSource $dataSource
+     * @param string $relativePath
+     * @param array $reportColumns
+     * @return \View\Layout
+     */
+    public static function generate(\DataSource\DataSource $dataSource, $reportColumns = NULL)
+    {
+        //$filterString = self::getFilterString($dataSource);
+        $filterString = '';
+        $dataSource = \DataSource\Export\Csv::filterColumns($dataSource, $reportColumns);
+        $columns = $dataSource->getColumns();
+        $exportColumns = array();
+
+        $today = \Type\DateTime::now();
+
+        $formatedDate = $today->getDay() . ' de ' . $today->getMonthExt($today->getMonth()) . ' de ' . $today->getYear() . ' às ' . $today->getHour() . ':' . str_pad($today->getMinute(), 2, "0", STR_PAD_LEFT);
+        $domOriginal = \View\View::getDom();
+        $title = self::getReportTitle($domOriginal);
+
+        $layout = new \View\Layout();
+        \View\View::setDom($layout);
+
+        $head = new \View\Head(new \View\Title($title . ' - ' . $formatedDate));
+
+        $heads[] = self::getStyle();
+        $heads[] = self::getLogo();
+        $heads[] = new \View\Div(NULL, $title, 'h1');
+        $heads[] = $filterString;
+
+        $body = new \View\Body(new \View\Header(NULL, $heads));
+
+        new \View\Html(array($head, $body));
+
+        $data = $dataSource->getData();
+        $tableContent[] = new \View\THead(NULL, self::generateTh());
+        $tableContent[] = new \View\TBody(NULL, self::generateData($dataSource, $domOriginal, $layout));
+
+        $table = new \View\Table('table', $tableContent);
+        self::makeAggregation($dataSource, $table);
+        $body->append($table);
+        $body->append(self::generatefooter($data, $formatedDate));
+
+        return $layout;
+    }
+
+    protected function getFilterString(\DataSource\DataSource $dataSource)
+    {
+        $request = \DataHandle\Request::getInstance();
+        $html = '';
+
+        foreach ($request as $var => $filterValues)
+        {
+            $filterName = str_replace('Value', '', $var);
+            $conditionName = $filterName . 'Condition';
+            $conditionValues = $request->get($conditionName);
+
+            $columnName = $filterName;
+            $column = $dataSource->getColumn($filterName);
+
+            if ($column)
+            {
+                $columnName = $column->getLabel();
+            }
+
+            if ($conditionValues)
+            {
+                $myValue = '';
+
+                foreach ($filterValues as $idx => $filterValue)
+                {
+                    $conditionValue = $conditionValues[$idx];
+                    $hasValue = $filterValue || $filterValue === '0' || $filterValue === 0;
+
+                    if (!$hasValue)
+                    {
+                        continue;
+                    }
+
+                    //restore original to locate things, used in group export
+                    //\View\View::setDom($domOriginal);
+                    //$value = \Component\Grid\Column::getColumnValue($column, $model);
+                    //\View\View::setDom($layout);
+
+                    $myValue = $conditionValue . $filterValue . ' ';
+                }
+
+                if (!$myValue)
+                {
+                    continue;
+                }
+
+                $myValue = '[' . trim($myValue) . ']';
+                $html .= '<b>' . $columnName . ':</b> ' . $myValue . ' ';
+            }
+        }
+
+        if ($html)
+        {
+            $html = 'Filtros: ' . $html . '<br/><br/>';
+        }
+
+        return $html;
+    }
+
+    protected function generateTh($columns)
+    {
+        $th = null;
+
+        //list only export columns
+        foreach ($columns as $column)
+        {
+            $th[] = $myTh = new \View\Th(NULL, $column->getLabel());
+
+            if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL)))
+            {
+                $myTh->addClass('alignRight');
+            }
+        }
+
+        return $th;
     }
 
     /**
@@ -103,72 +253,24 @@ p {
         return $title;
     }
 
-    /**
-     * Create a html file based on datasource
-     *
-     * @param \DataSource\DataSource $dataSource
-     * @param string $relativePath
-     * @param array $reportColumns
-     * @return \View\Layout
-     */
-    public static function generate(\DataSource\DataSource $dataSource, $reportColumns = NULL)
+    protected static function getLogo()
     {
-        $columns = \DataSource\Export\Csv::filterColumns($dataSource->getColumns(), $reportColumns);
-
-        $dataSource->setColumns($columns);
-        $dataSource->setLimit(NULL);
-        $dataSource->setOffset(NULL);
-        $exportColumns = array();
-
-        $today = \Type\DateTime::now();
-
-        $formatedDate = $today->getDay() . ' de ' . $today->getMonthExt($today->getMonth()) . ' de ' . $today->getYear() . ' às ' . $today->getHour() . ':' . str_pad($today->getMinute(), 2, "0", STR_PAD_LEFT);
-        $domOriginal = \View\View::getDom();
-        $title = self::getReportTitle($domOriginal);
-
-        $layout = new \View\Layout();
-        \View\View::setDom($layout);
-
-        $head = new \View\Head(new \View\Title($title . ' - ' . $formatedDate));
-
-        $heads[] = self::getStyle();
-
         $logoPath = \DataHandle\Config::get('logoPath');
 
         if ($logoPath)
         {
             $host = \DataHandle\Server::getInstance()->getHost();
             $logoPath = $host . str_replace($host, '', $logoPath);
-            $heads[] = new \View\Img('logoPath', $logoPath, NULL, '26');
+            return new \View\Img('logoPath', $logoPath, NULL, '26');
         }
 
-        $heads[] = new \View\Div(NULL, $title, 'h1');
+        return null;
+    }
 
-        $body = new \View\Body(new \View\Header(NULL, $heads));
-
-        new \View\Html(array($head, $body));
-
-        $th = null;
-        $tr = null;
-
-        //list only export columns
-        foreach ($columns as $column)
-        {
-            if ($column->getExport())
-            {
-                $exportColumns[$column->getName()] = $column;
-                $th[] = $myTh = new \View\Th(NULL, $column->getLabel());
-
-                if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL)))
-                {
-                    $myTh->addClass('alignRight');
-                }
-            }
-        }
-
-        $tableContent[] = new \View\THead(NULL, $th);
-
+    protected static function generateData(\DataSource\DataSource $dataSource, $domOriginal, $layout)
+    {
         $data = $dataSource->getData();
+        $columns = $dataSource->getColumns();
         $beforeGridExportRow = $domOriginal instanceof \Page\BeforeGridExportRow;
 
         if (is_array($data))
@@ -182,7 +284,7 @@ p {
                     $domOriginal->beforeGridExportRow($model, $index);
                 }
 
-                foreach ($exportColumns as $column)
+                foreach ($columns as $column)
                 {
                     //restore original to locate things, used in group export
                     \View\View::setDom($domOriginal);
@@ -200,12 +302,11 @@ p {
             }
         }
 
-        $tableContent[] = new \View\TBody(NULL, $tr);
+        return $tr;
+    }
 
-        $table = new \View\Table('table', $tableContent);
-        self::makeAggregation($dataSource, $table);
-        $body->append($table);
-
+    protected static function generatefooter($data, $formatedDate)
+    {
         $exportExtraInfo = \DataHandle\Config::get('exportExtraInfo');
 
         if ($exportExtraInfo)
@@ -215,9 +316,7 @@ p {
 
         $foot = new \View\P('foot', 'Total : ' . count($data) . ' registros - Gerado por ' . Session::get('name') . ' - ' . Session::get('email') . ' em ' . $formatedDate . $exportExtraInfo);
 
-        $body->append($foot);
-
-        return $layout;
+        return $foot;
     }
 
     /**
@@ -267,31 +366,6 @@ p {
         $table->append(new \View\Tr('aggreLine', $td, 'aggr'));
 
         return $table;
-    }
-
-    /**
-     * Create a html file based on datasource
-     *
-     * @param \DataSource\DataSource $dataSource
-     * @param string $relativePath
-     * @param array $reportColumns
-     * @param string $pageSize
-     * @return \Disk\File
-     */
-    public static function create(\DataSource\DataSource $dataSource, $relativePath, $reportColumns = NULL, $pageSize = NULL)
-    {
-        //pagesize is not used in html format
-        $pageSize = null;
-
-        $layout = self::generate($dataSource, $reportColumns);
-
-        $path = str_replace('\\', '_', strtolower($relativePath) . '.html');
-        $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $path);
-        //remove file to avoid erro
-        $file->remove();
-        $file->save($layout . '');
-
-        return $file;
     }
 
 }

@@ -5,7 +5,7 @@ namespace Type;
 /**
  * Type float/decimal
  */
-class Decimal implements \Type\Generic
+class Decimal implements \Type\Generic, \JsonSerializable
 {
 
     /**
@@ -130,6 +130,11 @@ class Decimal implements \Type\Generic
     public function toDb()
     {
         return number_format($this->value, $this->decimals, '.', '');
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
     public function sum($amount)

@@ -506,7 +506,7 @@ function correctUrl(url)
     var bases = document.getElementsByTagName('base');
     var base = '';
     
-    if ( bases )
+    if ( bases && bases[0])
     {
         base = bases[0].href;
     }

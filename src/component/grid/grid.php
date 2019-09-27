@@ -828,6 +828,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $formats['csv'] = 'CSV (Excel)';
         $formats['html'] = 'HTML (Tela)';
         $formats['pdf'] = 'PDF (Impressão)';
+        $formats['json'] = 'JSON (Exportação)';
 
         $formatos[] = new \View\Label(NULL, 'format', 'Formato', 'field-label');
         $formatos[] = $abc = new \View\Select('format', $formats, 'csv');
