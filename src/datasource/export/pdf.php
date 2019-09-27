@@ -29,8 +29,6 @@ class Pdf extends Html
 
         $path = str_replace('\\', '_', strtolower($relativePath) . '.pdf');
         $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $path);
-        $file->save($layout . '');
-
         //remove the file to avoid error (if exists)
         $file->remove();
 

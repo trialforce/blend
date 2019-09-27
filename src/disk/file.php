@@ -587,6 +587,7 @@ class File
         $windowOpen[] = 'php';
         $windowOpen[] = 'xml';
         $windowOpen[] = 'pdf';
+        $windowOpen[] = 'json';
 
         if (in_array($ext, $windowOpen))
         {
