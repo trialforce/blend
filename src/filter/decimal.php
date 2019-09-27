@@ -2,8 +2,6 @@
 
 namespace Filter;
 
-use DataHandle\Request;
-
 /**
  * Decimal filter
  */

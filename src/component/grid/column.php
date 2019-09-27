@@ -525,7 +525,7 @@ class Column
 
         foreach ($itemArray as $property => $val)
         {
-            $property = str_replace(' * ', '', $property);
+            $property = trim(str_replace('*', '', $property));
 
             $val = \Component\Grid\Column::getColumnSimpleValue($property, $item);
 

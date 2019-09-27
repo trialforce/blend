@@ -335,6 +335,13 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             }
         }
 
+        //correct the align of integer columns with constant values
+        //by default constant values are string, to by default has bo be align to left
+        if ($column->getConstantValues())
+        {
+            $gridColumn->setAlign(\Component\Grid\Column::ALIGN_LEFT);
+        }
+
         $gridColumn->setIdentificator($column->isPrimaryKey());
 
         //search column has no filter as default

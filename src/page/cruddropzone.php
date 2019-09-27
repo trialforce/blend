@@ -157,26 +157,9 @@ class CrudDropZone extends \Page\Crud
 
         $uploadUrl = $this->getPageUrl() . '/dropUpload/' . $id . '/';
         $pageName = $this->getPageUrl();
-        $acceptedFiles = $this->getAcceptFiles() ? 'acceptedFiles: "' . $this->getAcceptFiles() . '",' : '';
+        $acceptedFiles = $this->getAcceptFiles() ? $this->getAcceptFiles() : 'image/*';
 
-        $js = '
-Dropzone.autoDiscover = false;
-var myDropzone = new Dropzone("#myAwesomeDropzone",
-{
-    url: "' . $uploadUrl . '",
-    ' . $acceptedFiles . '
-    addRemoveLinks: true,
-    dictRemoveFile : \'\',
-    dictDefaultMessage : \'Arraste arquivos ou clique para upload\',
-    init: function()
-    {
-        this.on("queuecomplete", function (file) {
-        p(\'' . $pageName . '/updateImages\');
-      })
-    }
-});
-';
-
+        $js = "createDropZone( '{$uploadUrl}', '{$acceptedFiles}', '{$pageName}')";
         \App::addJs($js);
     }
 

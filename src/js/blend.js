@@ -4,6 +4,7 @@ var formChangedAdvice = false;
 var invalidHover = true;
 var lastUrl = correctUrl(window.location.href);
 var avoidUrlRegister = false;
+var blendJs = function(){};
 
 //avoid console.log problems
 if (!window.console)
@@ -86,7 +87,7 @@ function stripTags(str)
  */
 function dataAjax()
 {
-	blendJs();
+    blendJs();
     //clear the function to avoid calling more times
     blendJs = function(){};
 	
@@ -345,12 +346,6 @@ function dataAjax()
         {
             return showFormChangedAdvice();
         }
-    });
-
-    //Disable user interaction with select buttons readonly.
-    $("select[readonly]").live("focus mousedown mouseup click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
     });
     
     //add system class
@@ -1686,3 +1681,46 @@ function isIos()
     var ua = navigator.userAgent.toLowerCase();
     return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
 }
+
+/*Create a default dropzone*/
+function createDropZone( uploadUrl, acceptedFiles, pageName)
+{
+    acceptedFiles = acceptedFiles ? acceptedFiles : 'image/*';
+    
+    var myDropzone = new Dropzone("#myAwesomeDropzone",
+    {
+        url: uploadUrl,
+        acceptedFiles: acceptedFiles,
+        addRemoveLinks: true,
+        dictRemoveFile : '',
+        dictDefaultMessage : 'Arraste arquivos ou clique para upload',
+        init: function()
+        {
+            this.on("queuecomplete", function (file) {
+            p( pageName + '/updateImages');
+          })
+        }
+    });
+}
+
+function createCkEditor(id)
+{
+    var editor = CKEDITOR.replace( id );
+    
+    //active the save button when editor changes
+    editor.on('change', function() 
+    {
+        $('#btnSalvar').removeAttr('disabled');
+    });
+
+    editor.addCommand('blendSave', 
+    {
+        exec : function(editor, data) 
+        {
+            $('#btnSalvar').click();
+        }
+    });
+
+    editor.keystrokeHandler.keystrokes[CKEDITOR.CTRL + 83 /*S*/] = 'blendSave';
+}
+        

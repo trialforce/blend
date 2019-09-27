@@ -1726,3 +1726,5 @@
   contentLoaded(window, Dropzone._autoDiscoverFunction);
 
 }).call(this);
+
+Dropzone.autoDiscover = false;

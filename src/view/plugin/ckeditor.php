@@ -22,7 +22,7 @@ class CkEditor extends \View\TextArea
         parent::__construct($idName, $value, $class . ' ckeditor');
 
         //addScriptOnde add the ckeditor.js only one time, but the callback is called always
-        \App::addJs("addScriptOnce('ckeditor/ckeditor.js',function(){ CKEDITOR.replace( '{$this->getId()}' )} );");
+        \App::addJs("addScriptOnce('ckeditor/ckeditor.js', function(){createCkEditor({$this->getId()}) } );");
     }
 
 }

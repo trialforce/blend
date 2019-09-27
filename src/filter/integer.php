@@ -91,9 +91,10 @@ class Integer extends \Filter\Text
                 }
                 else
                 {
+
                     $conditionType = \Db\Cond::COND_AND;
                     $filterValue = \Type\Decimal::value($filterValue);
-                    $cond = new \Db\Where($columnName, $conditionValue, $filterValue, $conditionType, $this->getFilterType());
+                    $cond = new \Db\Where($columnName, $conditionValue, $filterValue);
                 }
             }
         }
