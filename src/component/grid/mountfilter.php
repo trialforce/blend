@@ -79,6 +79,7 @@ class MountFilter
         $dbModel = $this->dbModel;
         $dataType = $column->getType();
         $filterType = $column->getFilterType();
+        $dbColumn = null;
 
         //don't mount filter if column don't has data type, or if don't have to be filtered
         if (!$dataType || !$filterType)
@@ -134,7 +135,7 @@ class MountFilter
     {
         $filters = array();
 
-        if (!is_array($columns) || !$dbModel)
+        if (!is_array($columns))
         {
             return NULL;
         }
