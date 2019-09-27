@@ -203,6 +203,9 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         $sql .= strlen(trim($limit)) > 0 ? ' LIMIT ' . $limit : '';
         $sql .= strlen(trim($offset)) > 0 ? ' OFFSET ' . $offset : '';
 
+        //make default Blend like work, to add compatibility with the behavior of Mysql
+        $sql = str_ireplace(' like ', ' ilike ', $sql);
+
         return $sql;
     }
 
