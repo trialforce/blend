@@ -952,7 +952,7 @@ class Page extends \View\Layout
         }
 
         $column = $grid->getColumn($value);
-        $dbModel = $this->getModel();
+        $dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
         $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
         $filter = $mountFilter->getFilter();
 
