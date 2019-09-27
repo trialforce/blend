@@ -91,7 +91,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function first()
     {
-        return array_values($this->data)[0];
+        $result = array_values($this->data);
+
+        if (isset($result[0]))
+        {
+            return $result[0];
+        }
+
+        return null;
     }
 
     public function filter($function)
