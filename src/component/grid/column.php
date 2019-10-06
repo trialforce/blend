@@ -79,11 +79,18 @@ class Column
     protected $identificator = FALSE;
 
     /**
-     * If is to render columns
+     * If is to render this column in default render
      *
      * @var boolean
      */
     protected $render = TRUE;
+
+    /**
+     * If is to render this column in detail
+     *
+     * @var boolean
+     */
+    protected $renderInDetail = TRUE;
 
     /**
      * Determina se é ou não para exportar essa coluna
@@ -100,6 +107,12 @@ class Column
      * @var boolean
      */
     protected $filter = TRUE;
+
+    /**
+     * Define the label used in filter
+     * @var String
+     */
+    protected $filterLabel;
 
     /**
      * Determina se a coluna é ordenável
@@ -168,7 +181,7 @@ class Column
     }
 
     /**
-     * Return a safe name with accent, spaces or special chars
+     * Return a safe name consider accent, spaces or special chars
      *
      * @return string
      */
@@ -292,7 +305,7 @@ class Column
     /**
      * Return the grid element.
      *
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function getGrid()
     {
@@ -333,6 +346,27 @@ class Column
         return $this;
     }
 
+    /**
+     * Return if the column is to be rendered in detail
+     * @return boolean
+     */
+    public function getRenderInDetail()
+    {
+        return $this->renderInDetail;
+    }
+
+    /**
+     * Define if the column is to be rendered in detail
+     *
+     * @param v $renderInDetail
+     * @return $this
+     */
+    public function setRenderInDetail($renderInDetail)
+    {
+        $this->renderInDetail = $renderInDetail;
+        return $this;
+    }
+
     public function getExport()
     {
         return $this->export;
@@ -351,12 +385,23 @@ class Column
 
     public function getFilterType()
     {
-        return $this->filter ? $this->filter : \Db\Cond::TYPE_NORMAL;
+        return $this->filter;
     }
 
     public function setFilter($filter)
     {
         $this->filter = $filter;
+        return $this;
+    }
+
+    public function getFilterLabel()
+    {
+        return $this->filterLabel ? $this->filterLabel : $this->label;
+    }
+
+    public function setFilterLabel($filterLabel)
+    {
+        $this->filterLabel = $filterLabel;
         return $this;
     }
 
@@ -395,19 +440,6 @@ class Column
     }
 
     /**
-     * Return the name of the column.
-     * But control '.' as AS
-     *
-     * @deprecated since version 18/01/2019 use \Db\Column::getRealColumnName
-     *
-     * @return string
-     */
-    public function getSplitName()
-    {
-        return \Db\Column::getRealColumnName($this->getName());
-    }
-
-    /**
      * Return the column value formatter
      *
      * @return \Type\Generic
@@ -438,7 +470,7 @@ class Column
      */
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $value = self::getColumnValue($this, $item, $line);
+        $value = \DataSource\Grab::getUserValue($this, $item, $line);
         $this->makeEditable($item, $line, $tr, $td);
 
         if ($this->getFixedHeight())
@@ -462,7 +494,7 @@ class Column
         if ($this->getEdit() && $td)
         {
             $columName = $this->getName();
-            $pkValue = self::getColumnValue($this->getGrid()->getIdentificatorColumn(), $item);
+            $pkValue = \DataSource\Grab::getUserValue($this->getGrid()->getIdentificatorColumn(), $item);
             $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
             $td->click("e('gridEdit/$pkValue/?columnName={$columName}');");
         }
@@ -473,7 +505,7 @@ class Column
      */
     public function getHeadContent(\View\View $tr, \View\View $th)
     {
-        //sem ordenação, só rola a label
+        //widhout order, uses only label
         if (!$this->getOrder())
         {
             return $this->getLabel();
@@ -513,7 +545,7 @@ class Column
     public function replaceDataInString($string, $item)
     {
         $identificator = $this->getGrid()->getIdentificatorColumn();
-        $idValue = \Component\Grid\Column::getColumnSimpleValue($identificator, $item);
+        $idValue = \DataSource\Grab::getDbValue($identificator, $item);
 
         //make pk more simple
         $string = str_replace(':?', $idValue, $string);
@@ -526,14 +558,7 @@ class Column
         foreach ($itemArray as $property => $val)
         {
             $property = trim(str_replace('*', '', $property));
-
-            $val = \Component\Grid\Column::getColumnSimpleValue($property, $item);
-
-            if ($val instanceof \Disk\File)
-            {
-                $val = $val->getUrl();
-            }
-
+            $val = \DataSource\Grab::getDbValue($property, $item);
             $string = str_replace(':' . $property . '?', $val, $string);
         }
 
@@ -546,225 +571,46 @@ class Column
     }
 
     /**
+     * Return the name of the column.
+     * But control '.' as AS
+     *
+     * @deprecated since version 2019-01-18 use \Db\Column::getRealColumnName
+     *
+     * @return string
+     */
+    public function getSplitName()
+    {
+        return \Db\Column::getRealColumnName($this->getName());
+    }
+
+    /**
      * Return the value of the column, the simple value, without magic
+     *
+     * @deprecated since version 2019-10-06 use \DataSource\Grab::getDbValue
      *
      * @param string $column
      * @param \Db\Model $item
-     * @param string $line
+     *
      */
-    public static function getColumnSimpleValue($column, $item, $line = NULL)
+    public static function getColumnSimpleValue($column, $item)
     {
-        $line = null;
-
-        $columnName = '';
-
-        if (is_string($column))
-        {
-            $columnName = $column;
-        }
-        else if (method_exists($column, 'getSplitName'))
-        {
-            $columnName = $column->getSplitName();
-        }
-
-        if ($item instanceof \Db\Model)
-        {
-            $value = $item->getValue($columnName);
-        }
-        else if (is_object($item))
-        {
-            $grid = \View\View::getDom()->getGrid();
-            $ds = null;
-
-            if ($grid)
-            {
-                $ds = $grid->getDataSource();
-
-                if ($ds instanceof \DataSource\ModelGroup)
-                {
-                    $columns = $ds->getOriginalColumns();
-
-                    if (isset($columns[$columnName]))
-                    {
-                        $dbColumn = $columns[$columnName];
-                        $columnName = $dbColumn->getProperty() ? $dbColumn->getProperty() : $columnName;
-                    }
-                }
-            }
-
-            $methodName = 'get' . $columnName;
-
-            if (method_exists($item, $methodName))
-            {
-                $value = $item->$methodName();
-            }
-            else if (isset($item->{$columnName}))
-            {
-                $value = $item->{$columnName};
-            }
-        }
-        else if (is_array($item))
-        {
-            if (isset($item[$columnName]))
-            {
-                $value = $item[$columnName];
-            }
-        }
-
-        //add suppor for file, need better automated method for do this
-        if ($value instanceof \Disk\File)
-        {
-            $value = $value->getUrl();
-        }
-
-        return $value;
+        return \DataSource\Grab::getDbValue($column, $item);
     }
 
     /**
      * Return the value of the object for the columns,
      * uses magic to get user value
      *
+     * @deprecated since version 2019-10-06 use \DataSource\Grab::getUserValue
+     *
      * @param \Component\Grid\Column $column
      * @param mixed $item
-     * @param int $line
      *
      * @return string
      */
     public static function getColumnValue($column, $item)
     {
-        if (!$column)
-        {
-            return null;
-        }
-
-        if (is_string($column))
-        {
-            $columnName = $column;
-        }
-        else if (method_exists($column, 'getSplitName'))
-        {
-            $columnName = $column->getSplitName();
-        }
-
-        //if is array, convert it do object, to locate tigs
-        if (is_array($item))
-        {
-            $item = (object) $item;
-        }
-
-        $value = NULL;
-
-        if ($item instanceof \Db\Model)
-        {
-            $value = $item->getValue($columnName);
-            $dbColumn = $item->getColumn($columnName);
-
-            if ($dbColumn)
-            {
-                $cValues = $dbColumn->getConstantValues();
-
-                if (isIterable($cValues) || $cValues instanceof \Db\ConstantValues)
-                {
-                    if ($cValues instanceof \Db\ConstantValues)
-                    {
-                        $cValues = $cValues->getArray();
-                    }
-
-                    $constantValues = $cValues;
-                    $valueConstant = $value;
-
-                    if (is_object($value))
-                    {
-                        if ($value instanceof \Type\Generic)
-                        {
-                            $value = $value->toDb();
-                        }
-                    }
-
-                    if (isset($constantValues[$value]))
-                    {
-                        $valueConstant = $constantValues[$value];
-                    }
-
-                    //if has valueConstant use it
-                    $value = $valueConstant;
-
-                    //add supports for simple object inside collection
-                    if (is_object($value))
-                    {
-                        //if is a simple object, it presumes second property
-                        //is the description, and firs is id
-                        $array = array_values((array) $value);
-
-                        if (isset($array[1]))
-                        {
-                            $value = $array[0] . '-' . $array[1];
-                        }
-                    }
-                }
-                else if ($dbColumn->getReferenceDescription())
-                {
-                    $columnDescriptionName = $columnName . 'Description';
-                    $value = $item->getValue($columnDescriptionName);
-                }
-            }
-        }
-        else if (is_object($item))
-        {
-            $grid = null;
-            $dom = \View\View::getDom();
-
-            if (method_exists($dom, 'getGrid'))
-            {
-                $grid = $dom->getGrid();
-            }
-
-            $ds = $grid ? $grid->getDataSource() : null;
-            $methodName = 'get' . $columnName;
-
-            if (method_exists($item, $methodName))
-            {
-                $value = $item->$methodName();
-            }
-            else if (isset($item->{$columnName}))
-            {
-                $value = $item->{$columnName};
-            }
-
-            //add support for description column, when is not a model
-            $columnDescriptionName = $columnName . 'Description';
-
-            if (isset($item->$columnDescriptionName) && $item->$columnDescriptionName)
-            {
-                $value = $item->$columnDescriptionName;
-            }
-
-            if ($ds instanceof \DataSource\Model)
-            {
-                $model = $ds->getModel();
-                $dbColumn = $model->getColumn($columnName);
-
-                if ($dbColumn instanceof \Db\Column)
-                {
-                    $constantValues = $dbColumn->getConstantValues();
-
-                    if ($constantValues && isset($constantValues [$value]))
-                    {
-                        $value = $constantValues [$value];
-                    }
-                }
-            }
-        }
-
-        $formatter = $column->getFormatter();
-
-        if ($formatter)
-        {
-            $formatter->setValue($value);
-            $value = $formatter->__toString();
-        }
-
-        return $value;
+        return \DataSource\Grab::getUserValue($column, $item);
     }
 
 }

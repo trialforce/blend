@@ -289,7 +289,7 @@ class HighChart extends \View\Div
     public static function getDataITemForGraph($column, $item)
     {
         $columnName = $column->getName();
-        $value = \Component\Grid\Column::getColumnValue($columnName, $item);
+        $value = \DataSource\Grab::getUserValue($columnName, $item);
 
         if ($column->getType() == \Db\Column::TYPE_TINYINT)
         {

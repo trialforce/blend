@@ -8,7 +8,7 @@ use DataHandle\Session;
 /**
  * A Simple grid, works very handy.
  */
-class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerialize
+class Grid extends \Component\Component
 {
 
     /**
@@ -73,6 +73,18 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     protected $dataSource;
 
     /**
+     * List of action
+     * @var array
+     */
+    protected $actions;
+
+    /**
+     * Can make tr detail
+     * @var boolean
+     */
+    protected $canMakeTrDetail = true;
+
+    /**
      * Construct a grid
      *
      * @param string $id
@@ -82,6 +94,17 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     {
         parent::__construct($id);
         $this->setDataSource($dataSource);
+    }
+
+    public function getCanMakeTrDetail()
+    {
+        return $this->canMakeTrDetail;
+    }
+
+    public function setCanMakeTrDetail($canMakeTrDetail)
+    {
+        $this->canMakeTrDetail = $canMakeTrDetail;
+        return $this;
     }
 
     /**
@@ -102,6 +125,17 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     public function setDataSource($dataSource)
     {
         $this->dataSource = $dataSource;
+    }
+
+    public function getActions()
+    {
+        return $this->actions;
+    }
+
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
+        return $this;
     }
 
     public function setPageName($pageName)
@@ -319,6 +353,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $this->table = new \View\Table($this->getId() . 'Table', $view, 'table-grid');
 
         $div = new \View\Div($this->getId(), $this->table, 'grid');
+        $div->data('link', $this->getLink(null, null, null, false));
 
         $this->makeAggregation();
 
@@ -617,16 +652,11 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             //workaround for editable columns
             if ($column->getEdit() == true)
             {
-                $value = \Component\Grid\Column::getColumnValue($column, $item);
+                $value = \DataSource\Grab::getUserValue($column, $item);
             }
             else
             {
                 $value = $column->getValue($item, $index, $myTr, $td[1]);
-            }
-
-            if ($value instanceof \Type\Generic)
-            {
-                $value = $value->toHuman();
             }
 
             $td[1]->html($value);
@@ -647,11 +677,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     {
         $td = new \View\Td(NULL, NULL, $column->getAlign() . ' hide-in-mobile');
         $value = $column->getValue($item, $index, $tr, $td);
-
-        if ($value instanceof \Type\Generic)
-        {
-            $value = $value->toHuman();
-        }
 
         return $td->html($value);
     }
@@ -910,20 +935,80 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $div->html($table);
     }
 
-    public function listAvoidPropertySerialize()
+    public function openTrDetail()
     {
-        $avoid = parent::listAvoidPropertySerialize();
-        $avoid[] = 'head';
-        $avoid[] = 'body';
-        $avoid[] = 'pageName';
-        $avoid[] = 'columns';
-        $avoid[] = 'filters';
-        $avoid[] = 'foot';
-        $avoid[] = 'table';
-        $avoid[] = 'identificatorColumn';
-        $avoid[] = 'callInterfaceFunctions';
+        \App::dontChangeUrl();
+        $modelId = Request::get('v');
+        $elementId = Request::get('elementId');
 
-        return $avoid;
+        //toast('rolando=' . $modelId . '/ ' . $elementId);
+        $result[] = new \View\Div('grid-tr-detail-columns-' . $modelId, $this->renderModelDetail($modelId), 'grid-tr-detail-columns clearfix');
+        $result[] = new \View\Div('grid-tr-detail-actions-' . $modelId, $this->renderActionsInDetail($modelId), 'grid-tr-detail-actions clearfix');
+
+        $this->byId($elementId)->html($result);
+    }
+
+    public function renderActionsInDetail($modelId)
+    {
+        $actions = $this->getActions();
+        $html = array();
+
+        if (isIterable($actions))
+        {
+            foreach ($actions as $action)
+            {
+                if (!$action->getRenderInGridDetail())
+                {
+                    continue;
+                }
+
+                $action instanceof \Component\Action\Action;
+                $action->setPk($modelId);
+
+                $btn = new \View\Ext\LinkButton('btn-action-detail-' . $action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass());
+                $html[] = $btn;
+            }
+        }
+
+        return $html;
+    }
+
+    public function renderModelDetail($id)
+    {
+        $ds = $this->getDataSource();
+        $columns = $ds->getColumns();
+        $pkColumn = $this->getIdentificatorColumn();
+
+        $filter[] = new \Db\Where($pkColumn->getName(), '=', $id);
+        $ds->addExtraFilter($filter);
+
+        $data = $ds->getData();
+
+        if ($data[0])
+        {
+            $item = $data[0];
+            $html = array();
+
+            foreach ($columns as $column)
+            {
+                if (!$column->getRenderInDetail())
+                {
+                    continue;
+                }
+
+                $column instanceof \Component\Grid\Column;
+                $columnContent = array();
+                $columnContent[] = new \View\Div('grid-tr-detail-column-label-' . $id, $column->getLabel() . ':', 'grid-tr-detail-column-label');
+                $columnContent[] = new \View\Div('grid-tr-detail-column-value-' . $id, $column->getValue($item, null, null, null), 'grid-tr-detail-column-value');
+                $html[] = new \View\Div('data-' . $column->getSafeName(), $columnContent, 'grid-tr-detail-column-info');
+            }
+
+            return $html;
+        }
+        else
+        {
+            return new \View\Div(null, 'Impossível encontrar registro.');
+        }
     }
 
 }

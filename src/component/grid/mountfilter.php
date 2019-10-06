@@ -90,7 +90,8 @@ class MountFilter
         //try to get column from database/model
         if ($dbModel instanceof \Db\Model)
         {
-            $dbColumn = $dbModel::getColumn($column->getSplitName());
+            $realColumnName = \Db\Column::getRealColumnName($column->getName());
+            $dbColumn = $dbModel::getColumn($realColumnName);
         }
 
         //verify if is needed to mount the filter by database/model column
@@ -184,34 +185,7 @@ class MountFilter
             }
         }
 
-        //call order in filters
-        if (is_array($filters))
-        {
-            usort($filters, 'self::filterSort');
-        }
-
         return $filters;
-    }
-
-    /**
-     * Organize the filters to put it ordened
-     * VERY SLOW
-     *
-     * @param type $first
-     * @param type $second
-     * @return int
-     */
-    public static function filterSort($first, $second)
-    {
-        $firstl = strtolower($first->getFilterLabel());
-        $secondl = strtolower($second->getFilterLabel());
-
-        if ($firstl == $secondl)
-        {
-            return 0;
-        }
-
-        return ($firstl > $secondl) ? +1 : -1;
     }
 
 }

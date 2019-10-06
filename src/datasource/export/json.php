@@ -27,7 +27,7 @@ class Json
             foreach ($columns as $column)
             {
                 $colunName = $column->getLabel();
-                $value = \Component\Grid\Column::getColumnValue($column, $item);
+                $value = \DataSource\Grab::getUserValue($column, $item);
                 $result->$colunName = $value;
             }
 

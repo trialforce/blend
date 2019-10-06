@@ -12,23 +12,55 @@ class PkColumnEdit extends \Component\Grid\EditColumn
     public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_INTEGER)
     {
         parent::__construct($name, $label, $align, $dataType);
-        $this->setIdentificator(TRUE)->setRender(TRUE);
+        $this->setIdentificator(TRUE)->setRender(TRUE)->setRenderInDetail(FALSE);
     }
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $identificator = $this->getGrid()->getIdentificatorColumn();
-        $idValue = \Component\Grid\Column::getColumnValue($identificator, $item);
-        $pageUrl = \View\View::getDom()->getPageUrl();
+        $grid = $this->getGrid();
+        $identificator = $grid->getIdentificatorColumn();
+        $idValue = \DataSource\Grab::getUserValue($identificator, $item);
         $url = $this->getEditUrl($item);
 
-        $tr->setAttribute('ondblclick', 'p(\'' . $url . '\');');
-        $td->addClass('pkColumnEdit');
+        if ($tr)
+        {
+            $tr->setAttribute('ondblclick', 'p(\'' . $url . '\');');
+            $tr->setData('model-id', $idValue);
 
-        $link = new \View\A('edit_' . $pageUrl . '_' . $idValue, new \View\Ext\Icon('edit'), $url);
-        $link->setClass('pkColumnEdit');
+            if ($grid->getCanMakeTrDetail())
+            {
+                $tr->setAttribute('onclick', 'return grid.openTrDetail(this);');
+            }
 
-        return $link;
+            $td->addClass('pkColumnEdit');
+        }
+
+        $content = array();
+
+        $actions = $this->getGrid()->getActions();
+
+        if (isIterable($actions))
+        {
+            foreach ($actions as $action)
+            {
+                $action instanceof \Component\Action\Action;
+
+                //don't render group in grid action
+                if (!$action->getRenderInGrid())
+                {
+                    continue;
+                }
+
+                $action->setPk($idValue);
+                $link = new \View\Ext\LinkButton('action-link-' . $action->getId(), $action->getIcon(), null, $action->getParsedUrl());
+                $link->setData('model-id', $idValue);
+                $link->setClass('pkColumnEdit');
+
+                $content[] = $link;
+            }
+        }
+
+        return $content;
     }
 
 }

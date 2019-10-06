@@ -360,7 +360,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         //hide text columns by default
         if ($column->getType() === \Db\Column::TYPE_TEXT)
         {
-            $gridColumn->setRender(FALSE);
+            $gridColumn->setRender(FALSE)->setRenderInDetail(FALSE);
         }
 
         return $gridColumn;

@@ -146,31 +146,31 @@ class Page extends \View\Layout
 
         if (is_array($errors) && count($errors) > 0)
         {
-            $campos = '';
+            $json = array();
             foreach ($errors as $field => $errorMsg)
             {
                 if (is_array($errorMsg))
                 {
+                    $label = $model->getColumn($field)->getLabel();
+
                     foreach ($errorMsg as $msg)
                     {
                         $arrayErrorMsg[] = $msg;
                         $message = \View\Script::treatStringToJs($msg);
                         $this->byId($field)->setInvalid(true, $message);
-                        $campos .= $model->getColumn($field)->getLabel() . ' | ' . $message . '<br />';
                     }
-                }
-            }
 
-            if ($arrayErrorMsg)
-            {
-                if (empty($campos))
-                {
-                    toast('Verifique o preenchimento dos campos.', 'danger');
+                    $stdClass = new \stdClass();
+                    $stdClass->name = $field;
+                    $stdClass->label = $label;
+                    $stdClass->messages = $errorMsg;
+
+                    $json[] = $stdClass;
                 }
-                else
-                {
-                    toast('Verifique o preenchimento dos campos. <br /><br />' . $campos, 'danger');
-                }
+
+                $json = \Disk\Json::encode($json);
+
+                \App::addJs("showValidateErrors({$json});");
 
                 return FALSE;
             }
@@ -537,6 +537,7 @@ class Page extends \View\Layout
         if (method_exists($this, 'getModel'))
         {
             $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
+            $grid->setActions($this->setDefaultActions());
             $this->setGrid($grid);
             $this->setDefaultFilters($grid);
 
@@ -988,7 +989,14 @@ class Page extends \View\Layout
      */
     public function getMainForm()
     {
-        return $this->byId('content', '\View\Div');
+        if ($this->getPopupAdd())
+        {
+            return $this->byId('popupHolder', '\View\Div');
+        }
+        else
+        {
+            return $this->byId('content', '\View\Div');
+        }
     }
 
     /**

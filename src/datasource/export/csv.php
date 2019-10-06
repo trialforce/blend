@@ -52,7 +52,7 @@ class Csv
 
                 foreach ($exportColumns as $column)
                 {
-                    $value = strip_tags(\Component\Grid\Column::getColumnValue($column, $model));
+                    $value = strip_tags(\DataSource\Grab::getUserValue($column, $model));
                     $columsLine[] = '"' . $value . '"';
                 }
 

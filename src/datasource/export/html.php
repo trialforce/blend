@@ -183,7 +183,7 @@ p {
 
                     //restore original to locate things, used in group export
                     //\View\View::setDom($domOriginal);
-                    //$value = \Component\Grid\Column::getColumnValue($column, $model);
+                    //$value = \DataSource\Grab::getUserValue($column, $model);
                     //\View\View::setDom($layout);
 
                     $myValue = $conditionValue . $filterValue . ' ';
@@ -288,7 +288,7 @@ p {
                 {
                     //restore original to locate things, used in group export
                     \View\View::setDom($domOriginal);
-                    $value = \Component\Grid\Column::getColumnValue($column, $model);
+                    $value = \DataSource\Grab::getUserValue($column, $model);
                     \View\View::setDom($layout);
                     $td[] = $myTd = new \View\Td(NULL, $value);
 

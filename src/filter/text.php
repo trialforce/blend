@@ -111,8 +111,8 @@ class Text
         $column instanceof \Component\Grid\Column;
         $this->column = $column;
 
-        $this->setFilterLabel($column->getLabel());
-        $this->setFilterName($this->getColumn()->getSplitName());
+        $this->setFilterLabel($column->getFilterLabel());
+        $this->setFilterName(\Db\Column::getRealColumnName($this->getColumn()->getName()));
 
         return $this;
     }
@@ -121,7 +121,7 @@ class Text
     {
         if (is_null($this->filterName) && $this->getColumn())
         {
-            $this->filterName = $this->getColumn()->getSplitName();
+            $this->filterName = \Db\Column::getRealColumnName($this->getColumn()->getName());
         }
 
         return $this->filterName;

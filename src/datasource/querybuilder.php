@@ -144,7 +144,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $idx => $column)
         {
-            $value = \Component\Grid\Column::getColumnValue($column, $firstItem);
+            $value = \DataSource\Grab::getUserValue($column, $firstItem);
 
             if (\Type\Integer::isNumeric($value))
             {
