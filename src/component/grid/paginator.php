@@ -308,9 +308,16 @@ class Paginator extends \View\Div
         }
 
         $this->append($this->createPaginationLimitField());
+        $this->append($this->createPaginationFontSizeField());
+
         $this->append($content);
 
         return $this;
+    }
+
+    public function createPaginationFontSizeField()
+    {
+        return new \View\Button(null, 'Aa', 'grid.changeTextSize()', 'clean fr grid-change-text-size');
     }
 
 }
