@@ -571,7 +571,10 @@ class Engine
             $value = implode(',', $value);
         }
 
-        return str_replace('{$' . $var . '}', $value, $content);
+        $result = str_replace('{$' . $var . '}', $value, $content);
+        $result = str_replace('%7B%24' . $var . '%7D', $value, $result);
+
+        return $result;
     }
 
     protected function replaceEval()
