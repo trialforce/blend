@@ -39,9 +39,17 @@ class ImageUpload extends \View\Div
 
         if ($href)
         {
+            $dom = \View\View::getDom();
+            $url = '';
+
+            if ($dom instanceof \Page\Page)
+            {
+                $url = $dom->getPageUrl();
+            }
+
             $idUrl = !is_null($id) ? '?idUpload=' . $id : '';
             $icon = new Icon('cancel remove');
-            $icon->click("return e('{$removeImageFunction}{$idUrl}')");
+            $icon->click("return p('{$url}/{$removeImageFunction}{$idUrl}')");
             $this->append($icon);
         }
 
