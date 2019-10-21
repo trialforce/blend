@@ -59,6 +59,7 @@ class WkPdf extends \mikehaertl\wkhtmlto\Pdf
 
     public function writeHtml($html)
     {
+        //TODO add suport for header css writeHtml($css,1)
         $this->addPage($html);
     }
 
