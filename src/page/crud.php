@@ -325,8 +325,10 @@ class Crud extends \Page\Page
     {
         $actions = array();
 
-        $actions[] = $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
+        $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
         $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+
+        $actions[] = $editar;
 
         if ($this->verifyPermission('remover'))
         {
@@ -999,6 +1001,60 @@ class Crud extends \Page\Page
     public function openTrDetail()
     {
         return $this->getGrid()->openTrDetail();
+    }
+
+    /**
+     * Return the html from the js call printScreen();
+     *
+     * @return string
+     */
+    protected function getPrintScreenHtml()
+    {
+        $cssPath = BLEND_PATH . '/pdfprintscreen.css';
+        $cssFile = new \Disk\File($cssPath, true);
+        $css = $cssFile->getContent();
+
+        $html = '<html>';
+        $html .= '<style>' . $css . '</style>';
+        $html .= '<body>';
+        $html .= '<h1>' . Request::get('title') . '</h1>';
+        $html .= Request::get('content');
+        $html .= '</body>';
+        $html .= '</html>';
+
+        return $html;
+    }
+
+    /**
+     * Called from js printScreen()
+     */
+    public function printScreen()
+    {
+        \App::dontChangeUrl();
+        $type = Request::get('type') ? Request::get('type') : 'pdf';
+
+        $filePath = str_replace('-', '_' . $this->getPageUrl()) . '_';
+        $filePath .= \Type\DateTime::now()->format(\Type\DateTime::MASK_TIMESTAMP_FILE);
+        $filePath .= '.' . $type;
+
+        $file = \Disk\File::getFromStorage($filePath);
+        $file->createStorageFolderIfNeeded();
+
+        $html = $this->getPrintScreenHtml();
+
+        if ($type == 'pdf')
+        {
+            $pdf = new \ReportTool\WkPdf('utf-8', 'A4', '', '', 5, 5, 5, 5);
+            $pdf->WriteHTML($html);
+            $pdf->Output($file->getPath());
+
+            $file->outputToBrowser(TRUE);
+        }
+        else
+        {
+            $file->save($html);
+            $file->outputToBrowser(TRUE);
+        }
     }
 
 }

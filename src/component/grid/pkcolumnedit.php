@@ -36,7 +36,6 @@ class PkColumnEdit extends \Component\Grid\EditColumn
         }
 
         $content = array();
-
         $actions = $this->getGrid()->getActions();
 
         if (isIterable($actions))

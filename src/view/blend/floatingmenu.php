@@ -99,6 +99,11 @@ class FloatingMenu extends \View\Ul
         {
             $this->addContent($action->getId(), $action->getLabel(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
         }
+        //in case it's a JS function
+        else if (stripos($action->getUrl(), '(') > 0)
+        {
+            $this->addItem($action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
+        }
         //in case it's a link
         else if (stripos($action->getUrl(), 'p(') === 0)
         {

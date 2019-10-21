@@ -209,6 +209,12 @@ class Grid extends \Component\Component
         return $renderColumns;
     }
 
+    /**
+     * @deprecated since version 2019-10-18 use getDatasource()->setColumns();
+     *
+     * @param array $columns
+     * @return $this
+     */
     public function setColumns($columns)
     {
         if (is_array($columns))
@@ -353,7 +359,8 @@ class Grid extends \Component\Component
         $this->table = new \View\Table($this->getId() . 'Table', $view, 'table-grid');
 
         $div = new \View\Div($this->getId(), $this->table, 'grid');
-        $div->data('link', $this->getLink(null, null, null, false));
+        //put link on js side
+        $div->data('link', str_replace('/', '', $this->getLink(null, null, null, false)));
 
         $this->makeAggregation();
 
@@ -727,8 +734,8 @@ class Grid extends \Component\Component
         //this need to be optimized, this is in wrong place, but for compatibily porpouses is here
         $page = \View\View::getDom();
         $model = method_exists($page, 'getModel') ? $page->getModel() : null;
+        $grid = method_exists($page, 'getGrid') ? $page->getGrid() : null;
 
-        $grid = $page->getGrid();
         $extraFilters = null;
         //FIXME optimize 10% if get only what is is post
         if (method_exists($grid, 'getSearchField'))
@@ -941,7 +948,6 @@ class Grid extends \Component\Component
         $modelId = Request::get('v');
         $elementId = Request::get('elementId');
 
-        //toast('rolando=' . $modelId . '/ ' . $elementId);
         $result[] = new \View\Div('grid-tr-detail-columns-' . $modelId, $this->renderModelDetail($modelId), 'grid-tr-detail-columns clearfix');
         $result[] = new \View\Div('grid-tr-detail-actions-' . $modelId, $this->renderActionsInDetail($modelId), 'grid-tr-detail-actions clearfix');
 
@@ -979,7 +985,16 @@ class Grid extends \Component\Component
         $columns = $ds->getColumns();
         $pkColumn = $this->getIdentificatorColumn();
 
-        $filter[] = new \Db\Where($pkColumn->getName(), '=', $id);
+        $page = \View\View::getDom();
+        $columnName = $pkColumn->getName();
+
+        if (method_exists($page, 'getModel'))
+        {
+            $model = $page->getModel();
+            $columnName = $model::getTableName() . '.' . $columnName;
+        }
+
+        $filter[] = new \Db\Where($columnName, '=', $id);
         $ds->addExtraFilter($filter);
 
         $data = $ds->getData();
