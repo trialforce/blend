@@ -255,11 +255,19 @@ class SmartFilter
 
     protected function getColumnQuery(\Db\Column $column)
     {
+        $className = $this->getModelClass();
+        $catalog = $className::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($className::getTableName());
+
         $columnQuery = $column->getName();
 
         if ($column instanceof \Db\SearchColumn)
         {
             $columnQuery = '( SELECT ' . $column->getQuery() . ' )';
+        }
+        else if ($tableName)
+        {
+            $columnQuery = $tableName . '.' . $column->getName();
         }
 
         return $columnQuery;
