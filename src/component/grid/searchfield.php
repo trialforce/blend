@@ -188,7 +188,6 @@ class SearchField extends \Component\Component
         $dbModel = $this->getDbModel();
 
         $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$("#fm-filters").toggle(\'fast\');');
-
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
@@ -198,14 +197,18 @@ class SearchField extends \Component\Component
         {
             foreach ($filters as $filter)
             {
+                $filter instanceof \Filter\Text;
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
-                $fMenu->addItem(null, null, $filter->getFilterLabel(), $url);
+                $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
             }
         }
 
         $result[] = $icon;
         $result[] = $this->createBookmarkMenu();
         $result[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded($filters), 'clearfix');
+
+        //order the list in alpha
+        \App::addJs("sortList('#fm-filters');");
 
         return $result;
     }

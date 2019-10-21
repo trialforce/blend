@@ -9,7 +9,7 @@ class EditColumn extends \Component\Grid\Column
 {
 
     /**
-     * Função chamada ao clicar na edição desta coluna
+     * Method/event called when user click in this column
      *
      * @var string
      */
@@ -145,7 +145,7 @@ class EditColumn extends \Component\Grid\Column
             throw new \Exception('Impossivel encontrar coluna identificador!');
         }
 
-        $idValue = \Component\Grid\Column::getColumnValue($identificator, $item);
+        $idValue = \DataSource\Grab::getUserValue($identificator, $item);
         $url = $editPage . '/' . $editEvent . '/' . $idValue;
         $url .= $this->getEditExtraParams() ? '?' . $this->getEditExtraParams() : '';
 
@@ -168,7 +168,7 @@ class EditColumn extends \Component\Grid\Column
         $value = parent::getValue($item, $tr, $td);
 
         $identificator = $this->getGrid()->getIdentificatorColumn();
-        $idValue = \Component\Grid\Column::getColumnValue($identificator, $item);
+        $idValue = \DataSource\Grab::getUserValue($identificator, $item);
         $columnName = $this->getName();
         $elementId = 'edit' . $columnName . $idValue;
 

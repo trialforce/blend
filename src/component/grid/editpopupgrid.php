@@ -51,6 +51,7 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function __construct($id = NULL, $dataSource = NULL)
     {
         parent::__construct($id, $dataSource);
+        $this->setCanMakeTrDetail(FALSE);
     }
 
     public function getLink($event = NULL, $value = NULL, $params = NULL, $putUrl = TRUE)

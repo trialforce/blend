@@ -293,21 +293,68 @@ class Crud extends \Page\Page
         if ($this->popupAdd)
         {
             \App::dontChangeUrl();
-            return $this->getPopup();
+            $popup = $this->getPopup();
+            $this->createFloatingMenu();
+            $this->floatingMenu->addClass('action-list-popup');
+
+            return $popup;
         }
         else
         {
             $this->append($this->getHead());
             $this->append($this->getBodyDiv($this->mountFieldLayout()));
-        }
-
-        //remove the delete button if don't has permission
-        if (!$this->verifyPermission('remover'))
-        {
-            $this->byId('btnRemover')->remove();
+            $this->createFloatingMenu();
         }
 
         $this->adjustFields();
+    }
+
+    public function createFloatingMenu()
+    {
+        $this->floatingMenu = new \View\Blend\FloatingMenu($this->getFloatingMenuId());
+        $this->floatingMenu->addActions($this->getEditActions(), $this->getModel()->getId());
+        $this->floatingMenu->addClass('action-list');
+    }
+
+    public function getFloatingMenuId()
+    {
+        return 'fm-action-' . str_replace('/', '-', $this->getPageUrl());
+    }
+
+    public function setDefaultActions()
+    {
+        $actions = array();
+
+        $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
+        $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+
+        $actions[] = $editar;
+
+        if ($this->verifyPermission('remover'))
+        {
+            $actions[] = $remover = new \Component\Action\Remove($this->getModel()->getName(), $this->getModel()->getId());
+            $remover->setRenderInGridDetail(TRUE);
+        }
+
+        return $actions;
+    }
+
+    public function getEditActions()
+    {
+        $actions = $this->setDefaultActions();
+        $result = array();
+
+        foreach ($actions as $action)
+        {
+            $action instanceof \Component\Action;
+
+            if ($action->getRenderInEdit())
+            {
+                $result[] = $action;
+            }
+        }
+
+        return $result;
     }
 
     public function ver()
@@ -399,21 +446,16 @@ class Crud extends \Page\Page
             $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
             $btnSalvar->setTitle('Salva o registro atual no banco de dados!')->setDisabled();
 
+            $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
+            $btnVoltar->setTitle('Volta para a listagem!')->formChangedAdvice();
+
             if ($this->isUpdate())
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
-                $this->floatingMenu = new \View\Blend\FloatingMenu('fm-action-' . $idFMenu);
-                $this->floatingMenu->addItem('btnRemover', 'trash', 'Remover ' . $this->getLcModelLabel(), 'remover', 'danger', 'Remove o registro atual do banco de dados!', TRUE);
-                $this->floatingMenu->hide();
-
-                $btnAction = new \View\Div('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder');
-                $btnAction->click('$("#fm-action-' . $idFMenu . '").toggle(\'fast\');');
-
+                $btnAction = new \View\Div('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder action-list-toogle');
+                $btnAction->click('return actionList.toggle();');
                 $buttons[] = $btnAction;
             }
-
-            $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
-            $btnVoltar->setTitle('Volta para a listagem!')->formChangedAdvice();
         }
         else
         {
@@ -483,7 +525,7 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Solicita confirmação para remover
+     * @deprecated since version 201-10-2
      */
     public function remover()
     {
@@ -509,7 +551,7 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Remove registro
+     * @deprecated since version 201-10-2
      */
     public function confirmaExclusao()
     {
@@ -745,7 +787,23 @@ class Crud extends \Page\Page
         {
             if (stripos($var, 'value') > 0)
             {
-                $isFiltred = true;
+                if (is_array($value))
+                {
+                    foreach ($value as $idx => $valuex)
+                    {
+                        if (strlen($valuex) > 0)
+                        {
+                            $isFiltred = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (strlen($value) > 0)
+                    {
+                        $isFiltred = true;
+                    }
+                }
             }
         }
 
@@ -937,6 +995,65 @@ class Crud extends \Page\Page
         else
         {
             return $this->byId('divLegal');
+        }
+    }
+
+    public function openTrDetail()
+    {
+        return $this->getGrid()->openTrDetail();
+    }
+
+    /**
+     * Return the html from the js call printScreen();
+     *
+     * @return string
+     */
+    protected function getPrintScreenHtml()
+    {
+        $cssPath = BLEND_PATH . '/pdfprintscreen.css';
+        $cssFile = new \Disk\File($cssPath, true);
+        $css = $cssFile->getContent();
+
+        $html = '<html>';
+        $html .= '<style>' . $css . '</style>';
+        $html .= '<body>';
+        $html .= '<h1>' . Request::get('title') . '</h1>';
+        $html .= Request::get('content');
+        $html .= '</body>';
+        $html .= '</html>';
+
+        return $html;
+    }
+
+    /**
+     * Called from js printScreen()
+     */
+    public function printScreen()
+    {
+        \App::dontChangeUrl();
+        $type = Request::get('type') ? Request::get('type') : 'pdf';
+
+        $filePath = str_replace('-', '_' . $this->getPageUrl()) . '_';
+        $filePath .= \Type\DateTime::now()->format(\Type\DateTime::MASK_TIMESTAMP_FILE);
+        $filePath .= '.' . $type;
+
+        $file = \Disk\File::getFromStorage($filePath);
+        $file->createStorageFolderIfNeeded();
+
+        $html = $this->getPrintScreenHtml();
+
+        if ($type == 'pdf')
+        {
+            $pdf = new \ReportTool\WkPdf('utf-8', 'A4', '', '', 5, 5, 5, 5);
+            $pdf->WriteHTML($html);
+            $pdf->Output($file->getPath());
+
+            $file->outputToBrowser(TRUE);
+        }
+        else
+        {
+            $file->save($html);
+            $file->outputToBrowser(TRUE);
         }
     }
 

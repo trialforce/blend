@@ -862,6 +862,8 @@ class Column
     {
         //convert for string if is an object
         $columnName = $sqlForColumn . '';
+        //sanity from php private variables
+        $columnName = trim(str_replace('*', '', $columnName));
 
         // columname AS alias
         if (stripos($columnName, ' AS ') > 0)

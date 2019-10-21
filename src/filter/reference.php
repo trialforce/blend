@@ -38,7 +38,7 @@ class Reference extends \Filter\Collection
             throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
         }
 
-        if ($this->dbColumn->getClass())
+        if (is_object($this->dbColumn) && $this->dbColumn->getClass())
         {
             $this->setDefaultCondition(self::COND_TEXT);
         }

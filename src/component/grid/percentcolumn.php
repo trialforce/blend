@@ -15,7 +15,7 @@ class PercentColumn extends \Component\Grid\Column
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $value = \Type\Integer::get(\Component\Grid\Column::getColumnValue($this, $item, $line));
+        $value = \Type\Integer::get(\DataSource\Grab::getUserValue($this, $item, $line));
 
         return self::getPercentBar($value);
     }

@@ -139,7 +139,7 @@ abstract class Combo extends \Component\Component
 
         if (is_array($data) && isset($data[0]))
         {
-            $value = Column::getColumnValue($labelColumm, $data[0]);
+            $value = \DataSource\Grab::getUserValue($labelColumm, $data[0]);
             $this->labelValue->setValue($value);
         }
     }
@@ -210,8 +210,8 @@ abstract class Combo extends \Component\Component
 
                 $i++;
 
-                $value = Column::getColumnValue($indentificatorColumm, $item);
-                $label = Column::getColumnValue($labelColumm, $item);
+                $value = \DataSource\Grab::getUserValue($indentificatorColumm, $item);
+                $label = \DataSource\Grab::getUserValue($labelColumm, $item);
 
                 $link->html($td);
                 $link->click("comboSelectItem('{$id}', '{$value}', \"{$label}\", this );")->setTabIndex(0);

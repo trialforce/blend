@@ -20,7 +20,7 @@ class SmartDateColumn extends \Component\Grid\Column
     {
         //$this->makeEditable($item, $line, $tr, $td);
         $line = NULL;
-        $value = \Component\Grid\Column::getColumnValue($this, $item, $line);
+        $value = \DataSource\Grab::getUserValue($this, $item, $line);
 
         //increase compatibility
         if (!$value instanceof \Type\DateTime)

@@ -606,7 +606,7 @@ i.fa.filter-menu .blend-floating-menu li span .fa-trash,
 }
 
 .os-ios {
-    
+
 }
 
 select[readonly]
@@ -643,11 +643,11 @@ select[readonly]
         margin: 0;
         padding: 20px 0;
     }
-    
+
     .hide-in-desktop {
         display: block;
     }
-    
+
     td.hide-in-desktop, .grid td.hide-in-desktop {
         display: table-cell;
     }
@@ -655,10 +655,56 @@ select[readonly]
     .hide-in-mobile, td.hide-in-mobile , .grid td.hide-in-mobile {
         display: none;
     }
-        
+
     .column-1, .column-2,.column-3, .column-4, .column-5, .column-6, .column-7,.column-8,.column-9, .column-10, .column-11, .column-12,.column-p-1,.column-p-2,.column-p-3,.column-p-4,.column-p-5, .column-p-6,.column-p-7,.column-p-8,.column-p-9,.column-p-10,.column-p-11,.column-p-12,.half {
         width: 100%;
         padding: 0;
         margin: 0;
     }
+}
+
+.grid-tr-detail-column-group {
+    box-shadow: 0px 3px 11px -4px inset RGBA(0,0,0,0.5);
+}
+
+.grid-tr-detail-column-info {
+    width: 25%;
+    float: left;
+    padding: 2px;
+    box-sizing: border-box;
+    min-height: 58px;
+}
+
+.grid-tr-detail-column-label {
+    font-weight: bold;
+    padding: 6px;
+}
+
+.grid-tr-detail-column-value {
+    padding: 6px;
+}
+
+@media screen and ( max-width: 1000px ) {
+    .grid-tr-detail-column-info {
+        width: 50%;
+    }
+
+    .grid-tr-detail-column-info {
+        padding: 0px;
+    }
+
+    .grid-tr-detail-column-label {
+        padding: 2px;
+    }
+
+    .grid-tr-detail-column-value {
+        padding: 2px;
+    }
+}
+
+button.grid-change-text-size {
+    height: 28px;
+    line-height: 28px !important;
+    font-size: 17px;
+    padding: 0 10px;
 }

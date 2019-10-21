@@ -86,7 +86,7 @@ class CheckColumn extends \Component\Grid\Column
         if ($makeCheck)
         {
             $identificator = $this->getGrid()->getIdentificatorColumn();
-            $idValue = \Component\Grid\Column::getColumnValue($identificator, $item);
+            $idValue = \DataSource\Grab::getUserValue($identificator, $item);
 
             $nameValue = $line;
 

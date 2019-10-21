@@ -144,9 +144,10 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $idx => $column)
         {
-            $value = \Component\Grid\Column::getColumnValue($column, $firstItem);
+            $column instanceof \Component\Grid\Column;
+            $value = \DataSource\Grab::getUserValue($column, $firstItem);
 
-            if (\Type\Integer::isNumeric($value))
+            if (\Type\Integer::isNumeric($value) && !$column->getIdentificator())
             {
                 $columns[$idx]->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
             }
@@ -219,8 +220,6 @@ class QueryBuilder extends DataSource
                 $columnLabel = str_replace('Description', '', $columnLabel);
                 $obj->setLabel($columnLabel);
             }
-
-            //if (\Type\Integer::isNumeric($value))
 
             $result[$columnName] = $obj;
         }
