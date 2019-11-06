@@ -85,7 +85,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $column)
         {
-            $realName = \Db\Column::getRealColumnName($column);
+            $realName = \Db\Column\Column::getRealColumnName($column);
 
             if ($realColumnName == $realName)
             {
@@ -99,7 +99,7 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilderFeeded();
         $realName = $aggregator->getColumnName();
         $sqlColumn = $this->getQueryColumnByRealname($realName);
-        $sqlColumn = \Db\Column::getRealSqlColumn($sqlColumn);
+        $sqlColumn = \Db\Column\Column::getRealSqlColumn($sqlColumn);
 
         $method = $aggregator->getMethod();
         $query = $method . '( ' . $sqlColumn . ' )';
@@ -165,7 +165,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $columnName)
         {
-            $columnName = \Db\Column::getRealColumnName($columnName);
+            $columnName = \Db\Column\Column::getRealColumnName($columnName);
             $column = $modelName::getColumn($columnName);
 
             if ($column)
@@ -188,8 +188,8 @@ class QueryBuilder extends DataSource
         {
 
             //control sql columns with AS
-            $columnName = \Db\Column::getRealColumnName($orignalColumnName);
-            $columnSql = \Db\Column::getRealSqlColumn($orignalColumnName);
+            $columnName = \Db\Column\Column::getRealColumnName($orignalColumnName);
+            $columnSql = \Db\Column\Column::getRealSqlColumn($orignalColumnName);
             $columnLabel = self::columnNameToLabel($columnName);
 
             $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
@@ -199,7 +199,7 @@ class QueryBuilder extends DataSource
             if ($modelName)
             {
                 $columnModel = $modelName::getColumn($columnName);
-                $columnModel instanceof \Db\Column;
+                $columnModel instanceof \Db\Column\Column;
 
                 if ($columnModel)
                 {

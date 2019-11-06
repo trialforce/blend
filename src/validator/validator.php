@@ -9,9 +9,9 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
 {
 
     /**
-     * Related \Db\Column
+     * Related \Db\Column\Column
      *
-     * @var \Db\Column
+     * @var \Db\Column\Column
      */
     protected $column;
 
@@ -105,7 +105,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
         if ($this->column)
         {
 
-            if (!$this->validateRequired() && $this->column->getType() != \Db\Column::TYPE_TINYINT)
+            if (!$this->validateRequired() && $this->column->getType() != \Db\Column\Column::TYPE_TINYINT)
             {
                 $error[] = "Preenchimento obrigatório.";
             }
@@ -179,7 +179,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
 
         if ($this->column)
         {
-            if ($this->column->isAutoPrimaryKey() || $this->column->getType() == \Db\Column::TYPE_BOOL)
+            if ($this->column->isAutoPrimaryKey() || $this->column->getType() == \Db\Column\Column::TYPE_BOOL)
             {
                 return true;
             }
@@ -212,7 +212,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
         $collum = $this->getColumn();
         $value = $this->value;
 
-        if ($collum && $collum->getType() == \Db\Column::TYPE_DECIMAL)
+        if ($collum && $collum->getType() == \Db\Column\Column::TYPE_DECIMAL)
         {
             $valueType = new \Type\Decimal($this->value);
             $value = $valueType->getIntPart();
@@ -271,14 +271,14 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
         $ok = TRUE;
         $type = $this->column->getType();
 
-        if ($type == \Db\Column::TYPE_INTEGER)
+        if ($type == \Db\Column\Column::TYPE_INTEGER)
         {
             if (!self::isInteger($this->value))
             {
                 $ok = FALSE;
             }
         }
-        else if ($type == \Db\Column::TYPE_DECIMAL)
+        else if ($type == \Db\Column\Column::TYPE_DECIMAL)
         {
             if (!is_numeric(str_replace(',', '', $this->value)))
             {
@@ -338,7 +338,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     /**
      * Get some Validator, used to avoid by php limitation "new Class()->function()"
      *
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      * @param string $value
      * @return \Validator\Validator
      */

@@ -79,12 +79,6 @@ class Grid extends \Component\Component
     protected $actions;
 
     /**
-     * Can make tr detail
-     * @var boolean
-     */
-    protected $canMakeTrDetail = true;
-
-    /**
      * Construct a grid
      *
      * @param string $id
@@ -94,17 +88,6 @@ class Grid extends \Component\Component
     {
         parent::__construct($id);
         $this->setDataSource($dataSource);
-    }
-
-    public function getCanMakeTrDetail()
-    {
-        return $this->canMakeTrDetail;
-    }
-
-    public function setCanMakeTrDetail($canMakeTrDetail)
-    {
-        $this->canMakeTrDetail = $canMakeTrDetail;
-        return $this;
     }
 
     /**
@@ -360,7 +343,7 @@ class Grid extends \Component\Component
 
         $div = new \View\Div($this->getId(), $this->table, 'grid');
         //put link on js side
-        $div->data('link', str_replace('/', '', $this->getLink(null, null, null, false)));
+        $div->data('link', $this->getLink(null, null, null, false));
 
         $this->makeAggregation();
 

@@ -613,7 +613,7 @@ class Engine
             }
 
             //add suport for constant values
-            if ($dbColumn instanceof \Db\Column && $dbColumn->getConstantValues())
+            if ($dbColumn instanceof \Db\Column\Column && $dbColumn->getConstantValues())
             {
                 $array = $dbColumn->getConstantValues();
                 $valueDescription = '';

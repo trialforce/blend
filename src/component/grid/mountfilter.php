@@ -90,20 +90,25 @@ class MountFilter
         //try to get column from database/model
         if ($dbModel instanceof \Db\Model)
         {
-            $realColumnName = \Db\Column::getRealColumnName($column->getName());
+            $realColumnName = \Db\Column\Column::getRealColumnName($column->getName());
             $dbColumn = $dbModel::getColumn($realColumnName);
         }
 
         //verify if is needed to mount the filter by database/model column
-        if ($dbColumn instanceof \Db\Column)
+        if ($dbColumn instanceof \Db\Column\Column)
         {
-            if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
+            $filterClassName = $dbColumn->getFilterClassName();
+            $filter = new $filterClassName($column);
+            $filter->setFilterType($filterType);
+
+            if (method_exists($filter, 'setDbColumn'))
             {
-                $filter = new \Filter\Reference($column, $column->getFilterType(), $dbColumn);
+                $filter->setDbColumn($dbColumn);
             }
         }
 
         //if not find in model, create a default filter based on column type
+        //it's the default fallback
         if (!$filter)
         {
             $dataType = $dataType == 'bool' ? 'boolean' : $dataType;

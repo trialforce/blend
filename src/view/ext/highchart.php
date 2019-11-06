@@ -291,7 +291,7 @@ class HighChart extends \View\Div
         $columnName = $column->getName();
         $value = \DataSource\Grab::getUserValue($columnName, $item);
 
-        if ($column->getType() == \Db\Column::TYPE_TINYINT)
+        if ($column->getType() == \Db\Column\Column::TYPE_TINYINT)
         {
             $value = $value == 1 ? $column->getLabel() : 'Não ' . lcfirst($column->getLabel());
         }

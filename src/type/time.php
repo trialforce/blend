@@ -46,7 +46,7 @@ class Time implements \Type\Generic, \JsonSerializable
      */
     protected $avoidZero = false;
 
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }

@@ -65,7 +65,7 @@ WHERE t.table_name = ?
 AND t.table_schema = ?
 ORDER BY t.ORDINAL_POSITION;";
 
-        $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column');
+        $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column\Column');
 
         if (count($colums) == 0)
         {
@@ -78,11 +78,11 @@ ORDER BY t.ORDINAL_POSITION;";
             {
                 if (strtolower($column->getType()) == 'int' || strtolower($column->getType()) == 'mediumint')
                 {
-                    $column->setType(\Db\Column::TYPE_INTEGER);
+                    $column->setType(\Db\Column\Column::TYPE_INTEGER);
                 }
                 else if (strtolower($column->getType()) == 'float')
                 {
-                    $column->setType(\Db\Column::TYPE_DECIMAL);
+                    $column->setType(\Db\Column\Column::TYPE_DECIMAL);
                 }
 
                 $columns[$column->getName()] = $column;
@@ -326,12 +326,12 @@ WHERE index_name = '{$indexName}'";
         foreach ($columns as $column)
         {
             //avoid searchColumn
-            if ($column instanceof \Db\SearchColumn)
+            if ($column instanceof \Db\Column\Search)
             {
                 continue;
             }
 
-            $column instanceof \Db\Column;
+            $column instanceof \Db\Column\Column;
 
             if ($column->isPrimaryKey())
             {
@@ -382,7 +382,7 @@ $paramStr";
         return $sql;
     }
 
-    private static function createSqlColumn(\Db\Column $column)
+    private static function createSqlColumn(\Db\Column\Column $column)
     {
         if ($column->getSize())
         {
@@ -402,7 +402,7 @@ $paramStr";
             $default = 'DEFAULT ' . $column->getDefaultValue() . ' ';
         }
 
-        $autoIncremento = $column->getExtra() == \Db\Column::EXTRA_AUTO_INCREMENT ? 'AUTO_INCREMENT ' : '';
+        $autoIncremento = $column->getExtra() == \Db\Column\Column::EXTRA_AUTO_INCREMENT ? 'AUTO_INCREMENT ' : '';
         $comment = $column->getLabel() ? "COMMENT '" . $column->getLabel() . "'" : '';
 
         $sql = trim($type . $nullable . $default . $autoIncremento . $comment);
@@ -419,7 +419,7 @@ $paramStr";
             $operation = 'CHANGE';
         }
 
-        $column instanceof \Db\Column;
+        $column instanceof \Db\Column\Column;
         $tableNameParsed = self::parseTableNameForQuery($tableName);
         $columnNameParsed = self::parseTableNameForQuery($column->getName()) . ' ';
 

@@ -51,7 +51,17 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function __construct($id = NULL, $dataSource = NULL)
     {
         parent::__construct($id, $dataSource);
-        $this->setCanMakeTrDetail(FALSE);
+    }
+
+    public function setActions($actions)
+    {
+        $actions = is_array($actions) ? $actions : array();
+        $url = $this->getPageName() . '/removerItem/&_id=:id?';
+
+        $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash', 'remover', $url);
+        $remove->setRenderInGrid(true);
+
+        parent::setActions(array_merge($actionsBefore, $actions));
     }
 
     public function getLink($event = NULL, $value = NULL, $params = NULL, $putUrl = TRUE)
@@ -132,6 +142,11 @@ class EditPopupGrid extends \Component\Grid\Grid
 
     public function createTable()
     {
+        if (!$this->actions)
+        {
+            $this->setActions(null);
+        }
+
         $this->addFilterToDataSource();
         $model = $this->getModel();
         $label = $model::getLabel();
@@ -230,11 +245,9 @@ class EditPopupGrid extends \Component\Grid\Grid
             }
         }
 
-        $newColumns['remove'] = $removeColumn = new \Component\Grid\LinkColumn('remove', 'Remover');
-        $removeColumn->setUrl($this->getRemoveMethod());
-        $removeColumn->setIcon('trash');
-        $removeColumn->setOrder(FALSE);
-        $removeColumn->setGrid($this);
+        $newColumns['action'] = $action = new \Component\Grid\PkColumnEdit('id', 'Ações');
+        //don't allow edition with double click, by default
+        $action->setGrid($this)->setEditEvent(null);
 
         return array_merge($newColumns, $columns);
     }
@@ -281,7 +294,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $name = $item::getName();
         $columnAtivo = $name::getColumn('ativo');
 
-        if ($columnAtivo instanceof \Db\Column && $item->ativo . '' < 1)
+        if ($columnAtivo instanceof \Db\Column\Column && $item->ativo . '' < 1)
         {
             $tr->addClass('desativado');
         }
@@ -295,7 +308,7 @@ class EditPopupGrid extends \Component\Grid\Grid
             $situacaoValue = $situacaoValue->toDb();
         }
 
-        if ($columnSituacao instanceof \Db\Column && $situacaoValue < 1)
+        if ($columnSituacao instanceof \Db\Column\Column && $situacaoValue < 1)
         {
             $tr->addClass('desativado');
         }

@@ -112,7 +112,7 @@ class Text
         $this->column = $column;
 
         $this->setFilterLabel($column->getFilterLabel());
-        $this->setFilterName(\Db\Column::getRealColumnName($this->getColumn()->getName()));
+        $this->setFilterName(\Db\Column\Column::getRealColumnName($this->getColumn()->getName()));
 
         return $this;
     }
@@ -121,7 +121,7 @@ class Text
     {
         if (is_null($this->filterName) && $this->getColumn())
         {
-            $this->filterName = \Db\Column::getRealColumnName($this->getColumn()->getName());
+            $this->filterName = \Db\Column\Column::getRealColumnName($this->getColumn()->getName());
         }
 
         return $this->filterName;

@@ -5,7 +5,7 @@ namespace View\Ext;
 class ReferenceField extends \View\Select
 {
 
-    public function __construct(\Db\Column $column, $columName, $value = NULL, $class = NULL)
+    public function __construct(\Db\Column\Column $column, $columName, $value = NULL, $class = NULL)
     {
         parent::__construct($columName);
 

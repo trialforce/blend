@@ -162,7 +162,7 @@ class Column
      * @param string $label label
      * @param string $align align
      */
-    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_VARCHAR)
+    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_VARCHAR)
     {
         $this->setName($name);
         $this->setLabel($label);
@@ -574,13 +574,13 @@ class Column
      * Return the name of the column.
      * But control '.' as AS
      *
-     * @deprecated since version 2019-01-18 use \Db\Column::getRealColumnName
+     * @deprecated since version 2019-01-18 use \Db\Column\Column::getRealColumnName
      *
      * @return string
      */
     public function getSplitName()
     {
-        return \Db\Column::getRealColumnName($this->getName());
+        return \Db\Column\Column::getRealColumnName($this->getName());
     }
 
     /**

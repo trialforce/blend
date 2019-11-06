@@ -152,7 +152,7 @@ class Csv
 
             $class = '';
 
-            if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL, \Db\Column::TYPE_DATETIME, \Db\Column::TYPE_DATE)))
+            if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)))
             {
                 $class = 'alignRight';
             }

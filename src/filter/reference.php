@@ -12,7 +12,7 @@ class Reference extends \Filter\Collection
 
     /**
      *
-     * @var \Db\Column
+     * @var \Db\Column\Column
      */
     protected $dbColumn;
 

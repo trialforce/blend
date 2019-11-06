@@ -115,7 +115,7 @@ class Console
      */
     public static function error($var)
     {
-        return self::generateLog(func_get_args(), 'info');
+        return self::generateLog(func_get_args(), 'error');
     }
 
     /**

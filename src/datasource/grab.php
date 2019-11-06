@@ -21,12 +21,12 @@ class Grab
         {
             $columnName = $column->getName();
         }
-        elseif ($column instanceof \Db\Column)
+        elseif ($column instanceof \Db\Column\Column)
         {
             $columnName = $column->getName();
         }
 
-        return \Db\Column::getRealColumnName($columnName);
+        return \Db\Column\Column::getRealColumnName($columnName);
     }
 
     /**
@@ -185,7 +185,7 @@ class Grab
             $model = $ds->getModel();
             $dbColumn = $model->getColumn($columnName);
 
-            if ($dbColumn instanceof \Db\Column)
+            if ($dbColumn instanceof \Db\Column\Column)
             {
                 $constantValues = $dbColumn->getConstantValues();
 

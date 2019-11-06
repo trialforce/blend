@@ -22,11 +22,18 @@ class LinkButton extends \View\A
             $url = str_replace(array("p('", 'p("', "')", '")', ';'), '', $url);
             $onclick = $href;
         }
+        //a simple js
+        else if (stripos($href, '(') > 0)
+        {
+            $url = '#';
+            $onclick = $href;
+        }
 
         parent::__construct($id, NULL, $url, $class, $target, $father);
 
         if ($onclick)
         {
+            $this->setAjax(FALSE);
             $this->click($onclick);
         }
 

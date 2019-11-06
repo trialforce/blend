@@ -42,7 +42,7 @@ class EditColumn extends \Component\Grid\Column
      */
     protected $identificatorColumn;
 
-    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_VARCHAR)
+    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_VARCHAR)
     {
         parent::__construct($name, $label, $align, $dataType);
         $this->setWidth('10px');
@@ -121,6 +121,11 @@ class EditColumn extends \Component\Grid\Column
     {
         $editPage = $this->getEditPage();
         $editEvent = $this->getEditEvent();
+
+        if (!$editEvent)
+        {
+            return null;
+        }
 
         $page = \View\View::getDom();
 

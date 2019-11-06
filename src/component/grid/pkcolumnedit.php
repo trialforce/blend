@@ -3,13 +3,12 @@
 namespace Component\Grid;
 
 /**
- * Coluna prontina para chave primária
- * FIXME Pesadinha também
+ * Column used to a represent a primary key in grid
  */
 class PkColumnEdit extends \Component\Grid\EditColumn
 {
 
-    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_INTEGER)
+    public function __construct($name = NULL, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_INTEGER)
     {
         parent::__construct($name, $label, $align, $dataType);
         $this->setIdentificator(TRUE)->setRender(TRUE)->setRenderInDetail(FALSE);
@@ -22,15 +21,10 @@ class PkColumnEdit extends \Component\Grid\EditColumn
         $idValue = \DataSource\Grab::getUserValue($identificator, $item);
         $url = $this->getEditUrl($item);
 
-        if ($tr)
+        if ($tr && $url)
         {
             $tr->setAttribute('ondblclick', 'p(\'' . $url . '\');');
             $tr->setData('model-id', $idValue);
-
-            if ($grid->getCanMakeTrDetail())
-            {
-                $tr->setAttribute('onclick', 'return grid.openTrDetail(this);');
-            }
 
             $td->addClass('pkColumnEdit');
         }

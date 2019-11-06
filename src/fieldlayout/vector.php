@@ -90,7 +90,7 @@ class Vector
 
             foreach ($columns as $column)
             {
-                if (!$column || $column instanceof \Db\SearchColumn)
+                if (!$column || $column instanceof \Db\Column\Search)
                 {
                     continue;
                 }
@@ -229,10 +229,10 @@ class Vector
      * Return the input for the column
      * TODO optimize
      *
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      * @return \View\View
      */
-    public function getInputField(\Db\Column $column, $weight = NULL)
+    public function getInputField(\Db\Column\Column $column, $weight = NULL)
     {
         $dom = \View\View::getDom();
         $type = $column->getType();
@@ -247,16 +247,16 @@ class Vector
             $property = $dom->getFormName() . '[' . $property . ']';
         }
 
-        //TODO padronize 100% and put it on \Db\Column or not?
-        $classes[\Db\Column::TYPE_INTEGER] = '\View\Ext\IntInput';
-        $classes[\Db\Column::TYPE_TIME] = '\View\Ext\TimeInput';
-        $classes[\Db\Column::TYPE_TIMESTAMP] = '\View\Ext\DateTimeInput';
-        $classes[\Db\Column::TYPE_DATETIME] = '\View\Ext\DateTimeInput';
-        $classes[\Db\Column::TYPE_DATE] = '\View\Ext\DateInput';
-        $classes[\Db\Column::TYPE_TEXT] = '\View\TextArea';
-        $classes[\Db\Column::TYPE_BOOL] = '\View\Ext\CheckboxDb';
-        $classes[\Db\Column::TYPE_TINYINT] = '\View\Ext\CheckboxDb';
-        $classes[\Db\Column::TYPE_VARCHAR] = '\View\Input';
+        //TODO padronize 100% and put it on \Db\Column\Column or not?
+        $classes[\Db\Column\Column::TYPE_INTEGER] = '\View\Ext\IntInput';
+        $classes[\Db\Column\Column::TYPE_TIME] = '\View\Ext\TimeInput';
+        $classes[\Db\Column\Column::TYPE_TIMESTAMP] = '\View\Ext\DateTimeInput';
+        $classes[\Db\Column\Column::TYPE_DATETIME] = '\View\Ext\DateTimeInput';
+        $classes[\Db\Column\Column::TYPE_DATE] = '\View\Ext\DateInput';
+        $classes[\Db\Column\Column::TYPE_TEXT] = '\View\TextArea';
+        $classes[\Db\Column\Column::TYPE_BOOL] = '\View\Ext\CheckboxDb';
+        $classes[\Db\Column\Column::TYPE_TINYINT] = '\View\Ext\CheckboxDb';
+        $classes[\Db\Column\Column::TYPE_VARCHAR] = '\View\Input';
 
         //class
         if (!is_null($class))
@@ -271,7 +271,7 @@ class Vector
         {
             $field = new \View\Ext\SelectConstantValue($column, $property);
         }
-        else if ($type == \Db\Column::TYPE_DECIMAL)
+        else if ($type == \Db\Column\Column::TYPE_DECIMAL)
         {
             $field = new \View\Ext\FloatInput($property, NULL, $column->getSize(), NULL);
         }
@@ -312,10 +312,10 @@ class Vector
     /**
      * Trata algumas condições especiais para o campo
      * @param Input $field
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      * @return Input
      */
-    public function treatField($field, \Db\Column $column)
+    public function treatField($field, \Db\Column\Column $column)
     {
         $field->setAttribute("title", $column->getLabel());
         $field->setAttribute("placeholder", strip_tags($column->getLabel()));
@@ -352,9 +352,9 @@ class Vector
      * Considera campos mestre/detalhe.
      *
      * @param \View\View $input
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      */
-    public function setElementValue($input, \Db\Column $column)
+    public function setElementValue($input, \Db\Column\Column $column)
     {
         $columnName = $column->getName();
         $value = $this->model->getValue($columnName);
@@ -363,7 +363,7 @@ class Vector
 
         $defaultValue = $dom && method_exists($dom, 'isInsert') && $dom->isInsert();
 
-        $emptyValue = ($value . '' === '') || ($column->getType() == \Db\Column::TYPE_TINYINT && ($value . '') == 0) || ($column->getType() == \Db\Column::TYPE_INTEGER && ($value . '') == 0);
+        $emptyValue = ($value . '' === '') || ($column->getType() == \Db\Column\Column::TYPE_TINYINT && ($value . '') == 0) || ($column->getType() == \Db\Column\Column::TYPE_INTEGER && ($value . '') == 0);
 
         //database default value
         if ($defaultValue && !is_array($value) && $emptyValue && $value !== 'default')
