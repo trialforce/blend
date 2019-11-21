@@ -406,6 +406,21 @@ class Model implements \JsonSerializable
     }
 
     /**
+     * Query the current query builder and apply an initial where
+     *
+     * @param string $columnName
+     * @param string $param
+     * @param string $value
+     * @return \Db\QueryBuilder
+     */
+    public static function where($columnName, $param = NULL, $value = NULL)
+    {
+        $name = self::getName();
+        $queryBuilder = $name::query();
+        return $queryBuilder->where($columnName, $param, $value);
+    }
+
+    /**
      * Execute a search in database and return a list
      *
      * @param \Db\Cond $filters

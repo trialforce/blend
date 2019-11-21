@@ -66,6 +66,17 @@ class Where implements \Db\Filter
         return $this;
     }
 
+    public function getParam()
+    {
+        return $this->param;
+    }
+
+    public function setParam($param)
+    {
+        $this->param = $param;
+        return $this;
+    }
+
     public function getFilter()
     {
         return $this->filter;

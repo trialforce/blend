@@ -79,6 +79,8 @@ class Grab
             return null;
         }
 
+        $value = null;
+
         $methodName = 'get' . $columnName;
 
         if (method_exists($item, $methodName))

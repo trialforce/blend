@@ -245,9 +245,14 @@ class EditPopupGrid extends \Component\Grid\Grid
             }
         }
 
-        $newColumns['action'] = $action = new \Component\Grid\PkColumnEdit('id', 'Ações');
-        //don't allow edition with double click, by default
-        $action->setGrid($this)->setEditEvent(null);
+        $newColumns = array();
+
+        if (!isset($columns['id']))
+        {
+            $newColumns['id'] = $action = new \Component\Grid\PkColumnEdit('id', 'Ações');
+            //don't allow edition with double click, by default
+            $action->setGrid($this)->setEditEvent(null);
+        }
 
         return array_merge($newColumns, $columns);
     }
