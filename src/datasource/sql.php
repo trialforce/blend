@@ -110,24 +110,29 @@ class Sql extends \DataSource\Vector
 
     public function getData()
     {
-        $result = \Db\Conn::getInstance($this->connInfo)->query($this->getQuery(), $this->params);
-
-        if (is_array($result) && isset($result[0]) && !$this->columns)
+        if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
-            $columns = array();
+            $result = \Db\Conn::getInstance($this->connInfo)->query($this->getQuery(), $this->params);
 
-            foreach ($result[0] as $property => $value)
+            if (is_array($result) && isset($result[0]) && !$this->columns)
             {
-                //avoid unused variable error in PHPMD
-                $value = null;
-                $columnType = is_numeric($value) ? \Db\Column::TYPE_DECIMAL : \Db\Column::TYPE_VARCHAR;
-                $columns[$property] = new \Component\Grid\Column($property, $property, 'left', $columnType);
+                $columns = array();
+
+                foreach ($result[0] as $property => $value)
+                {
+                    //avoid unused variable error in PHPMD
+                    $value = null;
+                    $columnType = is_numeric($value) ? \Db\Column::TYPE_DECIMAL : \Db\Column::TYPE_VARCHAR;
+                    $columns[$property] = new \Component\Grid\Column($property, $property, 'left', $columnType);
+                }
+
+                $this->setColumns($columns);
             }
 
-            $this->setColumns($columns);
+            $this->data = $result;
         }
 
-        return $result;
+        return $this->data;
     }
 
 }

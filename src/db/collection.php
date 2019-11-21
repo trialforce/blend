@@ -350,6 +350,49 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Limite the collection to a simple array with the property passed
+     *
+     * @param string $property
+     * @return $this
+     */
+    public function getValues($property)
+    {
+        $result = NULL;
+        $array = $this->getData();
+
+        if (is_array($array))
+        {
+            foreach ($array as $item)
+            {
+                //array
+                if (is_array($item))
+                {
+                    $vKey = $item[$property];
+                }
+                else if (is_object($item))
+                {
+                    //model
+                    if ($item instanceof \Db\Model)
+                    {
+                        $vKey = $item->getValue($property);
+                    }
+                    //simple object
+                    else
+                    {
+                        $vKey = $item->$property;
+                    }
+                }
+
+                $result[] = $vKey;
+            }
+        }
+
+        $this->setData($result);
+
+        return $this;
+    }
+
+    /**
      * Get a item from data by key
      *
      * @param string $key

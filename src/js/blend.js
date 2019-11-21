@@ -89,7 +89,17 @@ function stripTags(str)
  */
 function dataAjax()
 {
-    blendJs();
+    try 
+    {
+        blendJs();
+    }
+    catch (e) 
+    {
+        alert('Erro ao executar javascript da página!');
+        console.error(e);
+        hideLoading();
+    }
+    
     //clear the function to avoid calling more times
     blendJs = function(){};
 	
