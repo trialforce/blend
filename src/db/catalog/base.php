@@ -105,7 +105,7 @@ interface Base
      *
      * @param string $name table name
      * @param string $comment comnent or table label
-     * @param array $columns list of \Db\Column
+     * @param array $columns list of \Db\Column\Column
      * @param array $params extra parans for table creation
      */
     public static function mountCreateTable($name, $comment, $columns, $params);
@@ -114,7 +114,7 @@ interface Base
      * Create or change one table
      *
      * @param string $tableName table name
-     * @param \Db\Column $column column object
+     * @param \Db\Column\Column $column column object
      * @param string $operation operation
      */
     public static function mountCreateColumn($tableName, $column, $operation = 'add');

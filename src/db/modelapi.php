@@ -126,7 +126,7 @@ class ModelApi extends \Db\Model
         $filters[] = new \Db\Where('idMobile', '=', $idMobile);
 
         $model = $name::findOneOrCreate($filters);
-        $model->setIdMobile($idMobile);
+        $model->setIdMobile($idMobile ? $idMobile : self::createUniqueIdMobile());
 
         return $model;
     }
@@ -136,10 +136,83 @@ class ModelApi extends \Db\Model
      *
      * @return array array of models
      */
-    public static function list()
+    protected static function parseWhereFromRequest()
     {
-        $name = self::getModelName();
-        $wheres = null;
+        $name = self::getName();
+        $name = $name::getModelName();
+        $wheres = array();
+
+        if (isset($_REQUEST))
+        {
+            $params = $_REQUEST;
+
+            if (isset($params['q']))
+            {
+                unset($params['q']);
+            }
+
+            if (isset($params['limit']))
+            {
+                unset($params['limit']);
+            }
+
+            if (isset($params['offset']))
+            {
+                unset($params['offset']);
+            }
+
+            if (isset($params['orderBy']))
+            {
+                unset($params['orderBy']);
+            }
+
+            if (isset($params['orderWay']))
+            {
+                unset($params['orderWay']);
+            }
+
+            //put the params in the reques, to filters can use
+            \DataHandle\Request::getInstance()->setData($params);
+            //create a model to use in datasource and in page
+            $model = new $name();
+            //used only to reference filter to work, need rework
+            $page = new \Page\Crud($model);
+            $ds = new \DataSource\Model($model);
+            $gridColumns = $ds->getColumns();
+
+            foreach ($gridColumns as $gridColumn)
+            {
+                $gridColumn->setFilter(1);
+            }
+
+            $filters = \Component\Grid\MountFilter::getFilters($gridColumns, $model);
+
+            if (is_array($filters))
+            {
+                foreach ($filters as $filter)
+                {
+                    $cond = $filter->getDbCond();
+
+                    if ($cond)
+                    {
+                        $wheres[] = $cond;
+                    }
+                }
+            }
+        }
+
+        return $wheres;
+    }
+
+    /**
+     * Simple, list as array
+     *
+     * @return array array of models
+     */
+    public static function list($extraWhere = null)
+    {
+        $name = self::getName();
+        $wheres = self::parseWhereFromRequest();
         $smartSearch = null;
         $limit = null;
         $offset = null;
@@ -179,35 +252,78 @@ class ModelApi extends \Db\Model
                 $orderWay = $params['orderWay'];
                 unset($params['orderWay']);
             }
+        }
 
-            //put the params in the reques, to filters can use
-            \DataHandle\Request::getInstance()->setData($params);
-            //create a model to use in datasource and in page
-            $model = new $name();
-            //used only to reference filter to work, need rework
-            $page = new \Page\Crud($model);
-            $ds = new \DataSource\Model($model);
-            $gridColumns = $ds->getColumns();
-
-            $filters = \Component\Grid\MountFilter::getFilters($gridColumns, $model);
-
-            if (is_array($filters))
-            {
-                foreach ($filters as $filter)
-                {
-                    $cond = $filter->getDbCond();
-
-                    if ($cond)
-                    {
-                        $wheres[] = $cond;
-                    }
-                }
-            }
+        //merge where
+        if (is_array($extraWhere))
+        {
+            $wheres = array_merge($wheres, $extraWhere);
         }
 
         $result = $name::smartFind($smartSearch, $wheres, $limit, $offset, $orderBy, $orderWay, 'array');
 
         return $result;
+    }
+
+    public static function countAll()
+    {
+        $name = self::getName();
+        $wheres = self::parseWhereFromRequest();
+
+        return $name::count($wheres, '*');
+    }
+
+    public static function put()
+    {
+        $name = self::getName();
+        $dataHandle = new \DataHandle\Request();
+        $idMobile = \DataHandle\Request::get('idMobile');
+        $id = \DataHandle\Request::get('id');
+
+        //first by id, or by idMobile
+        if ($id)
+        {
+            $model = $name::findOneByPkOrCreate($id);
+        }
+        else if ($idMobile)
+        {
+            $model = $name::findOneByIdMobileOrCreate($idMobile);
+        }
+
+        foreach ($dataHandle as $key => $value)
+        {
+            //avoid some crappy names
+            if ($key == 'p' || $key == 'e' || $key == 'v')
+            {
+                continue;
+            }
+
+            $model->setValue($key, $value);
+        }
+
+        $model->save();
+
+        return $model;
+    }
+
+    public static function del()
+    {
+        $name = self::getName();
+        $id = \DataHandle\Request::get('id');
+
+        if (!$id)
+        {
+            return false;
+        }
+
+        $model = $name::findOneByPk($id);
+
+        if (!$model)
+        {
+            return false;
+        }
+
+        return $model->delete();
     }
 
     public static function callMethodFromJson($json, $methodName = NULL, $params = NULL)

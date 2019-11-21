@@ -122,7 +122,7 @@ class Sql extends \DataSource\Vector
                 {
                     //avoid unused variable error in PHPMD
                     $value = null;
-                    $columnType = is_numeric($value) ? \Db\Column::TYPE_DECIMAL : \Db\Column::TYPE_VARCHAR;
+                    $columnType = is_numeric($value) ? \Db\Column\Column::TYPE_DECIMAL : \Db\Column\Column::TYPE_VARCHAR;
                     $columns[$property] = new \Component\Grid\Column($property, $property, 'left', $columnType);
                 }
 

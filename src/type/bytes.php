@@ -5,7 +5,7 @@ namespace Type;
 /**
  * Tipe bytes
  */
-class Bytes implements \Type\Generic
+class Bytes implements \Type\Generic, \JsonSerializable
 {
 
     const TERA = 1099511627776;
@@ -26,7 +26,7 @@ class Bytes implements \Type\Generic
      */
     protected $decimals = 0;
 
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }
@@ -147,6 +147,11 @@ class Bytes implements \Type\Generic
     public static function value($value)
     {
         return \Type\Bytes::get($value)->getValue();
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
 }

@@ -36,7 +36,7 @@ class ImageColumn extends \Component\Grid\Column
 
     public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $source = NULL, $width = NULL, $height = '40px')
     {
-        parent::__construct($name, $label, $align, \Db\Column::TYPE_VARCHAR);
+        parent::__construct($name, $label, $align, \Db\Column\Column::TYPE_VARCHAR);
         $this->setSource($source);
         $this->setWidth($width);
         $this->setHeight($height);

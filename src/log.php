@@ -385,7 +385,14 @@ class Log
 
         if (Log::getLogSqlConsole())
         {
-            \App::addJs('console.info(\'' . View\Script::treatStringToJs($sql) . '\')');
+            if (stripos($sql, 'ERROR:') === 0)
+            {
+                \Console::error($sql);
+            }
+            else
+            {
+                \Console::log($sql);
+            }
         }
     }
 

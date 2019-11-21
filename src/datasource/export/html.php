@@ -216,7 +216,7 @@ p {
         {
             $th[] = $myTh = new \View\Th(NULL, $column->getLabel());
 
-            if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL)))
+            if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL)))
             {
                 $myTh->addClass('alignRight');
             }
@@ -292,7 +292,7 @@ p {
                     \View\View::setDom($layout);
                     $td[] = $myTd = new \View\Td(NULL, $value);
 
-                    if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL, \Db\Column::TYPE_DATETIME, \Db\Column::TYPE_DATE)))
+                    if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)))
                     {
                         $myTd->addClass('alignRight');
                     }
@@ -355,7 +355,7 @@ p {
 
             $class = '';
 
-            if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL, \Db\Column::TYPE_DATETIME, \Db\Column::TYPE_DATE)))
+            if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)))
             {
                 $class = 'alignRight';
             }

@@ -104,7 +104,7 @@ class Model implements \JsonSerializable
     /**
      * Return the columns indexed by name
      *
-     * @return array of \Db\Column
+     * @return array of \Db\Column\Column
      */
     public static function getColumns()
     {
@@ -155,9 +155,9 @@ class Model implements \JsonSerializable
     /**
      * Define one column for model
      *
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      */
-    public static function setColumn(\Db\Column $column)
+    public static function setColumn(\Db\Column\Column $column)
     {
         $name = self::getName();
 
@@ -170,7 +170,7 @@ class Model implements \JsonSerializable
      * @param string $columnName
      *
      * @throws \Exception
-     * @return \Db\Column
+     * @return \Db\Column\Column
      */
     public static function getColumn($columnName)
     {
@@ -180,12 +180,12 @@ class Model implements \JsonSerializable
         }
 
         //maximize compability
-        if ($columnName instanceof \Db\Column)
+        if ($columnName instanceof \Db\Column\Column)
         {
             return $columnName;
         }
 
-        $columnName = \Db\Column::getRealColumnName($columnName);
+        $columnName = \Db\Column\Column::getRealColumnName($columnName);
         $columns = self::getColumns();
 
         if (isset($columns) && isset($columns[$columnName]))
@@ -217,7 +217,7 @@ class Model implements \JsonSerializable
     /**
      * Retorna as chaves primária da tabela
      *
-     * @return array de \Db\Column
+     * @return array de \Db\Column\Column
      */
     public static function getPrimaryKeys()
     {
@@ -234,7 +234,7 @@ class Model implements \JsonSerializable
 
         foreach ($columns as $column)
         {
-            if ($column instanceof \Db\Column && $column->isPrimaryKey())
+            if ($column instanceof \Db\Column\Column && $column->isPrimaryKey())
             {
                 $pk[$column->getName()] = $column;
             }
@@ -249,7 +249,7 @@ class Model implements \JsonSerializable
      * Return the first primary key
      *
      * @throws \Exception
-     * @return \Db\Column
+     * @return \Db\Column\Column
      */
     public static function getPrimaryKey()
     {
@@ -279,7 +279,7 @@ class Model implements \JsonSerializable
             $value = $this->getValueDb($columnName);
             $check = $avoidPk ? ($column->isPrimaryKey() && $value == '' ) : $value === '';
 
-            if ($column instanceof \Db\SearchColumn || $check)
+            if ($column instanceof \Db\Column\Search || $check)
             {
                 continue;
             }
@@ -331,7 +331,7 @@ class Model implements \JsonSerializable
             {
                 $column = $name::getColumn($filter->getFilter());
 
-                if ($column && $column instanceof \Db\SearchColumn)
+                if ($column && $column instanceof \Db\Column\Search)
                 {
                     $searchSql = $column->getSql(false);
                     $filter->setFilter($searchSql[0]);
@@ -388,7 +388,7 @@ class Model implements \JsonSerializable
             $column->setTableName($tableName);
             $line = $column->getSql();
 
-            if ($tableNameInColumns && !$column instanceof \Db\SearchColumn)
+            if ($tableNameInColumns && !$column instanceof \Db\Column\Search)
             {
                 $line[0] = $tableName . '.' . $line[0];
             }
@@ -403,6 +403,21 @@ class Model implements \JsonSerializable
         $queryBuilder->setModelName(get_called_class());
 
         return $queryBuilder;
+    }
+
+    /**
+     * Query the current query builder and apply an initial where
+     *
+     * @param string $columnName
+     * @param string $param
+     * @param string $value
+     * @return \Db\QueryBuilder
+     */
+    public static function where($columnName, $param = NULL, $value = NULL)
+    {
+        $name = self::getName();
+        $queryBuilder = $name::query();
+        return $queryBuilder->where($columnName, $param, $value);
     }
 
     /**
@@ -1000,7 +1015,7 @@ class Model implements \JsonSerializable
         //passa pelas colunas chamando a validação das colunas
         foreach ($columns as $column)
         {
-            if (!$column instanceof \Db\SearchColumn)
+            if (!$column instanceof \Db\Column\Search)
             {
                 $columnName = $column->getName();
                 $value = $this->getValue($columnName);
@@ -1196,7 +1211,7 @@ class Model implements \JsonSerializable
         foreach ($columns as $column)
         {
             //disregards case of automatic primary key, search colum
-            if ($column instanceof \Db\Column)
+            if ($column instanceof \Db\Column\Column)
             {
                 $property = $column->getProperty();
                 $value = $request->getvar($property);
@@ -1247,7 +1262,7 @@ class Model implements \JsonSerializable
                 $column = $columns[$k];
 
                 //add suport to decimal values, even if they are not using type
-                if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+                if ($column && $column->getType() == \Db\Column\Column::TYPE_DECIMAL)
                 {
                     $v = \Type\Decimal::get($v)->toDb();
                 }
@@ -1286,7 +1301,7 @@ class Model implements \JsonSerializable
         $name = self::getName();
         $columns = $name::getColumns();
         $column = $columns[$propertyName];
-        $column instanceof \Db\Column;
+        $column instanceof \Db\Column\Column;
 
         $idValue = $this->$propertyName;
 

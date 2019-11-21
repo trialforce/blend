@@ -590,6 +590,64 @@ class QueryBuilder
     }
 
     /**
+     * Return the first register or a new one
+     *
+     * @param boolen $fillDataInWhere if is to fill data in where
+     *
+     * @return \Db\Model
+     */
+    public function firstOrCreate($fillDataInWhere = false)
+    {
+        $first = $this->first();
+
+        if (!$first)
+        {
+            $className = $this->getModelName();
+            $first = new $className();
+
+            if ($fillDataInWhere)
+            {
+                $this->fillDataInWhere($first);
+            }
+        }
+
+        return $first;
+    }
+
+    /**
+     * Fill the data filtred with equal in where in the passed model
+     *
+     * @param \Db\Model $model
+     * @return $this
+     */
+    protected function fillDataInWhere($model)
+    {
+        $wheres = $this->getWhere();
+
+        foreach ($wheres as $where)
+        {
+            if ($where instanceof \Db\Where)
+            {
+                if ($where->getParam() == '=')
+                {
+                    $values = $where->getValue();
+                    $propertyName = \Db\Column\Column::getRealColumnName($where->getFilter());
+
+                    //TODO put this in right place
+                    if ($this->getCatalogClass() == '\Db\Catalog\Mysql')
+                    {
+                        $propertyName = str_replace('`', '', $propertyName);
+                    }
+
+                    $model->setValue($propertyName, $values[0]);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Return a collection of the defined model name
      *
      * @return \Db\Collection the collection with the resulted data

@@ -8,7 +8,7 @@ namespace Component\Grid;
 class PkColumn extends \Component\Grid\Column
 {
 
-    public function __construct( $name, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_INTEGER )
+    public function __construct( $name, $label = NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_INTEGER )
     {
         parent::__construct( $name, $label, $align, $dataType );
         $this->setIdentificator( TRUE )->setRender( FALSE )->setFilter( FALSE );

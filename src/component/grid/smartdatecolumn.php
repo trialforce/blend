@@ -13,7 +13,7 @@ class SmartDateColumn extends \Component\Grid\Column
     {
         parent::__construct($name, $label, $align);
         $this->setAlign(Column::ALIGN_RIGHT);
-        $this->setType(\Db\Column::TYPE_DATETIME);
+        $this->setType(\Db\Column\Column::TYPE_DATETIME);
     }
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)

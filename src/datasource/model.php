@@ -127,9 +127,9 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     }
 
     /**
-     * Return the list of \Db\Column that represents the datasource columns
+     * Return the list of \Db\Column\Column that represents the datasource columns
      *
-     * @return array of \Db\Column
+     * @return array of \Db\Column\Column
      */
     public function getDbColumns()
     {
@@ -142,7 +142,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             $dsColumn instanceof \Component\Grid\Column;
             $dbColumn = $model->getColumn($dsColumn->getName());
 
-            if ($dbColumn instanceof \Db\Column)
+            if ($dbColumn instanceof \Db\Column\Column)
             {
                 $result[$dbColumn->getName()] = $dbColumn;
             }
@@ -175,7 +175,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
                 continue;
             }
 
-            if ($column instanceof \Db\SearchColumn)
+            if ($column instanceof \Db\Column\Search)
             {
                 $forceExternalSelect = TRUE;
             }
@@ -187,7 +187,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
                 throw new \UserException('Column ' . $sqlColumn . ' não encontrada na agregação de dados!');
             }
 
-            if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
+            if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
             {
                 $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
             }
@@ -211,7 +211,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
                     $propertyName = 'aggregation' . $agg->getColumnName();
                     $value = $result->$propertyName;
 
-                    if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME)
+                    if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME)
                     {
                         $value = \Type\Time::get($value)->toHuman();
                     }
@@ -238,7 +238,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $column = $model->getColumn($aggregator->getColumnName());
         $forceExternalSelect = FALSE;
 
-        if ($column instanceof \Db\SearchColumn)
+        if ($column instanceof \Db\Column\Search)
         {
             $forceExternalSelect = TRUE;
         }
@@ -249,7 +249,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $query = $method . '( ' . $sqlColumn . ' )';
 
         //make sum of time work
-        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
+        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
         {
             $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
         }
@@ -257,7 +257,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
         $result = $model->aggregation($filters, $query, $forceExternalSelect);
 
-        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column::TYPE_TIME)
+        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME)
         {
             $result = \Type\Time::get($result)->toHuman();
         }
@@ -305,7 +305,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     /**
      * Create one column
      *
-     * @param \Db\SearchColumn $column
+     * @param \Db\Column\Search $column
      * @return \Component\Grid\Column
      */
     public static function createOneColumn($column)
@@ -313,11 +313,11 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $columnLabel = $column->getLabel() ? $column->getLabel() : $column->getName();
         $columnLabel = $columnLabel == 'Código' ? 'Cód' : $columnLabel;
 
-        if ($column->getType() == \Db\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column::TYPE_DATETIME || $column->getType() == \Db\Column::TYPE_DATE)
+        if ($column->getType() == \Db\Column\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column\Column::TYPE_DATETIME || $column->getType() == \Db\Column\Column::TYPE_DATE)
         {
             $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
         }
-        else if ($column->getType() == \Db\Column::TYPE_BOOL || $column->getType() == \Db\Column::TYPE_TINYINT)
+        else if ($column->getType() == \Db\Column\Column::TYPE_BOOL || $column->getType() == \Db\Column\Column::TYPE_TINYINT)
         {
             $gridColumn = new \Component\Grid\BoolColumn($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
         }
@@ -329,7 +329,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         {
             $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType());
 
-            if (($column->getType() == \Db\Column::TYPE_INTEGER || $column->getType() == \Db\Column::TYPE_DECIMAL || $column->getType() == \Db\Column::TYPE_TIME) && !$column->getReferenceDescription())
+            if (($column->getType() == \Db\Column\Column::TYPE_INTEGER || $column->getType() == \Db\Column\Column::TYPE_DECIMAL || $column->getType() == \Db\Column\Column::TYPE_TIME) && !$column->getReferenceDescription())
             {
                 $gridColumn->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
             }
@@ -345,7 +345,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $gridColumn->setIdentificator($column->isPrimaryKey());
 
         //search column has no filter as default
-        if ($column instanceof \Db\SearchColumn)
+        if ($column instanceof \Db\Column\Search)
         {
             $sqls = $column->getSql(FALSE);
 
@@ -358,7 +358,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         }
 
         //hide text columns by default
-        if ($column->getType() === \Db\Column::TYPE_TEXT)
+        if ($column->getType() === \Db\Column\Column::TYPE_TEXT)
         {
             $gridColumn->setRender(FALSE)->setRenderInDetail(FALSE);
         }

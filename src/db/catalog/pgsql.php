@@ -95,7 +95,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
       AND table_name = ?
  ORDER BY ordinal_position";
 
-        $colums = \Db\Conn::getInstance()->query($sql, array($table), '\Db\Column');
+        $colums = \Db\Conn::getInstance()->query($sql, array($table), '\Db\Column\Column');
 
         if (count($colums) == 0)
         {
@@ -107,7 +107,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
             //converte tipos postgres para padrão
             if ($column->getType() == 'int4' || $column->getType() == 'integer')
             {
-                $column->setType(\Db\Column::TYPE_INT);
+                $column->setType(\Db\Column\Column::TYPE_INT);
             }
 
             if ($column->getExtra() == TRUE)

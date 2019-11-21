@@ -8,7 +8,7 @@ namespace Component\Grid;
 class ColorColumn extends \Component\Grid\Column
 {
 
-    public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_VARCHAR)
+    public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_VARCHAR)
     {
         parent::__construct($name, $label, $align, $dataType);
     }

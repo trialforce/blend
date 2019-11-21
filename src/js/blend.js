@@ -1873,6 +1873,8 @@ grid.restoreTextSize = function(element)
 
 grid.openTrDetail = function(element)
 {
+    event.preventDefault();
+    
     var tr= $(element);
     var grid = tr.parents('.grid');
     var gridId = grid.attr('id').replace(/\\/g,'-');
@@ -1880,7 +1882,7 @@ grid.openTrDetail = function(element)
     var link = grid.data('link');
     var detailId = ('grid-detail-'+gridId+'-'+id).toLowerCase();
     var detailElement = $('#'+detailId);
-  
+ 
     if (detailElement.length > 0)
     {
         detailElement.remove();

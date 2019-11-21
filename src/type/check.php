@@ -10,7 +10,7 @@ class Check implements \Type\Generic
 
     protected $value;
 
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }

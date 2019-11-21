@@ -960,15 +960,11 @@ class Page extends \View\Layout
         if ($filter)
         {
             $input = $filter->getInput();
-
             //remove the filter if exists
             \App::addJs("$('#{$input->getId()}').remove();");
-            //put the input inside containerFiltros
-            $this->byId('containerFiltros')->append($input);
-            //call js change
-            \App::addJs("$('.filterCondition').change();");
-            //put focus on input field
-            \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();");
+            $this->byId('containerFiltros')->append($input); //put the input inside containerFiltros
+            \App::addJs("$('.filterCondition').change();"); //call js change
+            \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
         }
     }
 

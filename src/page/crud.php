@@ -330,6 +330,12 @@ class Crud extends \Page\Page
 
         $actions[] = $editar;
 
+        $js = "return grid.openTrDetail($(this).parents('tr'))";
+        $openTrDetail = new \Component\Action\Action('openTrDetail', 'eye', 'Ver detalhes', $js, '');
+        $openTrDetail->setRenderInEdit(FALSE)->setRenderInGrid(TRUE);
+
+        $actions[] = $openTrDetail;
+
         if ($this->verifyPermission('remover'))
         {
             $actions[] = $remover = new \Component\Action\Remove($this->getModel()->getName(), $this->getModel()->getId());
@@ -840,13 +846,13 @@ class Crud extends \Page\Page
     {
         $grid = $this->getGrid();
         $ds = $grid->getDataSource();
-        $realColumnName = \Db\Column::getRealColumnName($idColumn);
+        $realColumnName = \Db\Column\Column::getRealColumnName($idColumn);
         $column = $ds->getColumn($realColumnName);
 
         if (!$column)
         {
             $label = ucfirst(str_replace('id', '', $realColumnName));
-            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column::TYPE_VARCHAR);
+            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column\Column::TYPE_VARCHAR);
         }
 
         $column->setSql($idColumn);
@@ -880,13 +886,13 @@ class Crud extends \Page\Page
     {
         $grid = $this->getGrid();
         $ds = $grid->getDataSource();
-        $realColumnName = \Db\Column::getRealColumnName($idColumn);
+        $realColumnName = \Db\Column\Column::getRealColumnName($idColumn);
         $column = $ds->getColumn($realColumnName);
 
         if (!$column)
         {
             $label = ucfirst(str_replace('id', '', $realColumnName));
-            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column::TYPE_VARCHAR);
+            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column\Column::TYPE_VARCHAR);
         }
 
         $column->setSql($idColumn);

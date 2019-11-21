@@ -20,6 +20,17 @@ class Action extends \Component\Component
     protected $renderInGrid = false;
     protected $renderInGridDetail = false;
 
+    /**
+     * Create an action
+     *
+     * @param string $id the action id
+     * @param string $icon the icon
+     * @param string $label the label
+     * @param string $url the url to make post, can be a javascript
+     * @param string $class css class
+     * @param string $title title (show on mouse over)
+     * @param string $groupInEdit group in edit
+     */
     public function __construct($id, $icon = null, $label = null, $url = null, $class = NULL, $title = NULL, $groupInEdit = NULL)
     {
         parent::__construct($id);

@@ -11,7 +11,7 @@ interface Generic
     /**
      * Construct with its default value
      */
-    public function __construct($value);
+    public function __construct($value = null);
 
     /**
      * Set the default value of datatype
