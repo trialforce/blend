@@ -31,7 +31,7 @@ class Csv
         foreach ($columns as $column)
         {
             $exportColumns[$column->getName()] = $column;
-            $labels[$column->getName()] = $column->getLabel();
+            $labels[$column->getName()] = '"' . $column->getLabel() . '"';
         }
 
         $data = $dataSource->getData();
