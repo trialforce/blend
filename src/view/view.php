@@ -441,6 +441,25 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
+     * Prepend like jquery
+     * Method not completed onlye works with view
+     * And not prepared for ajax
+     *
+     * @param mixed $content
+     */
+    public function prepend($content = null)
+    {
+        if ($this->firstChild)
+        {
+            $this->insertBefore($content, $this->firstChild);
+        }
+        else
+        {
+            $this->append($content);
+        }
+    }
+
+    /**
      * Static Append to avoid duplicate code between view and dom container
      *
      * @param \DomElement $element
