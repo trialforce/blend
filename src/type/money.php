@@ -5,7 +5,7 @@ namespace Type;
 /**
  * Tipo boolean /valu
  */
-class Money implements \Type\Generic
+class Money implements \Type\Generic, \JsonSerializable
 {
 
     /**
@@ -77,7 +77,7 @@ class Money implements \Type\Generic
         }
 
         //remove reais
-        $value = str_replace('R$', '', $value);
+        $value = strip_tags(str_replace('R$', '', $value));
 
         //support brazilian format
         if (stripos($value, ','))
@@ -95,6 +95,11 @@ class Money implements \Type\Generic
     public function toDb()
     {
         return number_format($this->value, $this->decimals, '.', '');
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
     public function sum($amount)

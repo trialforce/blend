@@ -24,7 +24,7 @@ class LinkColumn extends \Component\Grid\Column
     protected $hint;
     protected $target;
 
-    public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column::TYPE_VARCHAR)
+    public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_VARCHAR)
     {
         parent::__construct($name, $label, $align, $dataType);
     }
@@ -78,21 +78,18 @@ class LinkColumn extends \Component\Grid\Column
         $line = \NULL;
         $originalValue = parent::getValue($item, $line, $tr, $td);
 
-        //add support for \Disk\File, need automated way for do this
-        if ($originalValue instanceof \Disk\File)
-        {
-            $originalValue = $originalValue->getUrl();
-        }
-
         $value[] = strip_tags($originalValue);
 
         if (strlen($this->getIcon()) > 0)
         {
             $value[] = new \View\Ext\Icon($this->getIcon());
         }
+        else
+        {
+            $value[] = $this->getLabel();
+        }
 
         $url = $this->replaceDataInString($this->getUrl(), $item);
-
         $link = new \View\A('edit', $value, $url, null, $this->getTarget());
 
         if ($this->getHint())

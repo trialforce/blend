@@ -217,7 +217,7 @@ class Paginator extends \View\Div
         $value = self::getCurrentPaginationLimitValue();
         Cookie::set('paginationLimitCookie', $value);
 
-        $paginationLimit = new \View\Select('paginationLimit', $options, $value, 'fr');
+        $paginationLimit = new \View\Select('paginationLimit', $options, $value, 'fr no-print-screen');
         $paginationLimit->setTitle('Limite de registros por página');
         $link = $this->getGrid()->getLink('listar');
         $paginationLimit->change("p('" . $link . "');");
@@ -286,31 +286,38 @@ class Paginator extends \View\Div
 
             $urlExtra['page'] = 0;
             $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['first'] = new \View\A('first', '<i class="fa fa-angle-double-left">&nbsp;</i>', $url, 'btn clean first');
+            $link['first'] = new \View\A('first', '<i class="fa fa-angle-double-left">&nbsp;</i>', $url, 'btn clean first no-print-screen');
 
             $urlExtra['page'] = $prevPage;
             $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['prev'] = new \View\A('prev', '<i class="fa fa-angle-left">&nbsp;</i>', $url, 'btn clean prev');
+            $link['prev'] = new \View\A('prev', '<i class="fa fa-angle-left">&nbsp;</i>', $url, 'btn clean prev no-print-screen');
 
             $urlExtra['page'] = $currentPage;
             $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['current'] = new \View\A('current', "{$currentPageShow}/{$lastPageShow}", $url, 'btn clean');
+            $link['current'] = new \View\A('current', "{$currentPageShow}/{$lastPageShow}", $url, 'btn clean no-print-screen');
 
             $urlExtra['page'] = $nextPage;
             $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['next'] = new \View\A('next', '<i class="fa fa-angle-right">&nbsp;</i>', $url, 'btn clean next');
+            $link['next'] = new \View\A('next', '<i class="fa fa-angle-right">&nbsp;</i>', $url, 'btn clean next no-print-screen');
 
             $urlExtra['page'] = $lastPage;
             $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['last'] = new \View\A('last', '<i class="fa fa-angle-double-right">&nbsp;</i>', $url, 'btn clean last');
+            $link['last'] = new \View\A('last', '<i class="fa fa-angle-double-right">&nbsp;</i>', $url, 'btn clean last no-print-screen');
 
             $content[] = new \View\Span('', $link, 'paginator', 'clearfix');
         }
 
         $this->append($this->createPaginationLimitField());
+        $this->append($this->createPaginationFontSizeField());
+
         $this->append($content);
 
         return $this;
+    }
+
+    public function createPaginationFontSizeField()
+    {
+        return new \View\Button(null, 'Aa', 'grid.changeTextSize()', 'clean fr grid-change-text-size no-print-screen');
     }
 
 }

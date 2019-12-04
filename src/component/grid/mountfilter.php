@@ -79,6 +79,7 @@ class MountFilter
         $dbModel = $this->dbModel;
         $dataType = $column->getType();
         $filterType = $column->getFilterType();
+        $dbColumn = null;
 
         //don't mount filter if column don't has data type, or if don't have to be filtered
         if (!$dataType || !$filterType)
@@ -89,19 +90,25 @@ class MountFilter
         //try to get column from database/model
         if ($dbModel instanceof \Db\Model)
         {
-            $dbColumn = $dbModel::getColumn($column->getSplitName());
+            $realColumnName = \Db\Column\Column::getRealColumnName($column->getName());
+            $dbColumn = $dbModel::getColumn($realColumnName);
         }
 
         //verify if is needed to mount the filter by database/model column
-        if ($dbColumn instanceof \Db\Column)
+        if ($dbColumn instanceof \Db\Column\Column)
         {
-            if ($dbColumn->getReferenceTable() || $dbColumn->getConstantValues())
+            $filterClassName = $dbColumn->getFilterClassName();
+            $filter = new $filterClassName($column);
+            $filter->setFilterType($filterType);
+
+            if (method_exists($filter, 'setDbColumn'))
             {
-                $filter = new \Filter\Reference($column, $column->getFilterType());
+                $filter->setDbColumn($dbColumn);
             }
         }
 
         //if not find in model, create a default filter based on column type
+        //it's the default fallback
         if (!$filter)
         {
             $dataType = $dataType == 'bool' ? 'boolean' : $dataType;
@@ -134,7 +141,7 @@ class MountFilter
     {
         $filters = array();
 
-        if (!is_array($columns) || !$dbModel)
+        if (!is_array($columns))
         {
             return NULL;
         }
@@ -183,34 +190,7 @@ class MountFilter
             }
         }
 
-        //call order in filters
-        if (is_array($filters))
-        {
-            usort($filters, 'self::filterSort');
-        }
-
         return $filters;
-    }
-
-    /**
-     * Organize the filters to put it ordened
-     * VERY SLOW
-     *
-     * @param type $first
-     * @param type $second
-     * @return int
-     */
-    public static function filterSort($first, $second)
-    {
-        $firstl = strtolower($first->getFilterLabel());
-        $secondl = strtolower($second->getFilterLabel());
-
-        if ($firstl == $secondl)
-        {
-            return 0;
-        }
-
-        return ($firstl > $secondl) ? +1 : -1;
     }
 
 }

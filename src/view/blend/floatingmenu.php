@@ -18,6 +18,15 @@ class FloatingMenu extends \View\Ul
         $this->addClass('blend-floating-menu');
     }
 
+    public function addContent($id, $content, $class = NULL, $title = NULL, $group = NULL)
+    {
+        $item = new \View\Li($id, $content, $class);
+        $item->setData('group', $group . '');
+        $this->append($item);
+
+        return $this;
+    }
+
     /**
      * Add and item to menu
      *
@@ -27,26 +36,26 @@ class FloatingMenu extends \View\Ul
      * @param string $class class
      * @param string $title tittle
      * @param bool $formChangeAdvice form change advice
+     *
+     * @return $this
      */
-    public function addItem($id, $icon, $label, $action, $class = NULL, $title = NULL, $formChangeAdvice = FALSE)
+    public function addItem($id, $icon, $label, $action, $class = NULL, $title = NULL, $group = NULL)
     {
         $icon = is_string($icon) ? new \View\Ext\Icon($icon) : $icon;
         $field = new \View\Span(null, array($icon, $label));
 
         $item = new \View\Li($id, $field, $class);
-        $item->setTitle($title);
+        $item->setTitle($title ? $title : $label);
+        $item->setData('group', $group . '');
 
         if ($action)
         {
             $item->click($action);
         }
 
-        if ($formChangeAdvice)
-        {
-            $item->formChangedAdvice(true);
-        }
-
         $this->append($item);
+
+        return $this;
     }
 
     /**
@@ -58,21 +67,70 @@ class FloatingMenu extends \View\Ul
      * @param string $class
      * @param string $title
      * @param bool $formChangeAdvice
+     *
+     * @return $this
      */
-    public function addItemLink($id, $icon, $label, $action, $class = NULL, $title = NULL, $formChangeAdvice = FALSE)
+    public function addItemLink($id, $icon, $label, $action, $class = NULL, $title = NULL, $group = NULL)
     {
         $field = new \View\A(null, array(new \View\Ext\Icon($icon), $label), $action);
         $field->setTarget('_BLANK');
 
         $item = new \View\Li($id, $field, $class);
-        $item->setTitle($title);
+        $item->setTitle($title ? $title : $label);
+        $item->setData('group', $group . '');
+        $this->append($item);
 
-        if ($formChangeAdvice)
+        return $this;
+    }
+
+    /**
+     * Add an action to the floating menu
+     *
+     * @param \Component\Action\Action $action
+     * @param integer $pk
+     * @return $this
+     */
+    public function addAction(\Component\Action\Action $action, $pk = null)
+    {
+        $action->setPk($pk);
+
+        //without link/url
+        if (!$action->getUrl())
         {
-            $item->formChangedAdvice(true);
+            $this->addContent($action->getId(), $action->getLabel(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
+        }
+        //in case it's a JS function
+        else if (stripos($action->getUrl(), '(') > 0)
+        {
+            $this->addItem($action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
+        }
+        //in case it's a link
+        else if (stripos($action->getUrl(), 'p(') === 0)
+        {
+            $this->addItem($action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
+        }
+        else
+        {
+            $this->addItemLink($action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass(), $action->getTitle(), $action->getGroupInEdit());
         }
 
-        $this->append($item);
+        return $this;
+    }
+
+    public function addActions($actions, $pk)
+    {
+        //transform in an array if is an action
+        if (!is_array($actions))
+        {
+            $result = array();
+            $result[] = $actions;
+            $actions = $result;
+        }
+
+        foreach ($actions as $action)
+        {
+            $this->addAction($action, $pk);
+        }
     }
 
 }

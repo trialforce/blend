@@ -37,8 +37,12 @@ class Where implements \Db\Filter
 
     public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and')
     {
+        $param = trim($param);
+        $haveIs = stripos($param, 'IS') === 0;
+        $hasValue = $value || $value == '0' || $value == 0;
+
         //support two parameters
-        if (!$value && $value !== '0' && $value !== 0 && $param)
+        if (!$hasValue && $param && !$haveIs)
         {
             $value = $param;
             $param = is_array($value) ? 'IN' : '=';
@@ -59,6 +63,17 @@ class Where implements \Db\Filter
     {
         $this->condition = $condition ? $condition : 'and';
 
+        return $this;
+    }
+
+    public function getParam()
+    {
+        return $this->param;
+    }
+
+    public function setParam($param)
+    {
+        $this->param = $param;
         return $this;
     }
 
@@ -133,13 +148,16 @@ class Where implements \Db\Filter
         {
             $param = $this->param;
         }
-
         //specifs for IN parameter
         else if ($this->param == 'IN')
         {
             $this->param = $this->param . ' ' . self::parseValuesPdo($this->getValue());
             $param = $this->param;
             $this->value = null;
+        }
+        else if (stripos($this->param, 'IS') === 0)
+        {
+            $param = $this->param;
         }
         else
         {
@@ -229,6 +247,10 @@ class Where implements \Db\Filter
         else if ($this->param == 'IN')
         {
             $param = $this->param . ' ' . self::parseValuesPdo($this->getValue());
+        }
+        else if (stripos($this->param, 'IS') === 0)
+        {
+            $param = $this->param;
         }
         else
         {

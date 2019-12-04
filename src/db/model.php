@@ -6,7 +6,7 @@ namespace Db;
  * Integrates the database with php.
  * Utilizes active Record concept.
  */
-class Model
+class Model implements \JsonSerializable
 {
 
     /**
@@ -72,16 +72,7 @@ class Model
      */
     public static function getName()
     {
-        //necessary because namespace, add support for API classes
-        $name = get_called_class();
-
-        if (stripos($name, 'api') === 0)
-        {
-            $name = 'Model\\' . str_replace('Api\\', '', $name);
-        }
-
-        $name = '\\' . $name;
-        return $name;
+        return '\\' . get_called_class();
     }
 
     /**
@@ -98,6 +89,11 @@ class Model
         return $name::getTablePrefix() . lcfirst($tableName);
     }
 
+    /**
+     * Return the table prefix
+     *
+     * @return string
+     */
     public static function getTablePrefix()
     {
         $name = self::getName();
@@ -108,7 +104,7 @@ class Model
     /**
      * Return the columns indexed by name
      *
-     * @return array of \Db\Column
+     * @return array of \Db\Column\Column
      */
     public static function getColumns()
     {
@@ -133,6 +129,7 @@ class Model
             $columns = $catalog::listColums($name::getTableName());
         }
 
+        //define the tablename of columns in needed
         foreach ($columns as $column)
         {
             $column->setTableName($tableName);
@@ -158,9 +155,9 @@ class Model
     /**
      * Define one column for model
      *
-     * @param \Db\Column $column
+     * @param \Db\Column\Column $column
      */
-    public static function setColumn(\Db\Column $column)
+    public static function setColumn(\Db\Column\Column $column)
     {
         $name = self::getName();
 
@@ -173,7 +170,7 @@ class Model
      * @param string $columnName
      *
      * @throws \Exception
-     * @return \Db\Column
+     * @return \Db\Column\Column
      */
     public static function getColumn($columnName)
     {
@@ -183,12 +180,12 @@ class Model
         }
 
         //maximize compability
-        if ($columnName instanceof \Db\Column)
+        if ($columnName instanceof \Db\Column\Column)
         {
             return $columnName;
         }
 
-        $columnName = \Db\Column::getRealColumnName($columnName);
+        $columnName = \Db\Column\Column::getRealColumnName($columnName);
         $columns = self::getColumns();
 
         if (isset($columns) && isset($columns[$columnName]))
@@ -220,7 +217,7 @@ class Model
     /**
      * Retorna as chaves primária da tabela
      *
-     * @return array de \Db\Column
+     * @return array de \Db\Column\Column
      */
     public static function getPrimaryKeys()
     {
@@ -237,7 +234,7 @@ class Model
 
         foreach ($columns as $column)
         {
-            if ($column instanceof \Db\Column && $column->isPrimaryKey())
+            if ($column instanceof \Db\Column\Column && $column->isPrimaryKey())
             {
                 $pk[$column->getName()] = $column;
             }
@@ -252,13 +249,13 @@ class Model
      * Return the first primary key
      *
      * @throws \Exception
-     * @return \Db\Column
+     * @return \Db\Column\Column
      */
     public static function getPrimaryKey()
     {
         $pksV = array_values(self::getPrimaryKeys());
 
-        return $pksV[0];
+        return isset($pksV[0]) ? $pksV[0] : null;
     }
 
     /**
@@ -282,7 +279,7 @@ class Model
             $value = $this->getValueDb($columnName);
             $check = $avoidPk ? ($column->isPrimaryKey() && $value == '' ) : $value === '';
 
-            if ($column instanceof \Db\SearchColumn || $check)
+            if ($column instanceof \Db\Column\Search || $check)
             {
                 continue;
             }
@@ -334,7 +331,7 @@ class Model
             {
                 $column = $name::getColumn($filter->getFilter());
 
-                if ($column && $column instanceof \Db\SearchColumn)
+                if ($column && $column instanceof \Db\Column\Search)
                 {
                     $searchSql = $column->getSql(false);
                     $filter->setFilter($searchSql[0]);
@@ -391,7 +388,7 @@ class Model
             $column->setTableName($tableName);
             $line = $column->getSql();
 
-            if ($tableNameInColumns && !$column instanceof \Db\SearchColumn)
+            if ($tableNameInColumns && !$column instanceof \Db\Column\Search)
             {
                 $line[0] = $tableName . '.' . $line[0];
             }
@@ -406,6 +403,21 @@ class Model
         $queryBuilder->setModelName(get_called_class());
 
         return $queryBuilder;
+    }
+
+    /**
+     * Query the current query builder and apply an initial where
+     *
+     * @param string $columnName
+     * @param string $param
+     * @param string $value
+     * @return \Db\QueryBuilder
+     */
+    public static function where($columnName, $param = NULL, $value = NULL)
+    {
+        $name = self::getName();
+        $queryBuilder = $name::query();
+        return $queryBuilder->where($columnName, $param, $value);
     }
 
     /**
@@ -725,10 +737,11 @@ class Model
     }
 
     /**
-     * Monta filtros para busca automágica alá Google
+     * Mount filters to automatic search like Google
      *
-     * @param string $filter
-     * @param array $extraFilters
+     * @param string $filter the "google" query string question
+     * @param array $extraFilters extra filter to be added to the filters
+     * @param array $columns columns to be considered in smartFilter
      *
      * @return array
      */
@@ -742,7 +755,9 @@ class Model
     }
 
     /**
-     * Executa uma busca automágica alá google
+     * Execute a automatic search like Google
+     *
+     * @deprecated since version 2019-09-20
      *
      * @param array $filter
      * @param array $extraFilters
@@ -858,14 +873,14 @@ class Model
 
         $sql = $catalog ::mountInsert($tableName, $columnNames, $columnNameSql, $this->getPrimaryKey());
         $pk = $this->getPrimaryKey();
-        $id = $pk->getName();
+        $id = $pk ? $pk->getName() : '';
 
         //postgres faz query e já retorna id
         if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
         {
             $ok = $name::getConn()->query($sql, $columnValues);
 
-            if ($pk->isAutoPrimaryKey())
+            if ($pk && $pk->isAutoPrimaryKey())
             {
                 $this->$id = $ok[0]->{$id};
             }
@@ -876,7 +891,7 @@ class Model
             $ok = $conn->execute($sql, $columnValues);
 
             //somente suporta popular com chave única
-            if ($pk->isAutoPrimaryKey())
+            if ($pk && $pk->isAutoPrimaryKey())
             {
                 $this->$id = $conn->lastInsertId();
             }
@@ -940,7 +955,10 @@ class Model
             }
         }
 
-        if (!$this->getPrimaryKey()->isAutoPrimaryKey())
+        $pk = $this->getPrimaryKey();
+        $isPk = $pk ? $pk->isAutoPrimaryKey() : false;
+
+        if (!$isPk)
         {
             $update = TRUE;
         }
@@ -950,7 +968,7 @@ class Model
             $ok = $this->update($columns);
 
             //in case that d'ont exist
-            if (!$this->getPrimaryKey()->isAutoPrimaryKey())
+            if (!$isPk)
             {
                 $ret = \Db\Conn::getLastRet();
                 $affected = $ret->rowCount();
@@ -997,7 +1015,7 @@ class Model
         //passa pelas colunas chamando a validação das colunas
         foreach ($columns as $column)
         {
-            if (!$column instanceof \Db\SearchColumn)
+            if (!$column instanceof \Db\Column\Search)
             {
                 $columnName = $column->getName();
                 $value = $this->getValue($columnName);
@@ -1193,7 +1211,7 @@ class Model
         foreach ($columns as $column)
         {
             //disregards case of automatic primary key, search colum
-            if ($column instanceof \Db\Column)
+            if ($column instanceof \Db\Column\Column)
             {
                 $property = $column->getProperty();
                 $value = $request->getvar($property);
@@ -1244,7 +1262,7 @@ class Model
                 $column = $columns[$k];
 
                 //add suport to decimal values, even if they are not using type
-                if ($column && $column->getType() == \Db\Column::TYPE_DECIMAL)
+                if ($column && $column->getType() == \Db\Column\Column::TYPE_DECIMAL)
                 {
                     $v = \Type\Decimal::get($v)->toDb();
                 }
@@ -1283,7 +1301,7 @@ class Model
         $name = self::getName();
         $columns = $name::getColumns();
         $column = $columns[$propertyName];
-        $column instanceof \Db\Column;
+        $column instanceof \Db\Column\Column;
 
         $idValue = $this->$propertyName;
 

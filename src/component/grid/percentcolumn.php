@@ -8,14 +8,14 @@ namespace Component\Grid;
 class PercentColumn extends \Component\Grid\Column
 {
 
-    public function __construct($name, $label = NULL, $align = Column::ALIGN_CENTER, $dataType = \Db\Column::TYPE_INTEGER)
+    public function __construct($name, $label = NULL, $align = Column::ALIGN_CENTER, $dataType = \Db\Column\Column::TYPE_INTEGER)
     {
         parent::__construct($name, $label, $align, $dataType);
     }
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $value = \Type\Integer::get(\Component\Grid\Column::getColumnValue($this, $item, $line));
+        $value = \Type\Integer::get(\DataSource\Grab::getUserValue($this, $item, $line));
 
         return self::getPercentBar($value);
     }

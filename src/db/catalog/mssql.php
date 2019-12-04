@@ -55,7 +55,7 @@ LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column
 LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
 WHERE c.object_id = OBJECT_ID('$table')";
 
-        $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column');
+        $colums = \Db\Conn::getInstance()->query($sql, array($table, $schema), '\Db\Column\Column');
 
         if (count($colums) == 0)
         {
@@ -73,30 +73,30 @@ WHERE c.object_id = OBJECT_ID('$table')";
 
                 if (strtolower($column->getType()) == 'int' || strtolower($column->getType()) == 'mediumint')
                 {
-                    $column->setType(\Db\Column::TYPE_INTEGER);
+                    $column->setType(\Db\Column\Column::TYPE_INTEGER);
                 }
 
                 $type = $column->getType();
 
                 if (strtolower($type) == 'char')
                 {
-                    $type = \Db\Column::TYPE_VARCHAR;
+                    $type = \Db\Column\Column::TYPE_VARCHAR;
                 }
                 else if (strtolower($type) == 'int' || strtolower($type) == 'smallint' || strtolower($type) == 'numeric')
                 {
-                    $type = \Db\Column::TYPE_INTEGER;
+                    $type = \Db\Column\Column::TYPE_INTEGER;
                 }
                 else if (strtolower($type) == 'float')
                 {
-                    $type = \Db\Column::TYPE_DECIMAL;
+                    $type = \Db\Column\Column::TYPE_DECIMAL;
                 }
                 else if (strtolower($type) == 'bit')
                 {
-                    $type = \Db\Column::TYPE_INTEGER;
+                    $type = \Db\Column\Column::TYPE_INTEGER;
                 }
                 else if (strtolower($type) == 'image')
                 {
-                    $type = \Db\Column::TYPE_UNKNOW;
+                    $type = \Db\Column\Column::TYPE_UNKNOW;
                 }
 
                 $column->setType($type);
@@ -294,7 +294,9 @@ ORDER BY name ASC;";
         }
 
         //is numeric or function
-        if (is_numeric($table) || stripos($table, '(') > 0 || stripos($table, '(') === 0)
+        $hasAlias = stripos(trim($table), ' ') > 0;
+
+        if ($hasAlias || is_numeric($table) || stripos($table, '(') > 0 || stripos($table, '(') === 0)
         {
             return trim($table);
         }

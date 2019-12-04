@@ -71,7 +71,18 @@ class Api
         //get default connection, may not work every time
         $conn = \Db\Conn::getInstance();
         $conn->beginTransaction();
-        $params[] = Request::getInstance();
+        $request = Request::getInstance();
+
+        //add support for simple array of params
+        if (is_array($request->get('params')))
+        {
+            $params = $request->get('params');
+        }
+        else
+        {
+            $params[] = $request;
+        }
+
         $result = call_user_func_array(array($obj, $metodo), $params);
 
         if ($conn->inTransaction())
@@ -102,6 +113,9 @@ class Api
     public static function logError($code, $message, $line, $file)
     {
         http_response_code(200);
+        //sometimes we get an stdClass, nobody knows why
+        $message = is_object($message) ? print_r($message, 1) : $message;
+
         \Log::error('Error', $message, $line, $file, 'api.txt');
 
         echo json_encode(

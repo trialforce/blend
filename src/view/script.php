@@ -97,8 +97,8 @@ class Script extends \View\View
      */
     public static function treatStringToJs($var)
     {
-        $valuesPHP = array(PHP_EOL, "\r", "\n", "\t");
-        $valuesJS = array('\n', '\n', '\n', '  ');
+        $valuesPHP = array(PHP_EOL, "\r\n", "\r", "\n", "\t");
+        $valuesJS = array('\n', '\n', '\n', '\n', '  ');
 
         return str_replace($valuesPHP, $valuesJS, addslashes($var));
     }

@@ -2,15 +2,48 @@
 
 namespace View\Ext;
 
+/**
+ * A link that visuale behaves like a button
+ *
+ * The class as a smart control the support p (post) urls,
+ * and it supports external link with target _BLANK. (automaticlly)
+ */
 class LinkButton extends \View\A
 {
 
     public function __construct($id, $icon, $label, $href = '#', $class = NULL, $target = NULL, $father = NULL)
     {
-        parent::__construct($id, NULL, $href, $class, $target, $father);
+        $onclick = null;
+        $url = $href;
+
+        //little workaround to remove p( in url
+        if (stripos($href, 'p(') === 0)
+        {
+            $url = str_replace(array("p('", 'p("', "')", '")', ';'), '', $url);
+            $onclick = $href;
+        }
+        //a simple js
+        else if (stripos($href, '(') > 0)
+        {
+            $url = '#';
+            $onclick = $href;
+        }
+
+        parent::__construct($id, NULL, $url, $class, $target, $father);
+
+        if ($onclick)
+        {
+            $this->setAjax(FALSE);
+            $this->click($onclick);
+        }
+
+        //if is a complete link, open it in other url
+        if ($target == NULL && stripos($url, 'http') === 0)
+        {
+            $this->setTarget('_BLANK');
+        }
 
         $this->addClass('btn');
-
         $this->setIcon($label, $icon);
     }
 

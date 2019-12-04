@@ -31,6 +31,11 @@ function blend_shutdown()
         {
             return;
         }
+        //avoid outdated phpmailer in php 7.2
+        else if (stripos($error['file'], 'phpmailer') > 0)
+        {
+            return;
+        }
         //avoid weird xmlwriter error
         else if (stripos($error['message'], 'XMLWriter') === 0)
         {
@@ -380,7 +385,14 @@ class Log
 
         if (Log::getLogSqlConsole())
         {
-            \App::addJs('console.info(\'' . View\Script::treatStringToJs($sql) . '\')');
+            if (stripos($sql, 'ERROR:') === 0)
+            {
+                \Console::error($sql);
+            }
+            else
+            {
+                \Console::log($sql);
+            }
         }
     }
 
@@ -484,15 +496,11 @@ class Log
             var_dump($var);
         }
 
-        $content = '<pre class="var-dump">
-<a href="#" onclick="$(this).parent().remove(); return false;">Fechar (X)</a>
-' . ob_get_contents() . '
-</pre>';
-
+        $content = '<pre class="var-dump"><a href="#" onclick="$(this).parent().remove(); return false;">Fechar </a>' . ob_get_contents() . '</pre>';
         $content = \View\Script::treatStringToJs($content);
         ob_get_clean();
 
-        \App::addJs("$(body).prepend('{$content}')");
+        \App::addJs("$('body').prepend(`{$content}`)");
     }
 
     /**

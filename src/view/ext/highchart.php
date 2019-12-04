@@ -289,9 +289,9 @@ class HighChart extends \View\Div
     public static function getDataITemForGraph($column, $item)
     {
         $columnName = $column->getName();
-        $value = \Component\Grid\Column::getColumnValue($columnName, $item);
+        $value = \DataSource\Grab::getUserValue($columnName, $item);
 
-        if ($column->getType() == \Db\Column::TYPE_TINYINT)
+        if ($column->getType() == \Db\Column\Column::TYPE_TINYINT)
         {
             $value = $value == 1 ? $column->getLabel() : 'Não ' . lcfirst($column->getLabel());
         }

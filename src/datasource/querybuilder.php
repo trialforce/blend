@@ -14,6 +14,12 @@ class QueryBuilder extends DataSource
      */
     protected $queryBuilder;
 
+    /**
+     *
+     * @var \Db\Collection
+     */
+    protected $data;
+
     public function __construct($queryBuilder = NULL)
     {
         $this->setQueryBuilder($queryBuilder);
@@ -79,7 +85,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $column)
         {
-            $realName = \Db\Column::getRealColumnName($column);
+            $realName = \Db\Column\Column::getRealColumnName($column);
 
             if ($realColumnName == $realName)
             {
@@ -93,7 +99,7 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilderFeeded();
         $realName = $aggregator->getColumnName();
         $sqlColumn = $this->getQueryColumnByRealname($realName);
-        $sqlColumn = \Db\Column::getRealSqlColumn($sqlColumn);
+        $sqlColumn = \Db\Column\Column::getRealSqlColumn($sqlColumn);
 
         $method = $aggregator->getMethod();
         $query = $method . '( ' . $sqlColumn . ' )';
@@ -125,7 +131,29 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilderFeeded();
         $this->data = $qBuilder->toCollection();
 
+        $this->adjustColumnAlign();
+
         return $this->data;
+    }
+
+    public function adjustColumnAlign()
+    {
+        $data = $this->getData();
+        $firstItem = $data->first();
+        $columns = $this->getColumns();
+
+        foreach ($columns as $idx => $column)
+        {
+            $column instanceof \Component\Grid\Column;
+            $value = \DataSource\Grab::getUserValue($column, $firstItem);
+
+            if (\Type\Integer::isNumeric($value) && !$column->getIdentificator())
+            {
+                $columns[$idx]->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
+            }
+        }
+
+        $this->setColumns($columns);
     }
 
     public function getSelectedModelColumns()
@@ -137,7 +165,7 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $columnName)
         {
-            $columnName = \Db\Column::getRealColumnName($columnName);
+            $columnName = \Db\Column\Column::getRealColumnName($columnName);
             $column = $modelName::getColumn($columnName);
 
             if ($column)
@@ -160,18 +188,18 @@ class QueryBuilder extends DataSource
         {
 
             //control sql columns with AS
-            $columnName = \Db\Column::getRealColumnName($orignalColumnName);
-            $columnSql = \Db\Column::getRealSqlColumn($orignalColumnName);
-            $columnLabel = ucfirst(ltrim($columnName, 'id'));
+            $columnName = \Db\Column\Column::getRealColumnName($orignalColumnName);
+            $columnSql = \Db\Column\Column::getRealSqlColumn($orignalColumnName);
+            $columnLabel = self::columnNameToLabel($columnName);
 
             $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
-            $obj->setSql($columnSql);
+            $obj->setFilter(TRUE)->setSql($columnSql);
 
             //case it has a model name, vinculate it with the column of model
             if ($modelName)
             {
                 $columnModel = $modelName::getColumn($columnName);
-                $columnModel instanceof \Db\Column;
+                $columnModel instanceof \Db\Column\Column;
 
                 if ($columnModel)
                 {
@@ -199,6 +227,21 @@ class QueryBuilder extends DataSource
         $this->setColumns($result);
 
         return $result;
+    }
+
+    public static function columnNameToLabel($columnName)
+    {
+        $columnLabel = $columnName;
+        //remove "id" in the begin
+        if (substr($columnName, 0, strlen('id')) == 'id')
+        {
+            $columnLabel = str_replace('id', '', $columnName);
+        }
+
+        //split by uppercase letter
+        $split = preg_split('/(?=[A-Z])/', $columnLabel);
+        //implode using space
+        return ucfirst(implode(' ', $split));
     }
 
 }

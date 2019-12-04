@@ -25,7 +25,7 @@ class Link extends \Type\Text
      *
      * @example \Type\Link::construct( $string )->generate() = retorna a string em formato de usuário
      */
-    public static function construct($string, $encoding = 'UTF-8')
+    public static function construct($string = null, $encoding = 'UTF-8')
     {
         return new \Type\Link($string, $encoding);
     }

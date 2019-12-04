@@ -23,21 +23,15 @@ class Csv
     {
         //page size is not used in CSV export
         $pageSize = null;
-        $columns = self::filterColumns($dataSource->getColumns(), $reportColumns);
-
-        $dataSource->setColumns($columns);
-        $dataSource->setLimit(NULL);
-        $dataSource->setOffset(NULL);
+        $dataSource = self::filterColumns($dataSource, $reportColumns);
+        $columns = $dataSource->getColumns();
         $exportColumns = array();
 
         //list only exportation columns
         foreach ($columns as $column)
         {
-            if ($column->getExport())
-            {
-                $exportColumns[$column->getName()] = $column;
-                $labels[$column->getName()] = $column->getLabel();
-            }
+            $exportColumns[$column->getName()] = $column;
+            $labels[$column->getName()] = '"' . $column->getLabel() . '"';
         }
 
         $data = $dataSource->getData();
@@ -58,7 +52,7 @@ class Csv
 
                 foreach ($exportColumns as $column)
                 {
-                    $value = strip_tags(\Component\Grid\Column::getColumnValue($column, $model));
+                    $value = strip_tags(\DataSource\Grab::getUserValue($column, $model));
                     $columsLine[] = '"' . $value . '"';
                 }
 
@@ -81,25 +75,44 @@ class Csv
     /**
      * Filter the columns passed
      *
-     * @param array $columns
+     * @param \DataSource\DataSource $dataSource
      * @param array $reportColumns
      *
-     * @return array
+     * @return \DataSource\DataSource
      */
-    public static function filterColumns($columns, $reportColumns = NULL)
+    public static function filterColumns(\DataSource\DataSource $dataSource, $reportColumns = NULL)
     {
+        $columns = $dataSource->getColumns();
+        $resultColumns = array();
+
+        //filter by posted data
         if ($reportColumns)
         {
             foreach ($columns as $column)
             {
-                if (!in_array($column->getName(), $reportColumns))
+                if (in_array($column->getName(), $reportColumns) && $column->getExport())
                 {
-                    unset($columns[$column->getName()]);
+                    $resultColumns[] = $column;
+                }
+            }
+        }
+        else //only limit to exported columns
+        {
+            foreach ($columns as $column)
+            {
+                if ($column->getExport())
+                {
+                    $resultColumns[] = $column;
                 }
             }
         }
 
-        return $columns;
+        //avoid limit e offset
+        $dataSource->setColumns($resultColumns);
+        $dataSource->setLimit(NULL);
+        $dataSource->setOffset(NULL);
+
+        return $dataSource;
     }
 
     /**
@@ -139,7 +152,7 @@ class Csv
 
             $class = '';
 
-            if (in_array($column->getType(), array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL, \Db\Column::TYPE_DATETIME, \Db\Column::TYPE_DATE)))
+            if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)))
             {
                 $class = 'alignRight';
             }

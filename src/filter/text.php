@@ -18,6 +18,12 @@ class Text
     protected $column;
 
     /**
+     * Filter label
+     * @var string
+     */
+    protected $filterLabel = null;
+
+    /**
      * filter name
      * @var string
      */
@@ -58,6 +64,7 @@ class Text
     const COND_STARTSWITH = 'startsWith';
     const COND_ENDSWITH = 'endsWith';
     const COND_NULL_OR_EMPTY = 'nullorempty';
+    const COND_NOT_NULL_OR_EMPTY = 'notnullorempty';
     //filter type
     const FILTER_TYPE_DISABLE = 0;
     const FILTER_TYPE_ENABLE = 1;
@@ -70,8 +77,14 @@ class Text
      * @param string $filterName the filter name
      * @param string $filterType the filter type
      */
-    public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
+    public function __construct($column, $filterName = \NULL, $filterType = NULL)
     {
+        if (is_string($column))
+        {
+            $filterName = $column;
+            $column = null;
+        }
+
         $this->setColumn($column);
         $this->setFilterName($filterName);
         $this->setFilterType($filterType);
@@ -90,16 +103,25 @@ class Text
 
     public function setColumn($column)
     {
+        if (!$column)
+        {
+            return $this;
+        }
+
+        $column instanceof \Component\Grid\Column;
         $this->column = $column;
+
+        $this->setFilterLabel($column->getFilterLabel());
+        $this->setFilterName(\Db\Column\Column::getRealColumnName($this->getColumn()->getName()));
 
         return $this;
     }
 
     public function getFilterName()
     {
-        if (is_null($this->filterName))
+        if (is_null($this->filterName) && $this->getColumn())
         {
-            return $this->getColumn()->getSplitName();
+            $this->filterName = \Db\Column\Column::getRealColumnName($this->getColumn()->getName());
         }
 
         return $this->filterName;
@@ -196,7 +218,7 @@ class Text
 
     public function setDefaultValueFinal($defaultValueFinal)
     {
-        if ($defaultValue == null)
+        if ($defaultValueFinal == null)
         {
             return $this;
         }
@@ -272,7 +294,9 @@ class Text
             $views[] = new \View\Div(null, $content, 'clearfix');
         }
 
-        return new \VIew\Div($column->getName() . 'Filter', $views, 'filterField');
+        $columnName = $column ? $column->getName() : $this->getFilterName();
+
+        return new \VIew\Div($columnName . 'Filter', $views, 'filterField');
     }
 
     /**
@@ -326,9 +350,16 @@ class Text
         $options[self::COND_NOT_EQUALS] = '*Diferente';
         $options[self::COND_STARTSWITH] = 'Inicia com';
         $options[self::COND_ENDSWITH] = 'Termina com';
-        $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
+        $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não Vazio';
 
         return $options;
+    }
+
+    public function setFilterLabel($filterLabel)
+    {
+        $this->filterLabel = trim($filterLabel);
+        return $this;
     }
 
     /**
@@ -338,10 +369,12 @@ class Text
      */
     public function getFilterLabel()
     {
-        $column = $this->getColumn();
-        $label = ucfirst($column->getLabel());
+        if (!$this->filterLabel)
+        {
+            $this->filterLabel = trim(ucfirst($this->getFilterName()));
+        }
 
-        return trim($label) == 'Cod' ? 'Código' : $label;
+        return $this->filterLabel;
     }
 
     protected function getCondJs($select)
@@ -519,48 +552,58 @@ class Text
 
     public function createWhere($index = 0)
     {
+        $cond = null;
         $column = $this->getColumn();
-        $columnSql = $column->getSql();
+        $columnSql = $column ? $column->getSql() : $this->getFilterName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
+        $isFiltered = (strlen(trim($filterValue)) > 0);
 
-        if ($conditionValue && $conditionValue == self::COND_NULL_OR_EMPTY)
+        if ($conditionValue)
         {
-            $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType);
-            return $cond;
-        }
-        else if ($conditionValue && (strlen(trim($filterValue)) > 0))
-        {
-            $filterValueExt = str_replace(' ', '%', $filterValue);
+            if ($conditionValue == self::COND_NULL_OR_EMPTY)
+            {
+                $cond = new \Db\Where('( (' . $columnSql . ') IS NULL OR (' . $columnSql . ') = \'\' )', NULL, NULL, $conditionType);
+            }
+            else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
+            {
+                $cond = new \Db\Where('( (' . $columnSql . ') IS NOT NULL AND (' . $columnSql . ') != \'\' )', NULL, NULL, $conditionType);
+            }
+            else if ($isFiltered)
+            {
+                $filterValueExt = str_replace(' ', '%', $filterValue);
 
-            if ($conditionValue == self::COND_EQUALS)
-            {
-                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
-            }
-            else if ($conditionValue == self::COND_NOT_EQUALS)
-            {
-                $conditionType = 'AND';
-                return new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
-            }
-            else if ($conditionValue == self::COND_LIKE)
-            {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', $conditionType);
-            }
-            else if ($conditionValue == self::COND_NOT_LIKE)
-            {
-                $conditionType = 'AND';
-                return new \Db\Where('(' . $columnSql . ')', self::COND_NOT_LIKE, '%' . $filterValueExt . '%', $conditionType);
-            }
-            else if ($conditionValue == self::COND_STARTSWITH)
-            {
-                return new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, $filterValueExt . '%', $conditionType);
-            }
-            else if ($conditionValue == self::COND_ENDSWITH)
-            {
-                return new \Db\Where('(' . $columnSql . ' )', self::COND_LIKE, '%' . $filterValueExt, $conditionType);
+                if ($conditionValue == self::COND_EQUALS)
+                {
+                    $cond = new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
+                }
+                else if ($conditionValue == self::COND_NOT_EQUALS)
+                {
+                    $conditionType = 'AND';
+                    $cond = new \Db\Where('(' . $columnSql . ')', $conditionValue, $filterValue, $conditionType);
+                }
+                else if ($conditionValue == self::COND_LIKE)
+                {
+                    $cond = new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, '%' . $filterValueExt . '%', $conditionType);
+                }
+                else if ($conditionValue == self::COND_NOT_LIKE)
+                {
+                    $conditionType = 'AND';
+                    $cond = new \Db\Where('(' . $columnSql . ')', self::COND_NOT_LIKE, '%' . $filterValueExt . '%', $conditionType);
+                }
+                else if ($conditionValue == self::COND_STARTSWITH)
+                {
+                    $cond = new \Db\Where('(' . $columnSql . ')', self::COND_LIKE, $filterValueExt . '%', $conditionType);
+                }
+                else if ($conditionValue == self::COND_ENDSWITH)
+                {
+                    $cond = new \Db\Where('(' . $columnSql . ' )', self::COND_LIKE, '%' . $filterValueExt, $conditionType);
+                }
             }
         }
+
+        return $cond;
     }
 
     /**
@@ -580,9 +623,8 @@ class Text
     {
         $icon = new \View\Ext\Icon('plus');
 
-
         $div = new \View\Div(null, array($icon, 'Adicionar filtro'));
-        $div->addClass('addFilter')->click('filterAdd(this)');
+        $div->addClass('addFilter')->click('return filterAdd(this)');
 
         return $div;
     }

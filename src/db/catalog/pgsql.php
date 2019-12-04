@@ -95,7 +95,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
       AND table_name = ?
  ORDER BY ordinal_position";
 
-        $colums = \Db\Conn::getInstance()->query($sql, array($table), '\Db\Column');
+        $colums = \Db\Conn::getInstance()->query($sql, array($table), '\Db\Column\Column');
 
         if (count($colums) == 0)
         {
@@ -107,7 +107,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
             //converte tipos postgres para padrão
             if ($column->getType() == 'int4' || $column->getType() == 'integer')
             {
-                $column->setType(\Db\Column::TYPE_INT);
+                $column->setType(\Db\Column\Column::TYPE_INT);
             }
 
             if ($column->getExtra() == TRUE)
@@ -202,6 +202,9 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         $sql .= strlen(trim($orderWay)) > 0 ? ' ' . $orderWay : '';
         $sql .= strlen(trim($limit)) > 0 ? ' LIMIT ' . $limit : '';
         $sql .= strlen(trim($offset)) > 0 ? ' OFFSET ' . $offset : '';
+
+        //make default Blend like work, to add compatibility with the behavior of Mysql
+        $sql = str_ireplace(' like ', ' ilike ', $sql);
 
         return $sql;
     }

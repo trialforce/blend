@@ -12,17 +12,22 @@ class Reference extends \Filter\Collection
 
     /**
      *
-     * @var \Db\Column
+     * @var \Db\Column\Column
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column, $filterType = NULL, $dbColumn = null)
     {
         parent::__construct($column, NULL, $filterType);
 
         $dom = \View\View::getDom();
 
-        if (method_exists($dom, 'getModel'))
+        if ($dbColumn)
+        {
+            $this->dbColumn = $dbColumn;
+        }
+        //perhaps this if can be removed
+        else if (method_exists($dom, 'getModel'))
         {
             $model = $dom->getModel();
             $dbColumn = $model::getColumn($column->getName());
@@ -33,7 +38,7 @@ class Reference extends \Filter\Collection
             throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
         }
 
-        if ($this->dbColumn->getClass())
+        if (is_object($this->dbColumn) && $this->dbColumn->getClass())
         {
             $this->setDefaultCondition(self::COND_TEXT);
         }
@@ -58,18 +63,20 @@ class Reference extends \Filter\Collection
     {
         $options = array();
 
-        if ($this->dbColumn->getClass())
+        if ($this->dbColumn && $this->dbColumn->getClass())
         {
             $options[self::COND_TEXT] = 'Texto';
             $options[self::COND_EQUALS] = 'Cód - Igual';
             $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
-            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Nulo ou vazio';
+            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Vazio';
+            $options[self::COND_NOT_NULL_OR_EMPTY] = 'Cód - Não vazio';
         }
         else
         {
             $options[self::COND_EQUALS] = 'Igual';
             $options[self::COND_NOT_EQUALS] = 'Diferente';
-            $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+            $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
+            $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não vazio';
         }
 
         return $options;
@@ -111,7 +118,6 @@ class Reference extends \Filter\Collection
             $field = new \View\Select($this->getValueName() . '[]', $cValues, $value, $class);
         }
 
-        //$field->setMultiple(true);
         $field->onPressEnter("$('#buscar').click()");
 
         return $field;

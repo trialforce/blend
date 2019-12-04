@@ -222,24 +222,24 @@ class SmartFilter
                 //if is an id, only make filter by id
                 continue;
             }
-            else if (in_array($type, array(\Db\Column::TYPE_INTEGER, \Db\Column::TYPE_DECIMAL)) && $dataType == self::DATA_TYPE_NUMBER)
+            else if (in_array($type, array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL)) && $dataType == self::DATA_TYPE_NUMBER)
             {
                 $this->filterByNumber($filter, $column);
             }
-            else if (in_array($type, array(\Db\Column::TYPE_TIMESTAMP, \Db\Column::TYPE_DATETIME, \Db\Column::TYPE_DATE)) && $dataType == self::DATA_TYPE_DATE)
+            else if (in_array($type, array(\Db\Column\Column::TYPE_TIMESTAMP, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)) && $dataType == self::DATA_TYPE_DATE)
             {
                 $this->filterByDate($filter, $column);
             }
-            else if (in_array($type, array(\Db\Column::TYPE_BOOL, \Db\Column::TYPE_TINYINT)))
+            else if (in_array($type, array(\Db\Column\Column::TYPE_BOOL, \Db\Column\Column::TYPE_TINYINT)))
             {
                 $this->filterByBool($filter, $column);
             }
-            else if (in_array($type, array(\Db\Column::TYPE_TEXT, \Db\Column::TYPE_VARCHAR, \Db\Column::TYPE_CHAR)))
+            else if (in_array($type, array(\Db\Column\Column::TYPE_TEXT, \Db\Column\Column::TYPE_VARCHAR, \Db\Column\Column::TYPE_CHAR)))
             {
                 $this->filterByString($filter, $column);
             }
 
-            if (in_array($type, array(\Db\Column::TYPE_INTEGER)) && $dataType == self::DATA_TYPE_TEXT)
+            if (in_array($type, array(\Db\Column\Column::TYPE_INTEGER)) && $dataType == self::DATA_TYPE_TEXT)
             {
                 if ($column->getReferenceDescription())
                 {
@@ -253,26 +253,34 @@ class SmartFilter
         }
     }
 
-    protected function getColumnQuery(\Db\Column $column)
+    protected function getColumnQuery(\Db\Column\Column $column)
     {
+        $className = $this->getModelClass();
+        $catalog = $className::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($className::getTableName());
+
         $columnQuery = $column->getName();
 
-        if ($column instanceof \Db\SearchColumn)
+        if ($column instanceof \Db\Column\Search)
         {
             $columnQuery = '( SELECT ' . $column->getQuery() . ' )';
+        }
+        else if ($tableName)
+        {
+            $columnQuery = $tableName . '.' . $column->getName();
         }
 
         return $columnQuery;
     }
 
-    protected function filterByDate($filter, \Db\Column $column)
+    protected function filterByDate($filter, \Db\Column\Column $column)
     {
         $columnName = $column->getName();
         $myDate = \Type\Date::get($filter);
         $this->conds[] = new \Db\Cond('date(' . $columnName . ')' . ' = ?', $myDate, \Db\Cond::COND_OR);
     }
 
-    protected function filterByString($filter, \Db\Column $column)
+    protected function filterByString($filter, \Db\Column\Column $column)
     {
         $columnQuery = $this->getColumnQuery($column);
         $firstLetter = $filter[0];
@@ -290,7 +298,7 @@ class SmartFilter
         }
     }
 
-    protected function filterByNumber($filter, \Db\Column $column)
+    protected function filterByNumber($filter, \Db\Column\Column $column)
     {
         $columnQuery = $this->getColumnQuery($column);
         $firstLetter = $filter[0];
@@ -309,7 +317,7 @@ class SmartFilter
         }
     }
 
-    protected function filterByReferenceDescription($filter, \Db\Column $column)
+    protected function filterByReferenceDescription($filter, \Db\Column\Column $column)
     {
         //reference description
         $name = $this->getModelClass();
@@ -334,7 +342,7 @@ class SmartFilter
         $this->conds[] = new \Db\Cond($query . ' like ?', str_replace(' ', '%', '%' . $filter . '%'), \Db\Cond::COND_OR);
     }
 
-    protected function filterByContantValues($filter, \Db\Column $column)
+    protected function filterByContantValues($filter, \Db\Column\Column $column)
     {
         $columnSql = $column->getSql(FALSE);
         $filter = \Type\Text::get($filter)->toASCII()->toLower();
@@ -351,7 +359,7 @@ class SmartFilter
         }
     }
 
-    protected function filterByBool($filter, \Db\Column $column)
+    protected function filterByBool($filter, \Db\Column\Column $column)
     {
         $columnName = $column->getName();
         $columnLabel = $column->getLabel();

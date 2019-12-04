@@ -11,7 +11,7 @@ namespace Type;
  * Na Solis - Cooperativa de Soluções Livres Ltda. e Univates - Centro Universitário.
  *
  * */
-class Text implements \Type\Generic
+class Text implements \Type\Generic, \JsonSerializable
 {
 
     /**
@@ -23,7 +23,8 @@ class Text implements \Type\Generic
 
     public function __construct($string = null)
     {
-        $this->setValue($string);
+        //convert to string
+        $this->setValue($string . '');
     }
 
     /**
@@ -484,6 +485,11 @@ class Text implements \Type\Generic
     public static function rand($length = 10)
     {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
 }

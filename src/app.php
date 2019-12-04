@@ -215,7 +215,7 @@ class App
         $result['responseType'] = Config::getDefault('responseType', 'html');
         $result['pushState'] = Config::get('pushState');
         $result['content'] = trim($html . ''); //so you can verify response in js
-        $result['script'] = implode(' ', App::getJs());
+        $result['script'] = 'function blendJs(){ ' . implode(' ', App::getJs()) . '}';
 
         return json_encode($result);
     }
@@ -283,10 +283,15 @@ class App
     {
         if (count(self::$js) > 0)
         {
-            $js = new \View\Script(null, self::$js);
+            $myJs = '
+function blendJs() {
+' . implode("\r\n", self::$js) . '
+}
+';
 
-            //TODO add in right place
-            $layout->getBody()->append($js);
+            $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
+            $js->setId('blend-js');
+            $layout->getHtml()->append($js);
         }
     }
 

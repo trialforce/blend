@@ -8,7 +8,7 @@ namespace View\Ext;
 class SelectConstantValue extends \View\Select
 {
 
-    public function __construct(\Db\Column $column, $columName)
+    public function __construct(\Db\Column\Column $column, $columName)
     {
         $constantValues = $column->getConstantValues();
         $options = array();

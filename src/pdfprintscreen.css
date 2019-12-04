@@ -1,0 +1,136 @@
+body {
+    width: 746px;
+    font-family: Arial, serif;
+    font-size: 14px;
+}    
+
+a {
+    color: #000;
+}
+
+h1 {
+    font-size: 16px;
+    text-align: center;
+}
+
+.alignRight  {
+    text-align: right;
+}
+
+.field-contain {
+    display: inline-block;
+}
+
+.field-row {
+    float: left;
+    width: 746px;
+    padding: 0;
+    margin: 0;
+}
+
+.column-12 {
+    float:left;
+    padding: 0;
+    margin: 0;
+    width: 746px;
+}
+
+.column-8 {
+    float:left;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    width: 490px;
+}
+
+.column-6 {
+    float:left;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    width: 368px;
+}
+
+.column-4 {
+    float:left;
+    display: inline-block;
+    width: 246px;
+    padding: 0;
+    margin: 0;
+}
+
+.column-3 {
+    float:left;
+    display: inline-block;
+    width: 180px;
+    padding: 0;
+    margin: 0;
+}
+
+.field-label {
+    padding: 6px 0;
+    display: inline-block;
+    width: 100%;
+}
+
+.field-row input, .field-row select {
+    float: left;    
+    width: 100%;
+    border: solid 1px #000;
+    background: #fff;
+    height: 30px;
+    display: inline-block;
+    box-sizing: border-box;
+    text-indent: 4px;
+    font-size: 12px;
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
+.field-row select {
+    
+}
+
+.rodapeInformacoesAdicionais {
+    position: fixed;
+    bottom: 0;
+    left:0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+}
+
+.hide-in-desktop, .no-print-screen {
+    display: none;
+}
+
+.grid {
+    float: left;
+    font-size: 10px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+.grid table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.grid table caption {
+    width: 724px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border: solid 1px #000;
+    border-bottom: none;
+    padding: 10px;
+}
+
+.grid th a {
+    color: #000;
+    text-decoration: none;
+}
+
+.grid table td, .grid table th {
+    border: solid 1px #000;
+}

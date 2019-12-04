@@ -13,11 +13,12 @@ class Button extends \View\Button
     /**
      * Construct the button
      *
-     * @param string $idName
-     * @param string $icon
-     * @param string $label
-     * @param string $onClick
-     * @param string $class
+     * @param string $idName the id of the button
+     * @param string $icon the icon of the button
+     * @param string $label the label of the button
+     * @param string $onClick the on click action of the button
+     * @param string $class the css class of the button
+     * @param string $title the html title attribute of the button
      */
     public function __construct($idName, $icon, $label, $onClick = NULL, $class = NULL, $title = NULL)
     {

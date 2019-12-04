@@ -82,6 +82,7 @@ class TextArea extends \View\View
 
     /**
      * Transform the textarea in an html editor
+     * @deprecated since version 2019-09-22
      *
      * TODO optimize to simulataneos editors
      *

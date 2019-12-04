@@ -1,29 +1,12 @@
+/* global CKEDITOR */
+
 "use strict";
-
-$.ajaxSetup({
-    xhrFields: {
-        withCredentials: true
-    }
-})
-
-/**
- * handle the back and forward buttons
- */
+//handle the back and forward buttons
 var formChangedAdvice = false;
-/**
- * used to open current tab when f5
- */
-var hashOriginal = window.location.hash;
 var invalidHover = true;
 var lastUrl = correctUrl(window.location.href);
 var avoidUrlRegister = false;
-
-$(window).bind('popstate', function (event)
-{
-    var href = window.location.href;
-    avoidUrlRegister = true;
-    p(href, true);
-});
+var blendJs = function(){};
 
 //avoid console.log problems
 if (!window.console)
@@ -33,6 +16,55 @@ if (!window.console)
     {
     };
 }
+
+if (typeof $ == 'function')
+{
+    $(window).bind('popstate', function (event)
+    {
+        var href = window.location.href;
+        avoidUrlRegister = true;
+        p(href, true);
+    });
+}
+
+/*window.popstate = function (event)
+{
+    var href = window.location.href;
+    avoidUrlRegister = true;
+    console.log(href);
+    p(href, true);
+};*/
+
+//destroy popup on esc
+document.keyup = function (e)
+{
+    if (e.which === 27)
+    {
+        popup('destroy');
+    }
+};
+
+//Loading without ajax
+window.onload =  function ()
+{
+    dataAjax();
+        
+    /**
+     * Add support to play method in jquery
+     *
+     * @returns {jQuery.fn@call;each}
+     */
+    jQuery.fn.play = function () {
+        return this.each(function () {
+            
+            if (typeof this.play === 'function')
+            {
+                this.play();
+            }
+        });
+    };
+};
+
 
 //polyfill to old browser
 function startsWith(originalString, searchString)
@@ -50,31 +82,6 @@ function stripTags(str)
     return str.replace(/<\/?[^>]+(>|$)/g, "");
 }
 
-//destroy popup on esc
-$(document).keyup(function (e)
-{
-    if (e.which === 27)
-    {
-        popup('destroy');
-    }
-});
-
-/**
- * Loading without ajax
- */
-$(document).ready(function ()
-{
-    dataAjax();
-
-    if ($(hashOriginal + '.item').length == 1)
-    {
-        setTimeout(function () {
-            selectTab(hashOriginal);
-        }, 300);
-    }
-
-});
-
 /**
  * Parse data-ajax attribute, to make a link ajax
  *
@@ -82,6 +89,20 @@ $(document).ready(function ()
  */
 function dataAjax()
 {
+    try 
+    {
+        blendJs();
+    }
+    catch (e) 
+    {
+        alert('Erro ao executar javascript da página!');
+        console.error(e);
+        hideLoading();
+    }
+    
+    //clear the function to avoid calling more times
+    blendJs = function(){};
+	
     //links
     $("[data-ajax]").each(function ()
     {
@@ -146,23 +167,52 @@ function dataAjax()
     );
 
     //remove invalid on change
-    $('[data-invalid=1]').change(function () {
-        $(this).parent().find('.hint.danger').fadeOut(500, function () {
+    $('[data-invalid=1]').change(function () 
+    {
+        //remove data-invalid for element
+        $(this).removeAttr('data-invalid');
+        
+        //remove hint
+        $(this).parent().find('.hint.danger').fadeOut(500, function () 
+        {
             $(this).remove();
         });
+        
+        var tab = $(this).parents('.tabBody .item');
+        
+        //if is inside tab and tab don't has any element with data-invalid
+        //remove data-invalid from tab
+        if ( tab.length > 0)
+        {
+            tab = tab.eq(0);
+            var hasInvalidInside = tab.find('[data-invalid="1"]').length > 0 ;
+
+            if ( !hasInvalidInside)
+            {
+                $('#'+tab.attr('id')+'Label').removeAttr('data-invalid');
+            }
+        }
     });
 
     //make invalid
-    $('[data-invalid=1]').each(function () {
+    $('[data-invalid=1]').each(function () 
+    {
         var element = $(this);
         var title = element.attr('title');
-
+        var tab = element.parents('.tabBody .item');
+        
+        //inside tab
+        if ( tab[0])
+        {
+            $('#'+$(tab[0]).attr('id')+'Label').attr('data-invalid',1);
+        }
+        
         //don't create hint for hidden elements
         if (!element.is(':visible'))
         {
             return;
         }
-
+        
         if (invalidHover == true)
         {
             if (title !== undefined)
@@ -175,12 +225,13 @@ function dataAjax()
 
                     element.parent().append(myDiv);
                 },
-                        function ()
-                        {
-                            $(element).parent().find(".hint").remove();
-                        });
+                function ()
+                {
+                    $(element).parent().find(".hint").remove();
+                });
             }
-        } else
+        } 
+        else
         {
             var position = element.position().left + element.width()
             var myDiv = $('<div class="hint danger">' + element.attr('title') + '</div>');
@@ -338,18 +389,6 @@ function dataAjax()
             return showFormChangedAdvice();
         }
     });
-
-    //esconde menu
-    /*$('#content').hover(function ( ) 
-     {
-     $('.subMenu').hide()
-     });*/
-
-    //Disable user interaction with select buttons readonly.
-    $("select[readonly]").live("focus mousedown mouseup click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
     
     //add system class
     if ( isIos())
@@ -359,8 +398,10 @@ function dataAjax()
     else if ( isAndroid())
     {
         $('body').removeClass('os-android').addClass('os-android');
-    }   
-
+    }
+    
+    actionList.restore();
+    grid.restoreTextSize();    
     hideLoading();
 
     return false;
@@ -368,12 +409,8 @@ function dataAjax()
 
 function multipleSelect()
 {
-    var ua = navigator.userAgent.toLowerCase();
-    var isAndroid = ua.indexOf("android") > -1;
-    var isIphone = ua.indexOf("iphone") > -1;
-
     //nao faz se for android ou iphone
-    if (isAndroid || isIphone)
+    if (isAndroid() || isIos())
     {
         return;
     }
@@ -510,7 +547,13 @@ function updateUrl(page)
 
 function correctUrl(url)
 {
-    var base = $('base').attr('href');
+    var bases = document.getElementsByTagName('base');
+    var base = '';
+    
+    if ( bases && bases[0])
+    {
+        base = bases[0].href;
+    }
 
     //make full url
     if (!startsWith(url, base))
@@ -954,7 +997,10 @@ function popup(action, selector)
     }
     else if (action === 'destroy')
     {
+        //remake popup fade
         $('.makePopupFade').removeClass('popupFaded');
+        //remove any action-list that has popup
+        $('.action-list-popup').remove();
 
         //coll animantion
         element.find('.inner').animate({
@@ -1240,28 +1286,13 @@ function seletMenuItem()
     });
 }
 
-/**
- * Add support to play method in jquery
- *
- * @returns {jQuery.fn@call;each}
- */
-jQuery.fn.play = function () {
-    return this.each(function () {
-
-        if (typeof this.play === 'function')
-        {
-            this.play();
-        }
-    });
-};
-
 function selectTab(tabItemId)
 {
     tabItemId = tabItemId.replace('#', '');
     var tab = $('#' + tabItemId).parents('.tab').eq(0);
 
     //atualiza url
-    updateUrl(window.location.href.replace(window.location.hash, '') + '#' + tabItemId);
+    //updateUrl(window.location.href.replace(window.location.hash, '') + '#' + tabItemId);
 
     //body
     tab.find('.tabBody>.item').hide();
@@ -1270,8 +1301,28 @@ function selectTab(tabItemId)
     //head
     tab.find('.tabHead>.item').removeClass('selected');
     tab.find('.tabHead #' + tabItemId + 'Label').addClass('selected');
+    
+    //show actions as tab-group needed
+    $('.action-list li').hide();
+    $('.action-list li[data-group=""]').show();
+    $('.action-list li[data-group="'+tabItemId+'"]').show();
 
     return false;
+}
+
+function getTabFromId(id)
+{
+    return $('#'+id).parents('.tabBody .item');
+}
+
+function getTabLabel(tabId)
+{
+    if (typeof tabId == 'undefined')
+    {
+        return null;
+    }
+    
+    return stripTags($('#'+tabId+'Label').html()).replace(/(\r\n|\n|\r)/gm, "");
 }
 
 function openSubMenu(element)
@@ -1530,13 +1581,14 @@ function filterRemove(element)
     var element = $(element);
     var parent = element.parent().parent();
     parent.find('input, select').attr('disabled','disabled'); 
-    parent.hide('fast');
+    parent.hide('fast', function(){ parent.remove() } );
 }
 
 function filterAdd(element)
 {
     var element = $(element);
     var parent = element.parent();
+    
     var filterBase = parent.find('.filterBase');
     var filterConditionValue = filterBase.find('.filterCondition').val();
     var clone = filterBase.clone().removeClass('filterBase');
@@ -1555,6 +1607,8 @@ function filterAdd(element)
     
     //process ajax fields
     dataAjax();
+    
+    return false;
 }
 
 function filterTrash(element)
@@ -1570,7 +1624,7 @@ function filterChangeText(element)
     
     var input = $(element).parent().find('.filterInput');
     
-    if ( val== 'nullorempty' || val == 'today' )
+    if ( val == 'nullorempty' || val == 'notnullorempty' || val == 'today' )
     { 
         input.val('').hide();
         element.addClass('fullWidth');
@@ -1594,7 +1648,7 @@ function filterChangeInteger(element)
         input.show().addClass('filterInterval');
         inputFinal.removeAttr('disabled').add('filterInterval').show();
     } 
-    else if (val == 'nullorempty')
+    else if (val == 'nullorempty'|| val == 'notnullorempty')
     {
         input.hide();
         element.addClass('fullWidth');
@@ -1616,6 +1670,7 @@ function filterChangeDate(element)
     var elValueFinal = $(element).parent().find('.final');
     
     if ( val== 'nullorempty' 
+            || val == 'notnullorempty'
             || val == 'today' 
             || val == 'yesterday' 
             || val == 'tomorrow' 
@@ -1691,4 +1746,273 @@ function isIos()
 {
     var ua = navigator.userAgent.toLowerCase();
     return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
+}
+
+function isCellPhone()
+{
+    return $(document).width() <= 800;
+}
+
+/*Create a default dropzone*/
+function createDropZone( uploadUrl, acceptedFiles, pageName)
+{
+    acceptedFiles = acceptedFiles ? acceptedFiles : 'image/*';
+    
+    var myDropzone = new Dropzone("#myAwesomeDropzone",
+    {
+        url: uploadUrl,
+        acceptedFiles: acceptedFiles,
+        addRemoveLinks: true,
+        dictRemoveFile : '',
+        dictDefaultMessage : 'Arraste arquivos ou clique para upload',
+        init: function()
+        {
+            this.on("queuecomplete", function (file) {
+            p( pageName + '/updateImages');
+          })
+        }
+    });
+}
+
+function createCkEditor(id)
+{
+    var editor = CKEDITOR.replace( id );
+    
+    //active the save button when editor changes
+    editor.on('change', function() 
+    {
+        $('#btnSalvar').removeAttr('disabled');
+    });
+
+    editor.addCommand('blendSave', 
+    {
+        exec : function(editor, data) 
+        {
+            $('#btnSalvar').click();
+        }
+    });
+
+    editor.keystrokeHandler.keystrokes[CKEDITOR.CTRL + 83 /*S*/] = 'blendSave';
+}
+
+function showValidateErrors(errors)
+{
+    var html = '';
+    
+    errors.forEach( function(item, index)
+    {
+        var str = '<strong>'+item.label + '</strong> |' + item.messages.join(',');
+        var tabLabel = getTabLabel(getTabFromId(item.name).attr('id'));
+        
+        if (tabLabel)
+        {
+            str = '<strong>'+tabLabel+'</strong> : ' + str;
+        }
+        
+        str += '<br/>';
+        
+        html+= str;
+    });
+   
+    toast('Verifique o preenchimento dos campos: <br/><br/>'+html+'<br/>','danger');
+}
+
+function sortList(ul) 
+{
+    var list = $(ul);
+    var itens = list.find('li').get();
+   
+    itens.sort(function(a, b) 
+    {
+        return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+    });
+    
+    $.each(itens, function(idx, itm) 
+    { 
+        list.append(itm); 
+    });
+}
+
+//jquery plugin to create element
+//https://github.com/ern0/jquery.create/blob/ster/jquery.create.js
+(function($) 
+{
+    $.create = function(tag,id) 
+    {
+        let elm = document.createElement(tag.toUpperCase());
+        
+        if (typeof(id) != "undefined") 
+        {
+            elm.id = id;
+        }
+        
+        return $(elm);
+    }; // $.create()
+}(jQuery));
+
+var grid = {};
+
+grid.changeTextSize = function(element)
+{
+    var fontSize = localStorage.getItem('grid-font-size');
+    fontSize = fontSize ? parseInt(fontSize): 0;
+    fontSize = fontSize> 30 ? 0 : fontSize += 10;
+
+    $('.table-grid').css("font-size", (fontSize + 100)+'%');
+    
+    localStorage.setItem('grid-font-size',fontSize);
+};
+
+grid.restoreTextSize = function(element)
+{
+    var fontSize = localStorage.getItem('grid-font-size');
+    fontSize = fontSize ? parseInt(fontSize): 0;
+
+    $('.table-grid').css("font-size", (fontSize + 100)+'%');
+}
+
+grid.openTrDetail = function(element)
+{
+    event.preventDefault();
+    
+    var tr= $(element);
+    var grid = tr.parents('.grid');
+    var gridId = grid.attr('id').replace(/\\/g,'-');
+    var id = tr.data('model-id');
+    var link = grid.data('link');
+    var detailId = ('grid-detail-'+gridId+'-'+id).toLowerCase();
+    var detailElement = $('#'+detailId);
+ 
+    if (detailElement.length > 0)
+    {
+        detailElement.remove();
+    }
+    else
+    {
+        var newTr = $.create('tr');
+        newTr.addClass('grid-tr-detail-column-group');
+        var newTd = $.create('td',detailId);
+        newTd.attr('colspan', grid.find('th').length);
+        newTr.append(newTd);
+        newTr.insertAfter(tr);
+        
+        p(link+'/openTrDetail/'+id+'?elementId='+detailId);
+    }
+    
+    return false;
+}
+
+function setTableFontSize()
+{
+    var value = localStorage.getItem('tablegridfontsize');
+    if (!value)
+    {
+        value = 10;
+    }
+
+    $('.table-grid').css("font-size", value / 10 + "em");
+    $('#tableGridFontSize').val(value);
+}
+
+function changeTableFontSize()
+{
+    var value = $('#tableGridFontSize').val();
+    value = value ? value : 10;
+
+    $('.table-grid').css("font-size", value / 10 + "em");
+    localStorage.setItem('tablegridfontsize', value);
+}
+
+var actionList = {};
+
+actionList.toggle = function()
+{
+    if ( $('body').hasClass('action-list-open'))
+    {
+        actionList.close();
+    }
+    else
+    {
+        actionList.open();
+    }
+};
+
+actionList.restore = function()
+{
+    if ( $('.action-list-toogle').is(':visible') && !isCellPhone() )
+    {
+        var wasOpen = localStorage.getItem('action-list-open') == 1;
+    
+        if ( wasOpen )
+        {
+            actionList.open();
+        }
+        else
+        {
+            actionList.close();
+        }
+    }
+    else
+    {
+        $('body').removeClass('action-list-open');
+    }
+};
+
+actionList.open = function()
+{
+    $('body').addClass('action-list-open');
+    localStorage.setItem('action-list-open', 1);
+};
+
+actionList.close = function()
+{
+    $('body').removeClass('action-list-open');
+    localStorage.setItem('action-list-open', 0);
+    
+    return false;
+};
+
+var printScreenType = 'pdf';
+var printScreenCount = 0;
+var printScreenBackup = '';
+
+function printScreen(type)
+{
+    printScreenBackup = $('#divLegal').html();
+    printScreenType = type ? type : 'pdf';
+    var grids = $('.grid');
+    printScreenCount = grids.length;
+    
+    grids.each( function()
+    {
+       var dataLink = $(this).attr('data-link');
+       
+       var split = window.location.href.split('/');
+       var id = split[split.length-1];
+       
+       //update grid with full data
+       p(dataLink+'/listar/',{paginationLimit:'9999',v:id}, printScreenFinalize );
+    });
+  
+    return false;
+}
+
+function printScreenFinalize()
+{
+    printScreenCount--;
+    
+    if (printScreenCount == 0)
+    {
+        var params = {
+            title: stripTags($('#formTitle').html()), 
+            content: $('#divLegal').html(),
+            type: printScreenType
+        };
+
+        setTimeout( function(){ 
+            p(getCurrentPage()+'/printScreen',params); 
+        });
+        
+        $('#divLegal').html(printScreenBackup);
+    }
 }

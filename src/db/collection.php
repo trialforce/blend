@@ -3,7 +3,7 @@
 namespace Db;
 
 /**
- * Simple Collection with ArrayAccess suport
+ * A Collection with focus to deal with \Db\Model with ArrayAccess suport
  */
 class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
@@ -74,13 +74,31 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Return all the data as array
+     * Alias to getdata
+     *
+     * @return Array
+     */
+    public function toArray()
+    {
+        return $this->data;
+    }
+
+    /**
      * Return the first item of array
      *
      * @return mixes
      */
     public function first()
     {
-        return array_values($this->data)[0];
+        $result = array_values($this->data);
+
+        if (isset($result[0]))
+        {
+            return $result[0];
+        }
+
+        return null;
     }
 
     public function filter($function)
@@ -121,26 +139,15 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             }
             else if (is_object($a))
             {
-                $methodA = 'get' . $orderBy;
-                $methodB = 'get' . $orderBy;
-
-                if (method_exists($a, $methodA))
-                {
-                    $valueA = $a->$methodA();
-                    $valueB = $b->$methodB();
-                }
-                else
-                {
-                    $valueA = $a->$orderBy;
-                    $valueB = $b->$orderBy;
-                }
+                $valueA = self::getPropertyFromItem($a, $orderBy);
+                $valueB = self::getPropertyFromItem($b, $orderBy);
             }
 
             return strcmp($valueA, $valueB);
         });
 
         //apply the order
-        if (strtolower($orderWay) != 'desc')
+        if (strtolower($orderWay) == 'desc')
         {
             $this->data = array_reverse($this->data);
         }
@@ -159,6 +166,42 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         $this->data = array_slice($this->data, $offset, $limit);
 
         return $this;
+    }
+
+    /**
+     * Make a sum of an property
+     *
+     * @param string $property the property to sum
+     * @return float the total of the sum
+     */
+    public function sum($property)
+    {
+        $total = 0;
+
+        foreach ($this->data as $idx => $item)
+        {
+            $total += \Type\Money::get(self::getPropertyFromItem($item, $property))->toDb();
+        }
+
+        return $total;
+    }
+
+    /**
+     * Make the average of a property
+     *
+     * @param string $property
+     * @return float
+     */
+    public function avg($property)
+    {
+        $total = 0;
+
+        foreach ($this->data as $idx => $item)
+        {
+            $total += \Type\Money::get(self::getPropertyFromItem($item, $property))->toDb();
+        }
+
+        return $total / $this->count();
     }
 
     /**
@@ -211,7 +254,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         if (is_array($value))
         {
-            $this->data = $this->data + $value;
+            $this->data = array_merge($this->data, $value);
         }
         else
         {
@@ -232,6 +275,43 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Get a property from an item
+     *
+     * @param mixed $item
+     * @param string $property
+     * @return string
+     */
+    public static function getPropertyFromItem($item, $property)
+    {
+        $result = null;
+
+        if (is_array($item))
+        {
+            $result = $item[$property];
+        }
+        else if (is_object($item))
+        {
+            //model
+            if ($item instanceof \Db\Model)
+            {
+                $result = $item->getValueDb($property);
+            }
+            //simple object
+            else
+            {
+                $result = $item->$property;
+            }
+        }
+
+        if ($result instanceof \Type\Generic)
+        {
+            $result = $result->toDb();
+        }
+
+        return $result;
+    }
+
+    /**
      * Index an sort the data by a property
      *
      * @param string $property
@@ -246,25 +326,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             foreach ($array as $item)
             {
-                //array
-                if (is_array($item))
-                {
-                    $index = $item[$property];
-                }
-                else if (is_object($item))
-                {
-                    //model
-                    if ($item instanceof \Db\Model)
-                    {
-                        $index = $item->getValue($property);
-                    }
-                    //simple object
-                    else
-                    {
-                        $index = $item->$property;
-                    }
-                }
-
+                $index = self::getPropertyFromItem($item, $property);
                 $result[$index] = $item;
             }
         }
@@ -324,6 +386,49 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         if ($result)
         {
             ksort($result);
+        }
+
+        $this->setData($result);
+
+        return $this;
+    }
+
+    /**
+     * Limite the collection to a simple array with the property passed
+     *
+     * @param string $property
+     * @return $this
+     */
+    public function getValues($property)
+    {
+        $result = NULL;
+        $array = $this->getData();
+
+        if (is_array($array))
+        {
+            foreach ($array as $item)
+            {
+                //array
+                if (is_array($item))
+                {
+                    $vKey = $item[$property];
+                }
+                else if (is_object($item))
+                {
+                    //model
+                    if ($item instanceof \Db\Model)
+                    {
+                        $vKey = $item->getValue($property);
+                    }
+                    //simple object
+                    else
+                    {
+                        $vKey = $item->$property;
+                    }
+                }
+
+                $result[] = $vKey;
+            }
         }
 
         $this->setData($result);
@@ -426,6 +531,12 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function rewind()
     {
+        if (!is_array($this->data))
+        {
+            $this->data = array();
+            return null;
+        }
+
         return reset($this->data);
     }
 
@@ -450,6 +561,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function key()
     {
+        if (!is_array($this->data))
+        {
+            return null;
+        }
+
         return key($this->data);
     }
 
@@ -474,6 +590,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function valid()
     {
+        if (!is_array($this->data))
+        {
+            return null;
+        }
+
         return key($this->data) !== null;
     }
 
@@ -525,9 +646,9 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this->data;
     }
 
-    public function toJson()
+    public function toJson($options = null)
     {
-        return json_encode($this);
+        return json_encode($this, $options);
     }
 
 }

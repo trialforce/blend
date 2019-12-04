@@ -303,7 +303,7 @@ class Conn extends \PDO
 
         $diffTime = $timer->stop()->diff();
         self::addSqlLog(self::$lastSql, count($result), $diffTime, $this->id);
-        self::$totalSqlTime += $diffTime + "";
+        self::$totalSqlTime += $diffTime;
 
         return $result;
     }

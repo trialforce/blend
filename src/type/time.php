@@ -5,7 +5,7 @@ namespace Type;
 /**
  * Time type
  */
-class Time implements \Type\Generic
+class Time implements \Type\Generic, \JsonSerializable
 {
 
     /**
@@ -46,7 +46,7 @@ class Time implements \Type\Generic
      */
     protected $avoidZero = false;
 
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }
@@ -133,7 +133,7 @@ class Time implements \Type\Generic
         if (stripos($value, '.'))
         {
             $explode = explode('.', $value);
-            $this->milesecond = $explode[1];
+            $this->milesecond = intval($explode[1]);
             $value = $explode[0];
         }
 
@@ -141,16 +141,16 @@ class Time implements \Type\Generic
         if (stripos($value, ':'))
         {
             $explode = explode(':', $value);
-            $this->hour = ltrim($explode[0], '0');
+            $this->hour = intval(ltrim($explode[0], '0'));
 
             if (isset($explode[1]))
             {
-                $this->minute = ltrim($explode[1], '0');
+                $this->minute = intval(ltrim($explode[1], '0'));
             }
 
             if (isset($explode[2]))
             {
-                $this->second = $explode[2];
+                $this->second = intval($explode[2]);
             }
         }
 
@@ -198,25 +198,25 @@ class Time implements \Type\Generic
 
     public function setHour($hour)
     {
-        $this->hour = $hour;
+        $this->hour = intval($hour);
         return $this;
     }
 
     public function setMinute($minute)
     {
-        $this->minute = $minute;
+        $this->minute = intval($minute);
         return $this;
     }
 
     public function setSecond($second)
     {
-        $this->second = $second;
+        $this->second = intval($second);
         return $this;
     }
 
     public function setMilesecond($milesecond)
     {
-        $this->milesecond = $milesecond;
+        $this->milesecond = intval($milesecond);
         return $this;
     }
 
@@ -224,6 +224,11 @@ class Time implements \Type\Generic
     {
         $this->useMilesecond = $useMilesecond;
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
     }
 
     /**
@@ -264,6 +269,13 @@ class Time implements \Type\Generic
         return \Type\Time::get($value)->getValue();
     }
 
+    /**
+     * Pass a integer amount of second and this method create
+     * a hourly time
+     *
+     * @param int $value
+     * @return \Type\Time
+     */
     public static function createBySeconds($value)
     {
         $newTime = new \Type\Time(0);

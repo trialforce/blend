@@ -42,7 +42,8 @@ class DateTime extends \Filter\Text
         $options[self::COND_MAIOR_IGUAL] = 'Maior ou igual';
         $options[self::COND_MENOR] = 'Menor';
         $options[self::COND_MENOR_IGUAL] = 'Menor ou igual';
-        $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        $options[\Filter\Text::COND_NULL_OR_EMPTY] = 'Vazio';
+        $options[\Filter\Text::COND_NOT_NULL_OR_EMPTY] = 'Não vazio';
         $options[self::COND_INTERVALO] = 'Intervalo';
 
         $options[self::COND_CURRENT_MONTH] = 'Mês (atual)';
@@ -93,6 +94,11 @@ class DateTime extends \Filter\Text
         $filterValueFinal = $this->getFilterValueFinal($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
+        //add support for clean value
+        $filterValue = str_replace('__/__/____', '', $filterValue);
+
+        $isFiltered = (strlen(trim($filterValue)) > 0);
+
         if (stripos($conditionValue, self::COND_MONTH_FIXED) === 0)
         {
             $explode = explode('-', $conditionValue);
@@ -108,7 +114,6 @@ class DateTime extends \Filter\Text
         }
         else if ($conditionValue == self::COND_YESTERDAY)
         {
-
             $date = \Type\Date::now()->addDay(-1);
             return new \Db\Where('DATE(' . $columnName . ')', '=', $date->toDb(), $conditionType, $this->getFilterType());
         }
@@ -164,7 +169,7 @@ class DateTime extends \Filter\Text
             }
         }
         //this is equal, not equals, greather and etc
-        else if ($conditionValue && isset($filterValue) && $filterValue)
+        else if ($conditionValue && $isFiltered)
         {
             $date = new \Type\DateTime($filterValue);
 
@@ -179,7 +184,13 @@ class DateTime extends \Filter\Text
         }
         else if ($conditionValue == self::COND_NULL_OR_EMPTY)
         {
-            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType, $this->getFilterType());
+            //support null, empty string or zero date
+            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' OR DATE(' . $columnName . ') = \'0000-00-00\')', NULL, $conditionType, $this->getFilterType());
+        }
+        else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
+        {
+            //support null, empty string or zero date
+            return new \Db\Cond('(' . $columnName . ' IS NOT NULL AND ' . $columnName . ' != \'\' AND DATE(' . $columnName . ') != \'0000-00-00\')', NULL, $conditionType, $this->getFilterType());
         }
     }
 

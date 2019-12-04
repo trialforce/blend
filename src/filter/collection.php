@@ -16,7 +16,7 @@ class Collection extends \Filter\Text
      */
     protected $collection;
 
-    public function __construct(\Component\Grid\Column $column, $collection, $filterType = NULL)
+    public function __construct($column, $collection, $filterType = NULL)
     {
         parent::__construct($column, NULL, $filterType);
         $this->setCollection($collection);
@@ -64,7 +64,8 @@ class Collection extends \Filter\Text
         $options = array();
         $options[self::COND_EQUALS] = 'Igual';
         $options[self::COND_NOT_EQUALS] = 'Diferente';
-        $options[self::COND_NULL_OR_EMPTY] = 'Nulo ou vazio';
+        $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
+        $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não vazio';
 
         return $options;
     }
@@ -72,14 +73,29 @@ class Collection extends \Filter\Text
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
-        $columnName = $column->getSql();
+        $columnName = $column ? $column->getSql() : $this->getFilterName();
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
         $hasFilter = (strlen($filterValue) > 0);
 
-        if (!$conditionValue || !$hasFilter)
+        //no condition selected, does nothing
+        if (!$conditionValue)
+        {
+            return null;
+        }
+
+        if ($conditionValue == self::COND_NULL_OR_EMPTY)
+        {
+            return new \Db\Cond('( (' . $columnName . ') IS NULL OR (' . $columnName . ') = \'\' )', NULL, $conditionType);
+        }
+        else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
+        {
+            return new \Db\Cond('( (' . $columnName . ') IS NOT NULL AND (' . $columnName . ') != \'\' )', NULL, $conditionType);
+        }
+        //no filter selected does nothing
+        else if (!$hasFilter)
         {
             return null;
         }
@@ -128,10 +144,6 @@ class Collection extends \Filter\Text
             {
                 return new \Db\Cond($columnName . ' != ?', $filterValue . '', $conditionType);
             }
-        }
-        else if ($conditionValue == self::COND_NULL_OR_EMPTY)
-        {
-            return new \Db\Cond('(' . $columnName . ' IS NULL OR ' . $columnName . ' = \'\' )', NULL, $conditionType);
         }
         //fallback
         else

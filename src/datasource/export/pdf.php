@@ -1,9 +1,11 @@
 <?php
 
 namespace DataSource\Export;
+
 //big data explode default time
 set_time_limit(0);
 ini_set('memory_limit', '512M');
+
 use DataHandle\Session;
 
 /**
@@ -27,18 +29,19 @@ class Pdf extends Html
 
         $path = str_replace('\\', '_', strtolower($relativePath) . '.pdf');
         $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $path);
-        $file->save($layout . '');
+        //remove the file to avoid error (if exists)
+        $file->remove();
 
-        $pageSize = $pageSize ? $pageSize : 'A4';
+        $reportTool = new \ReportTool\Engine();
+        $reportTool->getLayout()->loadHTML(utf8_encode($layout));
+        $reportTool->setPageSize($pageSize ? $pageSize : 'A4');
+        $reportTool->setExportFile($file);
+        $reportTool->setFooter(' ');
+        $reportTool->setHeader(' ');
 
-        //remove the file to avoid error
-        unlink($file->getPath());
+        $fileOut = $reportTool->generateFile('pdf');
 
-        $mpdf = new \mPDF('utf-8', $pageSize, 0, '', 5, 5, 5, 5, 5, 5);
-        $mpdf->WriteHTML(utf8_encode($layout));
-        $mpdf->Output($file->getPath());
-
-        return $file;
+        return $fileOut;
     }
 
 }

@@ -87,6 +87,18 @@ class Engine
      */
     protected $footer;
 
+    /**
+     * Margin
+     * @var array
+     */
+    protected $margin = array(0, 0, 0, 0);
+
+    /**
+     * Export file path
+     * @var string
+     */
+    protected $exportFile = null;
+
     public function __construct($layoutPath = NULL)
     {
         $this->layout = new \View\Layout(NULL, TRUE);
@@ -104,6 +116,30 @@ class Engine
 
         $this->setPageSize(self::PAGE_SIZE_A4);
         $this->setSubtitle(''); //default
+        $this->setMargin(5, 5, 5, 5);
+    }
+
+    /**
+     * Margins in milimeter mm
+     * @param int $left left margin
+     * @param int $right right margin
+     * @param int $top top margin
+     * @param int $bottom bottom margin
+     * @return $this
+     */
+    public function setMargin($left = 0, $right = 0, $top = 0, $bottom = 0)
+    {
+        $this->margin['left'] = $left;
+        $this->margin['right'] = $right;
+        $this->margin['top'] = $top;
+        $this->margin['bottom'] = $bottom;
+
+        return $this;
+    }
+
+    public function getMargin()
+    {
+        return $this->margin;
     }
 
     protected function parseLayout()
@@ -120,15 +156,80 @@ class Engine
         return $layoutPath;
     }
 
+    /**
+     * Define the current layout
+     *
+     * @param \View\Layout $layout
+     * @return $this
+     */
+    public function setLayout(\View\Layout $layout)
+    {
+        $this->layout = $layout;
+        return $this;
+    }
+
+    /**
+     * Define a custom html as the default layout
+     *
+     * @param string $html
+     * @return $this
+     */
+    public function setHtml($html)
+    {
+        $this->getLayout()->loadHTML($html);
+
+        return $this;
+    }
+
+    /**
+     * Define a layout from html body string
+     *
+     * @return \ReportTool\Engine
+     */
+    public function loadFromBody($body)
+    {
+        $head = "<title>{$this->getTitle()}</title>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width'>";
+
+        $html = "<html>
+                    <head>
+                    $head
+                    </head>
+                    <body>
+                    <!--default-->$body<!--!default-->
+                    </body>
+                </html>";
+
+        $this->getLayout()->loadHTML($html);
+
+        return $this;
+    }
+
+    /**
+     * Get the default layout
+     * @return \View\Layout
+     */
     public function getLayout()
     {
         return $this->layout;
     }
 
-    public function setLayout(\View\Layout $layout)
+    /**
+     * Define a layout path to be used
+     *
+     * @param string $layoutPath layout file name
+     * @return $this
+     */
+    public function setLayoutPath($layoutPath)
     {
-        $this->layout = $layout;
+        $this->layoutPath = $layoutPath;
         return $this;
+    }
+
+    public function getLayoutPath()
+    {
+        return $this->layoutPath;
     }
 
     function getHeader()
@@ -253,17 +354,6 @@ class Engine
     public function getPageSize()
     {
         return $this->getParam('pageSize');
-    }
-
-    public function getLayoutPath()
-    {
-        return $this->layoutPath;
-    }
-
-    public function setLayoutPath($layoutPath)
-    {
-        $this->layoutPath = $layoutPath;
-        return $this;
     }
 
     /**
@@ -481,7 +571,10 @@ class Engine
             $value = implode(',', $value);
         }
 
-        return str_replace('{$' . $var . '}', $value, $content);
+        $result = str_replace('{$' . $var . '}', $value, $content);
+        $result = str_replace('%7B%24' . $var . '%7D', $value, $result);
+
+        return $result;
     }
 
     protected function replaceEval()
@@ -520,7 +613,7 @@ class Engine
             }
 
             //add suport for constant values
-            if ($dbColumn instanceof \Db\Column && $dbColumn->getConstantValues())
+            if ($dbColumn instanceof \Db\Column\Column && $dbColumn->getConstantValues())
             {
                 $array = $dbColumn->getConstantValues();
                 $valueDescription = '';
@@ -716,7 +809,7 @@ class Engine
             {
                 ob_start();
                 $expression = html_entity_decode($expression);
-                eval('echo (' . $expression . ');');
+                @eval('echo (' . $expression . ');');
                 $result = ob_get_contents();
                 ob_end_clean();
                 $find = $expressionsContent[$idx];
@@ -799,6 +892,11 @@ class Engine
         return nl2br($value) . '';
     }
 
+    public function setExportFile($exportFile)
+    {
+        $this->exportFile = $exportFile;
+    }
+
     /**
      * Retorna o arquivo
      *
@@ -807,8 +905,13 @@ class Engine
      */
     public function getExportFile($type = 'html')
     {
-        $relativePath = strtolower('report/' . $this->layoutPath . '_' . rand()) . '.' . $type;
-        return \Disk\File::getFromStorage($relativePath);
+        if (!$this->exportFile)
+        {
+            $relativePath = strtolower('report/' . $this->layoutPath . '_' . rand()) . '.' . $type;
+            $this->exportFile = \Disk\File::getFromStorage($relativePath);
+        }
+
+        return $this->exportFile;
     }
 
     /**
@@ -863,7 +966,14 @@ class Engine
      */
     protected function getMpdfObj()
     {
-        return new \mPDF('utf-8', $this->getPageSize(), 0, '', 0, 0, 0, 0, 0, 0);
+        if (\DataHandle\Config::get('wkpdf-path'))
+        {
+            return new \ReportTool\WkPdf('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
+        }
+        else
+        {
+            return new \mPDF('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
+        }
     }
 
     /**
@@ -887,31 +997,6 @@ class Engine
 
         $file = $this->generateFile($type);
         $file->outputInline();
-    }
-
-    /**
-     * Load a report from body string
-     *
-     * @return \ReportTool\Engine
-     */
-    public function loadFromBody($body)
-    {
-        $head = "<title>{$this->getTitle()}</title>
-                <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width'>";
-
-        $html = "<html>
-                    <head>
-                    $head
-                    </head>
-                    <body>
-                    <!--default-->$body<!--!default-->
-                    </body>
-                </html>";
-
-        $this->getLayout()->loadHTML($html);
-
-        return $this;
     }
 
     /**

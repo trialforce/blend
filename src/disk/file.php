@@ -5,7 +5,7 @@ namespace Disk;
 /**
  * Represrnts a file in disk
  */
-class File
+class File implements \JsonSerializable
 {
 
     /**
@@ -587,6 +587,7 @@ class File
         $windowOpen[] = 'php';
         $windowOpen[] = 'xml';
         $windowOpen[] = 'pdf';
+        $windowOpen[] = 'json';
 
         if (in_array($ext, $windowOpen))
         {
@@ -743,6 +744,15 @@ class File
         $byteArray = file_get_contents($this->getPath());
         $encode = base64_encode($byteArray);
         return $encode;
+    }
+
+    public function jsonSerialize()
+    {
+        $result = new \stdClass();
+        $result->path = $this->getPath();
+        $result->url = $this->getUrl();
+
+        return $result;
     }
 
 }

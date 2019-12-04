@@ -8,7 +8,7 @@ use DataHandle\Session;
 /**
  * A Simple grid, works very handy.
  */
-class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerialize
+class Grid extends \Component\Component
 {
 
     /**
@@ -73,6 +73,12 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     protected $dataSource;
 
     /**
+     * List of action
+     * @var array
+     */
+    protected $actions;
+
+    /**
      * Construct a grid
      *
      * @param string $id
@@ -104,6 +110,17 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $this->dataSource = $dataSource;
     }
 
+    public function getActions()
+    {
+        return $this->actions;
+    }
+
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
+        return $this;
+    }
+
     public function setPageName($pageName)
     {
         $this->pageName = $pageName;
@@ -133,7 +150,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     }
 
     /**
-     * Retorna as colunas da grid
+     * Retturn the columns of the grid
+     *
+     * @deprecated since version 2019-09-25 Use getDatasource->getColumns()
      *
      * @return array
      */
@@ -144,6 +163,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
     /**
      * Retorna as colunas da grid que são visíveis
+     *
+     * @todo pass this método to datasource
+     *
      * @return array
      */
     public function getRenderColumns()
@@ -170,6 +192,12 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         return $renderColumns;
     }
 
+    /**
+     * @deprecated since version 2019-10-18 use getDatasource()->setColumns();
+     *
+     * @param array $columns
+     * @return $this
+     */
     public function setColumns($columns)
     {
         if (is_array($columns))
@@ -294,6 +322,9 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
      */
     protected function createTable()
     {
+        //only force the getData, to make any changes in data that is needed
+        //the data is not used here (but getData is cached, so it's okay)
+        $this->getDataSource()->getData();
         $view = array();
 
         if ($this->getTitle())
@@ -311,6 +342,8 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $this->table = new \View\Table($this->getId() . 'Table', $view, 'table-grid');
 
         $div = new \View\Div($this->getId(), $this->table, 'grid');
+        //put link on js side
+        $div->data('link', $this->getLink(null, null, null, false));
 
         $this->makeAggregation();
 
@@ -497,7 +530,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         $viewTr->html($th);
 
-
         return $views;
     }
 
@@ -610,16 +642,11 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
             //workaround for editable columns
             if ($column->getEdit() == true)
             {
-                $value = \Component\Grid\Column::getColumnValue($column, $item);
+                $value = \DataSource\Grab::getUserValue($column, $item);
             }
             else
             {
                 $value = $column->getValue($item, $index, $myTr, $td[1]);
-            }
-
-            if ($value instanceof \Type\Generic)
-            {
-                $value = $value->toHuman();
             }
 
             $td[1]->html($value);
@@ -640,11 +667,6 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
     {
         $td = new \View\Td(NULL, NULL, $column->getAlign() . ' hide-in-mobile');
         $value = $column->getValue($item, $index, $tr, $td);
-
-        if ($value instanceof \Type\Generic)
-        {
-            $value = $value->toHuman();
-        }
 
         return $td->html($value);
     }
@@ -694,35 +716,33 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
 
         //this need to be optimized, this is in wrong place, but for compatibily porpouses is here
         $page = \View\View::getDom();
+        $model = method_exists($page, 'getModel') ? $page->getModel() : null;
+        $grid = method_exists($page, 'getGrid') ? $page->getGrid() : null;
 
-        if (method_exists($page, 'getModel'))
+        $extraFilters = null;
+        //FIXME optimize 10% if get only what is is post
+        if (method_exists($grid, 'getSearchField'))
         {
-            $grid = $page->getGrid();
-            $extraFilters = null;
-            //FIXME optimize 10% if get only what is is post
-            if (method_exists($grid, 'getSearchField'))
+            $searchField = $grid->getSearchField();
+            $extraFilters = $searchField->getExtraFilters();
+        }
+
+        //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
+        if (is_array($extraFilters))
+        {
+            foreach ($extraFilters as $filter)
             {
-                $searchField = $grid->getSearchField();
-                $extraFilters = $searchField->getExtraFilters();
+                $dataSource->addExtraFilter($filter->getDbCond());
             }
+        }
 
-            //this applies filter made by n setDefaultGrid and createFixedFilter "addExtraFilter"
-            if (is_array($extraFilters))
+        $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $model, $extraFilters);
+
+        if (is_array($filters))
+        {
+            foreach ($filters as $filter)
             {
-                foreach ($extraFilters as $filter)
-                {
-                    $dataSource->addExtraFilter($filter->getDbCond());
-                }
-            }
-
-            $filters = \Component\Grid\MountFilter::getFilters($dataSource->getColumns(), $page->getModel(), $extraFilters);
-
-            if (is_array($filters))
-            {
-                foreach ($filters as $filter)
-                {
-                    $dataSource->addExtraFilter($filter->getDbCond());
-                }
+                $dataSource->addExtraFilter($filter->getDbCond());
             }
         }
 
@@ -823,6 +843,7 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $formats['csv'] = 'CSV (Excel)';
         $formats['html'] = 'HTML (Tela)';
         $formats['pdf'] = 'PDF (Impressão)';
+        $formats['json'] = 'JSON (Exportação)';
 
         $formatos[] = new \View\Label(NULL, 'format', 'Formato', 'field-label');
         $formatos[] = $abc = new \View\Select('format', $formats, 'csv');
@@ -904,20 +925,88 @@ class Grid extends \Component\Component implements \Disk\JsonAvoidPropertySerial
         $div->html($table);
     }
 
-    public function listAvoidPropertySerialize()
+    public function openTrDetail()
     {
-        $avoid = parent::listAvoidPropertySerialize();
-        $avoid[] = 'head';
-        $avoid[] = 'body';
-        $avoid[] = 'pageName';
-        $avoid[] = 'columns';
-        $avoid[] = 'filters';
-        $avoid[] = 'foot';
-        $avoid[] = 'table';
-        $avoid[] = 'identificatorColumn';
-        $avoid[] = 'callInterfaceFunctions';
+        \App::dontChangeUrl();
+        $modelId = Request::get('v');
+        $elementId = Request::get('elementId');
 
-        return $avoid;
+        $result[] = new \View\Div('grid-tr-detail-columns-' . $modelId, $this->renderModelDetail($modelId), 'grid-tr-detail-columns clearfix');
+        $result[] = new \View\Div('grid-tr-detail-actions-' . $modelId, $this->renderActionsInDetail($modelId), 'grid-tr-detail-actions clearfix');
+
+        $this->byId($elementId)->html($result);
+    }
+
+    public function renderActionsInDetail($modelId)
+    {
+        $actions = $this->getActions();
+        $html = array();
+
+        if (isIterable($actions))
+        {
+            foreach ($actions as $action)
+            {
+                if (!$action->getRenderInGridDetail())
+                {
+                    continue;
+                }
+
+                $action instanceof \Component\Action\Action;
+                $action->setPk($modelId);
+
+                $btn = new \View\Ext\LinkButton('btn-action-detail-' . $action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass());
+                $html[] = $btn;
+            }
+        }
+
+        return $html;
+    }
+
+    public function renderModelDetail($id)
+    {
+        $ds = $this->getDataSource();
+        $columns = $ds->getColumns();
+        $pkColumn = $this->getIdentificatorColumn();
+
+        $page = \View\View::getDom();
+        $columnName = $pkColumn->getName();
+
+        if (method_exists($page, 'getModel'))
+        {
+            $model = $page->getModel();
+            $columnName = $model::getTableName() . '.' . $columnName;
+        }
+
+        $filter[] = new \Db\Where($columnName, '=', $id);
+        $ds->addExtraFilter($filter);
+
+        $data = $ds->getData();
+
+        if ($data[0])
+        {
+            $item = $data[0];
+            $html = array();
+
+            foreach ($columns as $column)
+            {
+                if (!$column->getRenderInDetail())
+                {
+                    continue;
+                }
+
+                $column instanceof \Component\Grid\Column;
+                $columnContent = array();
+                $columnContent[] = new \View\Div('grid-tr-detail-column-label-' . $id, $column->getLabel() . ':', 'grid-tr-detail-column-label');
+                $columnContent[] = new \View\Div('grid-tr-detail-column-value-' . $id, $column->getValue($item, null, null, null), 'grid-tr-detail-column-value');
+                $html[] = new \View\Div('data-' . $column->getSafeName(), $columnContent, 'grid-tr-detail-column-info');
+            }
+
+            return $html;
+        }
+        else
+        {
+            return new \View\Div(null, 'Impossível encontrar registro.');
+        }
     }
 
 }
