@@ -954,7 +954,15 @@ class Grid extends \Component\Component
                 $action instanceof \Component\Action\Action;
                 $action->setPk($modelId);
 
-                $btn = new \View\Ext\LinkButton('btn-action-detail-' . $action->getId(), $action->getIcon(), $action->getLabel(), $action->getParsedUrl(), $action->getClass());
+                $url = $action->getParsedUrl();
+
+                //put return in front of onclick to avoid to execute 2 actions
+                if (stripos($url, 'p') === 0)
+                {
+                    $url = 'return ' . $url;
+                }
+
+                $btn = new \View\Ext\LinkButton('btn-action-detail-' . $action->getId(), $action->getIcon(), $action->getLabel(), $url, $action->getClass());
                 $html[] = $btn;
             }
         }

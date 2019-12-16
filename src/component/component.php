@@ -66,7 +66,7 @@ class Component
      * @param string $putUrl if is to put the current url as params
      * @return string the resultant link
      */
-    public function getLink($event, $value, $params = null, $putUrl = false)
+    public function getLink($event, $value = null, $params = null, $putUrl = false)
     {
         if ($putUrl)
         {

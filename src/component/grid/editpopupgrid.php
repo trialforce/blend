@@ -56,7 +56,14 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function setActions($actions)
     {
         $actions = is_array($actions) ? $actions : array();
-        $url = $this->getPageName() . '/removerItem/&_id=:id?';
+
+        $url = $this->getRemoveMethod();
+
+        //fallback
+        if (!$url)
+        {
+            $url = $this->getPageName() . '/removerItem/&_id=:id?';
+        }
 
         $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash', 'remover', $url);
         $remove->setRenderInGrid(true);
