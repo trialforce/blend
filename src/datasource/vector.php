@@ -18,6 +18,11 @@ class Vector extends DataSource
 
     public function __construct($data)
     {
+        if ($data instanceof \Db\Collection)
+        {
+            $data = $data->getData();
+        }
+
         $this->setData($data);
     }
 
