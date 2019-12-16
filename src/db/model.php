@@ -313,6 +313,18 @@ class Model implements \JsonSerializable
     {
         $name = self::getName();
 
+        return \Db\Criteria::createCriteria(\Db\Model::parseSearchColumnWhere($filters, $name));
+    }
+
+    /**
+     * Parse the filters change to the search column sql when necessary
+     *
+     * @param array $filters array of filters
+     * @param string $className model class name
+     * @return array array of filters
+     */
+    public static function parseSearchColumnWhere($filters, $className)
+    {
         if (!is_array($filters))
         {
             $filters = array($filters);
@@ -329,7 +341,9 @@ class Model implements \JsonSerializable
 
             if (method_exists($filter, 'getFilter'))
             {
-                $column = $name::getColumn($filter->getFilter());
+                //remove Mysql crap escape character, sometimes we can get it here (from \Db\QueryBuilder)
+                $sqlFilter = str_replace('`', '', $filter->getFilter());
+                $column = $className::getColumn($sqlFilter);
 
                 if ($column && $column instanceof \Db\Column\Search)
                 {
@@ -339,7 +353,7 @@ class Model implements \JsonSerializable
             }
         }
 
-        return \Db\Criteria::createCriteria($filters);
+        return $filters;
     }
 
     /**

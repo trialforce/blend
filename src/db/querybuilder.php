@@ -358,6 +358,15 @@ class QueryBuilder
     }
 
     /**
+     * Return the where with search column sql parsed
+     * @return array the where filters array
+     */
+    public function getParsedWhere()
+    {
+        return \Db\Model::parseSearchColumnWhere($this->getWhere(), $this->getModelName());
+    }
+
+    /**
      * Define/Overwrite the condition/where array
      *
      * Note that condition can be grouped by an array
@@ -547,7 +556,7 @@ class QueryBuilder
     public function getSelectSql($format = false)
     {
         $catalog = $this->getCatalogClass();
-        $whereStd = \Db\Criteria::createCriteria($this->getWhere());
+        $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
         $where = $whereStd->getSqlParam();
 
         $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
@@ -563,7 +572,7 @@ class QueryBuilder
     public function select($returnAs)
     {
         $catalog = $this->getCatalogClass();
-        $whereStd = \Db\Criteria::createCriteria($this->getWhere());
+        $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
         $where = $whereStd->getSql();
         $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, TRUE);
 
