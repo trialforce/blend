@@ -52,6 +52,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Verify if collection is empty
+     */
+    public function isEmpty()
+    {
+        return $this->count() == 0;
+    }
+
+    /**
      * Define all data inside collection
      *
      * @param Array $array
