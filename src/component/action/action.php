@@ -123,7 +123,7 @@ class Action extends \Component\Component
 
     public function getParsedUrl()
     {
-        return str_replace(':id?', $this->getPk(), $this->getUrl());
+        return str_replace(array(':id?', ':?'), $this->getPk(), $this->getUrl());
     }
 
     public function setUrl($url)

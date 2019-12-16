@@ -65,6 +65,7 @@ class Remove extends \Component\Action\Action
 
     public function execute()
     {
+        \App::dontChangeUrl();
         $confirmed = \DataHandle\Request::get('confirmed');
 
         if (!$this->getIdentifier())

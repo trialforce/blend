@@ -673,6 +673,7 @@ select[readonly]
     padding: 2px;
     box-sizing: border-box;
     min-height: 58px;
+    height: 40px;
 }
 
 .grid-tr-detail-column-label {
