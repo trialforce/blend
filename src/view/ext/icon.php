@@ -14,12 +14,13 @@ class Icon extends \View\I
      * @param string $id the id (optional)
      * @param string $onClick the on click (optional)
      */
-    public function __construct($icon, $id = NULL, $onClick = NULL)
+    public function __construct($icon, $id = NULL, $onClick = NULL, $extraClass = NULL)
     {
         //FIXME still needed?
         $icon = str_replace('cancel', 'times', $icon);
 
         parent::__construct($id, null, 'fa fa-' . $icon);
+        $this->addClass($extraClass);
 
         if ($onClick)
         {

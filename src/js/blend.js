@@ -1,4 +1,4 @@
-/* global CKEDITOR */
+/* global CKEDITOR, shortcut */
 
 "use strict";
 //handle the back and forward buttons
@@ -27,23 +27,6 @@ if (typeof $ == 'function')
     });
 }
 
-/*window.popstate = function (event)
-{
-    var href = window.location.href;
-    avoidUrlRegister = true;
-    console.log(href);
-    p(href, true);
-};*/
-
-//destroy popup on esc
-document.keyup = function (e)
-{
-    if (e.which === 27)
-    {
-        popup('destroy');
-    }
-};
-
 //Loading without ajax
 window.onload =  function ()
 {
@@ -63,8 +46,17 @@ window.onload =  function ()
             }
         });
     };
+    
+    //destroy popup on esc
+    document.keyup = function (e)
+    {
+        console.log('esc');
+        if (e.which === 27)
+        {
+            popup('destroy');
+        }
+    };
 };
-
 
 //polyfill to old browser
 function startsWith(originalString, searchString)
@@ -945,7 +937,8 @@ function removeDataInvalid()
  * @param duration int.
  * @returns Boolean false.
  */
-function toast(msg, type, duration) {
+function toast(msg, type, duration)
+{
     duration = duration === undefined ? 3000 : duration;
     $("<div class='toast " + type + "'>" + msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
             .appendTo('body')
@@ -1219,10 +1212,12 @@ var maskCNPJCPF = function (input, e, currentField, options)
     if (str.length > 11)
     {
         return '99.999.999/9999-99';
-    } else if (str.length > 8)
+    }
+    else if (str.length > 8)
     {
         return '999.999.999-999999';
-    } else
+    } 
+    else
     {
         return '999999999999999999';
     }
@@ -1233,7 +1228,8 @@ var maskDateTime = function (input, e, currentField, options)
     if (input.length > 9)
     {
         return '99/99/9999 99:99:99';
-    } else
+    } 
+    else
     {
         return '99/99/9999';
     }
@@ -1335,7 +1331,8 @@ function openSubMenu(element)
     if (submenu.css('display') == 'block')
     {
         submenu.stop().slideUp('fast');
-    } else
+    } 
+    else
     {
         submenu.stop().slideDown('fast');
     }
@@ -1348,7 +1345,8 @@ function cropCanvas(imgSrc, aspectRatio)
     $('#crop-image-handler').attr('src', imgSrc);
     $('#imageHandlerHref').val(imgSrc);
 
-    jQuery(function ($) {
+    jQuery(function ($) 
+    {
         // Create variables (in this scope) to hold the API and image size
         var jcrop_api,
                 boundx,
@@ -1432,7 +1430,8 @@ function addScriptOnce(src, callBack)
         script.src = src;
         script.onload = callBack;
         document.getElementsByTagName('body')[0].appendChild(script);
-    } else
+    } 
+    else
     {
         callBack();
     }
@@ -1543,6 +1542,10 @@ function preparaVer()
                 //$(this).attr('readonly', 'readonly');
             }
     );
+    
+    //add support for autocomplete/combo input
+    //TODO avoid setimeout
+    setTimeout(function(){$('.labelValue').attr('disabled', 'disabled')},100);
 }
 
 function setCookie(variable, value)
