@@ -42,7 +42,7 @@ class Crud extends \Page\Page
     {
         if (is_null($model))
         {
-            $class = '\Model\\' . str_replace('Page\\', '', get_class($this));
+            $class = str_replace('Page\\', '\Model\\', get_class($this));
             $model = new $class();
         }
 

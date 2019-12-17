@@ -794,7 +794,7 @@ class Model implements \JsonSerializable
      * @param array $filters
      * @return array
      */
-    public static function remove($filters)
+    public static function remove($filters = null)
     {
         $name = self::getName();
         $where = $name::getWhereFromFilters($filters);
