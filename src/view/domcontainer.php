@@ -243,8 +243,40 @@ class DomContainer implements \Countable
 
     public function addStyle($property, $value = '')
     {
+        $this->removeStyle($property);
         $style = $this->getStyle();
+
+        //if not ends with ;
+        if (strlen($style) > 0 && (substr($style, -strlen($style)) !== ';'))
+        {
+            $style = $style . ';';
+        }
+
         return $this->setAttribute('style', $style . $property . ':' . $value . ';');
+    }
+
+    public function setStyle($style, $value = '')
+    {
+        return $this->setAttribute('style', $style . ':' . $value . ';');
+    }
+
+    public function removeStyle($property)
+    {
+        $style = $this->getStyle();
+        $explode = explode(';', $style);
+
+        foreach ($explode as $idx => $comparision)
+        {
+            if ($comparision == $property)
+            {
+                unset($explode[$idx]);
+            }
+        }
+
+        $style = implode(';', $explode);
+        $this->setStyle($style);
+
+        return $this;
     }
 
     public function css($property, $value = NULL)
@@ -745,12 +777,7 @@ class DomContainer implements \Countable
     public function parent()
     {
 
-    return new \View\DomContainer($this->parentNode);
-
-
-
-
-
-}
+        return new \View\DomContainer($this->parentNode);
+    }
 
 }

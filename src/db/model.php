@@ -325,6 +325,11 @@ class Model implements \JsonSerializable
      */
     public static function parseSearchColumnWhere($filters, $className)
     {
+        if (!$className)
+        {
+            return $filters;
+        }
+
         if (!is_array($filters))
         {
             $filters = array($filters);
