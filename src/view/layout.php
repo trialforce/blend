@@ -356,6 +356,14 @@ class Layout extends \View\Document
         return $script;
     }
 
+    /**
+     * Add a javascript file in the end of page
+     *
+     * @param string $src source url
+     * @param string $id script id
+     * @param boolean $async async or not
+     * @return \View\Script
+     */
     function addScriptEnd($src, $id = NULL, $async = TRUE)
     {
         $newSrc = $this->getScriptFile($src);
@@ -517,7 +525,8 @@ class Layout extends \View\Document
     public static function optimizeHtml($html)
     {
         //remove comments
-        $html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
+        //$html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
+        $html = preg_replace('/<!--(.|\s)*?-->/', '', $html);
         //trim all lines
         $html = implode(PHP_EOL, array_map('trim', explode(PHP_EOL, $html)));
         //breaks script in other tag
