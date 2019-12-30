@@ -327,7 +327,7 @@ class Column
     public function getReferenceModelClass()
     {
         //if allready has  "model" in string, use it
-        if (stripos($this->referenceTable, 'model'))
+        if (stripos($this->referenceTable, '\model') === 0)
         {
             $modelClass = $this->referenceTable;
         }
