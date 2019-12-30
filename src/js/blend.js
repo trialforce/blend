@@ -1770,9 +1770,10 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
         dictDefaultMessage : 'Arraste arquivos ou clique para upload',
         init: function()
         {
-            this.on("queuecomplete", function (file) {
-            p( pageName + '/updateImages');
-          })
+            this.on("queuecomplete", function (file) 
+            {
+                  p( pageName + '/updateImages');
+            });
         }
     });
 }
