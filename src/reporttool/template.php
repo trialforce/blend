@@ -202,6 +202,7 @@ class Template
     public function execute()
     {
         $this->content = $this->replaceContentParams($this->content);
+        $this->content = $this->replaceGlobalEvals($this->content);
 
         $dataSources = $this->getDataSources();
 
@@ -597,6 +598,40 @@ class Template
                 $origim[] = '{$param[' . "'" . $param . '\']}';
 
                 $content = str_replace($origim, $value, $content);
+            }
+        }
+
+
+
+        return $content;
+    }
+
+    /**
+     * Replace global evals
+     *
+     * @global array $rGlobal
+     * @param string $content
+     * @return string
+     */
+    public function replaceGlobalEvals($content)
+    {
+        global $rGlobal;
+        $matches = null;
+        $regexp = '/\${(.*)}/uUmi';
+        preg_match_all($regexp, $content, $matches);
+
+        if (is_array($matches[0]))
+        {
+            foreach ($matches[0] as $idx => $item)
+            {
+                $original = $item;
+                $expression = html_entity_decode($matches[1][$idx]);
+
+                ob_start();
+                eval('echo (' . $expression . ');');
+                $result = ob_get_contents();
+                ob_end_clean();
+                $content = str_replace($original, $result, $content);
             }
         }
 
