@@ -207,6 +207,9 @@ class UserAgent
         'Google-Site-Verification', //google site verification, developer tools
         'Google-AdWords-Express', //googe adworss
         'Google-Adwords-Instant', //google adwords
+        'Google-Structured-Data-Testing-Tool', //google adwords
+        'Chrome-Lighthouse', //google adwords
+        'Google-speakr', //google adwords
         'W3C_Validator', //W3c Validator
         'DowntimeDetector', //http://downforeveryoneorjustme.com
         'facebook', //http://facebook.com
@@ -226,7 +229,9 @@ class UserAgent
         'DuckDuckGo', //search engine
         'Microsoft Windows Network Diagnostics',
         'Microsoft Office Protocol Discovery',
-        'Yahoo Link Preview'
+        'Microsoft-WebDAV-MiniRedir',
+        'Yahoo Link Preview',
+        'Yahoo Ad monitoring'
     );
 
     /**
@@ -238,6 +243,7 @@ class UserAgent
         'ltx71',
         'WebIndex',
         'Googlebot',
+        'Discordbot',
         'python', //python default user agent
         'php', //php default user agent
         'Go-http-client', //go default user agent (google)
@@ -306,6 +312,81 @@ class UserAgent
         'AnyEvent',
         'Netcraft',
         'memoryBot',
+        'Jakarta',
+        'bitlybot',
+        'SurdotlyBot',
+        'TweetmemeBot',
+        'SMTBot',
+        'GarlikCrawler',
+        'VelenPublicWebCrawler',
+        'ia_archiver',
+        'Grammarly',
+        'unfurlist',
+        'Scrapy',
+        'Java',
+        'ExtLinksBot',
+        'dcrawl',
+        'ShortLinkTranslate',
+        'DnyzBot',
+        'crawler4j ',
+        'Genieo',
+        'Codewisebot',
+        'BUbiNG',
+        'Traackr.com',
+        'SetCronJob',
+        'WhatCMSBot',
+        'Barkrowler',
+        'MauiBot',
+        'Jetty',
+        'Sideqik',
+        'Telesphoreo',
+        'ZmEu',
+        'Jersey',
+        'VoluumDSP',
+        'Microsoft Office Word 2013',
+        'Cliqzbot',
+        'SEC test agent',
+        'Atomic_Lead_Extractor',
+        'YandexAntivirus',
+        'tracemyfile',
+        'Linguee Bot',
+        'Cliqzbot',
+        'MaxPointCrawler',
+        'Sogou web spider',
+        'sysscan',
+        'masscan',
+        'fasthttp',
+        'crawler',
+        'scanner',
+        'Qwantify',
+        'serpstatbot',
+        'MixnodeCache',
+        'Puffin',
+        'node-fetch',
+        'coccocbot-web',
+        'Nimbostratus-Bot',
+        'coccocbot-web',
+        'KOCMOHABT',
+        'DomainStatsBot',
+        'ActionExtension',
+        'CFNetwork',
+        'ZoomInformation Bot',
+        'CrowdTanglebot',
+        'DivulgaMais',
+        'DaaS.sh',
+        'PocketParser',
+        'DragonFly',
+        'PocketParser',
+        'sqlmap',
+        'Nmap',
+        'SiteLockSpider',
+        'AwarioSmartBot',
+        'Vimprobable',
+        'Iframely',
+        'Project 25499',
+        'Cloud mapping experiment',
+        'BDCbot',
+        'applebot',
         'Baiduspider');
 
     /**
@@ -324,9 +405,19 @@ class UserAgent
             $userAgent = $_SERVER['HTTP_USER_AGENT'];
         }
 
-        if (trim($userAgent))
+        $this->userAgent = trim($userAgent);
+
+        //? or useragent less then 20 characters is allways bot
+        if ($this->userAgent == '?' || strlen($this->userAgent) < 20)
         {
-            $this->userAgent = $userAgent;
+            $this->platform = self::PLATFORM_BOT;
+            $this->developer = self::PLATFORM_BOT;
+            $this->completeName = 'Unknown';
+            $this->ubname = 'Unknown';
+            $this->name = 'Unknown';
+        }
+        else if (trim($userAgent))
+        {
             $this->parsePlatform();
             $this->parseBrowser();
             $this->parseVersion();
@@ -366,15 +457,6 @@ class UserAgent
 
                 return;
             }
-        }
-
-        if ($this->userAgent == '?')
-        {
-            $this->platform = self::PLATFORM_BOT;
-            $this->developer = self::PLATFORM_BOT;
-            $this->completeName = 'Unknown';
-            $this->ubname = 'Unknown';
-            $this->name = 'Unknown';
         }
     }
 
