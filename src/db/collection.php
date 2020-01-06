@@ -357,6 +357,9 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             foreach ($array as $item)
             {
+                $vValue = null;
+                $vKey = null;
+
                 //array
                 if (is_array($item))
                 {

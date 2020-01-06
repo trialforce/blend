@@ -6,7 +6,7 @@ namespace Db\Column;
  * Search Column in a father
  * Uses subselect
  */
-class FatherSearch extends \Db\Column\Search
+class FatherSearch extends \Db\Column\Column
 {
 
     /**

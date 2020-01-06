@@ -39,7 +39,7 @@ class Where implements \Db\Filter
     {
         $param = trim($param);
         $haveIs = stripos($param, 'IS') === 0;
-        $hasValue = $value || $value == '0' || $value == 0;
+        $hasValue = $value || $value === '0' || $value === 0;
 
         //support two parameters
         if (!$hasValue && $param && !$haveIs)

@@ -65,7 +65,6 @@ window.onload =  function ()
     };
 };
 
-
 //polyfill to old browser
 function startsWith(originalString, searchString)
 {
@@ -872,11 +871,12 @@ function getJson(page, formData, showLoading, callBack)
         },
         success: function (response)
         {
-            if (typeof response.script == 'string')
+            if (response && typeof response.script == 'string')
             {
                 response.script.replace('\\\"', '\\"');
                 $('body').append('<script>' + response.script + '</script>');
-            } else
+            } 
+            else
             {
                 callBack(response);
             }
