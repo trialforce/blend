@@ -147,8 +147,9 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
      *
      * @throws Exception
      */
-    public function validateOrThrow($value)
+    public function validateOrThrow($value = null)
     {
+        $value = $value ? $value : $this->getValue();
         $error = $this->validate($value);
 
         if (isset($error[0]))

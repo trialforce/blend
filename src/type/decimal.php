@@ -30,7 +30,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
 
         $this->setValue($value);
 
-        if (!$decimals)
+        if (!($decimals || $decimals === 0))
         {
             $decimals = 2;
         }

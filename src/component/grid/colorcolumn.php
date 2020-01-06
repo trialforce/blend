@@ -21,7 +21,10 @@ class ColorColumn extends \Component\Grid\Column
         $color = new \View\Div('color' . $line, NULL, 'colorColumn');
         $color->css('background-color', $value);
 
-        $td->addClass('colorColumn');
+        if ($td)
+        {
+            $td->addClass('colorColumn');
+        }
 
         return $color;
     }

@@ -42,7 +42,7 @@ class Crud extends \Page\Page
     {
         if (is_null($model))
         {
-            $class = '\Model\\' . str_replace('Page\\', '', get_class($this));
+            $class = str_replace('Page\\', '\Model\\', get_class($this));
             $model = new $class();
         }
 
@@ -325,8 +325,16 @@ class Crud extends \Page\Page
     {
         $actions = array();
 
-        $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
-        $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+        if ($this->verifyPermission('editar'))
+        {
+            $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
+            $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+        }
+        else
+        {
+            $editar = new \Component\Action\Page($this->getPageUrl(), 'ver', $this->getModel()->getId(), 'edit', 'Ver');
+            $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+        }
 
         $actions[] = $editar;
 

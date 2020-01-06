@@ -86,7 +86,10 @@ class LinkColumn extends \Component\Grid\Column
         }
         else
         {
-            $value[] = $this->getLabel();
+            if (count($value) == 0)
+            {
+                $value[] = $this->getLabel();
+            }
         }
 
         $url = $this->replaceDataInString($this->getUrl(), $item);

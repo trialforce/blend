@@ -50,7 +50,7 @@ function blend_shutdown()
         Log::error($friendlyType, $error['message'], $error['line'], $error['file']);
 
         //don't inform user of notices e warnings
-        if ($error['type'] == E_NOTICE || $error['type'] == E_USER_NOTICE || $error['type'] == E_USER_WARNING || $error['type'] == E_WARNING || $error['type'] == E_CORE_WARNING)
+        if ($error['type'] == E_NOTICE || $error['type'] == E_USER_NOTICE || $error['type'] == E_USER_WARNING || $error['type'] == E_WARNING || $error['type'] == E_CORE_WARNING || $error['type'] == E_DEPRECATED)
         {
             return;
         }

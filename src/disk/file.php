@@ -438,6 +438,7 @@ class File implements \JsonSerializable
 
     /**
      * Return the url for the file
+     * @todo need a full refactor, its a crap legacy code
      *
      * @return string
      */

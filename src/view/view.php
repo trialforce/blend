@@ -443,6 +443,25 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
+     * Prepend like jquery
+     * Method not completed onlye works with view
+     * And not prepared for ajax
+     *
+     * @param mixed $content
+     */
+    public function prepend($content = null)
+    {
+        if ($this->firstChild)
+        {
+            $this->insertBefore($content, $this->firstChild);
+        }
+        else
+        {
+            $this->append($content);
+        }
+    }
+
+    /**
      * Static Append to avoid duplicate code between view and dom container
      *
      * @param \DomElement $element
@@ -464,6 +483,13 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             {
                 self::sAppend($element, $info);
             }
+        }
+        else if ($content instanceof \View\Document)
+        {
+            $content instanceof \View\Document;
+            $firstChild = $content->firstChild;
+            $migratedNode = \View\View::getDom()->importNode($firstChild, true);
+            $element->append($migratedNode);
         }
         //dom container
         else if ($content instanceof \View\DomContainer)
@@ -717,13 +743,49 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function addStyle($property, $value = '')
     {
-        //TODO suportar estilos css diretos e vários estilos ao mesmo tempo
+        $this->removeStyle($property);
         $style = $this->getStyle();
+
+        //if not ends with ;
+        if (strlen($style) > 0 && (substr($style, -strlen($style)) !== ';'))
+        {
+            $style = $style . ';';
+        }
+
+        //TODO suportar estilos css diretos e vários estilos ao mesmo tempo
         parent::setAttribute('style', $style . $property . ':' . $value . ';');
 
         if ($this->getOutputJs())
         {
             \App::addJs($this->getSelector() . ".css('$property','$value');");
+        }
+
+        return $this;
+    }
+
+    public function removeStyle($property)
+    {
+        $style = $this->getStyle();
+
+        if ($style)
+        {
+            $explode = explode(';', $style);
+
+            foreach ($explode as $idx => $comparision)
+            {
+                if ($comparision == $property)
+                {
+                    unset($explode[$idx]);
+                }
+            }
+
+            $style = implode(';', $explode);
+            $this->setStyle($style);
+        }
+
+        if ($this->getOutputJs())
+        {
+            \App::addJs($this->getSelector() . ".css('$property','');");
         }
 
         return $this;
