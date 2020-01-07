@@ -21,9 +21,16 @@ if (typeof $ == 'function')
 {
     $(window).bind('popstate', function (event)
     {
-        var href = window.location.href;
-        avoidUrlRegister = true;
-        p(href, true);
+        if ($('.popup').length > 0 )
+        {
+            popup('destroy');
+            return false;
+        }
+        else
+        {
+            avoidUrlRegister = true;
+            p(window.location.href, true);
+        }
     });
 }
 
@@ -66,13 +73,16 @@ window.onload =  function ()
     }(jQuery));
     
     //destroy popup on esc
-    document.keyup = function (e)
+    $(document).keyup(function(e) 
     {
-        if (e.which === 27)
+        if (e.key === "Escape") 
         {
-            popup('destroy');
+            if ($('.popup').length)
+            {
+                popup('destroy');
+            }
         }
-    };
+    });
 };
 
 //polyfill to old browser
@@ -1003,12 +1013,14 @@ function popup(action, selector)
     {
         $('.makePopupFade').removeClass('popupFaded');
 
-        element.find('.inner').animate({
+        element.find('.inner').animate(
+                {
             opacity: 0,
             width: 0,
             minWidth: 0,
             height: 0,
-        }, 500, function () {
+        }, 500, function () 
+        {
             element.hide();
             //restore style
             $('.inner').removeAttr('style');
@@ -1027,7 +1039,8 @@ function popup(action, selector)
             width: 0,
             minWidth: 0,
             height: 0,
-        }, 300, function () {
+        }, 300, function ()
+        {
             element.remove();
         });
     } 
@@ -1044,7 +1057,8 @@ function popup(action, selector)
             margin: 0,
             width: "100%",
             height: "100%",
-        }, 500, function () {
+        }, 500, function () 
+        {
             element.find('.body').addClass('maximized');
         });
     }
