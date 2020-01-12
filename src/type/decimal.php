@@ -100,7 +100,6 @@ class Decimal implements \Type\Generic, \JsonSerializable
         }
 
         $value = self::treatValue($value);
-
         $this->value = floatval($value);
 
         return $this;

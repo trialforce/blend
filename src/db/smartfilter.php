@@ -2,13 +2,34 @@
 
 namespace Db;
 
+/**
+ * Smart Filter, simulate a "Google", detecting searched string
+ * and database structered data.
+ *
+ * @todo I think this need to be refatored, document and optimized
+ */
 class SmartFilter
 {
 
+    /**
+     * Data type text
+     */
     const DATA_TYPE_TEXT = 'text';
+
+    /**
+     * Data type number
+     */
     const DATA_TYPE_NUMBER = 'number';
+
+    /**
+     * Data type date
+     */
     const DATA_TYPE_DATE = 'date';
-    const DATA_TYPE_UNKNOWN = 'date';
+
+    /**
+     * Data type unknown
+     */
+    const DATA_TYPE_UNKNOWN = 'unknown';
 
     protected $queryString;
     protected $modelClass;
@@ -46,7 +67,7 @@ class SmartFilter
 
     public function getColumns()
     {
-        //get default modle columns if null
+        //get default model columns if null
         if (is_null($this->columns))
         {
             $name = $this->getModelClass();
@@ -186,6 +207,7 @@ class SmartFilter
     {
         $name = $this->getModelClass();
         $columns = $this->getColumns();
+        \Log::debug($columns);
         $explode = explode('=', $filter);
         $columnSearch = '';
 
