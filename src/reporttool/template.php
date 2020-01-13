@@ -206,7 +206,7 @@ class Template
 
         $dataSources = $this->getDataSources();
 
-        if (count($dataSources) > 0)
+        if (isIterable($dataSources) && count($dataSources) > 0)
         {
             foreach ($dataSources as $sectionName => $dataSource)
             {
