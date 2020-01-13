@@ -446,16 +446,7 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
 
-        $groupType = Request::get('group-type');
-
-        if ($groupType)
-        {
-            $grid = $this->getGroupGrid();
-        }
-        else
-        {
-            $grid = $this->getGrid();
-        }
+        $grid = $this->getGrid();
 
         return $grid->gridExportData();
     }

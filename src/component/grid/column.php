@@ -109,6 +109,13 @@ class Column
     protected $filter = TRUE;
 
     /**
+     * Define if this column go to Smart filter column list
+     *
+     * @var boolean
+     */
+    protected $smartFilter = TRUE;
+
+    /**
      * Define the label used in filter
      * @var String
      */
@@ -381,6 +388,17 @@ class Column
     public function getFilter()
     {
         return $this->filter;
+    }
+
+    public function getSmartFilter()
+    {
+        return $this->smartFilter;
+    }
+
+    public function setSmartFilter($smartFilter)
+    {
+        $this->smartFilter = $smartFilter;
+        return $this;
     }
 
     public function getFilterType()

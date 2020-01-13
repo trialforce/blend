@@ -3,7 +3,7 @@
 namespace DataSource;
 
 /**
- * \Db\Model datasource
+ * \Db\Model DataSource.
  * A \Datasource that uses \Db\Model as it's source
  */
 class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
@@ -46,11 +46,22 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $this->model = $model;
     }
 
+    /**
+     * Return if is to use all columns or only DataSource coluns in search
+     *
+     * @return bool
+     */
     public function getUseColumnsForSearch()
     {
         return $this->useColumnsForSearch ? true : false;
     }
 
+    /**
+     * Define ifs is to use only DataSource columns or all columns, for search
+     *
+     * @param bool $useColumnsForSearch
+     * @return $this
+     */
     public function setUseColumnsForSearch($useColumnsForSearch)
     {
         $this->useColumnsForSearch = $useColumnsForSearch;
@@ -106,6 +117,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      */
     public function getData()
     {
+        \Log::setLogSqlConsole(true);
         if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
@@ -118,12 +130,32 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             else
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columns);
+                $columnsFilter = $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
                 $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
             }
         }
 
         return $this->data;
+    }
+
+    private function filterOnlySmartSearchableColumns($columns)
+    {
+        $dsColumns = $this->getColumns();
+        $result = array();
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Db\Column\Column;
+            $dsColumn = isset($dsColumns[$column->getName()]) ? $dsColumns[$column->getName()] : null;
+
+            if ($dsColumn instanceof \Component\Grid\Column && $dsColumn->getSmartFilter())
+            {
+                $result[$column->getName()] = $column;
+            }
+        }
+
+        return $result;
     }
 
     /**
