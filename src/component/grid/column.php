@@ -194,7 +194,14 @@ class Column
      */
     public function getSafeName()
     {
-        return \Type\Text::get($this->name)->toFile('-')->toHuman();
+        $text = \Type\Text::get($this->name);
+
+        $text->toASCII();
+        $text->toLower();
+        $text->replace(array(' ', '.', ':', '/', '\\', '\'', '"', '[', ']', '='), $space);
+        $text->replace(array('?', '!', '(', ')', ',', '+', '%', '|'), '');
+
+        return $text->toHuman();
     }
 
     /**
