@@ -117,7 +117,6 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
      */
     public function getData()
     {
-        \Log::setLogSqlConsole(true);
         if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
