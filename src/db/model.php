@@ -1108,7 +1108,7 @@ class Model implements \JsonSerializable
      */
     public function __toString()
     {
-        return $this->getOptionLabel();
+        return $this->getOptionLabel() . '';
     }
 
     public function getTitleLabel()
