@@ -27,6 +27,10 @@ table {
     width: 100%;
 }
 
+tr:nth-child(even) {
+  background-color: #ddd;
+}
+
 /*make persiste througtn pages*/
 thead
 {
@@ -110,7 +114,6 @@ p {
      */
     public static function generate(\DataSource\DataSource $dataSource, $reportColumns = NULL)
     {
-        //$filterString = self::getFilterString($dataSource);
         $filterString = '';
         $dataSource = \DataSource\Export\Csv::filterColumns($dataSource, $reportColumns);
         $columns = $dataSource->getColumns();
@@ -137,7 +140,7 @@ p {
         new \View\Html(array($head, $body));
 
         $data = $dataSource->getData();
-        $tableContent[] = new \View\THead(NULL, self::generateTh());
+        $tableContent[] = new \View\THead(NULL, self::generateTh($columns));
         $tableContent[] = new \View\TBody(NULL, self::generateData($dataSource, $domOriginal, $layout));
 
         $table = new \View\Table('table', $tableContent);
@@ -181,11 +184,6 @@ p {
                         continue;
                     }
 
-                    //restore original to locate things, used in group export
-                    //\View\View::setDom($domOriginal);
-                    //$value = \DataSource\Grab::getUserValue($column, $model);
-                    //\View\View::setDom($layout);
-
                     $myValue = $conditionValue . $filterValue . ' ';
                 }
 
@@ -207,7 +205,7 @@ p {
         return $html;
     }
 
-    protected function generateTh($columns)
+    protected static function generateTh($columns)
     {
         $th = null;
 
