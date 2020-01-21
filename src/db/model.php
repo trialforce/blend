@@ -571,17 +571,8 @@ class Model implements \JsonSerializable
             $columns = $name::getColumns();
         }
 
-        $columnNameSql = self::getColumnsForFind($columns);
         $catalog = $name::getCatalogClass();
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
-        $columnsString = $catalog::implodeColumnNames($columnNameSql);
-
-        $groupBy = NULL;
-
-        if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
-        {
-            $groupBy = $columnsString;
-        }
 
         $columnsAggregation = NULL;
 
@@ -590,17 +581,9 @@ class Model implements \JsonSerializable
             $columnsAggregation[] = $query . ' as aggregation' . $columnName;
         }
 
-        //FIXME is this still needed?
-        if ($forceExternalSelect)
-        {
-            $columns = $columnsString;
-        }
-        else
-        {
-            $columns = implode(',', $columnsAggregation) . ', ' . $columnsString;
-        }
+        $columns = implode(',', $columnsAggregation);
 
-        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, $groupBy, NULL);
+        $sql = $catalog::mountSelect($tableName, $columns, $where->getSql(), NULL, NULL, NULL, NULL);
 
         if ($forceExternalSelect)
         {
@@ -1125,7 +1108,7 @@ class Model implements \JsonSerializable
      */
     public function __toString()
     {
-        return $this->getOptionLabel();
+        return $this->getOptionLabel() . '';
     }
 
     public function getTitleLabel()

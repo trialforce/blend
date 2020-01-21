@@ -6,7 +6,7 @@ namespace DataSource;
  * \Db\Model DataSource.
  * A \Datasource that uses \Db\Model as it's source
  */
-class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
+class Model extends DataSource
 {
 
     /**
@@ -86,7 +86,9 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             }
             else
             {
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
             }
 
             $this->count = $model->count($filters);
@@ -129,7 +131,7 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             else
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-                $columnsFilter = $this->filterOnlySmartSearchableColumns($columns);
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
                 $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
                 $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
             }
@@ -192,26 +194,28 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     {
         $model = $this->model;
         $connInfoType = $model->getConnInfo()->getType();
-        $forceExternalSelect = FALSE;
         $querys = NULL;
 
         foreach ($aggregators as $agg)
         {
             $method = $agg->getMethod();
-            $sqlColumn = $agg->getColumnName();
             $column = $model->getColumn($agg->getColumnName());
+            $sqlColumn = $agg->getColumnName();
 
             if (!$column)
             {
                 continue;
             }
 
+            $subquery = $column->getSql();
+
             if ($column instanceof \Db\Column\Search)
             {
-                $forceExternalSelect = TRUE;
+                $referenceSql = $column->getSql(FALSE);
+                $subquery = $referenceSql[0];
             }
 
-            $subquery = $method . '( ' . $sqlColumn . ' )';
+            $subquery = $method . '( ' . $subquery . ' )';
 
             if (!$column)
             {
@@ -225,12 +229,26 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
             $querys[$sqlColumn] = $subquery;
         }
+        //var_dump($querys);
 
         $parseResult = NULL;
 
         if (!empty($querys))
         {
-            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+
+            //programatelly callback
+            $filters = NULL;
+            if ($this->getSmartFilterCallback())
+            {
+                $filters = $this->getSmartFilter();
+            }
+            else
+            {
+                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+            }
+
             $result = $model->aggregations($filters, $querys, $forceExternalSelect);
 
             if ($result)
@@ -285,7 +303,19 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
         }
 
-        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+        //programatelly callback
+        $filters = NULL;
+        if ($this->getSmartFilterCallback())
+        {
+            $filters = $this->getSmartFilter();
+        }
+        else
+        {
+            $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+            $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+        }
+
         $result = $model->aggregation($filters, $query, $forceExternalSelect);
 
         if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME)
@@ -395,16 +425,6 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         }
 
         return $gridColumn;
-    }
-
-    public function listAvoidPropertySerialize()
-    {
-        $avoid[] = 'data';
-        $avoid[] = 'count';
-        $avoid[] = 'page';
-        $avoid[] = 'paginationLimit';
-
-        return $avoid;
     }
 
 }

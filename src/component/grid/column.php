@@ -198,7 +198,7 @@ class Column
 
         $text->toASCII();
         $text->toLower();
-        $text->replace(array(' ', '.', ':', '/', '\\', '\'', '"', '[', ']', '='), $space);
+        $text->replace(array(' ', '.', ':', '/', '\\', '\'', '"', '[', ']', '='), '-');
         $text->replace(array('?', '!', '(', ')', ',', '+', '%', '|'), '');
 
         return $text->toHuman();
