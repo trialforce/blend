@@ -28,7 +28,7 @@ table {
 }
 
 tr:nth-child(even) {
-  background-color: #ddd;
+  background-color: #ededed;
 }
 
 /*make persiste througtn pages*/
@@ -207,6 +207,7 @@ p {
 
     protected static function generateTh($columns)
     {
+        $typesRight = self::getTypesRight();
         $th = null;
 
         //list only export columns
@@ -214,7 +215,7 @@ p {
         {
             $th[] = $myTh = new \View\Th(NULL, $column->getLabel());
 
-            if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL)))
+            if (in_array($column->getType(), $typesRight))
             {
                 $myTh->addClass('alignRight');
             }
@@ -251,6 +252,17 @@ p {
         return $title;
     }
 
+    public static function getTypesRight()
+    {
+        $typesRight = array();
+        $typesRight[] = \Db\Column\Column::TYPE_INTEGER;
+        $typesRight[] = \Db\Column\Column::TYPE_DECIMAL;
+        $typesRight[] = \Db\Column\Column::TYPE_DATETIME;
+        $typesRight[] = \Db\Column\Column::TYPE_DATE;
+
+        return $typesRight;
+    }
+
     protected static function getLogo()
     {
         $logoPath = \DataHandle\Config::get('logoPath');
@@ -267,6 +279,7 @@ p {
 
     protected static function generateData(\DataSource\DataSource $dataSource, $domOriginal, $layout)
     {
+        $typesRight = self::getTypesRight();
         $data = $dataSource->getData();
         $columns = $dataSource->getColumns();
         $beforeGridExportRow = $domOriginal instanceof \Page\BeforeGridExportRow;
@@ -284,13 +297,14 @@ p {
 
                 foreach ($columns as $column)
                 {
+                    $column instanceof \Component\Grid\Column;
                     //restore original to locate things, used in group export
                     \View\View::setDom($domOriginal);
                     $value = \DataSource\Grab::getUserValue($column, $model);
                     \View\View::setDom($layout);
                     $td[] = $myTd = new \View\Td(NULL, $value);
 
-                    if (in_array($column->getType(), array(\Db\Column\Column::TYPE_INTEGER, \Db\Column\Column::TYPE_DECIMAL, \Db\Column\Column::TYPE_DATETIME, \Db\Column\Column::TYPE_DATE)))
+                    if (in_array($column->getType(), $typesRight))
                     {
                         $myTd->addClass('alignRight');
                     }
