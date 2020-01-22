@@ -207,15 +207,8 @@ class Model extends DataSource
                 continue;
             }
 
-            $subquery = $column->getSql();
-
-            if ($column instanceof \Db\Column\Search)
-            {
-                $referenceSql = $column->getSql(FALSE);
-                $subquery = $referenceSql[0];
-            }
-
-            $subquery = $method . '( ' . $subquery . ' )';
+            $referenceSql = $column->getSql(FALSE);
+            $subquery = $method . '( ' . $referenceSql[0] . ' )';
 
             if (!$column)
             {
@@ -229,7 +222,6 @@ class Model extends DataSource
 
             $querys[$sqlColumn] = $subquery;
         }
-        //var_dump($querys);
 
         $parseResult = NULL;
 
@@ -249,7 +241,7 @@ class Model extends DataSource
                 $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
             }
 
-            $result = $model->aggregations($filters, $querys, $forceExternalSelect);
+            $result = $model->aggregations($filters, $querys);
 
             if ($result)
             {
