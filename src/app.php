@@ -138,8 +138,10 @@ class App
 
         if ($content)
         {
-            $this->handleResult($content);
+            return $this->handleResult($content);
         }
+
+        return false;
     }
 
     public function handleResult($content)
@@ -170,6 +172,8 @@ class App
         {
             echo App::prepareResponse(Config::getDefault('response', 'content'), $content);
         }
+
+        return true;
     }
 
     /**
