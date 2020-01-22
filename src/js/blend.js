@@ -169,7 +169,7 @@ function dataAjax()
             return;
         }
 
-        //mask as converted
+        //mark as converted
         element.attr('data-on-press-enter-converted', "1");
         element.keydown(
                 function (e)
@@ -263,9 +263,12 @@ function dataAjax()
     });
 
     //make masks work
-    $("input[data-mask]").each(function () {
-        $(this).mask($(this).attr("data-mask"));
-    });
+    if (typeof jQuery().mask == 'function')
+    {
+        $("input[data-mask]").each(function () {
+            $(this).mask($(this).attr("data-mask"));
+        });
+    }
 
     //mask functions
     $("input[data-mask-function]").each(function () {
