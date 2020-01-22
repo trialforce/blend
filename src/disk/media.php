@@ -70,11 +70,11 @@ class Media extends \Disk\File
         //default path
         if (!$path)
         {
-            $appPath = str_replace(array('/', '\\'), DS, APP_PATH);
-            self::setMediaPath($appPath . DS . 'media' . DS);
+            $appPath = str_replace(array('/', '\\'), '/', APP_PATH);
+            self::setMediaPath($appPath . 'media/');
         }
 
-        return str_replace(array('/', '\\'), DS, self::$mediaPath);
+        return str_replace(array('/', '\\', '//'), '/', self::$mediaPath);
     }
 
     /**
@@ -101,7 +101,7 @@ class Media extends \Disk\File
         //default path
         if (!$url)
         {
-            self::setMediaUrl(\DataHandle\Server::getInstance()->getHost() . 'media' . DS);
+            self::setMediaUrl(\DataHandle\Server::getInstance()->getHost() . 'media/');
         }
 
         return self::$mediaUrl;
