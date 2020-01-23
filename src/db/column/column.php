@@ -88,6 +88,12 @@ class Column
     protected $label;
 
     /**
+     * Description ( a more detailed description of the intent of the column )
+     * @var string
+     */
+    protected $description;
+
+    /**
      * Name of the column
      *
      * @var string
@@ -196,16 +202,16 @@ class Column
     protected $validators = NULL;
 
     /**
-     * Construct a column
+     * Create a column
      *
-     * @param string $label
-     * @param string $name
-     * @param string $type
-     * @param int $size
-     * @param boolean $nullable
-     * @param boolean $isPrimaryKey
-     * @param string $defaultValue
-     * @param string $extra
+     * @param string $label the label
+     * @param string $name the column name in database
+     * @param string $type type of the column
+     * @param int $size column size
+     * @param boolean $nullable if is nullable (not required)
+     * @param boolean $isPrimaryKey if is primary key
+     * @param string $defaultValue the default column value
+     * @param string $extra extra parameter to column creation
      *
      * @return \Db\Column\Column
      */
@@ -235,6 +241,16 @@ class Column
     {
         $this->size = $size;
         return $this;
+    }
+
+    /**
+     * Return true if column is required
+     *
+     * @return bool if is required
+     */
+    public function isRequired()
+    {
+        return !$this->nullable;
     }
 
     public function isNullable()
@@ -476,6 +492,27 @@ class Column
     public function setLabel($label)
     {
         $this->label = $label;
+        return $this;
+    }
+
+    /**
+     * Return he detailed description of the column
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Define the detailed description of the column
+     * @param string $description the detailed description of the column
+     * @return $this
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
         return $this;
     }
 

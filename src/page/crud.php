@@ -1071,4 +1071,14 @@ class Crud extends \Page\Page
         }
     }
 
+    public function columnQuestion()
+    {
+        \App::dontChangeUrl();
+        $columnName = $this->getPkValue();
+        $model = $this->getModel();
+        $column = $model->getColumn($columnName);
+
+        \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
+    }
+
 }
