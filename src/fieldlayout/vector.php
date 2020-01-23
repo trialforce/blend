@@ -218,12 +218,12 @@ class Vector
      */
     public function getContain($input, $label, $weight)
     {
-        $input->setLabel($label);
-
         if ($input instanceof \Component\Component)
         {
             $input = $input->onCreate();
         }
+
+        $input->setLabel($label);
 
         $div = new \View\Div('contain_' . $input->getId(), array($label, $input), 'field-contain');
         $input->setContain($div);
