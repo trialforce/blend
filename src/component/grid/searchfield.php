@@ -226,9 +226,7 @@ class SearchField extends \Component\Component
         $saveList = new \Filter\SavedList();
         $json = $saveList->getObject();
 
-        if ( is_object($json) &&
-             ($json instanceof \Countable || is_array($json)) &&
-             count($json) > 0 )
+        if (isCountable($json) && count($json) > 0)
         {
             foreach ($json as $id => $item)
             {
