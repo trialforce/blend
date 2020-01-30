@@ -148,13 +148,8 @@ class DateTime extends \Filter\Text
             //both dates filled
             if ($date->getDay() && $dateFinal->getDay())
             {
-                //filter on by date, without time
-                if ($date->getHour() == 0 && $date->getMinute() == 0 && $date->getSecond() == 0 && $dateFinal->getHour() == 0 && $dateFinal->getMinute() == 0 && $dateFinal->getSecond() == 0)
-                {
-                    $date = new \Type\Date($filterValue);
-                    $dateFinal = new \Type\Date($filterValueFinal);
-                    $columnName = 'DATE(' . $columnName . ')';
-                }
+                $date->setTime(0, 0, 0);
+                $dateFinal->setTime(23, 59, 59);
 
                 $filterValueFinal = \Type\DateTime::get($filterValueFinal);
                 return new \Db\Cond($columnName . ' ' . $conditionValue . ' ? AND ?', array($date->toDb(), $dateFinal->toDb()), $conditionType, $this->getFilterType());
