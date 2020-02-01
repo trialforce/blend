@@ -71,7 +71,7 @@ class Media extends \Disk\File
         if (!$path)
         {
             $appPath = str_replace(array('/', '\\'), '/', APP_PATH);
-            self::setMediaPath($appPath . 'media/');
+            self::setMediaPath($appPath . '/media/');
         }
 
         return str_replace(array('/', '\\', '//'), '/', self::$mediaPath);

@@ -287,10 +287,13 @@ class Grid extends \Component\Component
     public function makeSimple()
     {
         $columns = $this->getColumns();
-
-        foreach ($columns as $column)
+        
+        if ($columns)
         {
-            $column->setOrder(FALSE);
+            foreach ($columns as $column)
+            {
+                $column->setOrder(FALSE);
+            }
         }
 
         $this->setPaginator(' ');

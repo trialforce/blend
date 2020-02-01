@@ -110,6 +110,17 @@ function isIterable($obj)
 }
 
 /**
+ * Verify if an element is an array or implements Countable.
+ * There is a function is_countable, but only in PHP 7.3.
+ * @param mixed $obj
+ * @return bool
+ */
+function isCountable($obj)
+{
+    return $obj instanceof \Countable || is_array($obj);
+}
+
+/**
  * Return an element by it's id
  * Alias function to \View\View::getDom()->byId
  * @param string $id
