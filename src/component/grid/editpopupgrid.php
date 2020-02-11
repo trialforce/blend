@@ -56,6 +56,16 @@ class EditPopupGrid extends \Component\Grid\Grid
     public function setActions($actions)
     {
         $actions = is_array($actions) ? $actions : array();
+        $columns = $this->getColumns();
+
+        //create default editr action, if needed
+        if (isset($columns['id']) && !isset($actions['id']))
+        {
+            $editar = new \Component\Action\Page($this->getPageName(), $this->getEditMethod(), $this->getModel()->getId(), 'edit', 'Editar');
+            $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
+
+            $actionsBefore[] = $editar;
+        }
 
         $url = $this->getRemoveMethod();
 
@@ -67,6 +77,7 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash', 'remover', $url);
         $remove->setRenderInGrid(true);
+
 
         parent::setActions(array_merge($actionsBefore, $actions));
     }

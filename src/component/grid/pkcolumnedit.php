@@ -53,7 +53,7 @@ class PkColumnEdit extends \Component\Grid\EditColumn
             }
         }
 
-        return $content;
+        return new \View\Div(null, $content, 'grid-action-column-holder');
     }
 
 }
