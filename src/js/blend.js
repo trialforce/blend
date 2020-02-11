@@ -1588,7 +1588,7 @@ function preparaVer()
     
     //add support for autocomplete/combo input
     //TODO avoid setimeout
-    setTimeout(function(){$('.labelValue').attr('disabled', 'disabled')},100);
+    setTimeout(function(){$('.labelValue').attr('disabled', 'disabled')},200);
 }
 
 function setCookie(variable, value)
