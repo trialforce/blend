@@ -637,7 +637,7 @@ class QueryBuilder
         {
             if ($where instanceof \Db\Where)
             {
-                if ($where->getParam() == '=')
+                if ($where->getParam() === '=')
                 {
                     $values = $where->getValue();
                     $propertyName = \Db\Column\Column::getRealColumnName($where->getFilter());

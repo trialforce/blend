@@ -115,7 +115,17 @@ class QueryBuilder extends DataSource
         {
             $qBuilder = $this->getQueryBuilderFeeded();
             $qBuilder = clone($qBuilder);
-            $this->count = $qBuilder->aggregation('count(*)');
+
+            $countSql = 'COUNT(*)';
+
+            //TODO verify if it works in all time
+            if ($qBuilder->getGroupBy())
+            {
+                $countSql = 'COUNT(DISTINCT (' . $qBuilder->getGroupBy() . '))';
+                $qBuilder->setGroupBy(NULL);
+            }
+
+            $this->count = $qBuilder->aggregation($countSql);
         }
 
         return $this->count;

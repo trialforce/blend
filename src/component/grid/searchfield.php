@@ -207,6 +207,8 @@ class SearchField extends \Component\Component
         $result[] = $this->createBookmarkMenu();
         $result[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded($filters), 'clearfix');
 
+        //update the filter js
+        \App::addJs("$('.filterCondition').change();");
         //order the list in alpha
         \App::addJs("sortList('#fm-filters');");
 
@@ -226,7 +228,7 @@ class SearchField extends \Component\Component
         $saveList = new \Filter\SavedList();
         $json = $saveList->getObject();
 
-        if (is_object($json) && count($json) > 0)
+        if (isCountable($json) && count($json) > 0)
         {
             foreach ($json as $id => $item)
             {
@@ -268,8 +270,6 @@ class SearchField extends \Component\Component
     protected function createFilterFieldsNeeded($filters)
     {
         $filterContent = null;
-        //update the filter js
-        \App::addJs("$('.filterCondition').change();");
 
         if (is_array($filters))
         {
