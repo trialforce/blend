@@ -1014,27 +1014,35 @@ class Model implements \JsonSerializable
         $columns = $this->getColumns();
         $error = NULL;
 
-        //passa pelas colunas chamando a validação das colunas
+        //pass trough columns calling each validate
         foreach ($columns as $column)
         {
-            if (!$column instanceof \Db\Column\Search)
+            if ($column instanceof \Db\Column\Search)
             {
-                $columnName = $column->getName();
-                $value = $this->getValue($columnName);
+                continue;
+            }
 
-                //pega o valor do banco para validar
-                if ($value instanceof \Type\Generic)
-                {
-                    $value = $value->toDb();
-                }
+            //don't validate auto increment columns
+            if ($column->getExtra() == \Db\Column\Column::EXTRA_AUTO_INCREMENT)
+            {
+                continue;
+            }
 
-                $result = $column->validate($value);
+            $columnName = $column->getName();
+            $value = $this->getValue($columnName);
 
-                if (count($result) > 0)
-                {
-                    //avoid duplicate messages
-                    $error[$columnName] = array_unique($result);
-                }
+            //get the databse value, if necessary
+            if ($value instanceof \Type\Generic)
+            {
+                $value = $value->toDb();
+            }
+
+            $result = $column->validate($value);
+
+            if (count($result) > 0)
+            {
+                //avoid duplicate messages
+                $error[$columnName] = array_unique($result);
             }
         }
 
