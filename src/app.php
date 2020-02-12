@@ -15,16 +15,28 @@ class App
     const RESPONSE_TYPE_APPEND = 'append';
 
     /**
-     *
+     * Current page
      * @var \Page\Page
      */
     protected $page;
+
+    /**
+     * Current theme
+     *
+     * @var string
+     */
+    private static $theme;
 
     /**
      *
      * @var array of string
      */
     protected static $js = array();
+
+    public function getCurrentPageRaw()
+    {
+        return Request::get('p');
+    }
 
     /**
      * Return the current page name based on current URL
@@ -33,7 +45,7 @@ class App
      */
     public function getCurrentPage()
     {
-        $page = Request::get('p');
+        $page = $this->getCurrentPageRaw();
         $module = Request::get('m');
 
         if ($module && $module != 'component')
@@ -77,19 +89,12 @@ class App
         return $page;
     }
 
-    /**
-     * Return the string representantion of theme class
-     *
-     * @return string
-     */
-    public static function getThemeClass()
-    {
-        return Config::getDefault('theme', 'SimpleTheme');
-    }
-
     public function handle()
     {
         $page = $this->getCurrentPage();
+        //create the theme, so we can use it's object in inner layout
+        //it's okay, it's cached
+        $this->getTheme();
 
         //single page
         //FIXME resolve this crappy situation, is used to login
@@ -144,33 +149,70 @@ class App
         return false;
     }
 
-    public function handleResult($content)
+    /**
+     * Return the string representantion of theme class
+     *
+     * @return string
+     */
+    public static function getThemeClass()
     {
+        return Config::getDefault('theme', 'SimpleTheme');
+    }
+
+    /**
+     * Return the current them
+     * 
+     * @return \View\Layout
+     */
+    public static function getTheme()
+    {
+        //ajax request don't get theme
+        if (Server::getInstance()->isAjax())
+        {
+            return null;
+        }
+
+        //get from cache
+        if (self::$theme)
+        {
+            return self::$theme;
+        }
+
         $themeClass = self::getThemeClass();
 
         //if not ajax call on create
-        if (!Server::getInstance()->isAjax() && class_exists($themeClass))
+        if (class_exists($themeClass))
         {
-            $theme = new $themeClass();
-            $theme->onCreate();
+            self::$theme = new $themeClass();
+            self::$theme->onCreate();
         }
-        else
+
+        return self::$theme;
+    }
+
+    public function handleResult(\View\Document $content)
+    {
+        $theme = self::getTheme($content);
+
+        if (!$theme)
         {
             \View\View::setDom($content);
             $theme = $content;
         }
 
-        if (!Server::getInstance()->isAjax())
-        {
-            \View\View::setDom($theme);
+        $defaultResponse = Config::getDefault('response', 'content');
 
-            $theme->appendLayout(Config::getDefault('response', 'content'), $content);
-            $this->addJsToLayout($theme);
-            echo $theme;
+        if (Server::getInstance()->isAjax())
+        {
+            echo App::prepareResponse($defaultResponse, $content);
         }
         else
         {
-            echo App::prepareResponse(Config::getDefault('response', 'content'), $content);
+            \View\View::setDom($theme);
+
+            $theme->appendLayout($defaultResponse, $content);
+            $this->addJsToLayout($theme);
+            echo $theme;
         }
 
         return true;
