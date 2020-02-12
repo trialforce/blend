@@ -119,13 +119,13 @@ class Document extends \DomDocument implements \Countable
     /**
      * Coloca um layout dentro do outro
      *
-     * @param type $primaryElementId
-     * @param \View\Document $domInner
+     * @param string $primaryElementId
+     * @param \View\Document $domInner \View\DomDocument or string
      * @throws \Exception
      */
-    public function appendLayout($primaryElementId, \View\Document $domInner)
+    public function appendLayout($primaryElementId, $domInner)
     {
-        //elemento do layout principal
+        //element of main/base layout
         $primaryContent = $this->getElementById($primaryElementId);
 
         if ($primaryContent instanceof \View\DomContainer)
@@ -133,43 +133,32 @@ class Document extends \DomDocument implements \Countable
             $primaryContent = $primaryContent->getDomElement();
         }
 
-        //quando o layout for criado via programação acessa o primeiro filho
-        $innerContent = $domInner->firstChild;
-
-        //para o caso de ser criado via html
-        if ($innerContent instanceof \DOMDocumentType)
+        if (is_string($primaryContent))
         {
-            $html = $domInner->childNodes->item(1);
-            $body = $html->childNodes->item(0);
-            $innerContent = $body->childNodes->item(0);
+            $primaryContent->append($domInner);
+            return $this;
         }
 
-        //Quando não tiver nenhum conteúdo no layout não importa nada.
-        if (!$innerContent)
+        if ($domInner instanceof \View\Document)
         {
-            return FALSE;
-        }
+            //quando o layout for criado via programação acessa o primeiro filho
+            $innerContent = $domInner->firstChild;
 
-        $innerContentMig = $this->importNode($innerContent, true); //importa o nodo
+            //para o caso de ser criado via html
+            if ($innerContent instanceof \DOMDocumentType)
+            {
+                $html = $domInner->childNodes->item(1);
+                $body = $html->childNodes->item(0);
+                $innerContent = $body->childNodes->item(0);
+            }
 
-        if ($primaryContent && $innerContentMig)
-        {
-            $primaryContent->appendChild($innerContentMig);
-        }
-        else
-        {
-            $this->append($innerContentMig);
-        }
+            //Quando não tiver nenhum conteúdo no layout não importa nada.
+            if (!$innerContent)
+            {
+                return FALSE;
+            }
 
-        if (isset($innerContent->nextSibling))
-        {
-            $nodeToImport = $innerContent->nextSibling;
-        }
-
-        //importa outros nodos
-        while (isset($nodeToImport))
-        {
-            $innerContentMig = $this->importNode($nodeToImport, TRUE);
+            $innerContentMig = $this->importNode($innerContent, true); //importa o nodo
 
             if ($primaryContent && $innerContentMig)
             {
@@ -180,8 +169,30 @@ class Document extends \DomDocument implements \Countable
                 $this->append($innerContentMig);
             }
 
-            $nodeToImport = $nodeToImport->nextSibling;
+            if (isset($innerContent->nextSibling))
+            {
+                $nodeToImport = $innerContent->nextSibling;
+            }
+
+            //import others nodes
+            while (isset($nodeToImport))
+            {
+                $innerContentMig = $this->importNode($nodeToImport, TRUE);
+
+                if ($primaryContent && $innerContentMig)
+                {
+                    $primaryContent->appendChild($innerContentMig);
+                }
+                else
+                {
+                    $this->append($innerContentMig);
+                }
+
+                $nodeToImport = $nodeToImport->nextSibling;
+            }
         }
+
+        return $this;
     }
 
     /**
