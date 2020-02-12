@@ -187,7 +187,7 @@ class SearchField extends \Component\Component
         $pageUrl = \View\View::getDom()->getPageUrl();
         $dbModel = $this->getDbModel();
 
-        $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$("#fm-filters").toggle(\'fast\');');
+        $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
