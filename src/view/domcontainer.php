@@ -166,9 +166,15 @@ class DomContainer implements \Countable
         return $this->getAttribute('class');
     }
 
-    public function addClass($class)
+    /**
+     * Add a css class to element
+     * 
+     * @param string $classToAdd class to add to element
+     * @return $this
+     */
+    public function addClass($classToAdd)
     {
-        $class = $this->getClass();
+        $class = $this->getClass() . '';
         $classes = func_get_args();
 
         foreach ($classes as $var)
