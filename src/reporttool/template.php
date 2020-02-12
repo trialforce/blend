@@ -202,6 +202,7 @@ class Template
     public function execute()
     {
         $this->content = $this->replaceContentParams($this->content);
+        $originalContent = $this->content;
         $this->content = $this->replaceGlobalEvals($this->content);
 
         $dataSources = $this->getDataSources();
@@ -214,7 +215,8 @@ class Template
                 //stores for further use
                 $this->data[$sectionName] = $data;
                 $columns = $dataSource->getColumns();
-                $sectionContent = $this->getContentForSection($sectionName);
+                $sectionContent = $this->getContentForSection($sectionName, $originalContent);
+                $sectionContentReplace = $this->getContentForSection($sectionName, $this->content);
                 $result = '';
 
                 if (count($data) > 0)
@@ -225,7 +227,7 @@ class Template
                     }
                 }
 
-                $this->content = str_replace($sectionContent, $result, $this->content);
+                $this->content = str_replace($sectionContentReplace, $result, $this->content);
             }
         }
 
@@ -258,13 +260,13 @@ class Template
      *
      * @return string
      */
-    public function getContentForSection($section)
+    public function getContentForSection($section, $originalContent)
     {
         $pattern = '/<!--' . $section . '-->.*<!--[!]' . $section . '-->/uis';
         $matches = '';
 
         //locate the part of content of this datasource
-        preg_match_all($pattern, $this->content, $matches);
+        preg_match_all($pattern, $originalContent, $matches);
 
         $sectionContent = NULL;
 
@@ -330,6 +332,7 @@ class Template
     protected function replaceOneItem($item, $columns, $sectionContent, $sectionName)
     {
         $myResult = $sectionContent;
+        $myResult = $this->makeExpressions($item, null, $sectionContent);
 
         //passes trough each column of model
         foreach ($columns as $columnName => $column)
@@ -377,8 +380,6 @@ class Template
                 $myResult = $this->replaceVariable($prop, $value, $myResult);
             }
         }
-
-        $myResult = $this->makeExpressions($item, null, $myResult);
 
         //make the child replace
         if ($sectionName)
@@ -442,61 +443,65 @@ class Template
             }
         }
 
-        $myResult = $this->makeExpressionsFinal($item, $myResult);
+        //$myResult = $this->makeExpressionsFinal($item, $myResult);
 
         return $myResult;
     }
 
-    public function makeExpressionsFinal($item, $content)
-    {
-        global $rGlobal;
-        $matches = null;
+    /* public function makeExpressionsFinal($item, $content)
+      {
+      global $rGlobal;
+      $matches = null;
 
-        $regexp = '/\$\!{(.*)}/uUmi';
-        preg_match_all($regexp, $content, $matches);
+      $regexp = '/\$\!{(.*)}/uUmi';
+      preg_match_all($regexp, $content, $matches);
 
-        if (is_array($matches[0]))
-        {
-            $expressionsContent = $matches[0];
-            $expressions = $matches[1];
+      if (is_array($matches[0]))
+      {
+      $expressionsContent = $matches[0];
+      $expressions = $matches[1];
 
-            //create variables for use in eval
-            $param = $this->params;
-            $father = array();
+      //create variables for use in eval
+      $param = $this->params;
+      $father = array();
 
-            if ($item instanceof \Db\Model)
-            {
-                $item = $item->getArray();
-            }
+      if ($item instanceof \Db\Model)
+      {
+      $item = $item->getArray();
+      }
 
-            //create variables for use in eval
-            if (isIterable($item))
-            {
-                foreach ($item as $prop => $value)
-                {
-                    $$prop = $value;
-                    //fill father props, in case chield has same names
-                    $father[$prop] = $value;
-                }
-            }
+      //create variables for use in eval
+      if (isIterable($item))
+      {
+      foreach ($item as $prop => $value)
+      {
+      $$prop = $value;
+      //fill father props, in case chield has same names
+      $father[$prop] = $value;
+      }
+      }
 
-            foreach ($expressions as $idx => $expression)
-            {
-                ob_start();
-                $expression = html_entity_decode($expression);
-                eval('echo (' . $expression . ');');
-                $result = ob_get_contents();
-                ob_end_clean();
-                $find = $expressionsContent[$idx];
-                $content = str_replace($find, $result, $content);
-            }
-        }
+      foreach ($expressions as $idx => $expression)
+      {
+      ob_start();
+      $expression = html_entity_decode($expression);
+      eval('echo (' . $expression . ');');
+      $result = ob_get_contents();
+      ob_end_clean();
+      $find = $expressionsContent[$idx];
+      $content = str_replace($find, $result, $content);
+      }
+      }
 
-        return $content;
-    }
+      return $content;
+      } */
 
     public function makeExpressions($item, $itemChild, $content)
     {
+        if (!$content)
+        {
+            return '';
+        }
         global $rGlobal;
         $matches = null;
 
@@ -620,8 +625,16 @@ class Template
         $regexp = '/\${(.*)}/uUmi';
         preg_match_all($regexp, $content, $matches);
 
+        $params = $this->params;
+
         if (is_array($matches[0]))
         {
+            //create param as public variables
+            foreach ($params as $prop => $value)
+            {
+                $$prop = $value;
+            }
+
             foreach ($matches[0] as $idx => $item)
             {
                 $original = $item;
@@ -661,7 +674,7 @@ class Template
                 $value = print_r($value, 1);
             }
 
-            $paramName = $modelName . '-' . $property;
+            $paramName = $modelName . '_' . $property;
 
             $this->setParam($paramName, $value);
         }
