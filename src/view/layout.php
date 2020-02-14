@@ -302,6 +302,12 @@ class Layout extends \View\Document
         return $this;
     }
 
+    /**
+     * Get a script file, considering modification data
+     *
+     * @param string $src file source/path
+     * @return string url
+     */
     protected function getScriptFile($src)
     {
         if (is_file($src))
