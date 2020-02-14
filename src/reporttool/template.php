@@ -203,7 +203,6 @@ class Template
     {
         $this->content = $this->replaceContentParams($this->content);
         $originalContent = $this->content;
-        $this->content = $this->replaceGlobalEvals($this->content);
 
         $dataSources = $this->getDataSources();
 
@@ -231,6 +230,7 @@ class Template
             }
         }
 
+        $this->content = $this->replaceGlobalEvals($this->content);
         $this->removePropertysMissing();
 
         return $this->content;
@@ -443,58 +443,8 @@ class Template
             }
         }
 
-        //$myResult = $this->makeExpressionsFinal($item, $myResult);
-
         return $myResult;
     }
-
-    /* public function makeExpressionsFinal($item, $content)
-      {
-      global $rGlobal;
-      $matches = null;
-
-      $regexp = '/\$\!{(.*)}/uUmi';
-      preg_match_all($regexp, $content, $matches);
-
-      if (is_array($matches[0]))
-      {
-      $expressionsContent = $matches[0];
-      $expressions = $matches[1];
-
-      //create variables for use in eval
-      $param = $this->params;
-      $father = array();
-
-      if ($item instanceof \Db\Model)
-      {
-      $item = $item->getArray();
-      }
-
-      //create variables for use in eval
-      if (isIterable($item))
-      {
-      foreach ($item as $prop => $value)
-      {
-      $$prop = $value;
-      //fill father props, in case chield has same names
-      $father[$prop] = $value;
-      }
-      }
-
-      foreach ($expressions as $idx => $expression)
-      {
-      ob_start();
-      $expression = html_entity_decode($expression);
-      eval('echo (' . $expression . ');');
-      $result = ob_get_contents();
-      ob_end_clean();
-      $find = $expressionsContent[$idx];
-      $content = str_replace($find, $result, $content);
-      }
-      }
-
-      return $content;
-      } */
 
     public function makeExpressions($item, $itemChild, $content)
     {
@@ -551,7 +501,7 @@ class Template
             {
                 ob_start();
                 $expression = html_entity_decode($expression);
-                @eval('echo (' . $expression . ');');
+                eval('echo (' . $expression . ');');
                 $result = ob_get_contents();
                 ob_end_clean();
                 $find = $expressionsContent[$idx];
