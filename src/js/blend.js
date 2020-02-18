@@ -919,7 +919,8 @@ function getJson(page, formData, showLoading, callBack)
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } else
+            } 
+            else
             {
                 toast('Impossível ler JSON!');
             }
@@ -979,13 +980,15 @@ function removeDataInvalid()
 function toast(msg, type, duration)
 {
     duration = duration === undefined ? 3000 : duration;
-    $("<div class='toast " + type + "'>" + msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
-            .appendTo('body')
-            .animate({top: 50, opacity: 1}, 500)
-            .delay(1500)
-            .fadeOut(duration, function () {
-                $(this).remove();
-            });
+    type = type+ '' === 'undefined' ? '' : type;
+    var toast = $("<div class='toast " + type + "'>" +
+            msg +
+            "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
+            .appendTo('body');
+            
+    setTimeout(function(){toast.addClass('show')}, 100);
+    setTimeout(function(){toast.removeClass('show')}, duration);
+    setTimeout(function(){toast.remove()}, duration*2);
 
     return false;
 }
@@ -2069,8 +2072,8 @@ function slide(selector)
     var next = $(wrapper).find('.slider-next').get(0);
 
     //copy outter width to inner
-    var outterWidth = $(wrapper).css('width');
-    var outterHeight = $(wrapper).css('height');
+    var outterWidth = $(wrapper).width();
+    var outterHeight = $(wrapper).height();
     
     //don't proccess the same slide again
     if ($(wrapper).hasClass('loaded'))
@@ -2083,7 +2086,7 @@ function slide(selector)
     {
         setTimeout(function ()
         {
-            slide(selector)
+            slide(selector);
         }, 100);
         
         return;
@@ -2143,16 +2146,18 @@ function slide(selector)
     // Click events
     if (prev)
     {
-        prev.addEventListener('click', function ()
+        prev.addEventListener('click', function (event)
         {
-            shiftSlide(-1);
+            event.preventDefault();
+            shiftSlide(-1); 
         }, {passive: true});
     }
 
     if (next)
     {
-        next.addEventListener('click', function ()
+        next.addEventListener('click', function (event)
         {
+            event.preventDefault();
             shiftSlide(1);
         }, {passive: true});
     }
@@ -2209,15 +2214,27 @@ function slide(selector)
     function dragEnd(e)
     {
         posFinal = items.offsetLeft;
+        
+        var diff = (posFinal - posInitial);
 
-        if (posFinal - posInitial < -threshold)
+        //click
+        if( diff === 0)
+        {
+            var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
+            var tmpFunc = new Function(onclickCode);
+            tmpFunc();
+        }
+        //draf left
+        else if (diff < -threshold)
         {
             shiftSlide(1, 'drag');
         } 
-        else if (posFinal - posInitial > threshold)
+        //drag right
+        else if (diff > threshold)
         {
             shiftSlide(-1, 'drag');
         }
+        //nothing, return original position
         else
         {
             items.style.left = (posInitial) + "px";

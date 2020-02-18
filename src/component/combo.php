@@ -5,7 +5,6 @@ namespace Component;
 use DataHandle\Request;
 use View\Td;
 use View\Tr;
-use Component\Grid\Column;
 use View\Table;
 use View\Div;
 
@@ -155,7 +154,7 @@ abstract class Combo extends \Component\Component
     }
 
     /**
-     * Mount dropdown on chane
+     * Mount dropdown on change
      */
     public function onChange()
     {
@@ -172,6 +171,7 @@ abstract class Combo extends \Component\Component
 
         $dataSource = $this->getDataSource();
         $searchValue = trim(Request::get('labelField_' . $id));
+
         $this->filterData($dataSource, $searchValue);
 
         if (!$dataSource->getLimit())
@@ -181,7 +181,7 @@ abstract class Combo extends \Component\Component
 
         $data = $dataSource->getData();
 
-        if (is_array($data) && count($data) > 0)
+        if (isIterable($data) && count($data) > 0)
         {
             $columns = array_values($dataSource->getColumns());
             $indentificatorColumm = $columns[0];
@@ -228,7 +228,6 @@ abstract class Combo extends \Component\Component
         }
 
         $container = $layout->byId('dropDownContainer_' . $id);
-
         $container->html($itens);
 
         if ($hideCombo)
@@ -241,6 +240,14 @@ abstract class Combo extends \Component\Component
         }
     }
 
+    /**
+     * Apply the filter to the datasource
+     *
+     * A separated filterData to be extended and overwrited
+     * @param \DataSource\DataSource $dataSource
+     * @param string $searchText
+     * @return \DataSource\DataSource
+     */
     public function filterData(\DataSource\DataSource $dataSource, $searchText)
     {
         $dataSource->setSmartFilter($searchText);

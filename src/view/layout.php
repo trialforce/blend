@@ -172,17 +172,25 @@ class Layout extends \View\Document
      */
     public function setTitle($title)
     {
-        $element = $this->getElementsByTagName('title')->item(0);
+        //try to get base theme, to change title in html, not js
+        $theme = \App::getTheme();
+
+        if (!$theme)
+        {
+            $theme = $this;
+        }
+
+        $element = $theme->getElementsByTagName('title')->item(0);
 
         if ($element instanceof \DOMElement)
         {
             $element->nodeValue = $title;
         }
 
-        if (Server::getInstance()->isAjax())
+        if (Server::getInstance()->isAjax() || !$element)
         {
             $title = \View\Script::treatStringToJs($title);
-            \App::addJs("document.title = '{$title}';");
+            \App::addJs("document.title = '{$title}'");
         }
 
         return $this;
@@ -294,6 +302,12 @@ class Layout extends \View\Document
         return $this;
     }
 
+    /**
+     * Get a script file, considering modification data
+     *
+     * @param string $src file source/path
+     * @return string url
+     */
     protected function getScriptFile($src)
     {
         if (is_file($src))
@@ -383,17 +397,17 @@ class Layout extends \View\Document
      * @param string $html
      * @return \DOMDocumentFragment
      */
-    public function getHtmlElement($html)
-    {
-        if ($html && mb_strlen(trim($html)) > 0)
-        {
-            $fragment = $this->createDocumentFragment();
-            @$fragment->appendXML($html);
-            return $fragment;
-        }
+    /* public function getHtmlElement($html)
+      {
+      if ($html && mb_strlen(trim($html)) > 0)
+      {
+      $fragment = $this->createDocumentFragment();
+      @$fragment->appendXML($html);
+      return $fragment;
+      }
 
-        return $html;
-    }
+      return $html;
+      } */
 
     /**
      * Return the body element
@@ -524,6 +538,8 @@ class Layout extends \View\Document
      */
     public static function optimizeHtml($html)
     {
+        //nobody likes html entities
+        $html = html_entity_decode($html);
         //remove comments
         //$html = preg_replace('/<!--(?!<!)[^\[>].*?-->/Uis', '', $html);
         $html = preg_replace('/<!--(.|\s)*?-->/', '', $html);

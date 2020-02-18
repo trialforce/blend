@@ -68,7 +68,7 @@ class SmartFilter
     public function getColumns()
     {
         //get default model columns if null
-        if (is_null($this->columns))
+        if (is_null($this->columns) || (is_array($this->columns) && count($this->columns) == 0))
         {
             $name = $this->getModelClass();
             $this->columns = $name::getColumns();
@@ -207,7 +207,6 @@ class SmartFilter
     {
         $name = $this->getModelClass();
         $columns = $this->getColumns();
-        \Log::debug($columns);
         $explode = explode('=', $filter);
         $columnSearch = '';
 
