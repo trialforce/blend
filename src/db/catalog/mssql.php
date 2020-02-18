@@ -118,7 +118,7 @@ WHERE c.object_id = OBJECT_ID('$table')";
             $cache->save($columns);
         }
 
-        return $columns;
+        return new \Db\Column\Collection($columns);
     }
 
     public static function listTables()

@@ -95,7 +95,7 @@ ORDER BY t.ORDINAL_POSITION;";
             $cache->save($columns);
         }
 
-        return $columns;
+        return new \Db\Column\Collection($columns);
     }
 
     public static function listTables()
