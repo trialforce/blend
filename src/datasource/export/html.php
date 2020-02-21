@@ -127,8 +127,14 @@ p {
 
         $layout = new \View\Layout();
         \View\View::setDom($layout);
+        
+        $viewTitle = new \View\Title($title . ' - ' . $formatedDate);
+        $viewMeta = new \View\Meta();
+        $viewMeta->setAttribute('http-equiv', 'Content-Type')->setAttribute('content', 'text/html; charset=UTF-8');
 
-        $head = new \View\Head(new \View\Title($title . ' - ' . $formatedDate));
+        $head = new \View\Head();
+        $head->append($viewMeta);
+        $head->append($viewTitle);
 
         $heads[] = self::getStyle();
         $heads[] = self::getLogo();

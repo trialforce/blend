@@ -25,18 +25,40 @@ class Model implements \JsonSerializable
     const DB_AUTO_INCREMENT = 'auto_increment';
 
     /**
-     * Columns for cache, avoid large memory usage
+     * Return the name of class/table/model
      *
-     * @var array
+     * @return string
      */
-    protected static $columnsCache;
+    public static function getName()
+    {
+        return '\\' . get_called_class();
+    }
 
     /**
-     * Cache for primary keys
+     * Return the table name related to this model.
+     * Can be override where table name differs from class name.
      *
-     * @var array
+     * @return string
      */
-    protected static $pksCache;
+    public static function getTableName()
+    {
+        $name = self::getName();
+        $tableName = str_replace(array('\Model\\', '\\'), '', $name);
+        return $name::getTablePrefix() . lcfirst($tableName);
+    }
+
+    /**
+     * Return the table prefix related to this model
+     * Normally defined by dbprefix-connection name in config.php
+     *
+     * @return string
+     */
+    public static function getTablePrefix()
+    {
+        $name = self::getName();
+        $prefixName = 'dbprefix-' . $name::getConnId();
+        return \DataHandle\Config::getDefault($prefixName, '');
+    }
 
     /**
      * Return the label of model/table.
@@ -66,39 +88,47 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Return the name of class/table/model
+     * Return connection id
      *
      * @return string
      */
-    public static function getName()
+    public static function getConnId()
     {
-        return '\\' . get_called_class();
+        return 'default';
     }
 
     /**
-     * Return the table name related to this model.
-     * Can be overide where table name differs from class name.
+     * Return conn info of current model
      *
-     * @return string
+     * @return \Db\ConnInfo
      */
-    public static function getTableName()
+    public static function getConnInfo()
     {
-
         $name = self::getName();
-        $tableName = str_replace(array('\Model\\', '\\'), '', $name);
-        return $name::getTablePrefix() . lcfirst($tableName);
+        return \Db\Conn::getConnInfo($name::getConnId());
     }
 
     /**
-     * Return the table prefix
+     * Get the catalog class name of this model
      *
      * @return string
      */
-    public static function getTablePrefix()
+    public static function getCatalogClass()
     {
         $name = self::getName();
-        $prefixName = 'dbprefix-' . $name::getConnId();
-        return \DataHandle\Config::getDefault($prefixName, '');
+        $connInfo = $name::getConnInfo();
+        return $connInfo->getCatalogClass();
+    }
+
+    /**
+     * Return the connection of current model
+     *
+     * @return \Db\Conn
+     */
+    public static function getConn()
+    {
+        $name = self::getName();
+        return \Db\Conn::getInstance($name::getConnId());
     }
 
     /**
@@ -108,36 +138,7 @@ class Model implements \JsonSerializable
      */
     public static function getColumns()
     {
-        $name = self::getName();
-        $tableName = $name::getTableName();
-
-        //get information from cache
-        if (isset(self::$columnsCache[$name]))
-        {
-            return self::$columnsCache[$name];
-        }
-
-        //try to locate method in child tables
-        if (method_exists($name, 'defineColumns'))
-        {
-            $columns = $name::defineColumns();
-        }
-        else
-        {
-            //or, get from databse
-            $catalog = $name::getCatalogClass();
-            $columns = $catalog::listColums($name::getTableName());
-        }
-
-        //define the tablename of columns in needed
-        foreach ($columns as $column)
-        {
-            $column->setTableName($tableName);
-        }
-
-        self::$columnsCache[$name] = $columns;
-
-        return $columns;
+        return \Db\Column\Collection::getForModel(self::getName());
     }
 
     /**
@@ -147,9 +148,7 @@ class Model implements \JsonSerializable
      */
     public static function setColumns($columns)
     {
-        $name = self::getName();
-
-        self::$columnsCache[$name] = $columns;
+        \Db\Column\Collection::setForModel(self::getName(), $columns);
     }
 
     /**
@@ -159,9 +158,7 @@ class Model implements \JsonSerializable
      */
     public static function setColumn(\Db\Column\Column $column)
     {
-        $name = self::getName();
-
-        self::$columnsCache[$name][$column->getName()] = $column;
+        \Db\Column\Collection::getForModel(self::getName())->setColumn($column);
     }
 
     /**
@@ -174,26 +171,7 @@ class Model implements \JsonSerializable
      */
     public static function getColumn($columnName)
     {
-        if (!$columnName)
-        {
-            return null;
-        }
-
-        //maximize compability
-        if ($columnName instanceof \Db\Column\Column)
-        {
-            return $columnName;
-        }
-
-        $columnName = \Db\Column\Column::getRealColumnName($columnName);
-        $columns = self::getColumns();
-
-        if (isset($columns) && isset($columns[$columnName]))
-        {
-            return $columns[$columnName];
-        }
-
-        return NULL;
+        return \Db\Column\Collection::getForModel(self::getName())->getColumn($columnName);
     }
 
     /**
@@ -201,17 +179,9 @@ class Model implements \JsonSerializable
      *
      * @return boolean
      */
-    public static function columnExist($column)
+    public static function columnExist($columnName)
     {
-        foreach (self::getColumns() as $col)
-        {
-            if ($col->getName() == $column)
-            {
-                return TRUE;
-            }
-        }
-
-        return FALSE;
+        return \Db\Column\Collection::getForModel(self::getName())->columnExist($columnName);
     }
 
     /**
@@ -221,28 +191,7 @@ class Model implements \JsonSerializable
      */
     public static function getPrimaryKeys()
     {
-        $pk = array();
-        $name = self::getName();
-
-        //make cache for pks read
-        if (isset(self::$pksCache[$name]))
-        {
-            return self::$pksCache[$name];
-        }
-
-        $columns = $name::getColumns();
-
-        foreach ($columns as $column)
-        {
-            if ($column instanceof \Db\Column\Column && $column->isPrimaryKey())
-            {
-                $pk[$column->getName()] = $column;
-            }
-        }
-
-        self::$pksCache[$name] = $pk;
-
-        return $pk;
+        return \Db\Column\Collection::getForModel(self::getName())->getPrimaryKeys();
     }
 
     /**
@@ -253,9 +202,7 @@ class Model implements \JsonSerializable
      */
     public static function getPrimaryKey()
     {
-        $pksV = array_values(self::getPrimaryKeys());
-
-        return isset($pksV[0]) ? $pksV[0] : null;
+        return \Db\Column\Collection::getForModel(self::getName())->getPrimaryKey();
     }
 
     /**
@@ -269,9 +216,9 @@ class Model implements \JsonSerializable
         $name = self::getName();
         $columnNames = !is_null($columns) ? $columns : $name::getColumns();
 
-        if (!is_array($columnNames))
+        if (!isIterable($columnNames))
         {
-            throw new Exception('Sem colunas para obter valores!');
+            throw new \Exception('Sem colunas para obter valores!');
         }
 
         foreach ($columnNames as $columnName => $column)
@@ -288,32 +235,6 @@ class Model implements \JsonSerializable
         }
 
         return $columnValues;
-    }
-
-    /**
-     * Convert a variable to array if not
-     * @deprecated since version 28/07/2018
-     *
-     * @param mixed $var
-     * @return array
-     */
-    protected static function toArray($var)
-    {
-        return is_array($var) ? array_filter($var) : array($var);
-    }
-
-    /**
-     * Mount WHERE based on array of filters
-     *
-     * @param array $filters \Db\Cond or \Db\Where
-     * @return \stdClass
-     * @throws \Exception
-     */
-    public static function getWhereFromFilters($filters)
-    {
-        $name = self::getName();
-
-        return \Db\Criteria::createCriteria(\Db\Model::parseSearchColumnWhere($filters, $name));
     }
 
     /**
@@ -362,32 +283,6 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Get the an array with coluns as sql instruction
-     *
-     * @param array $columns
-     * @return string
-     */
-    protected static function getColumnsForFind($columns)
-    {
-        $result = array();
-        $name = self::getName();
-        $tableName = $name::getTableName();
-
-        foreach ($columns as $column)
-        {
-            $column->setTableName($tableName);
-            $line = $column->getSql();
-
-            if (is_array($line))
-            {
-                $result = array_merge($line, $result);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Return the Query builder for this Model
      * @return \Db\QueryBuilder
      */
@@ -399,12 +294,11 @@ class Model implements \JsonSerializable
         $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getConnId());
         $queryBuilder->setCatalogClass($name::getCatalogClass());
 
-        $columns = $name::getColumns();
+        $columns = \Db\Column\Collection::getForModel($name);
         $result = array();
 
         foreach ($columns as $column)
         {
-            $column->setTableName($tableName);
             $line = $column->getSql();
 
             if ($tableNameInColumns && !$column instanceof \Db\Column\Search)
@@ -476,11 +370,7 @@ class Model implements \JsonSerializable
         }
 
         $name = self::getName();
-
-        if (!$columns)
-        {
-            $columns = $name::getColumns();
-        }
+        $columns = \Db\Column\Collection::chooseForModel($name, $columns);
 
         //mount group by
         $groupBy = NULL;
@@ -501,9 +391,8 @@ class Model implements \JsonSerializable
             $groupBy = implode(', ', $groupBy);
         }
 
-        $columnNameSql = self::getColumnsForFind($columns);
-        $where = self::getWhereFromFilters($filters);
-
+        $columnNameSql = $columns->getSqlNamesForFind();
+        $where = \Db\Criteria::createCriteria(\Db\Model::parseSearchColumnWhere($filters, $name));
         $catalog = $name::getCatalogClass();
 
         //if has ASC or DESC in order BY don't treat then, let it be
@@ -537,11 +426,7 @@ class Model implements \JsonSerializable
     public static function findForReference($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL)
     {
         $name = self::getName();
-
-        $columns = array_values($name::getColumns());
-        $firstColumnName = $columns[1]->getName();
-
-        $orderBy = $orderBy ? $orderBy : $firstColumnName;
+        $orderBy = $orderBy ? $orderBy : \Db\Column\Collection::getForModel($name)->getColumnAtPosition(0);
         $orderWay = $orderWay ? $orderWay : 'ASC';
 
         return $name::find($filters, $limit, $offset, $orderBy, $orderWay);
@@ -565,12 +450,7 @@ class Model implements \JsonSerializable
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
-
-        if (!$columns)
-        {
-            $columns = $name::getColumns();
-        }
-
+        $columns = \Db\Column\Collection::chooseForModel($name, $columns);
         $catalog = $name::getCatalogClass();
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
 
@@ -675,7 +555,7 @@ class Model implements \JsonSerializable
      * @param type $id
      * @return \Db\name
      */
-    public static function findOneByPkOrCreate($id)
+    public static function findOneByPkOrCreate($id = null)
     {
         $name = self::getName();
 
@@ -753,7 +633,9 @@ class Model implements \JsonSerializable
         $smartFilters = new SmartFilter($modelClass, $columns, $filter);
         $filters = $smartFilters->createFilters();
 
-        return array_merge($filters, self::toArray($extraFilters));
+        $extraFilters = is_array($extraFilters) ? array_filter($extraFilters) : array($extraFilters);
+
+        return array_merge($filters, $extraFilters);
     }
 
     /**
@@ -773,7 +655,7 @@ class Model implements \JsonSerializable
     public static function smartFind($filter = NULL, $extraFilters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL)
     {
         $name = self::getName();
-        return $name::find($name::smartFilters($filter, $extraFilters, $name::getColumns()), $limit, $offset, $orderBy, $orderWay, $returnType);
+        return $name::find($name::smartFilters($filter, $extraFilters, \Db\Column\Collection::getForModel($name)), $limit, $offset, $orderBy, $orderWay, $returnType);
     }
 
     /**
@@ -806,60 +688,7 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Order and array of models by a passed property.
-     * Method suppor array of classes ou array of array.
-     * @deprecated since version 14/01/2019 use \Db\Collection
-     *
-     * @param array $array
-     * @param string $property
-     * @return array
-     */
-    public static function orderArrayByProperty($array, $property)
-    {
-        $collection = new \Db\Collection($array);
-        $collection->indexByProperty($property);
-
-        return $collection->getData();
-
-        $result = NULL;
-
-        if (is_array($array))
-        {
-            foreach ($array as $item)
-            {
-                //array
-                if (is_array($item))
-                {
-                    $index = $item[$property];
-                }
-                else if (is_object($item))
-                {
-                    //model
-                    if ($item instanceof \Db\Model)
-                    {
-                        $index = $item->getValue($property);
-                    }
-                    //simple object
-                    else
-                    {
-                        $index = $item->$property;
-                    }
-                }
-
-                $result[$index] = $item;
-            }
-        }
-
-        if ($result)
-        {
-            ksort($result);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Make a databse insert
+     * Make a database insert
      *
      * @return int
      */
@@ -873,8 +702,8 @@ class Model implements \JsonSerializable
 
         $tableName = $catalog ::parseTableNameForQuery($name::getTableName());
 
-        $sql = $catalog ::mountInsert($tableName, $columnNames, $columnNameSql, $this->getPrimaryKey());
         $pk = $this->getPrimaryKey();
+        $sql = $catalog ::mountInsert($tableName, $columnNames, $columnNameSql, $pk);
         $id = $pk ? $pk->getName() : '';
 
         //postgres faz query e já retorna id
@@ -1011,7 +840,7 @@ class Model implements \JsonSerializable
      */
     public function validate()
     {
-        $columns = $this->getColumns();
+        $columns = \Db\Column\Collection::getForModel(self::getName());
         $error = NULL;
 
         //pass trough columns calling each validate
@@ -1088,7 +917,7 @@ class Model implements \JsonSerializable
      */
     public function getOptionValue()
     {
-        $pk = self::getPrimaryKey();
+        $pk = \Db\Column\Collection::getForModel(self::getName())->getPrimaryKey();
         return $this->getValue($pk->getName());
     }
 
@@ -1101,10 +930,15 @@ class Model implements \JsonSerializable
     public function getOptionLabel()
     {
         $name = self::getName();
-        $columns = array_values($name::getColumns());
+        $columns = array_values($name::getColumns()->getColumns());
         //jump pk
         $firstColumnName = $columns[1]->getName();
         return $this->getValue($firstColumnName);
+    }
+
+    public function getTitleLabel()
+    {
+        return '';
     }
 
     /**
@@ -1117,11 +951,6 @@ class Model implements \JsonSerializable
     public function __toString()
     {
         return $this->getOptionLabel() . '';
-    }
-
-    public function getTitleLabel()
-    {
-        return '';
     }
 
     /**
@@ -1247,7 +1076,8 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Convert a model to an array
+     * Convert a model to an simple array.
+     * It works even if model has private methods
      *
      * @return array
      */
@@ -1294,6 +1124,11 @@ class Model implements \JsonSerializable
         return json_encode($this->getArray());
     }
 
+    /**
+     * Implements the default PHP json serialize method
+     *
+     * @return array
+     */
     public function jsonSerialize()
     {
         return $this->getArray();
@@ -1324,11 +1159,12 @@ class Model implements \JsonSerializable
     /**
      * Supports the search for variables in the model.
      * Even if they are not declared.
+     *
      * In other words variables declared without support models,
      * but avoids error when using PHP_STRICT.
      *
-     * @param string $name
-     * @return mixed
+     * @param string $name the variable name
+     * @return mixed the value of the variable
      */
     public function __get($name)
     {
@@ -1341,47 +1177,33 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Get the catalog class name of this model
+     * Order and array of models by a passed property.
+     * Method suppor array of classes ou array of array.
+     * @deprecated since version 14/01/2019 use \Db\Collection
      *
-     * @return string
+     * @param array $array
+     * @param string $property
+     * @return array
      */
-    public static function getCatalogClass()
+    public static function orderArrayByProperty($array, $property)
     {
-        $name = self::getName();
-        $connInfo = $name::getConnInfo();
-        return $connInfo->getCatalogClass();
+        $collection = new \Db\Collection($array);
+        $collection->indexByProperty($property);
+
+        return $collection->getData();
     }
 
     /**
-     * Return connection id
+     * Mount WHERE based on array of filters
+     * @deprecated since version 18/02/2020
      *
-     * @return string
+     * @param array $filters \Db\Cond or \Db\Where
+     * @return \stdClass
+     * @throws \Exception
      */
-    public static function getConnId()
+    public static function getWhereFromFilters($filters)
     {
-        return 'default';
-    }
-
-    /**
-     * Return conn info of current method
-     *
-     * @return \Db\ConnInfo
-     */
-    public static function getConnInfo()
-    {
-        $name = self::getName();
-        return \Db\Conn::getConnInfo($name::getConnId());
-    }
-
-    /**
-     * Return the connection of current model
-     *
-     * @return \Db\Conn
-     */
-    public static function getConn()
-    {
-        $name = self::getName();
-        return \Db\Conn::getInstance($name::getConnId());
+        return \Db\Criteria::createCriteria(\Db\Model::parseSearchColumnWhere($filters, self::getName()));
     }
 
 }
