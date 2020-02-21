@@ -422,6 +422,18 @@ class Layout extends \View\Document
     }
 
     /**
+     * Return the head element
+     * 
+     * @return \View\DomContainer
+     */
+    public function getHead()
+    {
+        $heads = $this->getElementsByTagName('head');
+
+        return new \View\DomContainer($heads->item(0));
+    }
+
+    /**
      * Return the html element
      * @return \View\DomContainer
      */
