@@ -287,6 +287,7 @@ class Grab
             return NULL;
         }
 
+        $value = null;
         $item = self::standarlizeItem($item);
         $columnName = self::getColumnName($column);
 
