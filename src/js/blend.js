@@ -308,101 +308,15 @@ function dataAjax()
 
     //multipleSelect();
     seletMenuItem();
-
-    if (isAndroid() || isIos())
-    {
-        $('.dateinput').not('[readonly]').each(function () {
-            $(this).mask('99/99/9999');
-        });
-
-        $('.datetimeinput').not('[readonly]').each(function () {
-            $(this).mask('99/99/9999 99:99:99');
-        });
-
-        $('.timeinput').not('[readonly]').each(function () {
-            $(this).mask('99:99:99');
-        });
-    } 
-    else if (typeof $().datetimepicker === 'function')
-    {
-        $('.dateinput').not('[readonly]').datetimepicker({
-            timepicker: false,
-            defaultSelect: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            mask: true,
-            allowBlank: true,
-            format: 'd/m/Y',
-            step: 15
-        });
-
-        $('.datetimeinput').not('[readonly]').datetimepicker({
-            format: 'd/m/Y H:i:s',
-            mask: true,
-            defaultSelect: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            allowBlank: true,
-            step: 15
-        });
-
-        $('.timeinput').not('[readonly]').datetimepicker({
-            format: 'H:i:s',
-            defaultSelect: false,
-            datepicker: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            allowBlank: true,
-            mask: true,
-            step: 15
-        });
-    } 
-    else
-    {
-        //fallback to default date of browser
-        $('.dateinput').each(function ()
-        {
-            var element = $(this);
-            var value = element.val();
-
-            //don't format
-            if (value.indexOf('/') > 0)
-            {
-                var date = value.split('/').reverse().join('-');
-                element.val(date);
-            }
-
-            element.prop('type', 'date');
-        });
-
-        $('.datetimeinput').each(function () {
-            var element = $(this);
-            var value = element.val();
-
-            //don't format
-            if (value.indexOf('T') < 0)
-            {
-                var datetime = value.split(' ');
-                var date = datetime[0].split('/').reverse().join('-');
-                element.val(date + 'T' + datetime[1]);
-            }
-
-            element.prop('type', 'datetime-local');
-        });
-    }
+    dateTimeInput();
 
     //mark form changed on change
     $('input, select, textarea').on('change', function () {
         markFormChanged();
     });
 
-    //on key press
-    $('input, textarea').on('keypress', function () {
-        markFormChanged();
-    });
-
-    //add support for nick editor, and other contenteditable
-    $('*[contenteditable]').on('keypress', function () {
+    //on key press, add support for nick editor, and other contenteditable
+    $('input, select, textarea, *[contenteditable]').on('keypress', function () {
         markFormChanged();
     });
 
@@ -435,6 +349,125 @@ function dataAjax()
     hideLoading();
 
     return false;
+}
+
+function dateTimeInputMobile()
+{
+    $('.dateinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99/99/9999');
+    });
+
+    $('.datetimeinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99/99/9999 99:99:99');
+    });
+
+    $('.timeinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99:99:99');
+    });
+}
+
+function dateTimeInputDesktopOnChange(dp,input)
+{
+    console.log(dp, input);
+}
+
+function dateTimeInputDesktop()
+{   
+    $('.dateinput').not('[readonly]').datetimepicker({
+        onChangeDateTime:dateTimeInputDesktopOnChange,
+        timepicker: false,
+        defaultSelect: false,
+        validateOnBlur: false,
+        closeOnDateSelect: true,
+        mask: true,
+        allowBlank: true,
+        format: 'd/m/Y',
+        step: 15
+    });
+
+    $('.datetimeinput').not('[readonly]').datetimepicker(
+    {
+        onChangeDateTime:dateTimeInputDesktopOnChange,
+        format: 'd/m/Y H:i:s',
+        mask: true,
+        defaultSelect: false,
+        validateOnBlur: false,
+        closeOnDateSelect: true,
+        allowBlank: true,
+        step: 15
+    });
+
+    $('.timeinput').not('[readonly]').datetimepicker(
+    {
+        onChangeDateTime:dateTimeInputDesktopOnChange,
+        format: 'H:i:s',
+        defaultSelect: false,
+        datepicker: false,
+        validateOnBlur: false,
+        closeOnDateSelect: true,
+        allowBlank: true,
+        mask: true,
+        step: 15
+    });
+    
+    $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
+    {
+        markFormChanged();
+    });
+}
+
+function dateTimeInputFallBackNative()
+{
+    //fallback to default date of browser
+    $('.dateinput').each(function ()
+    {
+        var element = $(this);
+        var value = element.val();
+
+        //don't format
+        if (value.indexOf('/') > 0)
+        {
+            var date = value.split('/').reverse().join('-');
+            element.val(date);
+        }
+
+        element.prop('type', 'date');
+    });
+
+    $('.datetimeinput').each(function () 
+    {
+        var element = $(this);
+        var value = element.val();
+
+        //don't format
+        if (value.indexOf('T') < 0)
+        {
+            var datetime = value.split(' ');
+            var date = datetime[0].split('/').reverse().join('-');
+            element.val(date + 'T' + datetime[1]);
+        }
+
+        element.prop('type', 'datetime-local');
+    });
+}
+
+function dateTimeInput()
+{
+    if (isAndroid() || isIos())
+    {
+        dateTimeInputMobile();
+    } 
+    else if (typeof $().datetimepicker === 'function')
+    {
+        dateTimeInputDesktop();
+    } 
+    else
+    {
+        dateTimeInputFallBackNative();
+    }
 }
 
 function multipleSelect()
@@ -1202,11 +1235,21 @@ function comboTypeWatch(element, event, callback, ms)
         comboHideDropdown(id);
 
         return false;
-    } else
+    } 
+    else
     {
         clearTimeout(timerTypeWatch);
         timerTypeWatch = setTimeout(callback, ms);
     }
+}
+
+function comboModelClick(idInput)
+{
+    var input = $('#'+idInput);
+    var value = input.val();
+    var page = input.data('model');
+    
+    p(page+'/editarpopup/'+value);    
 }
 
 /**
