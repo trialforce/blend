@@ -177,7 +177,7 @@ class CrudDropZone extends \Page\Crud
 
             $targetPath = self::getCompleteFolderName($id);
 
-            if (!file_exists($filename))
+            if (!file_exists($targetPath))
             {
                 mkdir($targetPath, 0777, TRUE);
             }
