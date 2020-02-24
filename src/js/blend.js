@@ -4,7 +4,6 @@
 //handle the back and forward buttons
 var formChangedAdvice = false;
 var invalidHover = true;
-var lastUrl = correctUrl(window.location.href);
 var avoidUrlRegister = false;
 var blendJs = function(){};
 
@@ -584,7 +583,6 @@ function updateUrl(page)
 {
     if (window.history.pushState === undefined || page === 'undefined')
     {
-        avoidUrlRegister = false;
         return false;
     }
 
@@ -595,17 +593,9 @@ function updateUrl(page)
     }
 
     var urlToRegister = correctUrl(page);
-
-    if (urlToRegister != lastUrl)
-    {
-        window.history.pushState({url: urlToRegister}, "", urlToRegister);
-        lastUrl = urlToRegister;
-        avoidUrlRegister = false;
-        return true;
-    }
-
+    window.history.pushState({url: urlToRegister}, "", urlToRegister);
     avoidUrlRegister = false;
-    return false;
+    return true;
 }
 
 function correctUrl(url)
@@ -880,7 +870,7 @@ function r(type, page, formData, callBack)
             {
                 page = url + '/?' + formData;
             }
-
+            
             updateUrl(page);
             //put the js inside body element, to execute
             data.script.replace('\\\"', '\\"');
@@ -1861,7 +1851,7 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
         {
             this.on("queuecomplete", function (file) 
             {
-                  p( pageName + '/updateImages');
+                p( pageName + '/updateImages');
             });
         }
     });
