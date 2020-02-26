@@ -2,6 +2,9 @@
 
 namespace Disk;
 
+/**
+ * Class used to deal with a disk folder
+ */
 class Folder
 {
 
@@ -66,6 +69,11 @@ class Folder
     public function exists()
     {
         return $this->isDir();
+    }
+
+    public function getBasename()
+    {
+        return basename($this->path);
     }
 
     /**

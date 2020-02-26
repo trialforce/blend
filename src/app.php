@@ -161,7 +161,7 @@ class App
 
     /**
      * Return the current them
-     * 
+     *
      * @return \View\Layout
      */
     public static function getTheme()
@@ -329,12 +329,7 @@ class App
     {
         if (count(self::$js) > 0)
         {
-            $myJs = '
-function blendJs() {
-' . implode("\r\n", self::$js) . '
-}
-';
-
+            $myJs = implode("\r\n", self::$js);
             $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
             $js->setId('blend-js');
             $layout->getHtml()->append($js);

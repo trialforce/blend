@@ -122,7 +122,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
             $cache->save($colums);
         }
 
-        return $colums;
+        return new \Db\Column\Collection($colums);
     }
 
     /**

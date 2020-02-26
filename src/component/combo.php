@@ -8,6 +8,9 @@ use View\Tr;
 use View\Table;
 use View\Div;
 
+/**
+ * Extended component for Combo/Autocomplete
+ */
 abstract class Combo extends \Component\Component
 {
 
@@ -63,30 +66,14 @@ abstract class Combo extends \Component\Component
 
         $div->append($input);
 
-        //jquery hover works great
-        \App::addJs('$("#dropDownContainer_' . $id . '").hover(
-          function() {
-          },
-          function() {
-          comboHideDropdown("' . $id . '");
-          });
-          ');
-
         $this->makeDefaultSearch($id);
         $this->setContent($div);
 
+        //jquery hover works great
+        \App::addJs('$("#dropDownContainer_' . $id . '").hover(function() {}, function() { comboHideDropdown("' . $id . '");});');
+
         return $div;
     }
-
-    /* public function setName($name)
-      {
-      //parent::setName()
-      }
-
-      public function setId($id)
-      {
-
-      } */
 
     public function makeDefaultSearch($id)
     {

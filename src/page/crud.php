@@ -236,11 +236,6 @@ class Crud extends \Page\Page
         $this->adjustFields();
     }
 
-    public function adjustFields()
-    {
-
-    }
-
     public function getPopup()
     {
         $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
@@ -1079,6 +1074,24 @@ class Crud extends \Page\Page
         $column = $model->getColumn($columnName);
 
         \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
+    }
+
+    public function editarPopup()
+    {
+        \App::dontChangeUrl();
+        $id = Request::get('v');
+        $url = $id ? $this->getPageUrl() . '/editar/' . $id . '?iframe=true' : $this->getPageUrl() . '/adicionar?iframe=true';
+
+        $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
+
+        $body = new \View\IFrame('edit-popup-iframe', $url);
+        $body->setWidth('100', '%')->setHeight('70', 'vh');
+        $buttons = null;
+
+        $popup = new \View\Blend\Popup('edit-popup', $title, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $popup->setIcon($this->icon);
+        $popup->footer->remove();
+        $popup->show();
     }
 
 }

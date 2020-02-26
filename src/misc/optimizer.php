@@ -119,6 +119,12 @@ class Optimizer
         foreach ($files as $file)
         {
             $obj = new \Disk\File($file);
+
+            if (!$obj->exists())
+            {
+                throw new \Exception('File Optimizer Error: File ' . $obj->getPath() . ' does not exists.');
+            }
+
             $obj->load();
 
             $content = $obj->getContent();

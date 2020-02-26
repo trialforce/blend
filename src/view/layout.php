@@ -289,7 +289,7 @@ class Layout extends \View\Document
             {
                 $file->load();
 
-                $fileOptimize->save(\Misc\Css::optimize($file->getContent()));
+                $fileOptimize->save(\Misc\CssMin::optimize($file->getContent()));
             }
 
             //avoid cache
@@ -419,6 +419,18 @@ class Layout extends \View\Document
         $bodys = $this->getElementsByTagName('body');
 
         return new \View\DomContainer($bodys->item(0));
+    }
+
+    /**
+     * Return the head element
+     *
+     * @return \View\DomContainer
+     */
+    public function getHead()
+    {
+        $heads = $this->getElementsByTagName('head');
+
+        return new \View\DomContainer($heads->item(0));
     }
 
     /**

@@ -338,13 +338,10 @@ class Model extends DataSource
     public static function createColumn($columns, $orderBy = NULL)
     {
         //avoid errors in PHPMD nullifyng the parameter
-        //TODO avaliate why this is here
         $orderBy = null;
         $gridColumns = array();
 
-        //default checkcolumn
-        //$gridColumns[] = new \Component\Grid\CheckColumn( null, 'check' );
-        if (is_array($columns))
+        if (isIterable($columns))
         {
             foreach ($columns as $column)
             {
