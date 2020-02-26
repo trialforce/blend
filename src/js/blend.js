@@ -1580,18 +1580,14 @@ function preparaVer()
             }
     );
 
-    //coloca todos campos como readonly e disabled
-    $('input, select, textarea').each(
-            function ()
-            {
-                $(this).attr('disabled', 'disabled');
-                //$(this).attr('readonly', 'readonly');
-            }
-    );
-    
+    $('input, select, textarea').attr('disabled', 'disabled');
+
     //add support for autocomplete/combo input
     //TODO avoid setimeout
-    setTimeout(function(){$('.labelValue').attr('disabled', 'disabled')},200);
+    setTimeout(function () {
+        $('.labelValue').attr('disabled', 'disabled');
+        $('input, select, textarea').attr('disabled', 'disabled');
+    }, 200);
 }
 
 function setCookie(variable, value)
