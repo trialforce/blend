@@ -1853,8 +1853,22 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
     });
 }
 
+function useImageCkEditor(a)
+{
+    newsrc = a;
+    a = window.location.search.match(/(?:[?&]|&)CKEditorFuncNum=([^&]+)/i);
+    window.opener.CKEDITOR.tools.callFunction(a && 1 < a.length ? a[1] : null, newsrc);
+    window.close();
+}
+
 function createCkEditor(id)
 {
+    //ckeditor allready exists, avoid error
+    if ( typeof CKEDITOR.instances[id] === 'object')
+    {
+        return;
+    }
+
     var editor = CKEDITOR.replace( id );
     
     //active the save button when editor changes

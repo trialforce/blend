@@ -132,7 +132,17 @@ class FileVisualizer extends \Component\Component
             throw new \UserException('Impossível fazer preview do arquivo!');
         }
 
-        $buttons[] = new \View\Ext\LinkButton('download', 'download', 'Download', $file->getUrl(), 'primary');
+        $isCkEditor = \DataHandle\Request::get('file-visualizer-ckeditor');
+
+        if ($isCkEditor)
+        {
+            $buttons[] = new \View\Ext\Button('adInCkEditor', 'file-code', 'Adicionar ao editor', "return useImageCkEditor('{$file->getUrl()}')", 'primary');
+        }
+        else
+        {
+            $buttons[] = new \View\Ext\LinkButton('download', 'download', 'Download', $file->getUrl(), 'primary');
+        }
+
         $buttons[] = new \View\Ext\Button('close', 'cancel', 'Fechar', \View\Blend\Popup::getJs('destroy'));
 
         $popup = new \View\Blend\Popup('preview', 'Pre-visualização ' . $file->getBasename(), $body, $buttons);
@@ -204,6 +214,13 @@ class FileVisualizer extends \Component\Component
         $this->byId('file-visualizer-files')->html($content);
     }
 
+    /**
+     * Create a FileVisualizae holder
+     *
+     * @param \Disk\Folder $folder the root folder
+     * @param type $search the files to search, use glob sintax
+     * @return \View\Div the holder element
+     */
     public static function createHolder(\Disk\Folder $folder, $search = '*')
     {
         $uploadUrl = \Component\FileVisualizer::getLinkForComponent(null, 'upload');
@@ -212,6 +229,8 @@ class FileVisualizer extends \Component\Component
         $content[] = new \View\Input('file-visualizer-root', \View\Input::TYPE_HIDDEN, $folder->getPath());
         $content[] = new \View\Input('file-visualizer-folder', \View\Input::TYPE_HIDDEN, $folder->getPath());
         $content[] = new \View\Input('file-visualizer-search', \View\Input::TYPE_HIDDEN, $search);
+        $content[] = new \View\Input('file-visualizer-ckeditor', \View\Input::TYPE_HIDDEN, \DataHandle\Request::get('CKEditor'));
+
         $content[] = new \View\H1('file-visualizer-title', $folder->getBasename());
         $content[] = $upload = new \View\Input('file-visualizer-upload', \View\Input::TYPE_FILE);
         $upload->css('margin-bottom', '30px')->change('p("' . $uploadUrl . '");');
