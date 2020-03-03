@@ -1613,13 +1613,13 @@ function preparaVer()
             }
     );
 
-    $('input, select, textarea').attr('disabled', 'disabled');
+    $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
 
     //add support for autocomplete/combo input
     //TODO avoid setimeout
     setTimeout(function () {
         $('.labelValue').attr('disabled', 'disabled');
-        $('input, select, textarea').attr('disabled', 'disabled');
+        $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
     }, 200);
 }
 
