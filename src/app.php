@@ -384,6 +384,20 @@ class App
     }
 
     /**
+     * Add a external script to the page trough js and call a callback
+     * fucntion when is load.
+     *
+     * If it's is allready loadead/added call the callback anyway;
+     *
+     * @param string $scriptUrl the url of the script
+     * @param sttring $callBack the call back function
+     */
+    public static function addScriptOnce($scriptUrl, $callBack)
+    {
+        \App::addJs("addScriptOnce('$scriptUrl', function(){{$callBack}} );");
+    }
+
+    /**
      * Redirect to some url
      *
      * @param string $location
