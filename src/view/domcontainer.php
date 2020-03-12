@@ -33,6 +33,34 @@ class DomContainer implements \Countable
         return $this;
     }
 
+    /**
+     * Return the first chield element
+     *
+     * @return \View\DomContainer
+     */
+    public function first()
+    {
+        return new \View\DomContainer($this->domElement->firstChild);
+    }
+
+    /**
+     * Get the first element of the tag name
+     *
+     * @param string $tag the tag name
+     * @return \View\View the first element of the passed tag or null
+     */
+    public function byTag($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if (isset($elements[0]))
+        {
+            return \View\Document::toView($elements[0]);
+        }
+
+        return null;
+    }
+
     public function getOutputJs()
     {
         return false;
@@ -139,8 +167,11 @@ class DomContainer implements \Countable
         {
             $this->setAttribute('id', $id);
 
-            //adiciona a lista de elementos para achar a classe corretamente no getElementById
-            \View\View::getDom()->addToElementList($this);
+            //add to element list to can be finded in getElementById method
+            if (\View\View::getDom() && $this instanceof \DomElement)
+            {
+                \View\View::getDom()->addToElementList($this);
+            }
         }
 
         return $this;
@@ -168,7 +199,7 @@ class DomContainer implements \Countable
 
     /**
      * Add a css class to element
-     * 
+     *
      * @param string $classToAdd class to add to element
      * @return $this
      */
@@ -249,6 +280,11 @@ class DomContainer implements \Countable
 
     public function addStyle($property, $value = '')
     {
+        if (!$property || !$value)
+        {
+            return $this;
+        }
+
         $this->removeStyle($property);
         $style = $this->getStyle();
 
@@ -269,6 +305,12 @@ class DomContainer implements \Countable
     public function removeStyle($property)
     {
         $style = $this->getStyle();
+
+        if (!$style)
+        {
+            return $this;
+        }
+
         $explode = explode(';', $style);
 
         foreach ($explode as $idx => $comparision)

@@ -27,12 +27,7 @@ class Layout extends \View\Document
      */
     public function __construct($layout = NULL, $setDom = FALSE)
     {
-        parent::__construct('1.0', 'UTF-8');
-
-        if ($setDom)
-        {
-            \View\View::setDom($this);
-        }
+        parent::__construct($layout, $setDom);
 
         if (isset($layout) && $layout)
         {

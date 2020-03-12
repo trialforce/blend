@@ -26,16 +26,37 @@ class Document extends \DomDocument implements \Countable
     public function __construct($layout = NULL, $setDom = FALSE)
     {
         parent::__construct('1.0', 'UTF-8');
+
+        if ($setDom)
+        {
+            \View\View::setDom($this);
+        }
     }
 
     public function loadXmlFromFile($layout)
     {
+        if (!file_exists($layout))
+        {
+            throw new \Exception('Arquivo de layout não encontrado ' . $layout);
+        }
+
         $content = file_get_contents($layout);
 
         //desabilita erros chatos da libxml na leitura de layouts
         libxml_use_internal_errors(true);
         $this->strictErrorChecking = FALSE;
-        $this->loadXML($content);
+        $options = LIBXML_VERSION >= 20900 ? LIBXML_PARSEHUGE : null;
+        $this->loadXML($content, $options);
+
+        $errors = libxml_get_errors();
+
+        if (count($errors) > 0)
+        {
+            $error = $errors[0];
+            libxml_clear_errors();
+            throw new \Exception('Erro lendo XML: ' . $layout . ' - Erro: ' . $error->message);
+        }
+
         libxml_clear_errors();
     }
 
@@ -277,8 +298,35 @@ class Document extends \DomDocument implements \Countable
      */
     public function byId($id, $class = NULL)
     {
-        $element = $this->getElementById($id, $class);
+        return self::toView($this->getElementById($id, $class));
+    }
 
+    /**
+     * Get the first element of the tag name
+     *
+     * @param string $tag
+     * @return \View\View
+     */
+    public function byTag($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if (isset($elements[0]))
+        {
+            return self::toView($elements[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Return an view element if is a dom element
+     *
+     * @param mixed $element \DomElement or \View\View
+     * @return \View\View \View\View or \View\DomContainer
+     */
+    public static function toView($element)
+    {
         if ($element instanceof \DOMElement && !$element instanceof \View\View)
         {
             $element = new \View\DomContainer($element);
