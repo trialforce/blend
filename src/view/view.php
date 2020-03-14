@@ -62,6 +62,34 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
+     * Return the first chield element
+     *
+     * @return \View\DomContainer
+     */
+    public function first()
+    {
+        return new \View\DomContainer($this->firstChild);
+    }
+
+    /**
+     * Get the first element of the tag name
+     *
+     * @param string $tag the tag name
+     * @return \View\View the first element of the passed tag or null
+     */
+    public function byTag($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if (isset($elements[0]))
+        {
+            return \View\Document::toView($elements[0]);
+        }
+
+        return null;
+    }
+
+    /**
      * Define the id and name of html element
      *
      * Only set name if element need it
@@ -292,8 +320,11 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             parent::setAttribute('id', $id);
 
-            //add to element lista to can be finded in getElementById method
-            \View\View::getDom()->addToElementList($this);
+            //add to element list to can be finded in getElementById method
+            if (\View\View::getDom() && $this instanceof \DomElement)
+            {
+                \View\View::getDom()->addToElementList($this);
+            }
         }
 
         return $this;

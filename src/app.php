@@ -161,7 +161,7 @@ class App
 
     /**
      * Return the current them
-     * 
+     *
      * @return \View\Layout
      */
     public static function getTheme()
@@ -329,12 +329,7 @@ class App
     {
         if (count(self::$js) > 0)
         {
-            $myJs = '
-function blendJs() {
-' . implode("\r\n", self::$js) . '
-}
-';
-
+            $myJs = implode("\r\n", self::$js);
             $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
             $js->setId('blend-js');
             $layout->getHtml()->append($js);
@@ -386,6 +381,20 @@ function blendJs() {
         {
             self::$js[] = trim($js) . ';';
         }
+    }
+
+    /**
+     * Add a external script to the page trough js and call a callback
+     * fucntion when is load.
+     *
+     * If it's is allready loadead/added call the callback anyway;
+     *
+     * @param string $scriptUrl the url of the script
+     * @param sttring $callBack the call back function
+     */
+    public static function addScriptOnce($scriptUrl, $callBack)
+    {
+        \App::addJs("addScriptOnce('$scriptUrl', function(){{$callBack}} );");
     }
 
     /**

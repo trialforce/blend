@@ -68,6 +68,29 @@ class Component
      */
     public function getLink($event, $value = null, $params = null, $putUrl = false)
     {
+        return \Component\Component::getLinkForComponent($event, $value, $params, $putUrl, $this->getClassUrl());
+    }
+
+    /**
+     * Return a link to a especific even, with event, value and extra params
+     *
+     *
+     * @param string $event the event
+     * @param string $value the value
+     * @param array $params params array
+     * @param string $putUrl if is to put the current url as params
+     * @param string $componentClass component class
+     *
+     * @return string the resultant link
+     */
+    public static function getLinkForComponent($event, $value = null, $params = null, $putUrl = false, $componentClass = null)
+    {
+        if (!$componentClass)
+        {
+            $withOut = str_replace('Component\\', '', get_called_class());
+            $componentClass = strtolower(str_replace('\\', '-', $withOut));
+        }
+
         if ($putUrl)
         {
             $params = $this->getCurrentUrl($params);
@@ -80,7 +103,7 @@ class Component
 
         $params = $params ? '?' . $params : null;
         $component = \DataHandle\Config::get('use-module') ? 'component/' : '';
-        return "$component{$this->getClassUrl()}/{$event}/{$value}{$params}";
+        return "$component{$componentClass}/{$event}/{$value}{$params}";
     }
 
     /**
