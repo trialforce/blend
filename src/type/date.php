@@ -28,11 +28,31 @@ class Date extends \Type\DateTime
 
     public static function get($date = NULL, $column = NULL)
     {
-        return new \Type\Date($date);
+        $obj = new \Type\Date($date);
+        return $obj->setTime(0, 0, 0);
+    }
+
+    public function getHour()
+    {
+        $this->hour = 0;
+        return parent::getHour();
+    }
+
+    public function getMinute()
+    {
+        $this->minute = 0;
+        return parent::getMinute();
+    }
+
+    public function getSecond()
+    {
+        $this->second = 0;
+        return parent::getSecond();
     }
 
     public function toDb()
     {
+        $this->setTime(0, 0, 0);
         $value = $this->getValue(self::MASK_DATE_DB);
 
         //to correct go to database
@@ -44,13 +64,15 @@ class Date extends \Type\DateTime
         return $value;
     }
 
+    /**
+     * Return the current date
+     *
+     * @return \Type\Date
+     */
     public static function now()
     {
         $now = new \Type\Date(date(self::MASK_TIMESTAMP_USER));
-        $now->setHour(0);
-        $now->setMinute(0);
-        $now->setSecond(0);
-        return $now;
+        return $now->setTime(0, 0, 0);
     }
 
 }
