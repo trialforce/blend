@@ -178,17 +178,16 @@ abstract class Combo extends \Component\Component
 
             foreach ($data as $item)
             {
-                $td = NULL;
-                $tr[] = $link = new Tr(NULL);
-
                 $i = 0;
+                
+                $td = NULL;
+                $tr[] = $link = $this->createTr($i, $item);
 
                 foreach ($columns as $column)
                 {
                     if (!$column->getIdentificator())
                     {
-
-                        $td[] = $myTd = new Td('item_column_' . $column->getName() . '_' . $i);
+                        $td[] = $myTd = $this->createTd($i, $column, $item);
 
                         $value = $column->getValue($item, $i, $link, $myTd);
                         $myTd->html($value);
@@ -225,6 +224,29 @@ abstract class Combo extends \Component\Component
         {
             $container->show();
         }
+    }
+    
+    /**
+     * Create a Tr element for the select table
+     * @param int $row
+     * @param object $item
+     * @return Tr
+     */
+    public function createTr($row, $item)
+    {
+        return new Tr(NULL);
+    }
+    
+    /**
+     * Create a Td element for the select table
+     * @param int $row
+     * @param string $column
+     * @param object $item
+     * @return Td
+     */
+    public function createTd($row, $column, $item)
+    {
+        return new Td('item_column_' . $column->getName() . '_' . $row);
     }
 
     /**
