@@ -50,6 +50,7 @@ class ImageColumn extends \Component\Grid\Column
     function setSource($source)
     {
         $this->source = $source;
+        return $this;
     }
 
     function getWidth()
@@ -65,11 +66,13 @@ class ImageColumn extends \Component\Grid\Column
     function setWidth($width)
     {
         $this->width = $width;
+        return $this;
     }
 
     function setHeight($height)
     {
         $this->height = $height;
+        return $this;
     }
 
     function getUseThumb()
@@ -80,6 +83,7 @@ class ImageColumn extends \Component\Grid\Column
     function setUseThumb($useThumb)
     {
         $this->useThumb = $useThumb;
+        return $this;
     }
 
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
@@ -126,17 +130,13 @@ class ImageColumn extends \Component\Grid\Column
         {
             $thumb = $result;
 
-            if ($this->getUseThumb() == 'small')
+            if ($this->getUseThumb())
             {
-                $thumb = str_replace('media', 'small', $result);
-            }
-            else if ($this->getUseThumb())
-            {
-                $thumb = str_replace('media', 'thumb', $result);
+                $thumb = str_replace('media', 'thumb/w40/', $result);
             }
 
             $img = new \View\Img(null, $thumb, $this->width, $this->height);
-            $link = new \View\A(null, $img, $result, 'swipebox', '_BLANK');
+            $link = new \View\A(null, $img, $result, null, '_BLANK');
 
             if ($item instanceof \Db\Model)
             {
