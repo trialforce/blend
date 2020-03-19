@@ -3,7 +3,7 @@
 namespace Type;
 
 /**
- * Classe para lidar com Datas
+ * Classe to Deal with DateTime
  *
  * Criado originalmente em 06/10/2011 por :
  * Jader Osvino Fiegenbaum [jader@solis.coop.br]
@@ -35,12 +35,12 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     const ROUND_DOWN = 'd';
     const ROUND_UP = 'u';
 
-    private $day = null;
-    private $month = null;
-    private $year = null;
-    private $hour = null;
-    private $minute = null;
-    private $second = null;
+    protected $day = null;
+    protected $month = null;
+    protected $year = null;
+    protected $hour = null;
+    protected $minute = null;
+    protected $second = null;
 
     /**
      * Contrutor estático usado para que possa se utilizar
@@ -172,11 +172,13 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
-     * Define a hora minuto e segundo
-     * @param int $hour
-     * @param int $minute
-     * @param int $second
-     * @return \Date
+     * Define the hour, minute and second
+     * You can pass 99:99:99 in hour parameter when avoid minute and second
+     *
+     * @param int $hour hour from 0 to 24
+     * @param int $minute minute from 0 to 60
+     * @param int $second second to 0 to 60
+     * @return \Type\DateTime;
      */
     public function setTime($hour, $minute = NULL, $second = NULL)
     {
@@ -184,8 +186,8 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         {
             $explode = explode(':', $hour);
             $this->setHour($explode[0]);
-            $this->setMinute($explode[1]);
-            $this->setSecond($explode[2]);
+            $this->setMinute(isset($explode[1]) ? $explode[1] : 0);
+            $this->setSecond(isset($explode[2]) ? $explode[2] : 0);
         }
         else
         {
@@ -201,7 +203,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Seta a hora
      *
      * @param $hour
-     * @return Date;
+     * @return \Type\DateTime;
      */
     public function setHour($hour)
     {
@@ -275,7 +277,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Seta o segundo
      *
      * @param $second
-     * @return Date;
+     * @return \Type\DateTime;
      */
     public function setSecond($second)
     {
@@ -308,9 +310,9 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
-     * Seta a data que será trabalhada na classe, identificando qual é a máscara passada
+     * Define the entire date
      *
-     * @param timestamp $date
+     * @param string $date the date in any kwon format
      */
     public function setValue($date = null)
     {
@@ -320,6 +322,8 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
             $this->setMonth($date->getMonth());
             $this->setYear($date->getYear());
             $this->setTime($date->getHour(), $date->getMinute(), $date->getSecond());
+
+            return $this;
         }
 
         $this->clean();
@@ -548,22 +552,11 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
-     * Limpa os atributos do objeto
+     * Clean all values of the date object
      */
     private function clean()
     {
         $this->hour = $this->minute = $this->second = $this->month = $this->day = $this->year;
-    }
-
-    /**
-     * Método estático que retorna o tempo e data atual
-     *
-     * @param máscara a ser aplicada
-     * @return (objetct) Date
-     */
-    public static function now()
-    {
-        return new \Type\DateTime(date(self::MASK_TIMESTAMP_USER));
     }
 
     /**
@@ -596,25 +589,6 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     public function format($mask = self::MASK_TIMESTAMP_USER)
     {
         return $this->getValue($mask);
-    }
-
-    /**
-     * Temporary function to adjusts month names do portuguese
-     *
-     * @param string $dateString
-     * @return string
-     */
-    protected static function correctMonthNames($dateString)
-    {
-        $english[] = 'May';
-        $english[] = 'Apr';
-        $english[] = 'April';
-
-        $portuguese[] = 'Maio';
-        $portuguese[] = 'Abril';
-        $portuguese[] = 'Abril';
-
-        return str_replace($english, $portuguese, $dateString);
     }
 
     /**
@@ -695,6 +669,287 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     public function getDayOfWeek()
     {
         return date('N', $this->getTimestampUnix());
+    }
+
+    /**
+     * Retorna este objeto escrito no formato que for passado em $format.
+     * Para saber como utilizar estes formatos verifique função strftime do php.
+     *
+     * @param string $format
+     * @return string
+     */
+    public function strftime($format)
+    {
+        return strftime($format, $this->getTimestampUnix());
+    }
+
+    /**
+     * Set the last day of current month in date
+     *
+     * @return Date;
+     */
+    public function setLastDayOfMonth()
+    {
+        $this->setDay($this->getLastDayOfMonth());
+
+        return $this;
+    }
+
+    /**
+     * Return the last day of current date/month
+     *
+     * @return int
+     */
+    public function getLastDayOfMonth()
+    {
+        return date("t", $this->getTimestampUnix());
+    }
+
+    public function toDb()
+    {
+        $value = $this->getValue(self::MASK_TIMESTAMP_DB);
+
+        if (!$value)
+        {
+            return NULL;
+        }
+
+        return $value;
+    }
+
+    public function toHuman()
+    {
+        return $this->getValue(self::MASK_TIMESTAMP_USER_WITHOUT_SECOND);
+    }
+
+    /**
+     * Get smart date, like Gmail
+     *
+     * @return string
+     */
+    public function getSmartDate()
+    {
+        $now = Date::now();
+
+        //other year
+        if ($this->year != $now->year)
+        {
+            return $this->getValue(self::MASK_DATE_USER);
+        }
+        //today
+        else if ($this->isToday())
+        {
+            if ($this->getHour() == 0 && $this->getMinute() == 0 && $this->getSecond())
+            {
+                return 'Hoje'; //$this->getValue( self::MASK_DATE_USER );
+            }
+
+            return $this->getValue(self::MASK_HOUR);
+        }
+        //other day
+        else
+        {
+            $date = $this->strftime('%d %b');
+            $search = array('01', '02', '03', '04', '05', '06', '07', '08', '09');
+            $replace = array('1', '2', '3', '4', '5', '6', '7', '8', '9');
+
+            return self::correctMonthNames(str_replace($search, $replace, $date));
+        }
+    }
+
+    /**
+     * Verify if the current date is is today
+     *
+     * @return string
+     */
+    public function isToday()
+    {
+        $now = Date::now();
+
+        return ($this->day == $now->getDay() && $this->month == $now->getMonth() && $this->year == $now->getYear() );
+    }
+
+    /**
+     * Verify is current date is working day (not weekend)
+     *
+     * @return boolean
+     */
+    public function isWorkingDay()
+    {
+        $dayWeek = $this->getDayOfWeek();
+
+        if ($dayWeek >= 6)
+        {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Return the date in UTC format
+     * Used by nfs-e nfe XML's
+     *
+     * @return string
+     */
+    public function getUtc($withZone = TRUE)
+    {
+        $withZone = $withZone ? '\Z' : '';
+        return date("Y-m-d\TH:i:s" . $withZone, $this->getTimestampUnix());
+    }
+
+    /**
+     * Return a PHP Date instance
+     * Return a instance of PHP DateTime
+     * @return \DateTime
+     */
+    public function getPhpDatetime()
+    {
+        return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
+    }
+
+    /**
+     * Put the date in the next DAY OF WEEK
+     * Note dayname linha int this table
+     * http://www.php.net/manual/en/datetime.formats.relative.php
+     *
+     * Example :
+     * 1 - 01/11/2013 - Friday
+     * 2 - Send to next SUNDAY
+     * 3 - New date is 04/11/2013
+     *
+     * @param int $diaSemana
+     */
+    public function setNextDayOfWeek($diaSemana)
+    {
+        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
+        return $this;
+    }
+
+    /**
+     * Add a specific amount of working days
+     *
+     * @param int $daysToAdd working days to add
+     * @return $this
+     */
+    public function addWorkingDay($daysToAdd)
+    {
+        $amount = $daysToAdd;
+
+        while ($amount > 0)
+        {
+            $this->addDay(1);
+
+            while (!$this->isWorkingDay())
+            {
+                $this->addDay(1);
+            }
+
+            $amount--;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the day to the exactely working day
+     * Example:
+     * The five working day of 07/2013 is 07/07/2013
+     *
+     * @param int $workingDay
+     * @return \Type\DateTime
+     */
+    public function setWorkingDay($workingDay)
+    {
+        $day = 1;
+        $this->setDay($day);
+
+        if ($this->isWorkingDay())
+        {
+            $day++;
+        }
+
+        while ($day <= $workingDay)
+        {
+            $this->addDay(1);
+
+            if ($this->isWorkingDay())
+            {
+                $day++;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Validate passed date
+     *
+     * @param string $value
+     * @return string
+     */
+    public function validate($value = NULL)
+    {
+        $error = parent::validate($value);
+
+        if (mb_strlen($this->value) > 0)
+        {
+            list($dia, $mes, $ano) = explode('/', $this->getValue());
+
+            if (!checkdate($mes, $dia, $ano))
+            {
+                $error[] = 'Data inválida.';
+            }
+        }
+
+        return $error;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
+    }
+
+    /**
+     * Get value estático.
+     * Usado para formatação.
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function value($value)
+    {
+        return \Type\DateTime::get($value)->getValue();
+    }
+
+    /**
+     * Método estático que retorna o tempo e data atual
+     *
+     * @param máscara a ser aplicada
+     * @return (objetct) Date
+     */
+    public static function now()
+    {
+        return new \Type\DateTime(date(self::MASK_TIMESTAMP_USER));
+    }
+
+    /**
+     * Temporary function to adjusts month names do portuguese
+     *
+     * @param string $dateString
+     * @return string
+     */
+    protected static function correctMonthNames($dateString)
+    {
+        $english[] = 'May';
+        $english[] = 'Apr';
+        $english[] = 'April';
+
+        $portuguese[] = 'Maio';
+        $portuguese[] = 'Abril';
+        $portuguese[] = 'Abril';
+
+        return str_replace($english, $portuguese, $dateString);
     }
 
     /**
@@ -826,257 +1081,6 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         $dias[$sunday] = "Domingo";
 
         return $dias;
-    }
-
-    /**
-     * Retorna este objeto escrito no formato que for passado em $format.
-     * Para saber como utilizar estes formatos verifique função strftime do php.
-     *
-     * @param string $format
-     * @return string
-     */
-    public function strftime($format)
-    {
-        return strftime($format, $this->getTimestampUnix());
-    }
-
-    /**
-     * Define o dia como último dia do mês
-     *
-     * @return Date;
-     */
-    public function setLastDayOfMonth()
-    {
-        $this->setDay($this->getLastDayOfMonth());
-
-        return $this;
-    }
-
-    /**
-     * Obtém o último dia do mês
-     *
-     * @return int
-     */
-    public function getLastDayOfMonth()
-    {
-        return date("t", $this->getTimestampUnix());
-    }
-
-    public function toDb()
-    {
-        $value = $this->getValue(self::MASK_TIMESTAMP_DB);
-
-        if (!$value)
-        {
-            return NULL;
-        }
-
-        return $value;
-    }
-
-    /**
-     * Get value estático.
-     * Usado para formatação.
-     *
-     * @param string $value
-     * @return string
-     */
-    public static function value($value)
-    {
-        return \Type\DateTime::get($value)->getValue();
-    }
-
-    public function toHuman()
-    {
-        return $this->getValue(self::MASK_TIMESTAMP_USER_WITHOUT_SECOND);
-    }
-
-    /**
-     * Get smart date, like Gmail
-     *
-     * @return string
-     */
-    public function getSmartDate()
-    {
-        $now = Date::now();
-
-        //other year
-        if ($this->year != $now->year)
-        {
-            return $this->getValue(self::MASK_DATE_USER);
-        }
-        //today
-        else if ($this->isToday())
-        {
-            if ($this->getHour() == 0 && $this->getMinute() == 0 && $this->getSecond())
-            {
-                return 'Hoje'; //$this->getValue( self::MASK_DATE_USER );
-            }
-
-            return $this->getValue(self::MASK_HOUR);
-        }
-        //other day
-        else
-        {
-            $date = $this->strftime('%d %b');
-            $search = array('01', '02', '03', '04', '05', '06', '07', '08', '09');
-            $replace = array('1', '2', '3', '4', '5', '6', '7', '8', '9');
-
-            return self::correctMonthNames(str_replace($search, $replace, $date));
-        }
-    }
-
-    /**
-     * Verify if the current date is isToday
-     *
-     * @return string
-     */
-    public function isToday()
-    {
-        $now = Date::now();
-
-        return ($this->day == $now->getDay() && $this->month == $now->getMonth() && $this->year == $now->getYear() );
-    }
-
-    /**
-     * Return the date in UTC format
-     * Used by nfs-e nfe XML's
-     *
-     * @return string
-     */
-    public function getUtc($withZone = TRUE)
-    {
-        $withZone = $withZone ? '\Z' : '';
-        return date("Y-m-d\TH:i:s" . $withZone, $this->getTimestampUnix());
-    }
-
-    /**
-     * Add a specific amount of working days
-     * Return a instance of PHP DateTime
-     * @return \DateTime
-     */
-    public function getPhpDatetime()
-    {
-        return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
-    }
-
-    /**
-     * Put the date in the next DAY OF WEEK
-     * Note dayname linha int this table
-     * http://www.php.net/manual/en/datetime.formats.relative.php
-     *
-     * Example :
-     * 1 - 01/11/2013 - Friday
-     * 2 - Send to next SUNDAY
-     * 3 - New date is 04/11/2013
-     *
-     * @param int $diaSemana
-     */
-    public function setNextDayOfWeek($diaSemana)
-    {
-        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
-        return $this;
-    }
-
-    /**
-     * Add a specific amount of working days
-     *
-     * @param int $daysToAdd working days to add
-     * @return $this
-     */
-    public function addWorkingDay($daysToAdd)
-    {
-        $amount = $daysToAdd;
-
-        while ($amount > 0)
-        {
-            $this->addDay(1);
-
-            while (!$this->isWorkingDay())
-            {
-                $this->addDay(1);
-            }
-
-            $amount--;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the day to the exactely working day
-     * Example:
-     * The five working day of 07/2013 is 07/07/2013
-     *
-     * @param int $workingDay
-     * @return \Type\DateTime
-     */
-    public function setWorkingDay($workingDay)
-    {
-        $day = 1;
-        $this->setDay($day);
-
-        if ($this->isWorkingDay())
-        {
-            $day++;
-        }
-
-        while ($day <= $workingDay)
-        {
-            $this->addDay(1);
-
-            if ($this->isWorkingDay())
-            {
-                $day++;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Verify is current date is working day (not weekend)
-     *
-     * @return boolean
-     */
-    public function isWorkingDay()
-    {
-        $dayWeek = $this->getDayOfWeek();
-
-        if ($dayWeek >= 6)
-        {
-            return FALSE;
-        }
-
-        return TRUE;
-    }
-
-    /**
-     * Validate passed date
-     *
-     * @param string $value
-     * @return string
-     */
-    public function validate($value = NULL)
-    {
-        $error = parent::validate($value);
-
-        if (mb_strlen($this->value) > 0)
-        {
-            list($dia, $mes, $ano) = explode('/', $this->getValue());
-
-            if (!checkdate($mes, $dia, $ano))
-            {
-                $error[] = 'Data inválida.';
-            }
-        }
-
-        return $error;
-    }
-
-    public function jsonSerialize()
-    {
-        return $this->toDb();
     }
 
 }

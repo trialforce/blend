@@ -21,8 +21,8 @@ class IntInput extends \View\Input
         $this->setAttribute( 'data-m-dec', 0 );
         $this->setAttribute( 'data-a-sep', '' );
         $this->setAttribute( 'data-a-dec', '.' );
-        $this->setAttribute( 'data-v-max', $vMax );
-        $this->setAttribute( 'data-v-min', $vMin );
+        $this->setAttribute( 'max', $vMax );
+        $this->setAttribute( 'min', $vMin );
 
         $this->addClass( 'integer' );
     }
