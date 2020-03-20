@@ -402,20 +402,19 @@
 
 @media screen and (max-width: 400px) {
     
-    .xdsoft_datetimepicker.xdsoft_noselect {
+    .dialog-datetime.xdsoft_datetimepicker.xdsoft_noselect {
         padding: 10px;
         padding-top: 20vh;
     }
 
-    .xdsoft_datepicker.active {
+    .dialog-datetime .xdsoft_datepicker.active {
         max-width: 80%;
         float:left;
     }
 
-    .xdsoft_timepicker.active {
+    .dialog-datetime .xdsoft_timepicker.active {
         top: auto;
         position: relative;
         border-radius: 4px;
-        float: left;
     }
 }

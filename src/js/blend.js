@@ -383,35 +383,56 @@ function dateTimeInputDesktopOnChange(dp,input)
     console.log(dp, input);
 }
 
+function dateTimeInputDesktopOnShow(currentTime, input)
+{
+    console.log(currentTime, input);
+}
+
+//https://xdsoft.net/jqplugins/datetimepicker/
 function dateTimeInputDesktop()
 {   
-    $('.dateinput').not('[readonly]').datetimepicker({
-        onChangeDateTime:dateTimeInputDesktopOnChange,
-        timepicker: false,
-        defaultSelect: false,
-        validateOnBlur: false,
-        closeOnDateSelect: true,
-        mask: true,
-        allowBlank: true,
-        format: 'd/m/Y',
-        step: 15
+    $('.dateinput').not('[readonly]').each(function()
+    {
+        $(this).datetimepicker({
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-date-'+$(this).attr('id'),
+            className: 'dialog-date',
+            timepicker: false,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            mask: true,
+            allowBlank: true,
+            format: 'd/m/Y',
+            step: 15
+        });
     });
 
-    $('.datetimeinput').not('[readonly]').datetimepicker(
+    $('.datetimeinput').not('[readonly]').each(function()
     {
-        onChangeDateTime:dateTimeInputDesktopOnChange,
-        format: 'd/m/Y H:i:s',
-        mask: true,
-        defaultSelect: false,
-        validateOnBlur: false,
-        closeOnDateSelect: true,
-        allowBlank: true,
-        step: 15
+        $(this).datetimepicker(
+        {
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-datetime-'+$(this).attr('id'),
+            className: 'dialog-datetime',
+            format: 'd/m/Y H:i:s',
+            mask: true,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            allowBlank: true,
+            step: 15
+        });
     });
 
     $('.timeinput').not('[readonly]').datetimepicker(
     {
         onChangeDateTime:dateTimeInputDesktopOnChange,
+        onShow: dateTimeInputDesktopOnShow,
+        id: 'dialog-time-'+$(this).attr('id'),
+        className: 'dialog-time',
         format: 'H:i:s',
         defaultSelect: false,
         datepicker: false,
@@ -425,7 +446,6 @@ function dateTimeInputDesktop()
     $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
     {
         markFormChanged();
-
     });
     
     //avoid open the keyboard
