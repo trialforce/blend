@@ -1,0 +1,85 @@
+
+.blend-floating-menu-holder {
+    position: relative;
+}
+
+.blend-floating-menu-holder:hover {
+    opacity: 1.0;
+}
+
+.btn .blend-floating-menu {
+    right: 0;
+    top: 30px;
+}
+
+.blend-floating-menu {
+    display: inline-block;
+    border: solid 1px #cecece;
+    border-radius: 3px;
+    list-style: none;
+    overflow: hidden;
+    position: absolute;
+    min-width: 150px;
+    box-shadow: 1px 1px 1px RGBA(0,0,0,0.2);
+    -webkit-box-shadow: 1px 1px 1px RGBA(0,0,0,0.2);
+    background-color: #fff;
+    z-index: 9999;
+    font-weight: normal;
+}
+
+.blend-floating-menu li {
+    padding: 2px 14px;
+    cursor: pointer;
+    text-align: left;
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
+}
+
+.blend-floating-menu span {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.blend-floating-menu a {
+    float:left;
+    font-size: 14px;
+    line-height: 36px;
+    text-decoration: none;
+    color: #555;
+    margin-left: 0;
+    display: block;
+    padding: 0 !important;
+}
+
+.blend-floating-menu li .fa {
+    width: 14px;
+    text-align: center;
+}
+
+.action-list-open .action-list {
+    width: 260px;
+    opacity: 1;
+    transition: 0.1s ease-in-out width;
+}
+
+.action-list {
+    position: fixed;
+    right: 0;
+    background: white;
+    opacity: 0;
+    width: 0px;
+    min-width: 0;
+    height: calc(100vh - 41px);
+    list-style: none;
+    box-sizing: border-box;
+    box-shadow: 0 0 1px 1px RGBA(0,0,0,0.3);
+    z-index: 100;
+    transition: 0.1s ease-in-out width;
+    top: 50px;
+    border: none;
+}
+
+.action-list li:hover {
+    background-color: #ccc;
+}

@@ -1,0 +1,240 @@
+html {
+    margin: 0;
+    padding:0;
+    height: 100%;
+    min-height: 100%;
+}
+
+html *[onclick] {
+    cursor: pointer;
+}
+
+body {
+    margin:0;
+    padding:0;
+    vertical-align: baseline;
+    line-height: 1;
+    display: block;
+    height: 100%;
+    min-height: 100%;
+}
+
+div, span, applet, object, iframe
+p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section
+{
+    display: block;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+    content: '';
+    content: none;
+}
+
+/*tables*/
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+caption {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+tbody {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+tfoot {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+thead {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+tr {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+th {
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+    display: table-cell;
+    padding: 2px;
+    text-align: left;
+}
+
+td {
+    border: 0;
+    vertical-align: baseline;
+    display: table-cell;
+    margin: 0;
+    padding: 6px;
+    text-align: left;
+}
+
+thead {
+    display: table-header-group;
+}
+
+tbody {
+    display:table-row-group;
+}
+
+/*headings*/
+h1, .h1 {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 24px;
+    margin: 20px 0;
+    line-height: 26px;
+    letter-spacing: 1px;
+}
+
+h2, .h2{
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 20px;
+    margin: 18px 0;
+    line-height: 24px;
+    letter-spacing: 0;
+}
+
+h3, .h3 {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 18px;
+    margin: 16px 0;
+    line-height:22px;
+    letter-spacing: 0;
+}
+
+h4, .h4 {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 16px;
+    margin: 14px 0;
+    line-height:18px;
+    letter-spacing: 0;
+}
+
+h5, .h5 {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 12px;
+    margin: 20px 0;
+    line-height:14px;
+    letter-spacing: 0;
+}
+
+h6, .h6{
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    display:block;
+    font-weight: 400;
+    font-size: 11px;
+    margin: 20px 0;
+    line-height:12px;
+    letter-spacing: 0;
+}
+
+iframe {
+    border: none;
+}
+
+small {
+    font-size: 50%;
+}
+
+p {
+    -webkit-margin-after: 0;
+    -webkit-margin-before: 0;
+    margin: 10px 0;
+}
+
+a {
+    color: #3581FB;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #3581FB;
+    text-decoration: underline;
+}
+
+li {
+    display: block;
+    width: 100%;
+    list-style-type: none;
+}
+
+/*cell phone*/
+@media screen and ( max-width: 800px ) {
+
+    body {
+        font-size: 20px;
+    }
+}
