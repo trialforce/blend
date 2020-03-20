@@ -1,0 +1,90 @@
+
+.combo {
+    display: inline-block;
+    position: relative;
+    margin: 0 !important;
+    width: 100%;
+}
+
+.combo-edit-btn {
+    float: left;
+    width: 36px;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius: 3px 0 0 3px; 
+}
+
+.combo .labelValue.combo-edit-input {
+    float:right;
+    margin-right: 0;
+    border-radius: 0 3px 3px 0;
+    border-left: none;
+}
+
+.combo.hideValue .labelValue.combo-edit-input {
+    width: calc(100% - 36px);
+}
+
+.combo .inputValue {
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;
+}
+
+.combo .labelValue {
+    width: 78%;
+    box-sizing: border-box;
+    margin-right: 2%;
+    position: relative;
+}
+
+.combo:after {
+    content: ' ';
+    position: absolute;
+    right: 3px;
+    top: 11px;
+    width: 23px;
+    height: 12px;
+    background-image: url(../theme/img/search.png);
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.combo .dropDownContainer, .combo div.dropDownContainer {
+    margin:0;
+    position: absolute;
+    z-index: 99;
+    border: solid 1px #ccc;
+    background-color: #fff;
+    top: 33px;
+    box-shadow: 3px 3px 5px RGBA(0,0,0,0.2);
+    max-width: initial;
+}
+
+.combo .dropDownContainer div {
+    margin:0;
+}
+
+.combo .dropDownContainer table {
+    width: 100%;
+}
+
+.combo .dropDownContainer tr {
+    cursor: pointer;
+    width: 100%;
+}
+
+.combo .dropDownContainer tr.selected {
+    background-color: #3581FB;
+    color: #fff;
+}
+
+.combo.hideValue .inputValue {
+    display: none;
+}
+
+.combo.hideValue .labelValue {
+    width: 100%;
+}

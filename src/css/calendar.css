@@ -1,0 +1,27 @@
+.calendar td {
+    width: 14.28%;
+    position: relative;
+    height: 40px;
+    border-left: solid 1px #ddd;
+}
+
+.calendar td.today {
+    background-color: #ccc;
+}
+
+.calendarDay {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    text-shadow: 1px 1px #fff;
+}
+
+.calendar.total td {
+    padding-bottom: 85px;
+}
+
+.calendar .total-day {
+    position: absolute;
+    bottom: 0;
+    width: 90%;
+}

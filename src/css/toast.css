@@ -1,0 +1,31 @@
+.toast {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -100px;
+    opacity:0; 
+    background-color: #fff;
+    border-radius: 2px;
+    padding: 14px 20px;
+    min-width: 500px;
+    text-align: center;
+    z-index:150;
+    transition: 0.3s ease-in-out;
+    box-shadow: 1px 1px 5px 0px RGBA(0,0,0,0.3);
+}
+
+.toast.show {
+    top:55px;
+    opacity: 1;
+    transition: 0.3s ease-in-out
+}
+
+@media screen and (max-width: 800px) {
+
+    .toast {
+        min-width: 98%;
+        box-sizing: border-box;
+        left: 1%;
+        margin-left: 0;
+    }  
+}

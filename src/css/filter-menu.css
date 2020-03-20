@@ -1,0 +1,50 @@
+
+i.fa.filter-menu {
+    position: relative;
+    font-size: 24px;
+    margin-top: 7px;
+    margin-bottom: 9px;
+    float: right;
+    margin-top: 0;
+    cursor: pointer;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    transition: 0.2s ease-in-out;
+    max-height: 400px;
+    margin-right: 0;
+    border-radius: 50%;
+}
+
+i.fa.filter-menu:active {
+    background: #ccc;
+}
+
+i.fa.filter-menu .blend-floating-menu {
+    top: 33px;
+    right: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+i.fa.filter-menu .blend-floating-menu li {
+    line-height: 24px;
+    position: relative;
+}
+
+i.fa.filter-menu .blend-floating-menu li span {
+    display: block;
+    margin-right: 10px;
+}
+
+i.fa.filter-menu .blend-floating-menu li span .fa-trash, #icon-save-new-item {
+    position: absolute;
+    margin-right: 0;
+    line-height: 22px;
+    text-align: center;
+    top: 0;
+    right: 0px;
+    width: 22px;
+}
