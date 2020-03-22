@@ -56,11 +56,11 @@
     margin:0;
     position: absolute;
     z-index: 99;
-    border: solid 1px #ccc;
     background-color: #fff;
     top: 33px;
     box-shadow: 3px 3px 5px RGBA(0,0,0,0.2);
     max-width: initial;
+    min-width: calc(100% - 2px) !important;
 }
 
 .combo .dropDownContainer div {
@@ -74,6 +74,11 @@
 .combo .dropDownContainer tr {
     cursor: pointer;
     width: 100%;
+}
+
+.combo .dropDownContainer tr:hover {
+    background-color: #3581FB;
+    color: #fff;
 }
 
 .combo .dropDownContainer tr.selected {

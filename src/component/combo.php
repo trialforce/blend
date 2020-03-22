@@ -53,8 +53,8 @@ abstract class Combo extends \Component\Component
         $input[] = $this->labelValue = new \View\InputText('labelField_' . $id, NULL, 'labelValue');
 
         $this->labelValue->setAttribute('autocomplete', 'new_' . $id);
-        $this->labelValue->setData('change', "p('" . $this->getLink('onchange', $id) . "');");
-        $this->labelValue->setAttribute('onclick', "comboShowDropdown('$id')");
+        $this->labelValue->setData('change', "p('" . $this->getLink('mountDropDown', $id) . "');");
+        $this->labelValue->setAttribute('onclick', "comboInputClick('$id', this)");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
         $this->labelValue->setAttribute('data-invalid-id', $id);
         $this->labelValue->setAttribute('placeholder', 'Pesquisar ...');
@@ -70,7 +70,7 @@ abstract class Combo extends \Component\Component
         $this->setContent($div);
 
         //jquery hover works great
-        \App::addJs('$("#dropDownContainer_' . $id . '").hover(function() {}, function() { comboHideDropdown("' . $id . '");});');
+        //\App::addJs('$("#dropDownContainer_' . $id . '").hover(function() {}, function() { comboHideDropdown("' . $id . '");});');
 
         return $div;
     }
@@ -80,7 +80,7 @@ abstract class Combo extends \Component\Component
         $page = \View\View::getDom()->getPageUrl();
         $className = str_replace('\\', '-', get_class($this));
         $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
-        \App::addJs("p('$module{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
+        \App::addJs("p('$module{$this->getClassUrl()}/mountDropDown/{$id}?hideCombo=true');");
     }
 
     public function hideValue()
@@ -143,7 +143,7 @@ abstract class Combo extends \Component\Component
     /**
      * Mount dropdown on change
      */
-    public function onChange()
+    public function mountDropDown()
     {
         \App::dontChangeUrl();
         $hideCombo = Request::get('hideCombo');
@@ -179,7 +179,7 @@ abstract class Combo extends \Component\Component
             foreach ($data as $item)
             {
                 $i = 0;
-                
+
                 $td = NULL;
                 $tr[] = $link = $this->createTr($i, $item);
 
@@ -225,7 +225,7 @@ abstract class Combo extends \Component\Component
             $container->show();
         }
     }
-    
+
     /**
      * Create a Tr element for the select table
      * @param int $row
@@ -236,7 +236,7 @@ abstract class Combo extends \Component\Component
     {
         return new Tr(NULL);
     }
-    
+
     /**
      * Create a Td element for the select table
      * @param int $row

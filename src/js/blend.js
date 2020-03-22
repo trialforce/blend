@@ -1187,10 +1187,47 @@ function updateEditors()
     }
 }
 
+var timerTypeWatch = 0;
+//close combos on click outside
+$('body')[0].addEventListener("click", function() 
+{ 
+    var currentElement = $(document.activeElement);
+    var isCombo = currentElement.hasClass('labelValue');
+    
+    if ( !isCombo)
+    {
+        //close all combos
+        $('.dropDownContainer').slideUp(50);
+    }
+    //comboHideDropdown(id);
+}
+, false);
+
+function comboInputClick(id,eThis)
+{
+    $('.dropDownContainer').not('#'+id).slideUp(50);
+    comboToggleDropdown(id);
+}
+
+function comboToggleDropdown(id)
+{
+    var element = $('#dropDownContainer_' + id);
+    
+    if(element.is(':visible'))
+    {
+        comboHideDropdown(id);
+    }
+    else
+    {
+        comboShowDropdown(id);
+    }
+}
+
 function comboShowDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
 
+    //realonly, avoid open dropdown
     if (element.is('[readonly]'))
     {
         comboHideDropdown(id);
@@ -1200,12 +1237,12 @@ function comboShowDropdown(id)
     //mininum width
     element.css('min-width', $('#labelField_' + id).width() + 'px');
     //show
-    element.fadeIn('fast');
+    element.slideDown(50);
 }
 
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).fadeOut('fast');
+    $('#dropDownContainer_' + id).slideUp(50);
 }
 
 function comboDoSearch(id)
@@ -1213,23 +1250,25 @@ function comboDoSearch(id)
     eval($('#labelField_' + id).data('change'));
 }
 
-function comboSelectItem(id, value, label, eThis)
+function comboSelectItem(comboId, value, label, eThis)
 {
+    //remove selected from other tr's
     $(eThis).parent().find('tr').removeClass('selected');
+    //mark this as select
     $(eThis).addClass('selected');
-    var element = $('#' + id);
+    
+    //change the value and trigger onchange
+    var element = $('#' + comboId);
     element.val(value);
     element.trigger('change');
 
-    var elementLabel = $('#labelField_' + id);
+    //change the value of label field
+    var elementLabel = $('#labelField_' + comboId);
     elementLabel.val(label);
     
-    comboHideDropdown(id);
+    //open the dropdrown table
+    comboHideDropdown(comboId);  
 }
-
-var timerTypeWatch = 0;
-
-/*Inspect type in some input*/
 
 function comboTypeWatch(element, event, callback, ms)
 {
@@ -1248,33 +1287,40 @@ function comboTypeWatch(element, event, callback, ms)
         return true;
     }
 
-    //up
+    //down
     if (event.keyCode === 40)
     {
         comboShowDropdown(id);
 
-        if (parente.find('table tr.selected').length === 0)
+        var next = parente.find('table tr.selected').next();
+
+        if ( next.length > 0 )
         {
-            parente.find('table tr').eq(0).click();
-        } else
+            parente.find('table tr.selected').removeClass('selected');
+            next.addClass('selected');
+        }
+        else
         {
-            parente.find('table tr.selected').next().click();
+            parente.find('table tr').eq(0).addClass('selected');
         }
 
         return false;
     }
-    //down
+    //up
     else if (event.keyCode === 38)
     {
         comboShowDropdown(id);
-
-        parente.find('table tr.selected').prev().click();
+        var prev = parente.find('table tr.selected').prev();
+        parente.find('table tr.selected').removeClass('selected');
+        prev.addClass('selected');
 
         return false;
     }
     //enter
     else if (event.keyCode === 13)
     {
+        //make the selection
+        parente.find('table tr.selected').click();
         comboHideDropdown(id);
 
         return false;
