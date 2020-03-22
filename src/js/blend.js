@@ -1338,7 +1338,27 @@ function comboModelClick(idInput)
     var value = input.val();
     var page = input.data('model');
     
-    p(page+'/editarpopup/'+value);    
+    p(page+'/editarpopup/'+value+'&idInput='+idInput);
+}
+
+function comboModelClose(idInput)
+{
+    var iframe = document.getElementById("edit-popup-iframe");
+    var doc = iframe.contentWindow.document;
+    var editEditId = $(doc).find('#id').val();
+    
+    //closes popup
+    popup('destroy','#edit-popup');
+    
+    //fill the value on hidden field
+    $('#'+idInput).val(editEditId);
+    //call the ajax action to fill dropdown, put hideCombo, to make it work properly
+    var code = $('#labelField_'+idInput).data('change');
+    console.log(code);
+    //run the code fill label value
+    eval(code.replace('mountDropDown','fillLabelByValue'));
+    //fill dropdown
+    setTimeout(function(){eval(code.replace(idInput,idInput+'?hideCombo=true'));},500);
 }
 
 /**

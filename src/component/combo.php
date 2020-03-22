@@ -69,9 +69,6 @@ abstract class Combo extends \Component\Component
         $this->makeDefaultSearch($id);
         $this->setContent($div);
 
-        //jquery hover works great
-        //\App::addJs('$("#dropDownContainer_' . $id . '").hover(function() {}, function() { comboHideDropdown("' . $id . '");});');
-
         return $div;
     }
 
@@ -110,24 +107,46 @@ abstract class Combo extends \Component\Component
         }
 
         $this->inputValue->setValue($value);
+        $item = $this->getFirstDataItem($value);
 
+        if ($item)
+        {
+            $value = \DataSource\Grab::getUserValue($this->getLabelColumn(), $item);
+            $this->labelValue->setValue($value);
+        }
+    }
+
+    protected function getInstanceDataSource()
+    {
         $class = get_class($this);
         $dataSource = $class::getDataSource();
 
+        return $dataSource;
+    }
+
+    protected function getLabelColumn()
+    {
+        $dataSource = $this->getInstanceDataSource();
+        $columns = array_values($dataSource->getColumns());
+        return $columns[1];
+    }
+
+    protected function getFirstDataItem($value = null)
+    {
+        $dataSource = $this->getInstanceDataSource();
         $columns = array_values($dataSource->getColumns());
         $indentificatorColumm = $columns[0];
-        $labelColumm = $columns[1];
 
         $where = new \Db\Where($indentificatorColumm->getName(), '=', $value . '');
-
         $dataSource->addExtraFilter($where);
         $data = $dataSource->getData();
 
-        if (is_array($data) && isset($data[0]))
+        if (isIterable($data) && isset($data[0]))
         {
-            $value = \DataSource\Grab::getUserValue($labelColumm, $data[0]);
-            $this->labelValue->setValue($value);
+            return $data[0];
         }
+
+        return null;
     }
 
     /**
@@ -138,6 +157,24 @@ abstract class Combo extends \Component\Component
     public function getValue()
     {
         return $this->inputValue->getValue();
+    }
+
+    public function fillLabelByValue()
+    {
+        \App::dontChangeUrl();
+        $idValue = Request::get('v');
+        $value = Request::get($idValue);
+
+        if ($value)
+        {
+            $item = $this->getFirstDataItem($value);
+
+            if ($item)
+            {
+                $labelValue = \DataSource\Grab::getUserValue($this->getLabelColumn(), $item);
+                $this->byId('labelField_' . $idValue)->val($labelValue);
+            }
+        }
     }
 
     /**
