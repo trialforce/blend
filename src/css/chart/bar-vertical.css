@@ -1,0 +1,33 @@
+.chart-bar-vertical {
+    display: inline-block;
+    position: relative;
+    background: #ccc;
+    height: 100%;
+    width: 48px;
+    font-size: 10px;
+    margin: 16px 0;
+    margin-right: 4%;
+}
+
+.chart-bar-vertical.big {
+    width: 84px;
+}
+
+.chart-bar-vertical-segment {
+    position: absolute;
+    width: 100%;
+    background: #69b1ea;
+    animation: Gradient 15s ease infinite;
+    transition: 1s ease width;
+    bottom:0;
+}
+
+.chart-bar-vertical-label {
+    text-align: center;
+    position: absolute;
+    height: 30%;
+    width: 100%;
+    font-weight: bold;
+    color:#fff;
+    bottom:0;
+}

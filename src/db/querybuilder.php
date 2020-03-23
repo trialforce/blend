@@ -668,6 +668,11 @@ class QueryBuilder
         return new \Db\Collection($this->select($modelName));
     }
 
+    public function toCollectionSdtClass()
+    {
+        return new \Db\Collection($this->select('stdClass'));
+    }
+
     /**
      * Return data as an array of array
      * @return array array of array

@@ -3,7 +3,7 @@
 namespace Media;
 
 /**
- * Represents a color
+ * Represents a simple color
  */
 class Color
 {
@@ -201,6 +201,31 @@ class Color
     }
 
     /**
+     * Return default CSS color USING RGB or RGBA (when need)
+     * @return string
+     */
+    public function getCssColor()
+    {
+        if ($this->getAlpha())
+        {
+            return "RGB({$this->getRed()},{$this->getGreen()},{$this->getBlue()},{$this->getAlpha()});";
+        }
+        else
+        {
+            return "RGB({$this->getRed()},{$this->getGreen()},{$this->getBlue()});";
+        }
+    }
+
+    /**
+     * Return the string representation of color, that is a CSS string
+     * @return string the css version of the color
+     */
+    public function __toString()
+    {
+        return $this->getCssColor();
+    }
+
+    /**
      * Return default transparent color
      *
      * @return \Color
@@ -250,8 +275,20 @@ class Color
         return new Color(0, 255, 0);
     }
 
+    /**
+     * Return a simple random color
+     *
+     * @return \Media\Color
+     */
+    public static function rand()
+    {
+        return new Color(rand(0, 255), rand(0, 255), rand(0, 255));
+    }
+
 }
+
 /*
+TO futuro unit test
 new Color( 255, 0, 0, 255 ) ;
 Color::fromHex( 'f00' ) ;
 Color::fromHex( 'f00f' ) ;

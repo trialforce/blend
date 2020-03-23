@@ -1595,40 +1595,64 @@ function destroyCropCanvas()
 function toolTip(selector, message)
 {
     var element = $(selector);
-    element.attr('title', '');
+    //remove title
+    element.attr('title', '').removeAttr('title');
     //var parent = element.parent();
-    //element.append('body');
-    var toolTipHolder = $(document.createElement('div'));
-    toolTipHolder.addClass('tooltip');
-    //toolTipHolder.append(element);
-    toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
-    element.after(toolTipHolder);
-    toolTipHolder.prepend(element);
+    var tagName = element.prop('tagName');
+    
+    if (tagName== 'input'|| tagName == 'select')
+    {
+        var toolTipHolder = $(document.createElement('div'));
+        toolTipHolder.addClass('tooltip');
+        toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
+        element.after(toolTipHolder);
+        toolTipHolder.prepend(element);
+    }
+    else
+    {
+        element.addClass('tooltip');
+        element.append('<span class="tooltiptext">' + message + '</span>');
+    }
+}
+
+/**
+ * Make the default tooltip for all elements that has title
+ * 
+ * @returns void
+ */
+function defaultTooltTipForAllTitle()
+{
+    $('[title]').each(function()
+    {
+        toolTip(this, $(this).attr('title'));
+    });
 }
 
 function addScriptOnce(src, callBack)
 {
     var list = document.getElementsByTagName('script');
-    var i = list.length, flag = false;
-    var flag = false;
+    var i = list.length;
+    var findedOnDoc = false;
 
+    //verify if is already loaded
     while (i--)
     {
         if (list[i].src === src)
         {
-            flag = true;
+            findedOnDoc = true;
             break;
         }
     }
 
-    // if we didn't already find it on the page, add it
-    if (!flag)
+    // if we didn't find it on the page, add it
+    if (!findedOnDoc)
     {
         var script = document.createElement('script');
         script.src = src;
         script.onload = callBack;
         document.getElementsByTagName('body')[0].appendChild(script);
-    } 
+    }
+    //if already on document, we only call the callback
     else
     {
         callBack();
