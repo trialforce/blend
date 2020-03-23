@@ -1,0 +1,48 @@
+
+
+.htmlEditor {
+    width: 100%;
+    display: block;
+    position: relative;
+}
+
+.htmlEditor  div {
+    margin: 0;
+}
+
+.htmlEditor > div {
+    border: solid 1px #bbb;
+}
+
+.htmlEditor ol, .htmlEditor ul {
+    margin-left: 20px;
+}
+
+.nicEdit-main {
+    min-height: 120px !important;
+    background: #fff;
+    width: 100% !important;
+}
+
+.nicEdit-panelContain {
+    position: absolute;
+    top: -20px;
+    background-color: transparent !important;
+    border: none !important;
+    width: auto !important;
+}
+
+.nicEdit-button-undefined {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.nicEdit-main[contenteditable*="false"] {
+    background-color: #e6ebf1;
+}
+
+.nicEditorContain {
+    position: fixed !important;
+    top: 200px !important;
+    left: 40% !important;
+}

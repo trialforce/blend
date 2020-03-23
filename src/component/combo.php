@@ -53,8 +53,8 @@ abstract class Combo extends \Component\Component
         $input[] = $this->labelValue = new \View\InputText('labelField_' . $id, NULL, 'labelValue');
 
         $this->labelValue->setAttribute('autocomplete', 'new_' . $id);
-        $this->labelValue->setData('change', "p('" . $this->getLink('onchange', $id) . "');");
-        $this->labelValue->setAttribute('onclick', "comboShowDropdown('$id')");
+        $this->labelValue->setData('change', "p('" . $this->getLink('mountDropDown', $id) . "');");
+        $this->labelValue->setAttribute('onclick', "comboInputClick('$id', this)");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
         $this->labelValue->setAttribute('data-invalid-id', $id);
         $this->labelValue->setAttribute('placeholder', 'Pesquisar ...');
@@ -69,9 +69,6 @@ abstract class Combo extends \Component\Component
         $this->makeDefaultSearch($id);
         $this->setContent($div);
 
-        //jquery hover works great
-        \App::addJs('$("#dropDownContainer_' . $id . '").hover(function() {}, function() { comboHideDropdown("' . $id . '");});');
-
         return $div;
     }
 
@@ -80,7 +77,7 @@ abstract class Combo extends \Component\Component
         $page = \View\View::getDom()->getPageUrl();
         $className = str_replace('\\', '-', get_class($this));
         $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
-        \App::addJs("p('$module{$this->getClassUrl()}/onchange/{$id}?hideCombo=true');");
+        \App::addJs("p('$module{$this->getClassUrl()}/mountDropDown/{$id}?hideCombo=true');");
     }
 
     public function hideValue()
@@ -110,24 +107,46 @@ abstract class Combo extends \Component\Component
         }
 
         $this->inputValue->setValue($value);
+        $item = $this->getFirstDataItem($value);
 
+        if ($item)
+        {
+            $value = \DataSource\Grab::getUserValue($this->getLabelColumn(), $item);
+            $this->labelValue->setValue($value);
+        }
+    }
+
+    protected function getInstanceDataSource()
+    {
         $class = get_class($this);
         $dataSource = $class::getDataSource();
 
+        return $dataSource;
+    }
+
+    protected function getLabelColumn()
+    {
+        $dataSource = $this->getInstanceDataSource();
+        $columns = array_values($dataSource->getColumns());
+        return $columns[1];
+    }
+
+    protected function getFirstDataItem($value = null)
+    {
+        $dataSource = $this->getInstanceDataSource();
         $columns = array_values($dataSource->getColumns());
         $indentificatorColumm = $columns[0];
-        $labelColumm = $columns[1];
 
         $where = new \Db\Where($indentificatorColumm->getName(), '=', $value . '');
-
         $dataSource->addExtraFilter($where);
         $data = $dataSource->getData();
 
-        if (is_array($data) && isset($data[0]))
+        if (isIterable($data) && isset($data[0]))
         {
-            $value = \DataSource\Grab::getUserValue($labelColumm, $data[0]);
-            $this->labelValue->setValue($value);
+            return $data[0];
         }
+
+        return null;
     }
 
     /**
@@ -140,10 +159,28 @@ abstract class Combo extends \Component\Component
         return $this->inputValue->getValue();
     }
 
+    public function fillLabelByValue()
+    {
+        \App::dontChangeUrl();
+        $idValue = Request::get('v');
+        $value = Request::get($idValue);
+
+        if ($value)
+        {
+            $item = $this->getFirstDataItem($value);
+
+            if ($item)
+            {
+                $labelValue = \DataSource\Grab::getUserValue($this->getLabelColumn(), $item);
+                $this->byId('labelField_' . $idValue)->val($labelValue);
+            }
+        }
+    }
+
     /**
      * Mount dropdown on change
      */
-    public function onChange()
+    public function mountDropDown()
     {
         \App::dontChangeUrl();
         $hideCombo = Request::get('hideCombo');
@@ -178,17 +215,16 @@ abstract class Combo extends \Component\Component
 
             foreach ($data as $item)
             {
-                $td = NULL;
-                $tr[] = $link = new Tr(NULL);
-
                 $i = 0;
+
+                $td = NULL;
+                $tr[] = $link = $this->createTr($i, $item);
 
                 foreach ($columns as $column)
                 {
                     if (!$column->getIdentificator())
                     {
-
-                        $td[] = $myTd = new Td('item_column_' . $column->getName() . '_' . $i);
+                        $td[] = $myTd = $this->createTd($i, $column, $item);
 
                         $value = $column->getValue($item, $i, $link, $myTd);
                         $myTd->html($value);
@@ -225,6 +261,29 @@ abstract class Combo extends \Component\Component
         {
             $container->show();
         }
+    }
+
+    /**
+     * Create a Tr element for the select table
+     * @param int $row
+     * @param object $item
+     * @return Tr
+     */
+    public function createTr($row, $item)
+    {
+        return new Tr(NULL);
+    }
+
+    /**
+     * Create a Td element for the select table
+     * @param int $row
+     * @param string $column
+     * @param object $item
+     * @return Td
+     */
+    public function createTd($row, $column, $item)
+    {
+        return new Td('item_column_' . $column->getName() . '_' . $row);
     }
 
     /**

@@ -110,9 +110,9 @@ class Folder
      *
      * @return array of \Disk\File
      */
-    public function listFiles($search = '*', $recursive = FALSE)
+    public function listFiles($search = '*', $recursive = FALSE, $flags = null)
     {
-        return \Disk\File::find($this->path . DS . $search, NULL, $recursive);
+        return \Disk\File::find($this->path . DS . $search, $flags, $recursive);
     }
 
     /**

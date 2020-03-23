@@ -223,20 +223,29 @@ class FileVisualizer extends \Component\Component
      */
     public static function createHolder(\Disk\Folder $folder, $search = '*')
     {
+        $isCkEditor = \DataHandle\Request::get('CKEditor');
+        $accept = '*';
+
+        if ($isCkEditor || $search == 'image')
+        {
+            $search = '*.{jpg,jpeg,png,gif}';
+            $accept = 'image/*';
+        }
+
         $uploadUrl = \Component\FileVisualizer::getLinkForComponent(null, 'upload');
 
         $content = [];
         $content[] = new \View\Input('file-visualizer-root', \View\Input::TYPE_HIDDEN, $folder->getPath());
         $content[] = new \View\Input('file-visualizer-folder', \View\Input::TYPE_HIDDEN, $folder->getPath());
         $content[] = new \View\Input('file-visualizer-search', \View\Input::TYPE_HIDDEN, $search);
-        $content[] = new \View\Input('file-visualizer-ckeditor', \View\Input::TYPE_HIDDEN, \DataHandle\Request::get('CKEditor'));
+        $content[] = new \View\Input('file-visualizer-ckeditor', \View\Input::TYPE_HIDDEN, $isCkEditor);
 
         $content[] = new \View\H1('file-visualizer-title', $folder->getBasename());
         $content[] = $upload = new \View\Input('file-visualizer-upload', \View\Input::TYPE_FILE);
-        $upload->css('margin-bottom', '30px')->change('p("' . $uploadUrl . '");');
+        $upload->attr('accept', $accept)->css('margin-bottom', '30px')->change('p("' . $uploadUrl . '");');
 
         $components = [];
-        $files = $folder->listFiles($search);
+        $files = $folder->listFiles($search, null);
 
         foreach ($files as $file)
         {

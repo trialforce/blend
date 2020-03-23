@@ -1,0 +1,30 @@
+
+
+/*Placeholder*/
+::-webkit-input-placeholder, :-moz-placeholder, ::-moz-placeholder, :-ms-input-placeholder, input[placeholder], [placeholder], *[placeholder], .placeholder {
+    color: #ccc;
+}
+
+/*outline from chrome*/
+input:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 6px #5db6ea;
+}
+
+select[readonly]
+{
+    pointer-events: none;
+    touch-action: none;
+}
+
+.os-ios select {
+    -webkit-appearance: none;
+    padding: 0 !important;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='black'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 99% 50%;
+}
+
+.btn:hover {
+    text-decoration: none;
+}

@@ -20,12 +20,9 @@ if (typeof $ == 'function')
 {
     $(window).bind('popstate', function (event)
     {
-        if ($('.popup').length > 0 )
-        {
-            popup('destroy');
-            return false;
-        }
-        else
+        var okay = escape();
+        
+        if ( !okay )
         {
             avoidUrlRegister = true;
             p(window.location.href, true);
@@ -76,13 +73,26 @@ window.onload =  function ()
     {
         if (e.key === "Escape") 
         {
-            if ($('.popup').length)
-            {
-                popup('destroy');
-            }
+           return escape();
         }
     });
 };
+
+function escape()
+{
+    if ( $('.popup').length )
+    {
+        popup('destroy');
+        return true;
+    }
+    else if ( $('.xdsoft_datetimepicker.xdsoft_noselect').length )
+    {
+        $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
+        return true;
+    }
+    
+    return false;
+}
 
 //polyfill to old browser
 function startsWith(originalString, searchString)
@@ -373,35 +383,56 @@ function dateTimeInputDesktopOnChange(dp,input)
     console.log(dp, input);
 }
 
+function dateTimeInputDesktopOnShow(currentTime, input)
+{
+    console.log(currentTime, input);
+}
+
+//https://xdsoft.net/jqplugins/datetimepicker/
 function dateTimeInputDesktop()
 {   
-    $('.dateinput').not('[readonly]').datetimepicker({
-        onChangeDateTime:dateTimeInputDesktopOnChange,
-        timepicker: false,
-        defaultSelect: false,
-        validateOnBlur: false,
-        closeOnDateSelect: true,
-        mask: true,
-        allowBlank: true,
-        format: 'd/m/Y',
-        step: 15
+    $('.dateinput').not('[readonly]').each(function()
+    {
+        $(this).datetimepicker({
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-date-'+$(this).attr('id'),
+            className: 'dialog-date',
+            timepicker: false,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            mask: true,
+            allowBlank: true,
+            format: 'd/m/Y',
+            step: 15
+        });
     });
 
-    $('.datetimeinput').not('[readonly]').datetimepicker(
+    $('.datetimeinput').not('[readonly]').each(function()
     {
-        onChangeDateTime:dateTimeInputDesktopOnChange,
-        format: 'd/m/Y H:i:s',
-        mask: true,
-        defaultSelect: false,
-        validateOnBlur: false,
-        closeOnDateSelect: true,
-        allowBlank: true,
-        step: 15
+        $(this).datetimepicker(
+        {
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-datetime-'+$(this).attr('id'),
+            className: 'dialog-datetime',
+            format: 'd/m/Y H:i:s',
+            mask: true,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            allowBlank: true,
+            step: 15
+        });
     });
 
     $('.timeinput').not('[readonly]').datetimepicker(
     {
         onChangeDateTime:dateTimeInputDesktopOnChange,
+        onShow: dateTimeInputDesktopOnShow,
+        id: 'dialog-time-'+$(this).attr('id'),
+        className: 'dialog-time',
         format: 'H:i:s',
         defaultSelect: false,
         datepicker: false,
@@ -416,6 +447,26 @@ function dateTimeInputDesktop()
     {
         markFormChanged();
     });
+    
+    //avoid open the keyboard
+    $('.dateinput,.datetimeinput,.timeinput').on('click', function () 
+    {     
+        if (isCellPhone())
+        {
+            $(this).blur();
+        }
+    });
+    
+    //close if click in background
+    if (isCellPhone())
+    {
+        $('.xdsoft_datetimepicker.xdsoft_noselect').click(function()
+        {
+            $(this).hide();
+            event.preventDefault();
+            return false;
+        });
+    }
 }
 
 function dateTimeInputFallBackNative()
@@ -454,12 +505,12 @@ function dateTimeInputFallBackNative()
 }
 
 function dateTimeInput()
-{
-    if (isAndroid() || isIos())
+{ 
+    if ( isIos() )
     {
         dateTimeInputMobile();
     } 
-    else if (typeof $().datetimepicker === 'function')
+    else if (isAndroid() || typeof $().datetimepicker === 'function')
     {
         dateTimeInputDesktop();
     } 
@@ -1136,10 +1187,47 @@ function updateEditors()
     }
 }
 
+var timerTypeWatch = 0;
+//close combos on click outside
+$('body')[0].addEventListener("click", function() 
+{ 
+    var currentElement = $(document.activeElement);
+    var isCombo = currentElement.hasClass('labelValue');
+    
+    if ( !isCombo)
+    {
+        //close all combos
+        $('.dropDownContainer').slideUp(50);
+    }
+    //comboHideDropdown(id);
+}
+, false);
+
+function comboInputClick(id,eThis)
+{
+    $('.dropDownContainer').not('#'+id).slideUp(50);
+    comboToggleDropdown(id);
+}
+
+function comboToggleDropdown(id)
+{
+    var element = $('#dropDownContainer_' + id);
+    
+    if(element.is(':visible'))
+    {
+        comboHideDropdown(id);
+    }
+    else
+    {
+        comboShowDropdown(id);
+    }
+}
+
 function comboShowDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
 
+    //realonly, avoid open dropdown
     if (element.is('[readonly]'))
     {
         comboHideDropdown(id);
@@ -1149,12 +1237,12 @@ function comboShowDropdown(id)
     //mininum width
     element.css('min-width', $('#labelField_' + id).width() + 'px');
     //show
-    element.fadeIn('fast');
+    element.slideDown(50);
 }
 
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).fadeOut('fast');
+    $('#dropDownContainer_' + id).slideUp(50);
 }
 
 function comboDoSearch(id)
@@ -1162,21 +1250,25 @@ function comboDoSearch(id)
     eval($('#labelField_' + id).data('change'));
 }
 
-function comboSelectItem(id, value, label, eThis)
+function comboSelectItem(comboId, value, label, eThis)
 {
+    //remove selected from other tr's
     $(eThis).parent().find('tr').removeClass('selected');
+    //mark this as select
     $(eThis).addClass('selected');
-    var element = $('#' + id);
+    
+    //change the value and trigger onchange
+    var element = $('#' + comboId);
     element.val(value);
     element.trigger('change');
 
-    var elementLabel = $('#labelField_' + id);
+    //change the value of label field
+    var elementLabel = $('#labelField_' + comboId);
     elementLabel.val(label);
+    
+    //open the dropdrown table
+    comboHideDropdown(comboId);  
 }
-
-var timerTypeWatch = 0;
-
-/*Inspect type in some input*/
 
 function comboTypeWatch(element, event, callback, ms)
 {
@@ -1195,33 +1287,40 @@ function comboTypeWatch(element, event, callback, ms)
         return true;
     }
 
-    //up
+    //down
     if (event.keyCode === 40)
     {
         comboShowDropdown(id);
 
-        if (parente.find('table tr.selected').length === 0)
+        var next = parente.find('table tr.selected').next();
+
+        if ( next.length > 0 )
         {
-            parente.find('table tr').eq(0).click();
-        } else
+            parente.find('table tr.selected').removeClass('selected');
+            next.addClass('selected');
+        }
+        else
         {
-            parente.find('table tr.selected').next().click();
+            parente.find('table tr').eq(0).addClass('selected');
         }
 
         return false;
     }
-    //down
+    //up
     else if (event.keyCode === 38)
     {
         comboShowDropdown(id);
-
-        parente.find('table tr.selected').prev().click();
+        var prev = parente.find('table tr.selected').prev();
+        parente.find('table tr.selected').removeClass('selected');
+        prev.addClass('selected');
 
         return false;
     }
     //enter
     else if (event.keyCode === 13)
     {
+        //make the selection
+        parente.find('table tr.selected').click();
         comboHideDropdown(id);
 
         return false;
@@ -1239,7 +1338,27 @@ function comboModelClick(idInput)
     var value = input.val();
     var page = input.data('model');
     
-    p(page+'/editarpopup/'+value);    
+    p(page+'/editarpopup/'+value+'&idInput='+idInput);
+}
+
+function comboModelClose(idInput)
+{
+    var iframe = document.getElementById("edit-popup-iframe");
+    var doc = iframe.contentWindow.document;
+    var editEditId = $(doc).find('#id').val();
+    
+    //closes popup
+    popup('destroy','#edit-popup');
+    
+    //fill the value on hidden field
+    $('#'+idInput).val(editEditId);
+    //call the ajax action to fill dropdown, put hideCombo, to make it work properly
+    var code = $('#labelField_'+idInput).data('change');
+    console.log(code);
+    //run the code fill label value
+    eval(code.replace('mountDropDown','fillLabelByValue'));
+    //fill dropdown
+    setTimeout(function(){eval(code.replace(idInput,idInput+'?hideCombo=true'));},500);
 }
 
 /**
@@ -1476,40 +1595,64 @@ function destroyCropCanvas()
 function toolTip(selector, message)
 {
     var element = $(selector);
-    element.attr('title', '');
+    //remove title
+    element.attr('title', '').removeAttr('title');
     //var parent = element.parent();
-    //element.append('body');
-    var toolTipHolder = $(document.createElement('div'));
-    toolTipHolder.addClass('tooltip');
-    //toolTipHolder.append(element);
-    toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
-    element.after(toolTipHolder);
-    toolTipHolder.prepend(element);
+    var tagName = element.prop('tagName');
+    
+    if (tagName== 'input'|| tagName == 'select')
+    {
+        var toolTipHolder = $(document.createElement('div'));
+        toolTipHolder.addClass('tooltip');
+        toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
+        element.after(toolTipHolder);
+        toolTipHolder.prepend(element);
+    }
+    else
+    {
+        element.addClass('tooltip');
+        element.append('<span class="tooltiptext">' + message + '</span>');
+    }
+}
+
+/**
+ * Make the default tooltip for all elements that has title
+ * 
+ * @returns void
+ */
+function defaultTooltTipForAllTitle()
+{
+    $('[title]').each(function()
+    {
+        toolTip(this, $(this).attr('title'));
+    });
 }
 
 function addScriptOnce(src, callBack)
 {
     var list = document.getElementsByTagName('script');
-    var i = list.length, flag = false;
-    var flag = false;
+    var i = list.length;
+    var findedOnDoc = false;
 
+    //verify if is already loaded
     while (i--)
     {
         if (list[i].src === src)
         {
-            flag = true;
+            findedOnDoc = true;
             break;
         }
     }
 
-    // if we didn't already find it on the page, add it
-    if (!flag)
+    // if we didn't find it on the page, add it
+    if (!findedOnDoc)
     {
         var script = document.createElement('script');
         script.src = src;
         script.onload = callBack;
         document.getElementsByTagName('body')[0].appendChild(script);
-    } 
+    }
+    //if already on document, we only call the callback
     else
     {
         callBack();
@@ -2101,237 +2244,3 @@ function scrollTop()
 {
     $("html, body").animate({ scrollTop: 0 }, 300);
 }
-
-/**
- * Create a simple slider, with mobile support
- * @param string selector the jquery selector
- * @returns void
- */
-function slide(selector)
-{
-    var wrapper = $(selector).get(0);
-    var items = $(wrapper).find('.slider-items').get(0);
-    var prev = $(wrapper).find('.slider-prev').get(0);
-    var next = $(wrapper).find('.slider-next').get(0);
-
-    //copy outter width to inner
-    var outterWidth = $(wrapper).width();
-    var outterHeight = $(wrapper).height();
-    
-    //don't proccess the same slide again
-    if ($(wrapper).hasClass('loaded'))
-    {
-        return;
-    }
-
-    //if the height it not loaded yet, wait a little
-    if (outterHeight == 0 || outterHeight == '0px')
-    {
-        setTimeout(function ()
-        {
-            slide(selector);
-        }, 100);
-        
-        return;
-    }
-    
-    //if it don't has any slide, does nothing
-    var slideCount = $(wrapper).find('.slide').length;
-    
-    if (slideCount == 0 )
-    {
-        $(wrapper).find('.slider-prev').remove();
-        $(wrapper).find('.slider-next').remove();
-        return;
-    }
-
-    $(wrapper).find('.slide').css('width', outterWidth);
-    $(wrapper).find('.slide').css('height', outterHeight);
-    $(wrapper).find('.slider-items').css('left', '-' + outterWidth);
-    $(wrapper).find('.slider-wrapper').css('height', outterHeight);
-
-    var posX1 = 0;
-    var posX2 = 0;
-    var posInitial = 0;
-
-    var posInitialY = 0;
-    var posY1 = 0;
-    var posY2 = 0;
-
-    var posFinal;
-    var index = 0;
-    var threshold = 30;
-    var allowShift = true;
-
-    var slides = items.getElementsByClassName('slide');
-    var slidesLength = slides.length;
-    var slideSize = items.getElementsByClassName('slide')[0].offsetWidth;
-
-    var firstSlide = slides[0];
-    var lastSlide = slides[slidesLength - 1];
-
-    var cloneFirst = firstSlide.cloneNode(true);
-    var cloneLast = lastSlide.cloneNode(true);
-
-    // Clone first and last slide
-    items.appendChild(cloneFirst);
-    items.insertBefore(cloneLast, firstSlide);
-    wrapper.classList.add('loaded');
-
-    // Mouse and Touch events
-    items.onmousedown = dragStart;
-
-    // Touch events
-    items.addEventListener('touchstart', dragStart, {passive: true});
-    items.addEventListener('touchend', dragEnd, {passive: true});
-    items.addEventListener('touchmove', dragAction, {passive: true});
-
-    // Click events
-    if (prev)
-    {
-        prev.addEventListener('click', function (event)
-        {
-            event.preventDefault();
-            shiftSlide(-1); 
-        }, {passive: true});
-    }
-
-    if (next)
-    {
-        next.addEventListener('click', function (event)
-        {
-            event.preventDefault();
-            shiftSlide(1);
-        }, {passive: true});
-    }
-
-    // Transition events
-    items.addEventListener('transitionend', checkIndex, true);
-
-    function dragStart(e)
-    {
-        e = e || window.event;
-        //e.preventDefault();
-        posInitial = items.offsetLeft;
-        posInitialY = $(window).scrollTop();
-
-        if (e.type == 'touchstart')
-        {
-            posX1 = e.touches[0].clientX;
-            posY1 = e.touches[0].clientY;
-        } 
-        else
-        {
-            posX1 = e.clientX;
-            posY1 = e.clientY;
-            document.onmouseup = dragEnd;
-            document.onmousemove = dragAction;
-        }
-    }
-
-    function dragAction(e)
-    {
-        e = e || window.event;
-
-        if (e.type == 'touchmove')
-        {
-            posX2 = posX1 - e.touches[0].clientX;
-            posX1 = e.touches[0].clientX;
-
-            posY2 = posY1 - e.touches[0].clientY;
-        } 
-        else
-        {
-            posX2 = posX1 - e.clientX;
-            posX1 = e.clientX;
-
-            posY2 = posY1 - e.clientY;
-            //posY1 = e.clientY;
-        }
-
-        items.style.left = (items.offsetLeft - posX2) + "px";
-
-        $(window).scrollTop(posInitialY + posY2);
-    }
-
-    function dragEnd(e)
-    {
-        posFinal = items.offsetLeft;
-        
-        var diff = (posFinal - posInitial);
-
-        //click
-        if( diff === 0)
-        {
-            var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
-            var tmpFunc = new Function(onclickCode);
-            tmpFunc();
-        }
-        //draf left
-        else if (diff < -threshold)
-        {
-            shiftSlide(1, 'drag');
-        } 
-        //drag right
-        else if (diff > threshold)
-        {
-            shiftSlide(-1, 'drag');
-        }
-        //nothing, return original position
-        else
-        {
-            items.style.left = (posInitial) + "px";
-        }
-
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-
-    function shiftSlide(dir, action)
-    {
-        items.classList.add('shifting');
-
-        if (allowShift)
-        {
-            if (!action)
-            {
-                posInitial = items.offsetLeft;
-            }
-
-            if (dir == 1)
-            {
-                items.style.left = (posInitial - slideSize) + "px";
-                index++;
-            } 
-            else if (dir == -1)
-            {
-                items.style.left = (posInitial + slideSize) + "px";
-                index--;
-            }
-        };
-
-        allowShift = false;
-
-        //event.preventDefault();
-        return false;
-    }
-
-    function checkIndex()
-    {
-        items.classList.remove('shifting');
-
-        if (index == -1)
-        {
-            items.style.left = -(slidesLength * slideSize) + "px";
-            index = slidesLength - 1;
-        }
-
-        if (index == slidesLength)
-        {
-            items.style.left = -(1 * slideSize) + "px";
-            index = 0;
-        }
-
-        allowShift = true;
-    }
-};

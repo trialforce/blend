@@ -1,0 +1,85 @@
+
+
+.file-visualizer, .image-container {
+    width: 11.5%;
+    float: left;
+    margin-right: 1%;
+    padding: 4px;
+    background-color: #fff;
+    border: solid 1px #DDD;
+    text-decoration: none;
+    color: #333;
+    transition: 0.3s ease-in-out;
+    border-radius: 2px;
+    position: relative;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    box-shadow: inset 0 10px 10px -12px RGBA(0,0,0,0.2);
+    border-radius: 2px;   
+}
+
+.file-visualizer-link {
+    color: #333;    
+    transition: 0.3s ease-in-out;
+}
+
+.file-visualizer-main-icon {
+    font-size: 60px;
+    margin-top: 20%;
+    margin-right: 0 !important;
+}
+
+.file-visualizer-extension {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 30px;
+    display: inline-block;
+    text-transform: uppercase;
+    text-align: center;
+    position: relative;
+    text-shadow: 0px 0px 4px #fff;
+}
+
+/*.fa.remove {
+    color: red;
+    font-size: 28px;
+    position: absolute;
+    cursor: pointer;
+    left: 6px;
+    top: 6px;
+    text-shadow: 1px 1px 1px #FFF;
+}*/
+
+.image-container .fa.fa-times, .fa.remove,
+.file-visualizer-remove-icon {
+    cursor: pointer;
+    text-shadow: 1px 1px 1px #FFF;
+    color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 20px;
+    background-color: transparent;
+    padding: 3px 6px;
+    border-radius: 2px;
+    margin-right: 0 !important;
+}
+
+.file-visualizer .img-back, .image-container .img-back {
+    width: 100%;
+    height: 70px;
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+.file-visualizer span, .image-container span {
+    text-align: center;
+    display: block;
+    margin-top: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 20px;
+    font-size: 10px;
+}

@@ -429,6 +429,14 @@ class File implements \JsonSerializable
      */
     public static function find($glob, $flags = 0, $recursive = FALSE)
     {
+        //auto brace
+        $isBrace = stripos($glob, '{') && stripos($glob, ',') && stripos($glob, '}');
+
+        if ($isBrace)
+        {
+            $flags = $flags | GLOB_BRACE;
+        }
+
         if ($recursive)
         {
             $globs = globRecursive($glob, $flags);

@@ -1076,11 +1076,18 @@ class Crud extends \Page\Page
         \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
     }
 
+    /**
+     * Open a popup of this crud.
+     * It uses a internal iframe soluction to avoind mixing the forms post and values.
+     */
     public function editarPopup()
     {
         \App::dontChangeUrl();
+        $idInput = Request::get('idInput');
         $id = Request::get('v');
-        $url = $id ? $this->getPageUrl() . '/editar/' . $id . '?iframe=true' : $this->getPageUrl() . '/adicionar?iframe=true';
+        //edit or add
+        $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
+        $url .= '?iframe=true';
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
@@ -1092,6 +1099,12 @@ class Crud extends \Page\Page
         $popup->setIcon($this->icon);
         $popup->footer->remove();
         $popup->show();
+
+        //allow to update the original input if needed
+        if ($idInput)
+        {
+            $this->byId('btbClosePopup')->click("return comboModelClose('{$idInput}')");
+        }
     }
 
 }

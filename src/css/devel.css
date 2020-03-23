@@ -1,0 +1,49 @@
+.var-dump {
+}
+
+.xdebug-error, xe-notice{
+    z-index: 999;
+    position: relative;
+}
+
+.xdebug-var-dump, .var-dump{
+    position: relative;
+    z-index: 9999;
+    background-color: beige;
+    display: block;
+    width: 50%;
+}
+
+.develBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: #fff;
+    box-shadow: 1px 1px 4px 0px RGBA(0,0,0,0.5);
+    padding: 0 4px;
+    border: solid 1px #ccc;
+    transition: 0.2s;
+    overflow: auto;
+    width: 10px;
+    height: 10px;
+}
+
+.develBar table {
+    width: 100%;
+}
+
+.develBar table td {
+    border: solid 1px #ccc;
+}
+
+.develBar table caption {
+    font-weight: bold;
+    border: solid 1px #ccc;
+    padding: 6px;
+}
+
+.develBar:hover {
+    width: 480px;
+    height: 680px;
+}
