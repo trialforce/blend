@@ -222,12 +222,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $count = [];
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as $item)
         {
             $value = self::getPropertyFromItem($item, $property);
             $count[$value] = 1;
         }
-
         return count($count);
     }
 
@@ -499,6 +498,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         $this->setData($result);
         return $this;
+    }
+
+    public function whereIf($columnName, $param = NULL, $value = NULL)
+    {
+        if ($value || $value === 0 || $value === '0')
+        {
+            return $this->where($columnName, $param, $value);
+        }
     }
 
     /**
