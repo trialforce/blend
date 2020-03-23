@@ -1188,20 +1188,24 @@ function updateEditors()
 }
 
 var timerTypeWatch = 0;
+var body = $('body')[0];
 //close combos on click outside
-$('body')[0].addEventListener("click", function() 
-{ 
-    var currentElement = $(document.activeElement);
-    var isCombo = currentElement.hasClass('labelValue');
-    
-    if ( !isCombo)
+if(body)
+{
+    body.addEventListener("click", function()
     {
-        //close all combos
-        $('.dropDownContainer').slideUp(50);
+        var currentElement = $(document.activeElement);
+        var isCombo = currentElement.hasClass('labelValue');
+
+        if ( !isCombo)
+        {
+            //close all combos
+            $('.dropDownContainer').slideUp(50);
+        }
+        //comboHideDropdown(id);
     }
-    //comboHideDropdown(id);
+    , false);
 }
-, false);
 
 function comboInputClick(id,eThis)
 {
