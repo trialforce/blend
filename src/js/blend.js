@@ -27,6 +27,11 @@ if (typeof $ == 'function')
             avoidUrlRegister = true;
             p(window.location.href, true);
         }
+        else
+        {
+            //não mudar a url
+            return false;
+        }
     });
 }
 
@@ -85,7 +90,7 @@ function escape()
         popup('destroy');
         return true;
     }
-    else if ( $('.xdsoft_datetimepicker.xdsoft_noselect').length )
+    else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
     {
         $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
