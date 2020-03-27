@@ -2,6 +2,9 @@
 
 namespace Db;
 
+/**
+ * Represents a join in the query
+ */
 class Join
 {
 
@@ -10,6 +13,13 @@ class Join
     protected $alias;
     protected $on;
 
+    /**
+     * Construct the join
+     * @param string $type left, right, inner, full etc
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     */
     public function __construct($type, $tableName, $on, $alias = NULL)
     {
         $this->setType($type);
@@ -65,7 +75,12 @@ class Join
     function getSql()
     {
         $alias = $this->alias ? ' AS ' . $this->alias . ' ' : ' ';
-        return ' ' . strtoupper($this->type) . ' JOIN ' . $this->tableName . $alias . ' ON ' . $this->on;
+        return strtoupper($this->type) . ' JOIN ' . $this->tableName . $alias . ' ON ' . $this->on;
+    }
+
+    function __toString()
+    {
+        return $this->getSql();
     }
 
 }
