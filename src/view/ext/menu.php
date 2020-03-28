@@ -23,7 +23,7 @@ class Menu extends \View\View
     function __construct($idName = 'menu', $innerHtml = NULL, $class = 'menuDesktop')
     {
         $innerHtml = self::makeMenu($innerHtml);
-        parent::__construct('ul', $idName, $innerHtml, $class);
+        parent::__construct('ul', $idName, $innerHtml, 'main-menu ' . $class);
     }
 
     /**
@@ -52,6 +52,7 @@ class Menu extends \View\View
                     $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, $value, null, '_BLANK');
                     $link->setAjax(false);
                     $link->click('window.open(this.href);');
+
                     $views[$value] = new Li('li_' . $value, $link);
                     $views[$value]->click("return openSubMenu(this);");
                 }
@@ -59,7 +60,7 @@ class Menu extends \View\View
                 {
                     $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, $value);
                     $link->setAjax(A::AJAX_NO_FORM_DATA);
-                    $link->click('closeMenu()');
+                    $link->click('menuClose()');
                     $views[$value] = new Li('li_' . $value, $link);
                     $views[$value]->click("return openSubMenu(this);");
                 }
@@ -85,13 +86,14 @@ class Menu extends \View\View
         $title = $subMenu[0];
         $itens = $subMenu[1];
 
-        $link = new Span(self::parseMenuItemId('menuItem_' . $id), $title, $id);
+        $link = new Span(self::parseMenuItemId('menuItem_' . $id), $title, 'menu-submenu-header ' . $id);
         $link->click("return openSubMenu(this);");
         $view = new Li('li_' . $id, $link, 'subMenuContainer');
 
         if (is_array($itens))
         {
             $lastItemIsSeparator = FALSE;
+
             foreach ($itens as $value => $item)
             {
                 if ($item === 'separator')
@@ -111,7 +113,7 @@ class Menu extends \View\View
 
                     $link = new A(null, $item, $value);
                     $link->setAjax(A::AJAX_NO_FORM_DATA);
-                    $link->click('closeMenu()');
+                    $link->click('menuClose()');
                     $itens[$value] = new Div(self::parseMenuItemId('menuItem_' . $value), $link);
                 }
             }

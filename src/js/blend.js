@@ -1471,24 +1471,6 @@ function setFocusOnFirstField()
     return false;
 }
 
-
-function seletMenuItem()
-{
-    var currentPage = getCurrentPage();
-    //remove class seleted from all items from menu
-    $('nav *').removeClass('selected');
-
-    //seleted class in current url
-    $('nav *[href=\'' + currentPage + '\']').addClass('selected');
-    //seleted class in current url if is a submenu
-    $('[href=\'' + currentPage + '\']').parents('li').addClass('selected');
-
-    //hide all sub menu
-    $('.subMenu *').click(function () {
-        $('.subMenu').hide();
-    });
-}
-
 function selectTab(tabItemId)
 {
     tabItemId = tabItemId.replace('#', '');
@@ -1528,10 +1510,54 @@ function getTabLabel(tabId)
     return stripTags($('#'+tabId+'Label').html()).replace(/(\r\n|\n|\r)/gm, "");
 }
 
+function seletMenuItem()
+{
+    var currentPage = getCurrentPage();
+    //remove class seleted from all items from menu
+    $('nav *').removeClass('selected');
+
+    //seleted class in current url
+    $('nav *[href=\'' + currentPage + '\']').addClass('selected');
+    //seleted class in current url if is a submenu
+    $('[href=\'' + currentPage + '\']').parents('li').addClass('selected');
+
+    //hide all sub menu
+    $('.subMenu *').click(function () 
+    {
+        $('.subMenu').hide();
+    });
+}
+
+/**
+ * Open/close main menu
+ * 
+ * @returns {Boolean}
+ */
+function menuToggle()
+{
+    $('body').toggleClass('menu-open');
+
+    return false;
+}
+
+/**
+ * Close the main menu
+ * 
+ * @returns {Boolean}
+ */
+function menuClose()
+{
+    $('body').removeClass('menu-open');
+    //$.removeCookie('menuAberto', {path: '/'});
+
+    return false;
+}
+
 function openSubMenu(element)
 {
+    menuCloseAll();
     element = $(element);
-    //esconde todos menus
+    
     //submenu atual
     var submenu = element.parent().children('div');
 
@@ -1545,6 +1571,47 @@ function openSubMenu(element)
     }
 
     return false;
+}
+
+function menuCloseAll()
+{
+    $('.subMenu').stop().slideUp('fast');
+}
+
+function menuSearch(term)
+{
+    term = toAscii(term.toLocaleLowerCase())+"";
+    
+    if (term == '')
+    {
+        $('.main-menu a').show();
+        $('.subMenu').hide();
+        $('.menu-submenu-header').show();
+        return;
+    }
+    
+    //open all menus
+    $('.subMenu').show();
+    //hide all header
+    $('.menu-submenu-header').hide();
+    
+    $('.main-menu a').each( function()
+    {
+        var element = $(this);
+        var text = toAscii( element.text().toLocaleLowerCase())+"";
+        
+        var find = text.indexOf(term) >= 0;
+        
+        if ( find)
+        {
+            element.show();
+        }
+        else
+        {
+            element.hide();
+        }
+        
+    });
 }
 
 function cropCanvas(imgSrc, aspectRatio)
@@ -1682,6 +1749,27 @@ function focusNextElement()
         var next = inputs.eq(inputs.index(element) + 1);
         next.focus();
     }
+}
+
+function toAscii(text)
+{
+   return text
+        .replace(/[ÀÁÂÃÄÅª]/g,"A")
+        .replace(/[àáâãäå]/g,"a")
+        .replace(/[ÈÉÊË&]/g,"E")
+        .replace(/[éèêë]/, "e")
+        .replace(/[ÍÌÎÏ]/, "I")
+        .replace(/[íìîï]/, "i")
+        .replace(/[ÓÒÔÕÖ]/, "O")
+        .replace(/[óòôõöº]/, "o")
+        .replace(/[ÚÙÛÜ]/, "U")
+        .replace(/[úùûü]/, "u")
+        .replace(/[Ñ]/, "N")
+        .replace(/[ñ]/, "n")
+        .replace(/[Ç]/, "C")
+        .replace(/[ç]/, "c")
+        //.... all the rest
+        .replace(/[^a-z0-9 ]/gi,''); // final clean up
 }
 
 function toNumber(number)
