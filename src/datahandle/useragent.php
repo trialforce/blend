@@ -57,9 +57,14 @@ class UserAgent
     const PLATFORM_SERVICE = 'service';
 
     /**
-     * Platform Microsoft Internet Explorer
+     * Browser Microsoft Internet Explorer
      */
     const BROWSER_IE = 'ie';
+
+    /**
+     * Browser Microsoft Edge
+     */
+    const BROWSER_EDGE = 'edge';
 
     /**
      * Browser Mozilla Firefox
@@ -548,6 +553,10 @@ class UserAgent
             {
                 $this->platform = UserAgent::PLATFORM_WINDOWS;
             }
+        }
+        elseif ($this->detectedBrowser(UserAgent::BROWSER_EDGE))
+        {
+            $this->developer = UserAgent::DEVELOPER_MICROSOFT;
         }
         elseif ($this->detectedBrowser(UserAgent::BROWSER_FIREFOX))
         {
