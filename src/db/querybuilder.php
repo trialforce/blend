@@ -808,14 +808,49 @@ class QueryBuilder
         return NULL;
     }
 
-    public function update()
+    /**
+     * Bulk update register in database
+     *
+     * @param array $values the key indexed values array
+     * @return int 1 for okay
+     */
+    public function update(array $values)
     {
-        throw new Exception('Not implemented yet!');
+        //without value to update, does nothing
+        if (!$values || count($values) == 0)
+        {
+            return false;
+        }
+
+        //clean join because you can't have a update with join, right?
+        $this->join = null;
+        $catalog = $this->getCatalogClass();
+        $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
+
+        $columns = [];
+        $dbValues = [];
+
+        foreach ($values as $columnName => $value)
+        {
+            if ($value instanceof \Type\Generic)
+            {
+                $value = $value->toDb();
+            }
+
+            $dbValues[] = $value;
+
+            $columns[] = $catalog ::parseTableNameForQuery($columnName) . ' = ?';
+        }
+
+        $sql = $catalog ::mountUpdate($this->getTables(false), implode(',', $columns), $whereStd->getSql());
+        $args = array_merge($dbValues, $whereStd->getArgs());
+
+        return $this->getConn()->execute($sql, $args);
     }
 
     public function delete()
     {
-        throw new Exception('Not implemented yet!');
+        throw new \Exception('Delete not implemented yet!');
     }
 
 }
