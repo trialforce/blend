@@ -26,4 +26,20 @@ interface Chart
      * @return \View\View the resultant label
      */
     public function addLabel($id, $text);
+
+    /**
+     * Create a char from a collection.
+     *
+     * The collection must have a lista of sdtClass objects with above parameters:
+     * id: the id of html element
+     * label: the label (html title)
+     * color: the html color, optional you can use \Media\Color::rand()
+     * percent: the percent
+     * offset: and the offset percent
+     *
+     * @param string $id the id of html element
+     * @param \Db\Collection $data the collection
+     * @param string $extraClass extra css class
+     */
+    public static function createFromCollection($id = null, \Db\Collection $data, $extraClass = null);
 }
