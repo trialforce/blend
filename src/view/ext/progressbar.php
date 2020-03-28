@@ -89,7 +89,7 @@ class ProgressBar extends \View\Div implements \View\Chart\Chart
 
         foreach ($data as $item)
         {
-            if (!$item->percent)
+            if (!isset($item->percent))
             {
                 $item->percent = \Type\Decimal::get($item->value / $sum * 100, 2)->toDb();
             }
