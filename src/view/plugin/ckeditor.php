@@ -19,7 +19,7 @@ class CkEditor extends \View\TextArea
 
     public function __construct($idName = NULL, $value = NULL, $class = NULL)
     {
-        parent::__construct($idName, $value, $class . ' ckeditor');
+        parent::__construct($idName, $value, $class . ' ck-editor');
 
         //addScriptOnde add the ckeditor.js only one time, but the callback is called always
         \App::addJs("addScriptOnce('ckeditor/ckeditor.js', function(){createCkEditor({$this->getId()}) } );");
