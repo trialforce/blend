@@ -26,8 +26,8 @@
     height: 22px;
 }
 
-button.grid-change-text-size {
-    height: 28px;
+.grid button.grid-change-text-size {
+    height: 33px;
     line-height: 28px !important;
     font-size: 17px;
     padding: 0 10px;
