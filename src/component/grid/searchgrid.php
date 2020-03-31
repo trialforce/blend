@@ -127,7 +127,7 @@ class SearchGrid extends \Component\Grid\Grid
         //from grid
         if ($this instanceof \Page\BeforeGridCreateRow)
         {
-            $this->beforeGridCreateRow($item, $index, $tr);
+            $this->beforeGridCreateRow($item, $index, null);
         }
 
         $tr = parent::createTr($columns, $index, $item);

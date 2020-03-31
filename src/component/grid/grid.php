@@ -287,7 +287,7 @@ class Grid extends \Component\Component
     public function makeSimple()
     {
         $columns = $this->getColumns();
-        
+
         if ($columns)
         {
             foreach ($columns as $column)
@@ -319,11 +319,20 @@ class Grid extends \Component\Component
         return $this->getContent();
     }
 
+    protected function createTable()
+    {
+        $div = new \View\Div($this->getId(), $this->createTableInner(), 'grid');
+        //put link on js side
+        $div->data('link', $this->getLink(null, null, null, false));
+
+        return $div;
+    }
+
     /**
      * Create table
      * @return
      */
-    protected function createTable()
+    protected function createTableInner()
     {
         //only force the getData, to make any changes in data that is needed
         //the data is not used here (but getData is cached, so it's okay)
@@ -344,13 +353,9 @@ class Grid extends \Component\Component
 
         $this->table = new \View\Table($this->getId() . 'Table', $view, 'table-grid');
 
-        $div = new \View\Div($this->getId(), $this->table, 'grid');
-        //put link on js side
-        $div->data('link', $this->getLink(null, null, null, false));
-
         $this->makeAggregation();
 
-        return $div;
+        return $this->table;
     }
 
     /**
@@ -574,7 +579,9 @@ class Grid extends \Component\Component
         $url = http_build_query($queryString);
         $url = strlen($url) > 0 ? '?' . $url : '';
 
-        return str_replace('//', '/', str_replace('//', '/', $this->getPageName() . '/' . $event . '/' . $value . $url)); // . '/?stateId=' . $this->getId();
+        $urlFinal = $this->getPageName() . '/' . $event . '/' . $value . $url;
+
+        return str_replace('//', '/', str_replace('///', '/', $urlFinal));
     }
 
     /**
@@ -924,7 +931,7 @@ class Grid extends \Component\Component
         $dom = \View\View::getDom();
         $div = $dom->byId($id);
 
-        $table = $this->createTable();
+        $table = $this->createTableInner();
         $div->html($table);
     }
 
