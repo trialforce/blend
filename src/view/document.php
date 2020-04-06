@@ -26,16 +26,37 @@ class Document extends \DomDocument implements \Countable
     public function __construct($layout = NULL, $setDom = FALSE)
     {
         parent::__construct('1.0', 'UTF-8');
+
+        if ($setDom)
+        {
+            \View\View::setDom($this);
+        }
     }
 
     public function loadXmlFromFile($layout)
     {
+        if (!file_exists($layout))
+        {
+            throw new \Exception('Arquivo de layout não encontrado ' . $layout);
+        }
+
         $content = file_get_contents($layout);
 
         //desabilita erros chatos da libxml na leitura de layouts
         libxml_use_internal_errors(true);
         $this->strictErrorChecking = FALSE;
-        $this->loadXML($content);
+        $options = LIBXML_VERSION >= 20900 ? LIBXML_PARSEHUGE : null;
+        $this->loadXML($content, $options);
+
+        $errors = libxml_get_errors();
+
+        if (count($errors) > 0)
+        {
+            $error = $errors[0];
+            libxml_clear_errors();
+            throw new \Exception('Erro lendo XML: ' . $layout . ' - Erro: ' . $error->message);
+        }
+
         libxml_clear_errors();
     }
 
@@ -119,13 +140,13 @@ class Document extends \DomDocument implements \Countable
     /**
      * Coloca um layout dentro do outro
      *
-     * @param type $primaryElementId
-     * @param \View\Document $domInner
+     * @param string $primaryElementId
+     * @param \View\Document $domInner \View\DomDocument or string
      * @throws \Exception
      */
-    public function appendLayout($primaryElementId, \View\Document $domInner)
+    public function appendLayout($primaryElementId, $domInner)
     {
-        //elemento do layout principal
+        //element of main/base layout
         $primaryContent = $this->getElementById($primaryElementId);
 
         if ($primaryContent instanceof \View\DomContainer)
@@ -133,43 +154,32 @@ class Document extends \DomDocument implements \Countable
             $primaryContent = $primaryContent->getDomElement();
         }
 
-        //quando o layout for criado via programação acessa o primeiro filho
-        $innerContent = $domInner->firstChild;
-
-        //para o caso de ser criado via html
-        if ($innerContent instanceof \DOMDocumentType)
+        if (is_string($primaryContent))
         {
-            $html = $domInner->childNodes->item(1);
-            $body = $html->childNodes->item(0);
-            $innerContent = $body->childNodes->item(0);
+            $primaryContent->append($domInner);
+            return $this;
         }
 
-        //Quando não tiver nenhum conteúdo no layout não importa nada.
-        if (!$innerContent)
+        if ($domInner instanceof \View\Document)
         {
-            return FALSE;
-        }
+            //quando o layout for criado via programação acessa o primeiro filho
+            $innerContent = $domInner->firstChild;
 
-        $innerContentMig = $this->importNode($innerContent, true); //importa o nodo
+            //para o caso de ser criado via html
+            if ($innerContent instanceof \DOMDocumentType)
+            {
+                $html = $domInner->childNodes->item(1);
+                $body = $html->childNodes->item(0);
+                $innerContent = $body->childNodes->item(0);
+            }
 
-        if ($primaryContent && $innerContentMig)
-        {
-            $primaryContent->appendChild($innerContentMig);
-        }
-        else
-        {
-            $this->append($innerContentMig);
-        }
+            //Quando não tiver nenhum conteúdo no layout não importa nada.
+            if (!$innerContent)
+            {
+                return FALSE;
+            }
 
-        if (isset($innerContent->nextSibling))
-        {
-            $nodeToImport = $innerContent->nextSibling;
-        }
-
-        //importa outros nodos
-        while (isset($nodeToImport))
-        {
-            $innerContentMig = $this->importNode($nodeToImport, TRUE);
+            $innerContentMig = $this->importNode($innerContent, true); //importa o nodo
 
             if ($primaryContent && $innerContentMig)
             {
@@ -180,8 +190,30 @@ class Document extends \DomDocument implements \Countable
                 $this->append($innerContentMig);
             }
 
-            $nodeToImport = $nodeToImport->nextSibling;
+            if (isset($innerContent->nextSibling))
+            {
+                $nodeToImport = $innerContent->nextSibling;
+            }
+
+            //import others nodes
+            while (isset($nodeToImport))
+            {
+                $innerContentMig = $this->importNode($nodeToImport, TRUE);
+
+                if ($primaryContent && $innerContentMig)
+                {
+                    $primaryContent->appendChild($innerContentMig);
+                }
+                else
+                {
+                    $this->append($innerContentMig);
+                }
+
+                $nodeToImport = $nodeToImport->nextSibling;
+            }
         }
+
+        return $this;
     }
 
     /**
@@ -266,8 +298,35 @@ class Document extends \DomDocument implements \Countable
      */
     public function byId($id, $class = NULL)
     {
-        $element = $this->getElementById($id, $class);
+        return self::toView($this->getElementById($id, $class));
+    }
 
+    /**
+     * Get the first element of the tag name
+     *
+     * @param string $tag
+     * @return \View\View
+     */
+    public function byTag($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if (isset($elements[0]))
+        {
+            return self::toView($elements[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Return an view element if is a dom element
+     *
+     * @param mixed $element \DomElement or \View\View
+     * @return \View\View \View\View or \View\DomContainer
+     */
+    public static function toView($element)
+    {
         if ($element instanceof \DOMElement && !$element instanceof \View\View)
         {
             $element = new \View\DomContainer($element);

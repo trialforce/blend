@@ -3,7 +3,7 @@
 namespace Page;
 
 /**
- * After grid create row
+ * Before grid create row
  */
 interface BeforeGridCreateRow
 {

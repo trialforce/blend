@@ -112,12 +112,45 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a external join object
+     * You can add a simple string or any object that has __toString method
+     * This methods allow that to support SqlServer Outer Apply.
+     *
+     * @param \Bb\Join $join
+     * @return $this
+     */
+    function addJoin($join)
+    {
+        $this->join[] = $join;
+
+        return $this;
+    }
+
+    /**
+     * Add a join to the query
+     *
+     * @param string $type the type of the join, left, right, inner, full etc
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     * @return $this
+     */
     function join($type, $tableName, $on, $alias = NULL)
     {
         $this->join[] = new \Db\Join($type, $tableName, $on, $alias);
         return $this;
     }
 
+    /**
+     * Add a left join the the query
+     *
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     *
+     * @return $this
+     */
     function leftJoin($tableName, $on, $alias = NULL)
     {
         $this->join[] = new \Db\Join('left', $tableName, $on, $alias);
@@ -125,6 +158,14 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a right join to the query
+     *
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     * @return $this
+     */
     function rightJoin($tableName, $on, $alias = NULL)
     {
         $this->join[] = new \Db\Join('right', $tableName, $on, $alias);
@@ -132,6 +173,14 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a inner join to the query
+     *
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     * @return $this
+     */
     function innerJoin($tableName, $on, $alias = NULL)
     {
         $this->join[] = new \Db\Join('inner', $tableName, $on, $alias);
@@ -139,6 +188,14 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a full join to the query
+     *
+     * @param string $tableName the name of the table
+     * @param string $on the relation between the two tables
+     * @param string $alias as lias to the joined table, if needed
+     * @return $this
+     */
     function fullJoin($tableName, $on, $alias = NULL)
     {
         $this->join[] = new \Db\Join('full', $tableName, $on, $alias);
@@ -437,6 +494,25 @@ class QueryBuilder
     }
 
     /**
+     * Add a where condition to the were list, but only if a value is passed
+     *
+     * @param string $columnName the column name
+     * @param string $param the condition param =, IN , >= etc
+     * @param string $value the filtered value
+     * @param string $condition AND, OR, etc
+     * @return \Db\QueryBuilder
+     */
+    public function whereIf($columnName, $param = NULL, $value = NULL, $condition = 'AND')
+    {
+        if ($value || $value === 0 || $value === '0')
+        {
+            return $this->where($columnName, $param, $value, $condition);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a compare condition to where list
      *
      * @param string $columnName the column name
@@ -466,6 +542,16 @@ class QueryBuilder
     public function and($columnName, $param = null, $value = NULL)
     {
         return $this->where($columnName, $param, $value, 'AND');
+    }
+
+    public function andIf($columnName, $param = NULL, $value = NULL, $condition = 'AND')
+    {
+        if ($value || $value === 0 || $value === '0')
+        {
+            return $this->where($columnName, $param, $value, $condition);
+        }
+
+        return $this;
     }
 
     /**
@@ -525,6 +611,13 @@ class QueryBuilder
         return $orders;
     }
 
+    /**
+     * Create and return the "tables" part of the query
+     * Including joins
+     *
+     * @param bool $format true if is to format the query
+     * @return string the tables part of the query
+     */
     protected function getTables($format = FALSE)
     {
         $tables = $this->getTableName();
@@ -540,7 +633,7 @@ class QueryBuilder
                     $tables .= "\r\n";
                 }
 
-                $tables .= $join->getSql();
+                $tables .= ' ' . $join;
             }
         }
 
@@ -637,7 +730,7 @@ class QueryBuilder
         {
             if ($where instanceof \Db\Where)
             {
-                if ($where->getParam() == '=')
+                if ($where->getParam() === '=')
                 {
                     $values = $where->getValue();
                     $propertyName = \Db\Column\Column::getRealColumnName($where->getFilter());
@@ -668,13 +761,18 @@ class QueryBuilder
         return new \Db\Collection($this->select($modelName));
     }
 
+    public function toCollectionStdClass()
+    {
+        return new \Db\Collection($this->select('stdClass'));
+    }
+
     /**
      * Return data as an array of array
      * @return array array of array
      */
     public function toArray()
     {
-        return $result = $this->select('array');
+        return $this->select('array');
     }
 
     /**
@@ -684,7 +782,7 @@ class QueryBuilder
      */
     public function toArrayStdClass()
     {
-        return $result = $this->select('StdClass');
+        return $this->select('StdClass');
     }
 
     /**
@@ -710,14 +808,49 @@ class QueryBuilder
         return NULL;
     }
 
-    public function update()
+    /**
+     * Bulk update register in database
+     *
+     * @param array $values the key indexed values array
+     * @return int 1 for okay
+     */
+    public function update(array $values)
     {
-        throw new Exception('Not implemented yet!');
+        //without value to update, does nothing
+        if (!$values || count($values) == 0)
+        {
+            return false;
+        }
+
+        //clean join because you can't have a update with join, right?
+        $this->join = null;
+        $catalog = $this->getCatalogClass();
+        $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
+
+        $columns = [];
+        $dbValues = [];
+
+        foreach ($values as $columnName => $value)
+        {
+            if ($value instanceof \Type\Generic)
+            {
+                $value = $value->toDb();
+            }
+
+            $dbValues[] = $value;
+
+            $columns[] = $catalog ::parseTableNameForQuery($columnName) . ' = ?';
+        }
+
+        $sql = $catalog ::mountUpdate($this->getTables(false), implode(',', $columns), $whereStd->getSql());
+        $args = array_merge($dbValues, $whereStd->getArgs());
+
+        return $this->getConn()->execute($sql, $args);
     }
 
     public function delete()
     {
-        throw new Exception('Not implemented yet!');
+        throw new \Exception('Delete not implemented yet!');
     }
 
 }

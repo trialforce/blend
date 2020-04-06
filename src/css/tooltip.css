@@ -1,0 +1,50 @@
+.field-contain .tooltip .tooltiptext { 
+    width: 100%;
+}
+
+.tooltip {
+    visibility: visible;
+    /*width:100%;
+    position: relative;
+    display: inline-block;
+    margin: 0 !important; 
+    border:none !important;*/
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: RGBA(50,50,50,0.9);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 3px;
+    position: absolute;
+    z-index: 102;
+    bottom: 125%;
+    left: 50%;
+    opacity: 0;
+    transition: 0.2s ease;
+    margin-bottom: -12px;
+    transform: translate(-50%, 0%);
+    line-height: 1.4;
+    box-shadow: 1px 1px 7px 0px RGBA(0,0,0, 0.3);
+    font-size: 11px;
+    min-width: 60px;
+    font-weight: normal;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext, .tooltip .tooltiptext.active{
+    visibility: visible;
+    opacity: 1;
+}

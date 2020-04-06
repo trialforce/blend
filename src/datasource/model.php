@@ -3,10 +3,10 @@
 namespace DataSource;
 
 /**
- * \Db\Model datasource
+ * \Db\Model DataSource.
  * A \Datasource that uses \Db\Model as it's source
  */
-class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
+class Model extends DataSource
 {
 
     /**
@@ -46,11 +46,22 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         $this->model = $model;
     }
 
+    /**
+     * Return if is to use all columns or only DataSource coluns in search
+     *
+     * @return bool
+     */
     public function getUseColumnsForSearch()
     {
         return $this->useColumnsForSearch ? true : false;
     }
 
+    /**
+     * Define ifs is to use only DataSource columns or all columns, for search
+     *
+     * @param bool $useColumnsForSearch
+     * @return $this
+     */
     public function setUseColumnsForSearch($useColumnsForSearch)
     {
         $this->useColumnsForSearch = $useColumnsForSearch;
@@ -75,7 +86,9 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             }
             else
             {
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
             }
 
             $this->count = $model->count($filters);
@@ -118,12 +131,32 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             else
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columns);
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
                 $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
             }
         }
 
         return $this->data;
+    }
+
+    private function filterOnlySmartSearchableColumns($columns)
+    {
+        $dsColumns = $this->getColumns();
+        $result = array();
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Db\Column\Column;
+            $dsColumn = isset($dsColumns[$column->getName()]) ? $dsColumns[$column->getName()] : null;
+
+            if ($dsColumn instanceof \Component\Grid\Column && $dsColumn->getSmartFilter())
+            {
+                $result[$column->getName()] = $column;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -161,26 +194,21 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     {
         $model = $this->model;
         $connInfoType = $model->getConnInfo()->getType();
-        $forceExternalSelect = FALSE;
         $querys = NULL;
 
         foreach ($aggregators as $agg)
         {
             $method = $agg->getMethod();
-            $sqlColumn = $agg->getColumnName();
             $column = $model->getColumn($agg->getColumnName());
+            $sqlColumn = $agg->getColumnName();
 
             if (!$column)
             {
                 continue;
             }
 
-            if ($column instanceof \Db\Column\Search)
-            {
-                $forceExternalSelect = TRUE;
-            }
-
-            $subquery = $method . '( ' . $sqlColumn . ' )';
+            $referenceSql = $column->getSql(FALSE);
+            $subquery = $method . '( ' . $referenceSql[0] . ' )';
 
             if (!$column)
             {
@@ -199,8 +227,21 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
 
         if (!empty($querys))
         {
-            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
-            $result = $model->aggregations($filters, $querys, $forceExternalSelect);
+
+            //programatelly callback
+            $filters = NULL;
+            if ($this->getSmartFilterCallback())
+            {
+                $filters = $this->getSmartFilter();
+            }
+            else
+            {
+                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+            }
+
+            $result = $model->aggregations($filters, $querys);
 
             if ($result)
             {
@@ -254,7 +295,19 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
             $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
         }
 
-        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter());
+        //programatelly callback
+        $filters = NULL;
+        if ($this->getSmartFilterCallback())
+        {
+            $filters = $this->getSmartFilter();
+        }
+        else
+        {
+            $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+            $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+        }
+
         $result = $model->aggregation($filters, $query, $forceExternalSelect);
 
         if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME)
@@ -285,13 +338,10 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
     public static function createColumn($columns, $orderBy = NULL)
     {
         //avoid errors in PHPMD nullifyng the parameter
-        //TODO avaliate why this is here
         $orderBy = null;
         $gridColumns = array();
 
-        //default checkcolumn
-        //$gridColumns[] = new \Component\Grid\CheckColumn( null, 'check' );
-        if (is_array($columns))
+        if (isIterable($columns))
         {
             foreach ($columns as $column)
             {
@@ -364,16 +414,6 @@ class Model extends DataSource implements \Disk\JsonAvoidPropertySerialize
         }
 
         return $gridColumn;
-    }
-
-    public function listAvoidPropertySerialize()
-    {
-        $avoid[] = 'data';
-        $avoid[] = 'count';
-        $avoid[] = 'page';
-        $avoid[] = 'paginationLimit';
-
-        return $avoid;
     }
 
 }

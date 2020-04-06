@@ -115,7 +115,17 @@ class QueryBuilder extends DataSource
         {
             $qBuilder = $this->getQueryBuilderFeeded();
             $qBuilder = clone($qBuilder);
-            $this->count = $qBuilder->aggregation('count(*)');
+
+            $countSql = 'COUNT(*)';
+
+            //TODO verify if it works in all time
+            if ($qBuilder->getGroupBy())
+            {
+                $countSql = 'COUNT(DISTINCT (' . $qBuilder->getGroupBy() . '))';
+                $qBuilder->setGroupBy(NULL);
+            }
+
+            $this->count = $qBuilder->aggregation($countSql);
         }
 
         return $this->count;
@@ -186,11 +196,15 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $orignalColumnName)
         {
-
             //control sql columns with AS
             $columnName = \Db\Column\Column::getRealColumnName($orignalColumnName);
             $columnSql = \Db\Column\Column::getRealSqlColumn($orignalColumnName);
             $columnLabel = self::columnNameToLabel($columnName);
+
+            if (\Type\Text::get($columnName)->endsWith('Description'))
+            {
+                continue;
+            }
 
             $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
             $obj->setFilter(TRUE)->setSql($columnSql);
@@ -208,18 +222,18 @@ class QueryBuilder extends DataSource
             }
 
             //add support for ..Description column
-            if (\Type\Text::get($columnName)->endsWith('Description'))
-            {
-                $originalColumnName = str_replace('Description', '', $columnName);
+            /* if (\Type\Text::get($columnName)->endsWith('Description'))
+              {
+              $originalColumnName = str_replace('Description', '', $columnName);
 
-                if (isset($result[$originalColumnName]))
-                {
-                    $result[$originalColumnName]->setRender(false);
-                }
+              if (isset($result[$originalColumnName]))
+              {
+              $result[$originalColumnName]->setRender(false);
+              }
 
-                $columnLabel = str_replace('Description', '', $columnLabel);
-                $obj->setLabel($columnLabel);
-            }
+              $columnLabel = str_replace('Description', '', $columnLabel);
+              $obj->setLabel($columnLabel);
+              } */
 
             $result[$columnName] = $obj;
         }

@@ -231,6 +231,16 @@ class File implements \JsonSerializable
     }
 
     /**
+     * Verify if path is a directory
+     *
+     * @return boolean
+     */
+    public function isDir()
+    {
+        return is_dir($this->path);
+    }
+
+    /**
      * Verify if file is a simbolic link
      *
      * @return bool
@@ -381,6 +391,11 @@ class File implements \JsonSerializable
      */
     public function getFolder()
     {
+        if ($this->isDir())
+        {
+            return new \Disk\Folder($this->getPath());
+        }
+
         return new \Disk\Folder($this->getDirname());
     }
 
@@ -414,6 +429,14 @@ class File implements \JsonSerializable
      */
     public static function find($glob, $flags = 0, $recursive = FALSE)
     {
+        //auto brace
+        $isBrace = stripos($glob, '{') && stripos($glob, ',') && stripos($glob, '}');
+
+        if ($isBrace)
+        {
+            $flags = $flags | GLOB_BRACE;
+        }
+
         if ($recursive)
         {
             $globs = globRecursive($glob, $flags);
@@ -546,7 +569,7 @@ class File implements \JsonSerializable
     }
 
     /**
-     * Verify if the file is a image
+     * Verify if the file is a image (by extension)
      *
      * @return boolean
      */
@@ -556,6 +579,23 @@ class File implements \JsonSerializable
         $exts[] = 'jpg';
         $exts[] = 'gif';
         $exts[] = 'png';
+
+        return in_array($this->getExtension(), $exts);
+    }
+
+    /**
+     * Verify if file is a text file (by extension)
+     * @return type
+     */
+    public function isText()
+    {
+        $exts[] = 'txt';
+        $exts[] = 'php';
+        $exts[] = 'js';
+        $exts[] = 'html';
+        $exts[] = 'css';
+        $exts[] = 'json';
+        $exts[] = 'xml';
 
         return in_array($this->getExtension(), $exts);
     }

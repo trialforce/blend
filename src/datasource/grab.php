@@ -225,7 +225,7 @@ class Grab
             }
         }
 
-        $value = self::getDbValueFromObject($item, $columnName);
+        $value = self::getDbValueFromObject($columnName, $item);
 
         return $value;
     }
@@ -287,6 +287,7 @@ class Grab
             return NULL;
         }
 
+        $value = null;
         $item = self::standarlizeItem($item);
         $columnName = self::getColumnName($column);
 

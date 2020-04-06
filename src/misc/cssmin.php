@@ -19,7 +19,7 @@ namespace Misc;
  * @author Stephen Clay <steve@mrclay.org>
  * @author http://code.google.com/u/1stvamp/ (Issue 64 patch)
  */
-class Css
+class CssMin
 {
 
     /**
@@ -184,7 +184,8 @@ class Css
         }
 
         if (substr($matches, -1) === '\\')
-        { // comment ends like \*/
+        {
+            // comment ends like \*/
             // begin hack mode and preserve hack
             $this->_inHack = true;
             return '/*\\*/';
@@ -206,8 +207,8 @@ class Css
 
         // Issue 107: if there's any surrounding whitespace, it may be important, so
         // replace the comment with a single space
-        return $hasSurroundingWs // remove all other comments
-                ? ' ' : '';
+        // remove all other comments
+        return $hasSurroundingWs ? ' ' : '';
     }
 
     /**
@@ -238,7 +239,7 @@ class Css
 
     public static function optimize($content)
     {
-        $css = new Css();
+        $css = new CssMin();
         return $css->minify($content);
     }
 

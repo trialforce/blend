@@ -236,11 +236,6 @@ class Crud extends \Page\Page
         $this->adjustFields();
     }
 
-    public function adjustFields()
-    {
-
-    }
-
     public function getPopup()
     {
         $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
@@ -1068,6 +1063,47 @@ class Crud extends \Page\Page
         {
             $file->save($html);
             $file->outputToBrowser(TRUE);
+        }
+    }
+
+    public function columnQuestion()
+    {
+        \App::dontChangeUrl();
+        $columnName = $this->getPkValue();
+        $model = $this->getModel();
+        $column = $model->getColumn($columnName);
+
+        \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
+    }
+
+    /**
+     * Open a popup of this crud.
+     * It uses a internal iframe soluction to avoind mixing the forms post and values.
+     */
+    public function editarPopup()
+    {
+        \App::dontChangeUrl();
+        $idInput = Request::get('idInput');
+        $id = Request::get('v');
+        //edit or add
+        $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
+        $url .= '?iframe=true';
+
+        $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
+
+        $body = new \View\IFrame('edit-popup-iframe', $url);
+        $body->setWidth('100', '%')->setHeight('70', 'vh');
+        $buttons = null;
+
+        $popup = new \View\Blend\Popup('edit-popup', $title, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $popup->setIcon($this->icon);
+        $popup->footer->remove();
+        $popup->show();
+
+        //allow to update the original input if needed
+        if ($idInput)
+        {
+            $this->byId('btbClosePopup')->click("return comboModelClose('{$idInput}')");
         }
     }
 

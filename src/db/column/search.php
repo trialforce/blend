@@ -81,7 +81,7 @@ class Search extends \Db\Column\Column
 
         if ($withAs)
         {
-            $sql .= "AS $columnName";
+            $sql .= " AS $columnName";
         }
 
         $result[] = $sql;

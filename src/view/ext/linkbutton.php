@@ -20,7 +20,7 @@ class LinkButton extends \View\A
         if (stripos($href, 'p(') === 0)
         {
             $url = str_replace(array("p('", 'p("', "')", '")', ';'), '', $url);
-            $onclick = $href;
+            $onclick = 'return ' . $href;
         }
         //a simple js
         else if (stripos($href, '(') > 0)

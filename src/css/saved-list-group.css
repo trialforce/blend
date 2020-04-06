@@ -1,0 +1,43 @@
+.savedListGroup {
+    display: inline-block;
+}
+
+.savedListGroup .btn {
+    opacity: 0;
+    transition: 0.5s;
+    -webkit-transition: 0.5s;
+}
+
+.savedListGroup:hover .btn {
+    opacity: 1.0;
+}
+
+.savedListGroup select {
+    width: auto;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+    margin-top: -5px;
+    line-height: 43px;
+    color: #555;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border: solid 1px #fff;
+    cursor: pointer;
+    max-width: 90%; /*mobile*/
+}
+
+.savedListGroup .btn {
+    background: transparent;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border: none;
+}
+
+#saveList\[title\] {
+    display: block;
+    width: 98%;
+    margin-top: 10px;
+}

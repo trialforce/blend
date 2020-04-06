@@ -171,25 +171,8 @@ class Vector
                 }
 
                 $label = $this->getLabel($column);
-                $original = $this->getInputField($column, $weight);
-
-                $input = $original;
-
-                if ($input instanceof \Component\Component)
-                {
-                    $input = $original->onCreate();
-                }
-
-                $input->setLabel($label);
-
-                $div = new \View\Div('contain_' . $input->getId(), array($label, $input), 'field-contain');
-                $input->setContain($div);
-
-                //hide weight null
-                if (is_null($weight))
-                {
-                    $div->hide();
-                }
+                $input = $this->getInputField($column, $weight);
+                $div = $this->getContain($input, $label, $weight);
 
                 if (self::$weightOnField)
                 {
@@ -216,13 +199,42 @@ class Vector
                     }
                 }
 
-                $this->setElementValue($original, $column);
+                $this->setElementValue($input, $column);
 
                 $arrayPosition++;
             }
         }
 
         return $fields;
+    }
+
+    /**
+     * Create the container
+     *
+     * @param \View\View $input
+     * @param \View\Lanel $label
+     * @param string $weight
+     * @return \View\Div
+     */
+    public function getContain($input, $label, $weight)
+    {
+        if ($input instanceof \Component\Component)
+        {
+            $input = $input->onCreate();
+        }
+
+        $input->setLabel($label);
+
+        $div = new \View\Div('contain_' . $input->getId(), array($label, $input), 'field-contain');
+        $input->setContain($div);
+
+        //hide weight null
+        if (is_null($weight))
+        {
+            $div->hide();
+        }
+
+        return $div;
     }
 
     /**
@@ -302,9 +314,22 @@ class Vector
         return $original;
     }
 
-    public function getLabel($column)
+    public function getLabel(\Db\Column\Column $column)
     {
         $label = new \View\Label('label_' . $column->getProperty(), $column->getProperty(), $column->getLabel(), 'field-label');
+
+        if ($column->isRequired())
+        {
+            $label->data('required', '1');
+        }
+
+        if (strlen(trim($column->getDescription())) > 0)
+        {
+            $pageUrl = \View\View::getDom()->getPageUrl();
+            $url = "p('{$pageUrl}/columnQuestion/{$column->getName()}');";
+            $icon = new \View\Ext\Icon('question', 'question-' . $column->getName(), $url, 'column-question');
+            $label->append($icon);
+        }
 
         return $label;
     }

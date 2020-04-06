@@ -1,0 +1,19 @@
+.chart-donut-text {
+    font: 16px/1.4em "Montserrat", Arial, sans-serif;
+    fill: #000;
+    transform: translateY(0.25em);
+}
+
+.chart-donut-number {
+    font-size: 0.6em;
+    line-height: 1;
+    text-anchor: middle;
+    transform: translateY(-0.25em);
+}
+
+.chart-donut-label {
+    font-size: 0.2em;
+    text-transform: uppercase;
+    text-anchor: middle;
+    transform: translateY(0.7em);
+}

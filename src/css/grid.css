@@ -1,0 +1,52 @@
+
+.grid-tr-detail-column-group {
+    box-shadow: 0px 3px 11px -4px inset RGBA(0,0,0,0.5);
+}
+
+.grid-tr-detail-column-info {
+    width: 25%;
+    float: left;
+    padding: 2px;
+    box-sizing: border-box;
+    min-height: 58px;
+    height: 40px;
+}
+
+.grid-tr-detail-column-label {
+    font-weight: bold;
+    padding: 6px;
+}
+
+.grid-tr-detail-column-value {
+    padding: 6px;
+}
+
+.colorColumn {
+    width: 22px;
+    height: 22px;
+}
+
+.grid button.grid-change-text-size {
+    height: 33px;
+    line-height: 28px !important;
+    font-size: 17px;
+    padding: 0 10px;
+}
+
+@media screen and ( max-width: 1000px ) {
+    .grid-tr-detail-column-info {
+        width: 50%;
+    }
+
+    .grid-tr-detail-column-info {
+        padding: 0px;
+    }
+
+    .grid-tr-detail-column-label {
+        padding: 2px;
+    }
+
+    .grid-tr-detail-column-value {
+        padding: 2px;
+    }
+}

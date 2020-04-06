@@ -4,7 +4,6 @@
 //handle the back and forward buttons
 var formChangedAdvice = false;
 var invalidHover = true;
-var lastUrl = correctUrl(window.location.href);
 var avoidUrlRegister = false;
 var blendJs = function(){};
 
@@ -21,15 +20,17 @@ if (typeof $ == 'function')
 {
     $(window).bind('popstate', function (event)
     {
-        if ($('.popup').length > 0 )
-        {
-            popup('destroy');
-            return false;
-        }
-        else
+        var okay = escape();
+        
+        if ( !okay )
         {
             avoidUrlRegister = true;
             p(window.location.href, true);
+        }
+        else
+        {
+            //não mudar a url
+            return false;
         }
     });
 }
@@ -77,13 +78,26 @@ window.onload =  function ()
     {
         if (e.key === "Escape") 
         {
-            if ($('.popup').length)
-            {
-                popup('destroy');
-            }
+           return escape();
         }
     });
 };
+
+function escape()
+{
+    if ( $('.popup').length )
+    {
+        popup('destroy');
+        return true;
+    }
+    else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
+    {
+        $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
+        return true;
+    }
+    
+    return false;
+}
 
 //polyfill to old browser
 function startsWith(originalString, searchString)
@@ -169,7 +183,7 @@ function dataAjax()
             return;
         }
 
-        //mask as converted
+        //mark as converted
         element.attr('data-on-press-enter-converted', "1");
         element.keydown(
                 function (e)
@@ -263,9 +277,12 @@ function dataAjax()
     });
 
     //make masks work
-    $("input[data-mask]").each(function () {
-        $(this).mask($(this).attr("data-mask"));
-    });
+    if (typeof jQuery().mask == 'function')
+    {
+        $("input[data-mask]").each(function () {
+            $(this).mask($(this).attr("data-mask"));
+        });
+    }
 
     //mask functions
     $("input[data-mask-function]").each(function () {
@@ -305,101 +322,15 @@ function dataAjax()
 
     //multipleSelect();
     seletMenuItem();
-
-    if (isAndroid() || isIos())
-    {
-        $('.dateinput').not('[readonly]').each(function () {
-            $(this).mask('99/99/9999');
-        });
-
-        $('.datetimeinput').not('[readonly]').each(function () {
-            $(this).mask('99/99/9999 99:99:99');
-        });
-
-        $('.timeinput').not('[readonly]').each(function () {
-            $(this).mask('99:99:99');
-        });
-    } 
-    else if (typeof $().datetimepicker === 'function')
-    {
-        $('.dateinput').not('[readonly]').datetimepicker({
-            timepicker: false,
-            defaultSelect: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            mask: true,
-            allowBlank: true,
-            format: 'd/m/Y',
-            step: 15
-        });
-
-        $('.datetimeinput').not('[readonly]').datetimepicker({
-            format: 'd/m/Y H:i:s',
-            mask: true,
-            defaultSelect: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            allowBlank: true,
-            step: 15
-        });
-
-        $('.timeinput').not('[readonly]').datetimepicker({
-            format: 'H:i:s',
-            defaultSelect: false,
-            datepicker: false,
-            validateOnBlur: false,
-            closeOnDateSelect: true,
-            allowBlank: true,
-            mask: true,
-            step: 15
-        });
-    } 
-    else
-    {
-        //fallback to default date of browser
-        $('.dateinput').each(function ()
-        {
-            var element = $(this);
-            var value = element.val();
-
-            //don't format
-            if (value.indexOf('/') > 0)
-            {
-                var date = value.split('/').reverse().join('-');
-                element.val(date);
-            }
-
-            element.prop('type', 'date');
-        });
-
-        $('.datetimeinput').each(function () {
-            var element = $(this);
-            var value = element.val();
-
-            //don't format
-            if (value.indexOf('T') < 0)
-            {
-                var datetime = value.split(' ');
-                var date = datetime[0].split('/').reverse().join('-');
-                element.val(date + 'T' + datetime[1]);
-            }
-
-            element.prop('type', 'datetime-local');
-        });
-    }
+    dateTimeInput();
 
     //mark form changed on change
     $('input, select, textarea').on('change', function () {
         markFormChanged();
     });
 
-    //on key press
-    $('input, textarea').on('keypress', function () {
-        markFormChanged();
-    });
-
-    //add support for nick editor, and other contenteditable
-    $('*[contenteditable]').on('keypress', function () {
+    //on key press, add support for nick editor, and other contenteditable
+    $('input, select, textarea, *[contenteditable]').on('keypress', function () {
         markFormChanged();
     });
 
@@ -432,6 +363,166 @@ function dataAjax()
     hideLoading();
 
     return false;
+}
+
+function dateTimeInputMobile()
+{
+    $('.dateinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99/99/9999');
+    });
+
+    $('.datetimeinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99/99/9999 99:99:99');
+    });
+
+    $('.timeinput').not('[readonly]').each(function ()
+    {
+        $(this).mask('99:99:99');
+    });
+}
+
+function dateTimeInputDesktopOnChange(dp,input)
+{
+    console.log(dp, input);
+}
+
+function dateTimeInputDesktopOnShow(currentTime, input)
+{
+    console.log(currentTime, input);
+}
+
+//https://xdsoft.net/jqplugins/datetimepicker/
+function dateTimeInputDesktop()
+{   
+    $('.dateinput').not('[readonly]').each(function()
+    {
+        $(this).datetimepicker({
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-date-'+$(this).attr('id'),
+            className: 'dialog-date',
+            timepicker: false,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            mask: true,
+            allowBlank: true,
+            format: 'd/m/Y',
+            step: 15
+        });
+    });
+
+    $('.datetimeinput').not('[readonly]').each(function()
+    {
+        $(this).datetimepicker(
+        {
+            onChangeDateTime:dateTimeInputDesktopOnChange,
+            onShow: dateTimeInputDesktopOnShow,
+            id: 'dialog-datetime-'+$(this).attr('id'),
+            className: 'dialog-datetime',
+            format: 'd/m/Y H:i:s',
+            mask: true,
+            defaultSelect: false,
+            validateOnBlur: false,
+            closeOnDateSelect: true,
+            allowBlank: true,
+            step: 15
+        });
+    });
+
+    $('.timeinput').not('[readonly]').datetimepicker(
+    {
+        onChangeDateTime:dateTimeInputDesktopOnChange,
+        onShow: dateTimeInputDesktopOnShow,
+        id: 'dialog-time-'+$(this).attr('id'),
+        className: 'dialog-time',
+        format: 'H:i:s',
+        defaultSelect: false,
+        datepicker: false,
+        validateOnBlur: false,
+        closeOnDateSelect: true,
+        allowBlank: true,
+        mask: true,
+        step: 15
+    });
+    
+    $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
+    {
+        markFormChanged();
+    });
+    
+    //avoid open the keyboard
+    $('.dateinput,.datetimeinput,.timeinput').on('click', function () 
+    {     
+        if (isCellPhone())
+        {
+            $(this).blur();
+        }
+    });
+    
+    //close if click in background
+    if (isCellPhone())
+    {
+        $('.xdsoft_datetimepicker.xdsoft_noselect').click(function()
+        {
+            $(this).hide();
+            event.preventDefault();
+            return false;
+        });
+    }
+}
+
+function dateTimeInputFallBackNative()
+{
+    //fallback to default date of browser
+    $('.dateinput').each(function ()
+    {
+        var element = $(this);
+        var value = element.val();
+
+        //don't format
+        if (value.indexOf('/') > 0)
+        {
+            var date = value.split('/').reverse().join('-');
+            element.val(date);
+        }
+
+        element.prop('type', 'date');
+    });
+
+    $('.datetimeinput').each(function () 
+    {
+        var element = $(this);
+        var value = element.val();
+
+        //don't format
+        if (value.indexOf('T') < 0)
+        {
+            var datetime = value.split(' ');
+            var date = datetime[0].split('/').reverse().join('-');
+            element.val(date + 'T' + datetime[1]);
+        }
+
+        element.prop('type', 'datetime-local');
+    });
+}
+
+function dateTimeInput()
+{ 
+    if ( isIos() )
+    {
+        dateTimeInputMobile();
+    } 
+    else if (isAndroid() || typeof $().datetimepicker === 'function')
+    {
+        dateTimeInputDesktop();
+    } 
+    else
+    {
+        dateTimeInputFallBackNative();
+    }
 }
 
 function multipleSelect()
@@ -548,7 +639,6 @@ function updateUrl(page)
 {
     if (window.history.pushState === undefined || page === 'undefined')
     {
-        avoidUrlRegister = false;
         return false;
     }
 
@@ -559,17 +649,9 @@ function updateUrl(page)
     }
 
     var urlToRegister = correctUrl(page);
-
-    if (urlToRegister != lastUrl)
-    {
-        window.history.pushState({url: urlToRegister}, "", urlToRegister);
-        lastUrl = urlToRegister;
-        avoidUrlRegister = false;
-        return true;
-    }
-
+    window.history.pushState({url: urlToRegister}, "", urlToRegister);
     avoidUrlRegister = false;
-    return false;
+    return true;
 }
 
 function correctUrl(url)
@@ -844,7 +926,7 @@ function r(type, page, formData, callBack)
             {
                 page = url + '/?' + formData;
             }
-
+            
             updateUrl(page);
             //put the js inside body element, to execute
             data.script.replace('\\\"', '\\"');
@@ -916,7 +998,8 @@ function getJson(page, formData, showLoading, callBack)
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } else
+            } 
+            else
             {
                 toast('Impossível ler JSON!');
             }
@@ -976,13 +1059,15 @@ function removeDataInvalid()
 function toast(msg, type, duration)
 {
     duration = duration === undefined ? 3000 : duration;
-    $("<div class='toast " + type + "'>" + msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
-            .appendTo('body')
-            .animate({top: 50, opacity: 1}, 500)
-            .delay(1500)
-            .fadeOut(duration, function () {
-                $(this).remove();
-            });
+    type = type+ '' === 'undefined' ? '' : type;
+    var toast = $("<div class='toast " + type + "'>" +
+            msg +
+            "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
+            .appendTo('body');
+            
+    setTimeout(function(){toast.addClass('show')}, 100);
+    setTimeout(function(){toast.removeClass('show')}, duration);
+    setTimeout(function(){toast.remove()}, duration*2);
 
     return false;
 }
@@ -1107,10 +1192,51 @@ function updateEditors()
     }
 }
 
+var timerTypeWatch = 0;
+var body = $('body')[0];
+//close combos on click outside
+if(body)
+{
+    body.addEventListener("click", function()
+    {
+        var currentElement = $(document.activeElement);
+        var isCombo = currentElement.hasClass('labelValue');
+
+        if ( !isCombo)
+        {
+            //close all combos
+            $('.dropDownContainer').slideUp(50);
+        }
+        //comboHideDropdown(id);
+    }
+    , false);
+}
+
+function comboInputClick(id,eThis)
+{
+    $('.dropDownContainer').not('#'+id).slideUp(50);
+    comboToggleDropdown(id);
+}
+
+function comboToggleDropdown(id)
+{
+    var element = $('#dropDownContainer_' + id);
+    
+    if(element.is(':visible'))
+    {
+        comboHideDropdown(id);
+    }
+    else
+    {
+        comboShowDropdown(id);
+    }
+}
+
 function comboShowDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
 
+    //realonly, avoid open dropdown
     if (element.is('[readonly]'))
     {
         comboHideDropdown(id);
@@ -1120,12 +1246,12 @@ function comboShowDropdown(id)
     //mininum width
     element.css('min-width', $('#labelField_' + id).width() + 'px');
     //show
-    element.fadeIn('fast');
+    element.slideDown(50);
 }
 
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).fadeOut('fast');
+    $('#dropDownContainer_' + id).slideUp(50);
 }
 
 function comboDoSearch(id)
@@ -1133,21 +1259,25 @@ function comboDoSearch(id)
     eval($('#labelField_' + id).data('change'));
 }
 
-function comboSelectItem(id, value, label, eThis)
+function comboSelectItem(comboId, value, label, eThis)
 {
+    //remove selected from other tr's
     $(eThis).parent().find('tr').removeClass('selected');
+    //mark this as select
     $(eThis).addClass('selected');
-    var element = $('#' + id);
+    
+    //change the value and trigger onchange
+    var element = $('#' + comboId);
     element.val(value);
     element.trigger('change');
 
-    var elementLabel = $('#labelField_' + id);
+    //change the value of label field
+    var elementLabel = $('#labelField_' + comboId);
     elementLabel.val(label);
+    
+    //open the dropdrown table
+    comboHideDropdown(comboId);  
 }
-
-var timerTypeWatch = 0;
-
-/*Inspect type in some input*/
 
 function comboTypeWatch(element, event, callback, ms)
 {
@@ -1166,41 +1296,78 @@ function comboTypeWatch(element, event, callback, ms)
         return true;
     }
 
-    //up
+    //down
     if (event.keyCode === 40)
     {
         comboShowDropdown(id);
 
-        if (parente.find('table tr.selected').length === 0)
+        var next = parente.find('table tr.selected').next();
+
+        if ( next.length > 0 )
         {
-            parente.find('table tr').eq(0).click();
-        } else
+            parente.find('table tr.selected').removeClass('selected');
+            next.addClass('selected');
+        }
+        else
         {
-            parente.find('table tr.selected').next().click();
+            parente.find('table tr').eq(0).addClass('selected');
         }
 
         return false;
     }
-    //down
+    //up
     else if (event.keyCode === 38)
     {
         comboShowDropdown(id);
-
-        parente.find('table tr.selected').prev().click();
+        var prev = parente.find('table tr.selected').prev();
+        parente.find('table tr.selected').removeClass('selected');
+        prev.addClass('selected');
 
         return false;
     }
     //enter
     else if (event.keyCode === 13)
     {
+        //make the selection
+        parente.find('table tr.selected').click();
         comboHideDropdown(id);
 
         return false;
-    } else
+    } 
+    else
     {
         clearTimeout(timerTypeWatch);
         timerTypeWatch = setTimeout(callback, ms);
     }
+}
+
+function comboModelClick(idInput)
+{
+    var input = $('#'+idInput);
+    var value = input.val();
+    var page = input.data('model');
+    
+    p(page+'/editarpopup/'+value+'&idInput='+idInput);
+}
+
+function comboModelClose(idInput)
+{
+    var iframe = document.getElementById("edit-popup-iframe");
+    var doc = iframe.contentWindow.document;
+    var editEditId = $(doc).find('#id').val();
+    
+    //closes popup
+    popup('destroy','#edit-popup');
+    
+    //fill the value on hidden field
+    $('#'+idInput).val(editEditId);
+    //call the ajax action to fill dropdown, put hideCombo, to make it work properly
+    var code = $('#labelField_'+idInput).data('change');
+    console.log(code);
+    //run the code fill label value
+    eval(code.replace('mountDropDown','fillLabelByValue'));
+    //fill dropdown
+    setTimeout(function(){eval(code.replace(idInput,idInput+'?hideCombo=true'));},500);
 }
 
 /**
@@ -1304,24 +1471,6 @@ function setFocusOnFirstField()
     return false;
 }
 
-
-function seletMenuItem()
-{
-    var currentPage = getCurrentPage();
-    //remove class seleted from all items from menu
-    $('nav *').removeClass('selected');
-
-    //seleted class in current url
-    $('nav *[href=\'' + currentPage + '\']').addClass('selected');
-    //seleted class in current url if is a submenu
-    $('[href=\'' + currentPage + '\']').parents('li').addClass('selected');
-
-    //hide all sub menu
-    $('.subMenu *').click(function () {
-        $('.subMenu').hide();
-    });
-}
-
 function selectTab(tabItemId)
 {
     tabItemId = tabItemId.replace('#', '');
@@ -1361,10 +1510,54 @@ function getTabLabel(tabId)
     return stripTags($('#'+tabId+'Label').html()).replace(/(\r\n|\n|\r)/gm, "");
 }
 
+function seletMenuItem()
+{
+    var currentPage = getCurrentPage();
+    //remove class seleted from all items from menu
+    $('nav *').removeClass('selected');
+
+    //seleted class in current url
+    $('nav *[href=\'' + currentPage + '\']').addClass('selected');
+    //seleted class in current url if is a submenu
+    $('[href=\'' + currentPage + '\']').parents('li').addClass('selected');
+
+    //hide all sub menu
+    $('.subMenu *').click(function () 
+    {
+        $('.subMenu').hide();
+    });
+}
+
+/**
+ * Open/close main menu
+ * 
+ * @returns {Boolean}
+ */
+function menuToggle()
+{
+    $('body').toggleClass('menu-open');
+
+    return false;
+}
+
+/**
+ * Close the main menu
+ * 
+ * @returns {Boolean}
+ */
+function menuClose()
+{
+    $('body').removeClass('menu-open');
+    //$.removeCookie('menuAberto', {path: '/'});
+
+    return false;
+}
+
 function openSubMenu(element)
 {
+    menuCloseAll();
     element = $(element);
-    //esconde todos menus
+    
     //submenu atual
     var submenu = element.parent().children('div');
 
@@ -1378,6 +1571,47 @@ function openSubMenu(element)
     }
 
     return false;
+}
+
+function menuCloseAll()
+{
+    $('.subMenu').stop().slideUp('fast');
+}
+
+function menuSearch(term)
+{
+    term = toAscii(term.toLocaleLowerCase())+"";
+    
+    if (term == '')
+    {
+        $('.main-menu a').show();
+        $('.subMenu').hide();
+        $('.menu-submenu-header').show();
+        return;
+    }
+    
+    //open all menus
+    $('.subMenu').show();
+    //hide all header
+    $('.menu-submenu-header').hide();
+    
+    $('.main-menu a').each( function()
+    {
+        var element = $(this);
+        var text = toAscii( element.text().toLocaleLowerCase())+"";
+        
+        var find = text.indexOf(term) >= 0;
+        
+        if ( find)
+        {
+            element.show();
+        }
+        else
+        {
+            element.hide();
+        }
+        
+    });
 }
 
 function cropCanvas(imgSrc, aspectRatio)
@@ -1437,40 +1671,64 @@ function destroyCropCanvas()
 function toolTip(selector, message)
 {
     var element = $(selector);
-    element.attr('title', '');
+    //remove title
+    element.attr('title', '').removeAttr('title');
     //var parent = element.parent();
-    //element.append('body');
-    var toolTipHolder = $(document.createElement('div'));
-    toolTipHolder.addClass('tooltip');
-    //toolTipHolder.append(element);
-    toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
-    element.after(toolTipHolder);
-    toolTipHolder.prepend(element);
+    var tagName = element.prop('tagName');
+    
+    if (tagName== 'input'|| tagName == 'select')
+    {
+        var toolTipHolder = $(document.createElement('div'));
+        toolTipHolder.addClass('tooltip');
+        toolTipHolder.append('<span class="tooltiptext">' + message + '</span>');
+        element.after(toolTipHolder);
+        toolTipHolder.prepend(element);
+    }
+    else
+    {
+        element.addClass('tooltip');
+        element.append('<span class="tooltiptext">' + message + '</span>');
+    }
+}
+
+/**
+ * Make the default tooltip for all elements that has title
+ * 
+ * @returns void
+ */
+function defaultTooltTipForAllTitle()
+{
+    $('[title]').each(function()
+    {
+        toolTip(this, $(this).attr('title'));
+    });
 }
 
 function addScriptOnce(src, callBack)
 {
     var list = document.getElementsByTagName('script');
-    var i = list.length, flag = false;
-    var flag = false;
+    var i = list.length;
+    var findedOnDoc = false;
 
+    //verify if is already loaded
     while (i--)
     {
         if (list[i].src === src)
         {
-            flag = true;
+            findedOnDoc = true;
             break;
         }
     }
 
-    // if we didn't already find it on the page, add it
-    if (!flag)
+    // if we didn't find it on the page, add it
+    if (!findedOnDoc)
     {
         var script = document.createElement('script');
         script.src = src;
         script.onload = callBack;
         document.getElementsByTagName('body')[0].appendChild(script);
-    } 
+    }
+    //if already on document, we only call the callback
     else
     {
         callBack();
@@ -1491,6 +1749,27 @@ function focusNextElement()
         var next = inputs.eq(inputs.index(element) + 1);
         next.focus();
     }
+}
+
+function toAscii(text)
+{
+   return text
+        .replace(/[ÀÁÂÃÄÅª]/g,"A")
+        .replace(/[àáâãäå]/g,"a")
+        .replace(/[ÈÉÊË&]/g,"E")
+        .replace(/[éèêë]/, "e")
+        .replace(/[ÍÌÎÏ]/, "I")
+        .replace(/[íìîï]/, "i")
+        .replace(/[ÓÒÔÕÖ]/, "O")
+        .replace(/[óòôõöº]/, "o")
+        .replace(/[ÚÙÛÜ]/, "U")
+        .replace(/[úùûü]/, "u")
+        .replace(/[Ñ]/, "N")
+        .replace(/[ñ]/, "n")
+        .replace(/[Ç]/, "C")
+        .replace(/[ç]/, "c")
+        //.... all the rest
+        .replace(/[^a-z0-9 ]/gi,''); // final clean up
 }
 
 function toNumber(number)
@@ -1574,18 +1853,14 @@ function preparaVer()
             }
     );
 
-    //coloca todos campos como readonly e disabled
-    $('input, select, textarea').each(
-            function ()
-            {
-                $(this).attr('disabled', 'disabled');
-                //$(this).attr('readonly', 'readonly');
-            }
-    );
-    
+    $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
+
     //add support for autocomplete/combo input
     //TODO avoid setimeout
-    setTimeout(function(){$('.labelValue').attr('disabled', 'disabled')},100);
+    setTimeout(function () {
+        $('.labelValue').attr('disabled', 'disabled');
+        $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
+    }, 200);
 }
 
 function setCookie(variable, value)
@@ -1812,14 +2087,28 @@ function createDropZone( uploadUrl, acceptedFiles, pageName)
         {
             this.on("queuecomplete", function (file) 
             {
-                  p( pageName + '/updateImages');
+                p( pageName + '/updateImages');
             });
         }
     });
 }
 
+function useImageCkEditor(a)
+{
+    newsrc = a;
+    a = window.location.search.match(/(?:[?&]|&)CKEditorFuncNum=([^&]+)/i);
+    window.opener.CKEDITOR.tools.callFunction(a && 1 < a.length ? a[1] : null, newsrc);
+    window.close();
+}
+
 function createCkEditor(id)
 {
+    //ckeditor allready exists, avoid error
+    if ( typeof CKEDITOR.instances[id] === 'object')
+    {
+        return;
+    }
+
     var editor = CKEDITOR.replace( id );
     
     //active the save button when editor changes
@@ -2052,223 +2341,3 @@ function scrollTop()
 {
     $("html, body").animate({ scrollTop: 0 }, 300);
 }
-
-/**
- * Create a simple slider, with mobile support
- * @param string selector the jquery selector
- * @returns void
- */
-function slide(selector)
-{
-    var wrapper = $(selector).get(0);
-    var items = $(wrapper).find('.slider-items').get(0);
-    var prev = $(wrapper).find('.slider-prev').get(0);
-    var next = $(wrapper).find('.slider-next').get(0);
-
-    //copy outter width to inner
-    var outterWidth = $(wrapper).css('width');
-    var outterHeight = $(wrapper).css('height');
-    
-    //don't proccess the same slide again
-    if ($(wrapper).hasClass('loaded'))
-    {
-        return;
-    }
-
-    //if the height it not loaded yet, wait a little
-    if (outterHeight == 0 || outterHeight == '0px')
-    {
-        setTimeout(function ()
-        {
-            slide(selector)
-        }, 100);
-        
-        return;
-    }
-    
-    //if it don't has any slide, does nothing
-    var slideCount = $(wrapper).find('.slide').length;
-    
-    if (slideCount == 0 )
-    {
-        $(wrapper).find('.slider-prev').remove();
-        $(wrapper).find('.slider-next').remove();
-        return;
-    }
-
-    $(wrapper).find('.slide').css('width', outterWidth);
-    $(wrapper).find('.slide').css('height', outterHeight);
-    $(wrapper).find('.slider-items').css('left', '-' + outterWidth);
-    $(wrapper).find('.slider-wrapper').css('height', outterHeight);
-
-    var posX1 = 0;
-    var posX2 = 0;
-    var posInitial = 0;
-
-    var posInitialY = 0;
-    var posY1 = 0;
-    var posY2 = 0;
-
-    var posFinal;
-    var index = 0;
-    var threshold = 30;
-    var allowShift = true;
-
-    var slides = items.getElementsByClassName('slide');
-    var slidesLength = slides.length;
-    var slideSize = items.getElementsByClassName('slide')[0].offsetWidth;
-
-    var firstSlide = slides[0];
-    var lastSlide = slides[slidesLength - 1];
-
-    var cloneFirst = firstSlide.cloneNode(true);
-    var cloneLast = lastSlide.cloneNode(true);
-
-    // Clone first and last slide
-    items.appendChild(cloneFirst);
-    items.insertBefore(cloneLast, firstSlide);
-    wrapper.classList.add('loaded');
-
-    // Mouse and Touch events
-    items.onmousedown = dragStart;
-
-    // Touch events
-    items.addEventListener('touchstart', dragStart, {passive: true});
-    items.addEventListener('touchend', dragEnd, {passive: true});
-    items.addEventListener('touchmove', dragAction, {passive: true});
-
-    // Click events
-    if (prev)
-    {
-        prev.addEventListener('click', function ()
-        {
-            shiftSlide(-1);
-        }, {passive: true});
-    }
-
-    if (next)
-    {
-        next.addEventListener('click', function ()
-        {
-            shiftSlide(1);
-        }, {passive: true});
-    }
-
-    // Transition events
-    items.addEventListener('transitionend', checkIndex, true);
-
-    function dragStart(e)
-    {
-        e = e || window.event;
-        //e.preventDefault();
-        posInitial = items.offsetLeft;
-        posInitialY = $(window).scrollTop();
-
-        if (e.type == 'touchstart')
-        {
-            posX1 = e.touches[0].clientX;
-            posY1 = e.touches[0].clientY;
-        } 
-        else
-        {
-            posX1 = e.clientX;
-            posY1 = e.clientY;
-            document.onmouseup = dragEnd;
-            document.onmousemove = dragAction;
-        }
-    }
-
-    function dragAction(e)
-    {
-        e = e || window.event;
-
-        if (e.type == 'touchmove')
-        {
-            posX2 = posX1 - e.touches[0].clientX;
-            posX1 = e.touches[0].clientX;
-
-            posY2 = posY1 - e.touches[0].clientY;
-        } 
-        else
-        {
-            posX2 = posX1 - e.clientX;
-            posX1 = e.clientX;
-
-            posY2 = posY1 - e.clientY;
-            //posY1 = e.clientY;
-        }
-
-        items.style.left = (items.offsetLeft - posX2) + "px";
-
-        $(window).scrollTop(posInitialY + posY2);
-    }
-
-    function dragEnd(e)
-    {
-        posFinal = items.offsetLeft;
-
-        if (posFinal - posInitial < -threshold)
-        {
-            shiftSlide(1, 'drag');
-        } 
-        else if (posFinal - posInitial > threshold)
-        {
-            shiftSlide(-1, 'drag');
-        }
-        else
-        {
-            items.style.left = (posInitial) + "px";
-        }
-
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-
-    function shiftSlide(dir, action)
-    {
-        items.classList.add('shifting');
-
-        if (allowShift)
-        {
-            if (!action)
-            {
-                posInitial = items.offsetLeft;
-            }
-
-            if (dir == 1)
-            {
-                items.style.left = (posInitial - slideSize) + "px";
-                index++;
-            } 
-            else if (dir == -1)
-            {
-                items.style.left = (posInitial + slideSize) + "px";
-                index--;
-            }
-        };
-
-        allowShift = false;
-
-        //event.preventDefault();
-        return false;
-    }
-
-    function checkIndex()
-    {
-        items.classList.remove('shifting');
-
-        if (index == -1)
-        {
-            items.style.left = -(slidesLength * slideSize) + "px";
-            index = slidesLength - 1;
-        }
-
-        if (index == slidesLength)
-        {
-            items.style.left = -(1 * slideSize) + "px";
-            index = 0;
-        }
-
-        allowShift = true;
-    }
-};

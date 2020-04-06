@@ -75,7 +75,7 @@ class JSMin
      * @param string $js Javascript to be minified
      * @return string
      */
-    public static function minify($js)
+    public static function optimize($js)
     {
         $jsmin = new JSMin($js);
         return $jsmin->min();

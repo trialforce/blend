@@ -209,21 +209,21 @@ class Text implements \Type\Generic, \JsonSerializable
     {
         $this->trim(); //remove espaços
         $content = $this->string;
-        $content = mb_eregi_replace("[ÁÀÂÃÄ]", "A", $content);
-        $content = mb_eregi_replace("[áàâãä]", "a", $content);
-        $content = mb_eregi_replace("[ÉÈÊË]", "E", $content);
-        $content = mb_eregi_replace("[éèêë]", "e", $content);
-        $content = mb_eregi_replace("[ÍÌÎÏ]", "I", $content);
-        $content = mb_eregi_replace("[íìîï]", "i", $content);
-        $content = mb_eregi_replace("[ÓÒÔÕÖ]", "O", $content);
-        $content = mb_eregi_replace("[óòôõö]", "o", $content);
-        $content = mb_eregi_replace("[ÚÙÛÜ]", "U", $content);
-        $content = mb_eregi_replace("[úùûü]", "u", $content);
-        $content = mb_eregi_replace("[Ñ]", "N", $content);
-        $content = mb_eregi_replace("[ñ]", "n", $content);
-        $content = mb_eregi_replace("[Ç]", "C", $content);
-        $content = mb_eregi_replace("[ç]", "c", $content);
-        $content = mb_eregi_replace("[´`^~¨]", "", $content);
+        $content = mb_ereg_replace("[ÁÀÂÃÄ]", "A", $content);
+        $content = mb_ereg_replace("[áàâãä]", "a", $content);
+        $content = mb_ereg_replace("[ÉÈÊË]", "E", $content);
+        $content = mb_ereg_replace("[éèêë]", "e", $content);
+        $content = mb_ereg_replace("[ÍÌÎÏ]", "I", $content);
+        $content = mb_ereg_replace("[íìîï]", "i", $content);
+        $content = mb_ereg_replace("[ÓÒÔÕÖ]", "O", $content);
+        $content = mb_ereg_replace("[óòôõö]", "o", $content);
+        $content = mb_ereg_replace("[ÚÙÛÜ]", "U", $content);
+        $content = mb_ereg_replace("[úùûü]", "u", $content);
+        $content = mb_ereg_replace("[Ñ]", "N", $content);
+        $content = mb_ereg_replace("[ñ]", "n", $content);
+        $content = mb_ereg_replace("[Ç]", "C", $content);
+        $content = mb_ereg_replace("[ç]", "c", $content);
+        $content = mb_ereg_replace("[´`^~¨]", "", $content);
         $content = str_replace('º', 'o', $content);
         $content = str_replace('ª', 'a', $content);
         $content = str_replace('&', 'e', $content);

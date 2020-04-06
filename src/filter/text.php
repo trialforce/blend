@@ -173,7 +173,7 @@ class Text
         $values = $this->getDefaultValue();
         $conditions = $this->getDefaultCondition();
 
-        if (count($conditions) == 1 && count($values) == 0)
+        if (isCountable($values) && isCountable($conditions) && count($conditions) == 1 && count($values) == 0)
         {
             $this->clearDefaultValue();
         }

@@ -213,6 +213,24 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Count distinct values from an specify property
+     *
+     * @param string $property the object property
+     * @return int the count result
+     */
+    public function countDistinct($property)
+    {
+        $count = [];
+
+        foreach ($this->data as $item)
+        {
+            $value = self::getPropertyFromItem($item, $property);
+            $count[$value] = 1;
+        }
+        return count($count);
+    }
+
+    /**
      * Add some item to collection
      *
      * @param string $key
@@ -295,7 +313,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         if (is_array($item))
         {
-            $result = $item[$property];
+            $result = isset($item[$property]) ? $item[$property] : null;
         }
         else if (is_object($item))
         {
@@ -307,7 +325,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             //simple object
             else
             {
-                $result = $item->$property;
+                $result = isset($item->$property) ? $item->$property : 0;
             }
         }
 
@@ -405,7 +423,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
-     * Limite the collection to a simple array with the property passed
+     * Limit the collection to a simple array with the property passed
      *
      * @param string $property
      * @return $this
@@ -445,6 +463,49 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         $this->setData($result);
 
         return $this;
+    }
+
+    public function where($columnName, $param = NULL, $value = NULL)
+    {
+        $data = $this->getData();
+        $result = [];
+
+        foreach ($data as $idx => $item)
+        {
+            $myValue = self::getPropertyFromItem($item, $columnName);
+
+            if ($param == '=' && $value == $myValue)
+            {
+                $result[] = $item;
+            }
+            else if ($param == '<=' && $myValue <= $value)
+            {
+                $result[] = $item;
+            }
+            else if ($param == '<' && $myValue < $value)
+            {
+                $result[] = $item;
+            }
+            else if ($param == '>=' && $myValue >= $value)
+            {
+                $result[] = $item;
+            }
+            else if ($param == '>' && $myValue > $value)
+            {
+                $result[] = $item;
+            }
+        }
+
+        $this->setData($result);
+        return $this;
+    }
+
+    public function whereIf($columnName, $param = NULL, $value = NULL)
+    {
+        if ($value || $value === 0 || $value === '0')
+        {
+            return $this->where($columnName, $param, $value);
+        }
     }
 
     /**
