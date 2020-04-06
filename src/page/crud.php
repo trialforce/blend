@@ -860,7 +860,8 @@ class Crud extends \Page\Page
 
         $column->setSql($idColumn);
 
-        $collection = \Db\Collection::create(null)->add($options);
+
+        $collection = new \Db\Collection($options);
         $filter = new \Filter\Collection($column, $collection);
         $filter->setDefaultValue($defaultValue);
 
