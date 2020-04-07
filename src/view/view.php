@@ -544,6 +544,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         else if ($content instanceof \Component\Component)
         {
             $content = $content->onCreate();
+            $element->append($content);
         }
         //if is text, verify html or normal text
         else
