@@ -2,6 +2,13 @@
 
 namespace DataSource;
 
+/**
+ * A generic porpouse get the get the values of the objects or arrays.
+ *
+ * It reconize the default Blend objects, like models, contant values and view.
+ *
+ * And support default PHP stdClass and array
+ */
 class Grab
 {
 
@@ -136,9 +143,7 @@ class Grab
                     }
                 }
 
-                if ($value &&
-                        $constantValues &&
-                        isset($constantValues[$value]))
+                if ($value && $constantValues && isset($constantValues[$value]))
                 {
                     $valueConstant = $constantValues[$value];
                 }
