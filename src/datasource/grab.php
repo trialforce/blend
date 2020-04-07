@@ -124,13 +124,21 @@ class Grab
 
                 if (is_object($value))
                 {
+                    //if is a generic, get the db value
                     if ($value instanceof \Type\Generic)
                     {
                         $value = $value->toDb();
                     }
+                    //if is a default object, convert to string
+                    else
+                    {
+                        $value = $value . '';
+                    }
                 }
 
-                if (isset($constantValues[$value]))
+                if ($value &&
+                        $constantValues &&
+                        isset($constantValues[$value]))
                 {
                     $valueConstant = $constantValues[$value];
                 }
