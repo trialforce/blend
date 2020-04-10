@@ -848,9 +848,21 @@ class QueryBuilder
         return $this->getConn()->execute($sql, $args);
     }
 
+    /**
+     * Bulk delete register in database.
+     *
+     * @return int 1 for okay
+     */
     public function delete()
     {
-        throw new \Exception('Delete not implemented yet!');
+        //clear join because you can't have a delete with join
+        $this->join = null;
+        $catalog = $this->getCatalogClass();
+        $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
+
+        $sql = $catalog::mountDelete($this->getTables(false), $whereStd->getSql());
+
+        return $this->getConn()->execute($sql, $whereStd->getArgs());
     }
 
 }
