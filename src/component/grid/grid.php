@@ -319,7 +319,7 @@ class Grid extends \Component\Component
         return $this->getContent();
     }
 
-    protected function createTable()
+    public function createTable()
     {
         $div = new \View\Div($this->getId(), $this->createTableInner(), 'grid');
         //put link on js side

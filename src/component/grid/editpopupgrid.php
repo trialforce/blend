@@ -158,7 +158,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         \Component\Grid\Grid::addPaginationToDataSource($dataSource);
     }
 
-    public function createTable()
+    public function createTableInner()
     {
         if (!$this->actions)
         {
@@ -179,7 +179,7 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         $this->setTitle($title);
 
-        $fields = parent::createTable();
+        $fields = parent::createTableInner();
 
         return $fields;
     }
