@@ -50,9 +50,12 @@ class Checkbox extends \View\Input
     {
         $result = parent::setReadOnly($readOnly, $setInChilds);
 
-        //from http://stackoverflow.com/questions/155291/can-html-checkboxes-be-set-to-readonly
-        $this->attr('onclick', 'return false');
-        $this->attr('onkeydown', 'return false');
+        if ($readOnly)
+        {
+            //from http://stackoverflow.com/questions/155291/can-html-checkboxes-be-set-to-readonly
+            $this->attr('onclick', 'return false');
+            $this->attr('onkeydown', 'return false');
+        }
 
         return $result;
     }
