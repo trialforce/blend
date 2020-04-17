@@ -170,6 +170,10 @@ class Server extends DataHandle
         return $host;
     }
 
+    /**
+     * Verify if server is running in a https secure connection
+     * @return bool
+     */
     public function isHttps()
     {
         return mb_strtolower($this->getVar('HTTPS')) == 'on' || $this->getVar('HTTP_X_HTTPS');
