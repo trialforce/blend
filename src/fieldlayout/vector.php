@@ -4,11 +4,19 @@ namespace Fieldlayout;
 
 /**
  * Field Generator bases on a pre-defined array layout
- * Need a beautifull refactor
- *
+ * TODO: Need a beautifull refactor
  */
 class Vector
 {
+
+    /**
+     * If the weight is on field ou container
+     * true on field
+     * false on container
+     * $weight on field
+     * @var bool
+     */
+    protected static $weightOnField = true;
 
     /**
      *
@@ -23,20 +31,17 @@ class Vector
     protected $array;
 
     /**
-     * If the weight is on field ou container
-     * true on field
-     * false on container
-     * $weight on field
-     * @var bool
-     */
-    protected static $weightOnField = true;
-
-    /**
      * Default class
      *
      * @var string
      */
     protected $defaultClass = 'span3';
+
+    /**
+     * Define if is to create the question or not
+     * @var bool
+     */
+    protected $createQuestion = true;
 
     public function __construct($array, $model = null)
     {
@@ -72,6 +77,17 @@ class Vector
     public function setModel($model)
     {
         $this->model = $model;
+    }
+
+    public function getCreateQuestion()
+    {
+        return $this->createQuestion;
+    }
+
+    public function setCreateQuestion($createQuestion)
+    {
+        $this->createQuestion = $createQuestion;
+        return $this;
     }
 
     public function setArray($array)
@@ -323,7 +339,7 @@ class Vector
             $label->data('required', '1');
         }
 
-        if (strlen(trim($column->getDescription())) > 0)
+        if ($this->getCreateQuestion() && strlen(trim($column->getDescription())) > 0)
         {
             $pageUrl = \View\View::getDom()->getPageUrl();
             $url = "p('{$pageUrl}/columnQuestion/{$column->getName()}');";
