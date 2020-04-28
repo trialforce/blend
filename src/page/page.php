@@ -141,12 +141,14 @@ class Page extends \View\Layout
     public function validateModel(\Db\Model $model)
     {
         \View\View::removeAllInvalidate();
+        $ok = true;
         $arrayErrorMsg = NULL;
         $errors = $model->validate();
 
         if (is_array($errors) && count($errors) > 0)
         {
             $json = array();
+
             foreach ($errors as $field => $errorMsg)
             {
                 if (is_array($errorMsg))
@@ -168,15 +170,14 @@ class Page extends \View\Layout
                     $json[] = $stdClass;
                 }
 
-                $json = \Disk\Json::encode($json);
-
-                \App::addJs("showValidateErrors({$json});");
-
-                return FALSE;
+                $ok = false;
             }
+
+            $json = \Disk\Json::encode($json);
+            \App::addJs("showValidateErrors({$json});");
         }
 
-        return TRUE;
+        return $ok;
     }
 
     /**
