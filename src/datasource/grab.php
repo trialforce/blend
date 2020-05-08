@@ -117,18 +117,15 @@ class Grab
 
         if ($dbColumn)
         {
-            $cValues = $dbColumn->getConstantValues();
+            $constantValues = $dbColumn->getConstantValues();
 
-            if (isIterable($cValues) || $cValues instanceof \Db\ConstantValues)
+            if ($constantValues instanceof \Db\ConstantValues)
             {
-                if ($cValues instanceof \Db\ConstantValues)
-                {
-                    $cValues = $cValues->getArray();
-                }
+                $constantValues = $constantValues->getArray();
+            }
 
-                $constantValues = $cValues;
-                $valueConstant = $value;
-
+            if (isIterable($constantValues))
+            {
                 if (is_object($value))
                 {
                     //if is a generic, get the db value
@@ -143,14 +140,12 @@ class Grab
                     }
                 }
 
-                if ($value && $constantValues && isset($constantValues[$value]))
+                if (($value || $value == '0') && $constantValues && isset($constantValues[$value]))
                 {
-                    $valueConstant = $constantValues[$value];
+                    $value = $constantValues[$value];
                 }
 
-                //if has valueConstant use it
-                $value = $valueConstant;
-
+                //TODO is this needed yet?
                 //add supports for simple object inside collection
                 if (is_object($value))
                 {
