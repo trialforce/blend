@@ -615,6 +615,9 @@ class Template
             return;
         }
 
+        //put the entire model like a para
+        $this->setParam($modelName, $model);
+
         $model = $model->getArray();
 
         foreach ($model as $property => $value)
@@ -630,6 +633,16 @@ class Template
         }
 
         return $this;
+    }
+
+    /**
+     * Execute the template and return it's string represetation
+     *
+     * @return string return the result of the execute
+     */
+    public function __toString()
+    {
+        return $this->execute();
     }
 
 }
