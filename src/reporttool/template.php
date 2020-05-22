@@ -612,7 +612,7 @@ class Template
     {
         if (!$model || !$modelName)
         {
-            return;
+            return $this;
         }
 
         //put the entire model like a para
