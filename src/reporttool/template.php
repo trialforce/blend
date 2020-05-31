@@ -470,8 +470,13 @@ class Template
             }
 
             //create variables for use in eval
-            $param = $this->params;
+            $params = $this->params;
             $father = array();
+
+            foreach ($params as $param => $value)
+            {
+                $$param = $value;
+            }
 
             //create variables for use in eval
             if (isIterable($item))
@@ -608,15 +613,18 @@ class Template
      * @param stirng $modelName model name
      * @return void
      */
-    public function setModelParams($model, $modelName)
+    public function setModelParams($model, $modelName, $setModel = false)
     {
         if (!$model || !$modelName)
         {
             return $this;
         }
 
-        //put the entire model like a para
-        $this->setParam($modelName, $model);
+        if ($setModel)
+        {
+            //put the entire model like a para
+            $this->setParam($modelName, $model);
+        }
 
         $model = $model->getArray();
 

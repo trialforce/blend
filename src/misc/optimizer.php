@@ -128,7 +128,7 @@ class Optimizer
 
     /**
      * Delete old generated files when needed
-     * 
+     *
      * @return $this
      */
     protected function deleteOld()
