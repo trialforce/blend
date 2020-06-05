@@ -311,6 +311,16 @@ class App
     }
 
     /**
+     * Verify if url is changed or not in thss request
+     *
+     * @return bool
+     */
+    public static function isUrlChanged()
+    {
+        return Config::get('pushState') != 'undefined';
+    }
+
+    /**
      * Manually change the url
      *
      * @param string $url

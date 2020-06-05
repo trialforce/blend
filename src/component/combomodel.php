@@ -10,8 +10,6 @@ abstract class ComboModel extends \Component\Combo
 
     protected $modelName = '';
 
-    public abstract function getDataSource();
-
     public function onCreate()
     {
         //avoid double creation

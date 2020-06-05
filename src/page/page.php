@@ -733,7 +733,7 @@ class Page extends \View\Layout
             }
         }
 
-        if (count($return) == 1)
+        if (isCountable($return) && count($return) == 1)
         {
             $return = array_pop($return);
         }
