@@ -28,11 +28,36 @@ class App
     private static $theme;
 
     /**
+     * Current app instance
+     * @var App
+     */
+    private static $instance;
+
+    /**
      *
      * @var array of string
      */
     protected static $js = array();
 
+    public function __construct()
+    {
+        self::$instance = $this;
+    }
+
+    /**
+     * Get current instance of app
+     * @return App
+     */
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
+
+    /**
+     * Return the raw representantion of current page
+     *
+     * @return string
+     */
     public function getCurrentPageRaw()
     {
         return Request::get('p');
