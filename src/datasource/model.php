@@ -227,12 +227,11 @@ class Model extends DataSource
 
         if (!empty($querys))
         {
-
             //programatelly callback
             $filters = NULL;
             if ($this->getSmartFilterCallback())
             {
-                $filters = $this->getSmartFilter();
+                $filters = $this->mountCallBackFilters();
             }
             else
             {
