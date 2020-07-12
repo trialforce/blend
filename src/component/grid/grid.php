@@ -789,7 +789,7 @@ class Grid extends \Component\Component
             $dataSource->setOrderWay(Request::get('orderWay'));
         }
 
-        if (Request::get('page') && $event == 'exportGridFile')
+        if (Request::get('page') && $event != 'exportGridFile')
         {
             $dataSource->setPage(Request::get('page'));
         }
