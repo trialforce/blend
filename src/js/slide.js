@@ -42,10 +42,10 @@ function slide(selector)
         return;
     }
 
-    $(wrapper).find('.slide').css('width', outterWidth);
-    $(wrapper).find('.slide').css('height', outterHeight);
-    $(wrapper).find('.slider-items').css('left', '-' + outterWidth);
-    $(wrapper).find('.slider-wrapper').css('height', outterHeight);
+    $(wrapper).find('.slide').css('width', outterWidth+'px');
+    $(wrapper).find('.slide').css('height', outterHeight+'px');
+    $(wrapper).find('.slider-items').css('left', '-' + outterWidth+'px');
+    $(wrapper).find('.slider-wrapper').css('height', outterHeight+'px');
 
     var posX1 = 0;
     var posX2 = 0;

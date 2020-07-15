@@ -998,10 +998,6 @@ function getJson(page, formData, showLoading, callBack)
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } 
-            else
-            {
-                toast('Impossível ler JSON!');
             }
         }
     });
