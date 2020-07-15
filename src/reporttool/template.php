@@ -218,7 +218,7 @@ class Template
                 $sectionContentReplace = $this->getContentForSection($sectionName, $this->content);
                 $result = '';
 
-                if (count($data) > 0)
+                if (isIterable($data) && count($data) > 0)
                 {
                     foreach ($data as $item)
                     {

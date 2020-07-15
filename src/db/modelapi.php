@@ -254,10 +254,19 @@ class ModelApi extends \Db\Model
             }
         }
 
+        //no máximo 20 se não passar limite
+        $limit = $limit ? $limit : 20;
+
         //merge where
         if (is_array($extraWhere))
         {
             $wheres = array_merge($wheres, $extraWhere);
+        }
+
+        //caso não tenha where retorna nada
+        if (!$wheres)
+        {
+            $wheres = [new \Db\Cond("1=0")];
         }
 
         $result = $name::smartFind($smartSearch, $wheres, $limit, $offset, $orderBy, $orderWay, 'array');

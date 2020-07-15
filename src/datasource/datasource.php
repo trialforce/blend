@@ -428,9 +428,10 @@ abstract class DataSource
      */
     public function mountColumns($availableColumns = null)
     {
+        $columns = [];
         $data = $this->getData();
 
-        if (!$data)
+        if (!$data || !isIterable($data))
         {
             return null;
         }

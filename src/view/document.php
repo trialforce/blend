@@ -104,15 +104,7 @@ class Document extends \DomDocument implements \Countable
         {
             foreach ($content as $info)
             {
-                if ($info instanceof \DOMNode)
-                {
-                    $this->appendChild($info);
-                }
-                else if (is_string($info))
-                {
-                    $this->appendChild(new \DOMText($info));
-                }
-                else if (is_array($info))
+                if ($info instanceof \DOMNode || is_string($info) || is_array($info))
                 {
                     $this->append($info);
                 }
@@ -128,7 +120,19 @@ class Document extends \DomDocument implements \Countable
         //caso não seja instancia de DomElement, cria um elemento de texto
         if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
         {
+            /* if (\View\View::isHtml($content))
+              {
+              $layout = new \View\Layout();
+              $layout->loadHTML('<html><body><div id="importedContent">' . $content . '</div<</body></html>');
+              $node = $layout->byId('importedContent')->childNodes[0];
+
+              $this->importNode($node, true);
+              $this->appendChild($node);
+              }
+              else
+              { */
             $content = $this->createTextNode($content);
+            //}
         }
 
         if ($content)
