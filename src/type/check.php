@@ -75,7 +75,7 @@ class Check implements \Type\Generic
      * @param int $limit
      * @return 1 or 0
      */
-    public static function rand($limit = 50)
+    public static function createRandom($limit = 50)
     {
         return rand(0, 100) > $limit ? 1 : 0;
     }

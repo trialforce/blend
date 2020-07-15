@@ -88,7 +88,6 @@ function slide(selector)
     {
         prev.addEventListener('click', function (event)
         {
-            event.preventDefault();
             shiftSlide(-1); 
         }, {passive: true});
     }
@@ -97,7 +96,6 @@ function slide(selector)
     {
         next.addEventListener('click', function (event)
         {
-            event.preventDefault();
             shiftSlide(1);
         }, {passive: true});
     }

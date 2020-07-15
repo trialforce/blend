@@ -77,7 +77,7 @@ class Bytes implements \Type\Generic, \JsonSerializable
             $newValue = $value / $type;
             $newValue = self::numberFormatPrecision($newValue, 2, ".");
             $newValue = number_format($newValue, 2, ",", "");
-            return $newValue;
+            return intval($newValue);
         }
 
         return 0;

@@ -188,6 +188,7 @@ class Layout extends \View\Document
             \App::addJs("document.title = '{$title}'");
         }
 
+
         return $this;
     }
 

@@ -654,7 +654,7 @@ function updateUrl(page)
     return true;
 }
 
-function correctUrl(url)
+function getBaseUrl()
 {
     var bases = document.getElementsByTagName('base');
     var base = '';
@@ -663,6 +663,13 @@ function correctUrl(url)
     {
         base = bases[0].href;
     }
+    
+    return base;
+}
+
+function correctUrl(url)
+{
+    var base = getBaseUrl();
 
     //make full url
     if (!startsWith(url, base))
@@ -959,12 +966,12 @@ function r(type, page, formData, callBack)
     return false;
 }
 
-function getJson(page, formData, showLoading, callBack)
+function getJson(page, formData, loadingShow, callBack)
 {
     var host = $('base').attr('href');
     var url = host + page.replace(host, '');
 
-    if (showLoading)
+    if (loadingShow)
     {
         showLoading();
     }
@@ -981,6 +988,8 @@ function getJson(page, formData, showLoading, callBack)
         },
         success: function (response)
         {
+            hideLoading();
+
             if (response && typeof response.script == 'string')
             {
                 response.script.replace('\\\"', '\\"');
@@ -1359,7 +1368,6 @@ function comboModelClose(idInput)
     $('#'+idInput).val(editEditId);
     //call the ajax action to fill dropdown, put hideCombo, to make it work properly
     var code = $('#labelField_'+idInput).data('change');
-    console.log(code);
     //run the code fill label value
     eval(code.replace('mountDropDown','fillLabelByValue'));
     //fill dropdown
@@ -1705,17 +1713,19 @@ function addScriptOnce(src, callBack)
     var list = document.getElementsByTagName('script');
     var i = list.length;
     var findedOnDoc = false;
+    var compare = src.replace(getBaseUrl(),'');
 
     //verify if is already loaded
     while (i--)
     {
-        if (list[i].src === src)
+        var myCompare = list[i].src.replace(getBaseUrl(),'');
+        if ( myCompare == compare)
         {
             findedOnDoc = true;
             break;
         }
     }
-
+    
     // if we didn't find it on the page, add it
     if (!findedOnDoc)
     {
@@ -2099,10 +2109,16 @@ function useImageCkEditor(a)
 
 function createCkEditor(id)
 {
+    if (typeof CKEDITOR == 'undefined')
+    {
+        setTimeout(function(){createCkEditor(id)},300);
+        return;
+    }
+    
     //ckeditor allready exists, avoid error
     if ( typeof CKEDITOR.instances[id] === 'object')
     {
-        return;
+        //return;
     }
 
     var editor = CKEDITOR.replace( id );
@@ -2336,4 +2352,30 @@ function printScreenFinalize()
 function scrollTop()
 {
     $("html, body").animate({ scrollTop: 0 }, 300);
+}
+
+/**
+ * Turn string into a url optimized string easily.
+ * @param string str
+ * @returns url optimized string
+ */
+function slug(str) 
+{
+    str = str.replace(/^\s+|\s+$/g, ''); // strong trim
+    str = str.toLowerCase();
+
+    // remove accents, swap ñ for n, etc
+    var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
+    var to   = "aaaaaeeeeeiiiiooooouuuunc--_---";
+
+    for (var i=0, l=from.length ; i<l ; i++) 
+    {
+        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+    }
+
+    str = str.replace(/[^a-z0-9 -_]/g, '') // remove invalid chars
+      .replace(/\s+/g, '-') // collapse whitespace and replace by -
+      .replace(/-+/g, '-'); // collapse dashes
+
+    return str;
 }
