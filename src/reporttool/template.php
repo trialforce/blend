@@ -251,6 +251,9 @@ class Template
                 $this->content = str_replace($match, '', $this->content);
             }
         }
+
+        // necessário para remover as tags de looping, ex: <!--produto-images-->, <!--!produto-images-->
+        $this->content = preg_replace('/<!--(.|\s)*?-->/', '', $this->content);
     }
 
     /**
