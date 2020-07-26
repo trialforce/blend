@@ -215,7 +215,7 @@ class App
         return self::$theme;
     }
 
-    public function handleResult(\View\Document $content)
+    public function handleResult(\View\Document $content, $page404 = false)
     {
         $theme = self::getTheme($content);
 
@@ -237,6 +237,13 @@ class App
 
             $theme->appendLayout($defaultResponse, $content);
             $this->addJsToLayout($theme);
+
+            if ($page404)
+            {
+                // Send 404 response to client
+                http_response_code(404);
+            }
+
             echo $theme;
         }
 
