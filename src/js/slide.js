@@ -6,14 +6,15 @@
  */
 function slide(selector)
 {
-    var wrapper = $(selector).get(0);
-    var items = $(wrapper).find('.slider-items').get(0);
-    var prev = $(wrapper).find('.slider-prev').get(0);
-    var next = $(wrapper).find('.slider-next').get(0);
-
+    var wrapper = $($(selector).get(0));
+    var items = wrapper.find('.slider-items').get(0);
+    var prev = wrapper.find('.slider-prev').get(0);
+    var next = wrapper.find('.slider-next').get(0);
+    var autoSlide = wrapper.data('auto-slide');
+    
     //copy outter width to inner
-    var outterWidth = $(wrapper).width();
-    var outterHeight = $(wrapper).height();
+    var outterWidth = wrapper.width();
+    var outterHeight = wrapper.height();
     
     //don't proccess the same slide again
     if ($(wrapper).hasClass('loaded'))
@@ -33,19 +34,19 @@ function slide(selector)
     }
     
     //if it don't has any slide, does nothing
-    var slideCount = $(wrapper).find('.slide').length;
+    var slideCount = wrapper.find('.slide').length;
     
     if (slideCount == 0 )
     {
-        $(wrapper).find('.slider-prev').remove();
-        $(wrapper).find('.slider-next').remove();
+        wrapper.find('.slider-prev').remove();
+        wrapper.find('.slider-next').remove();
         return;
     }
 
-    $(wrapper).find('.slide').css('width', outterWidth);
-    $(wrapper).find('.slide').css('height', outterHeight);
-    $(wrapper).find('.slider-items').css('left', '-' + outterWidth);
-    $(wrapper).find('.slider-wrapper').css('height', outterHeight);
+    wrapper.find('.slide').css('width', outterWidth+'px');
+    wrapper.find('.slide').css('height', outterHeight+'px');
+    wrapper.find('.slider-items').css('left', '-' + outterWidth+'px');
+    wrapper.find('.slider-wrapper').css('height', outterHeight+'px');
 
     var posX1 = 0;
     var posX2 = 0;
@@ -73,7 +74,7 @@ function slide(selector)
     // Clone first and last slide
     items.appendChild(cloneFirst);
     items.insertBefore(cloneLast, firstSlide);
-    wrapper.classList.add('loaded');
+    wrapper.addClass('loaded');
 
     // Mouse and Touch events
     items.onmousedown = dragStart;
@@ -82,12 +83,18 @@ function slide(selector)
     items.addEventListener('touchstart', dragStart, {passive: true});
     items.addEventListener('touchend', dragEnd, {passive: true});
     items.addEventListener('touchmove', dragAction, {passive: true});
+    
+    if (Number.isInteger(autoSlide))
+    {
+        setInterval(function(){shiftSlide(1)}, autoSlide);
+    }
 
     // Click events
     if (prev)
     {
         prev.addEventListener('click', function (event)
         {
+            event.preventDefault();
             shiftSlide(-1); 
         }, {passive: true});
     }
@@ -96,6 +103,7 @@ function slide(selector)
     {
         next.addEventListener('click', function (event)
         {
+            event.preventDefault();
             shiftSlide(1);
         }, {passive: true});
     }
@@ -206,6 +214,7 @@ function slide(selector)
         };
 
         allowShift = false;
+        //checkIndex();
 
         //event.preventDefault();
         return false;
