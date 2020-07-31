@@ -135,7 +135,7 @@ class Criteria implements \Db\Filter
      * @param string $param the condition param =, IN , >= etc
      * @param string $value the filtered value
      * @param string $condition AND, OR, etc
-     * @return \Db\QueryBuilder
+     * @return \Db\Criteria
      */
     public function where($columnName, $param, $value = NULL, $condition = 'AND')
     {
@@ -158,6 +158,25 @@ class Criteria implements \Db\Filter
         }
 
         $this->filters[] = $where;
+
+        return $this;
+    }
+
+    /**
+     * Add a where condition to the were list, but only if a value is passed
+     *
+     * @param string $columnName the column name
+     * @param string $param the condition param =, IN , >= etc
+     * @param string $value the filtered value
+     * @param string $condition AND, OR, etc
+     * @return \Db\Criteria
+     */
+    public function whereIf($columnName, $param = NULL, $value = NULL, $condition = 'AND')
+    {
+        if ($value || $value === 0 || $value === '0')
+        {
+            return $this->where($columnName, $param, $value, $condition);
+        }
 
         return $this;
     }
