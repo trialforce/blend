@@ -484,7 +484,16 @@ class Text implements \Type\Generic, \JsonSerializable
      */
     public static function rand($length = 10)
     {
-        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $str = '';
+        $max = mb_strlen($keyspace, '8bit') - 1;
+
+        for ($i = 0; $i < $length; ++$i)
+        {
+            $str .= $keyspace[random_int(0, $max)];
+        }
+
+        return $str;
     }
 
     public function jsonSerialize()
