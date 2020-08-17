@@ -515,10 +515,14 @@ function dateTimeInput()
     {
         dateTimeInputMobile();
     } 
-    else if (isAndroid() || typeof $().datetimepicker === 'function')
+    else if (isAndroid())
     {
         dateTimeInputFallBackNative();
-    } 
+    }
+    else if (typeof $().datetimepicker === 'function')
+    {
+        dateTimeInputDesktop();
+    }
     else
     {
         dateTimeInputFallBackNative();
