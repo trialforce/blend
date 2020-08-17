@@ -517,7 +517,7 @@ function dateTimeInput()
     } 
     else if (isAndroid() || typeof $().datetimepicker === 'function')
     {
-        dateTimeInputDesktop();
+        dateTimeInputFallBackNative();
     } 
     else
     {
