@@ -809,6 +809,16 @@ class QueryBuilder
     }
 
     /**
+     * Simple method that return the count of all registers in query
+     * 
+     * @return int
+     */
+    public function count()
+    {
+        return $this->aggregation('count(*)');
+    }
+
+    /**
      * Bulk update register in database
      *
      * @param array $values the key indexed values array

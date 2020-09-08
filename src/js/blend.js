@@ -95,6 +95,10 @@ function escape()
         $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
     }
+    else if ( $('slider-full-screen'.length > 0))
+    {
+        removeSlideFullScreen();
+    }
     
     return false;
 }

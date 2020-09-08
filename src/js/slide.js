@@ -11,20 +11,23 @@ function slide(selector)
     var prev = wrapper.find('.slider-prev').get(0);
     var next = wrapper.find('.slider-next').get(0);
     var autoSlide = wrapper.data('auto-slide');
+    var fullScreen = wrapper.data('full-screen');
     
     //copy outter width to inner
-    var outterWidth = wrapper.width();
+    var outterWidth = wrapper.find('.slider-wrapper').width();
     var outterHeight = wrapper.height();
     
     //don't proccess the same slide again
     if ($(wrapper).hasClass('loaded'))
     {
+        console.log('return loadded');
         return;
     }
 
     //if the height it not loaded yet, wait a little
     if (outterHeight == 0 || outterHeight == '0px')
     {
+        console.log('return outterHeight');
         setTimeout(function ()
         {
             slide(selector);
@@ -36,17 +39,31 @@ function slide(selector)
     //if it don't has any slide, does nothing
     var slideCount = wrapper.find('.slide').length;
     
+    //remove slide prev/next if not neeed
     if (slideCount == 0 )
     {
+        console.log('return slideCount 0');
         wrapper.find('.slider-prev').remove();
         wrapper.find('.slider-next').remove();
         return;
     }
 
+    //ajdust width e height
     wrapper.find('.slide').css('width', outterWidth+'px');
     wrapper.find('.slide').css('height', outterHeight+'px');
     wrapper.find('.slider-items').css('left', '-' + outterWidth+'px');
     wrapper.find('.slider-wrapper').css('height', outterHeight+'px');
+    
+    var slicker = wrapper.find('.slider-slick');
+    
+    slicker.each( function(index)
+    {
+        var slick = slicker[index];
+        slick.addEventListener('click', function (event)
+        {
+            setSlide(index); 
+        }, {passive: true});
+    });
 
     var posX1 = 0;
     var posX2 = 0;
@@ -69,7 +86,9 @@ function slide(selector)
     var lastSlide = slides[slidesLength - 1];
 
     var cloneFirst = firstSlide.cloneNode(true);
+    cloneFirst.classList.add('cloned');
     var cloneLast = lastSlide.cloneNode(true);
+    cloneLast.classList.add('cloned');
 
     // Clone first and last slide
     items.appendChild(cloneFirst);
@@ -94,7 +113,7 @@ function slide(selector)
     {
         prev.addEventListener('click', function (event)
         {
-            event.preventDefault();
+            //event.preventDefault();
             shiftSlide(-1); 
         }, {passive: true});
     }
@@ -103,7 +122,7 @@ function slide(selector)
     {
         next.addEventListener('click', function (event)
         {
-            event.preventDefault();
+            //event.preventDefault();
             shiftSlide(1);
         }, {passive: true});
     }
@@ -114,7 +133,7 @@ function slide(selector)
     function dragStart(e)
     {
         e = e || window.event;
-        //e.preventDefault();
+
         posInitial = items.offsetLeft;
         posInitialY = $(window).scrollTop();
 
@@ -149,7 +168,6 @@ function slide(selector)
             posX1 = e.clientX;
 
             posY2 = posY1 - e.clientY;
-            //posY1 = e.clientY;
         }
 
         items.style.left = (items.offsetLeft - posX2) + "px";
@@ -167,8 +185,16 @@ function slide(selector)
         if( diff === 0)
         {
             var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
-            var tmpFunc = new Function(onclickCode);
-            tmpFunc();
+            
+            if ( onclickCode)
+            {
+                var tmpFunc = new Function(onclickCode);
+                tmpFunc();
+            }
+            else if ( fullScreen )
+            {
+                fullscreen();
+            }
         }
         //draf left
         else if (diff < -threshold)
@@ -214,9 +240,15 @@ function slide(selector)
         };
 
         allowShift = false;
-        //checkIndex();
+        return false;
+    }
+    
+    function setSlide(position)
+    {
+        items.classList.add('shifting');
+        items.style.left = (slideSize * (position + 1) * -1) + "px";
+        index = position;
 
-        //event.preventDefault();
         return false;
     }
 
@@ -238,4 +270,55 @@ function slide(selector)
 
         allowShift = true;
     }
+    
+    function fullscreen()
+    {
+        console.log('fullScreen='+selector);
+        
+        var newSlider = $(selector).clone();
+        
+        newSlider.append('<div class="slider-close-full-screen" id="slider-close-full-screen" onclick="return removeSlideFullScreen()">&nbsp;</div>');
+        
+        newSlider.attr('class', '');
+        newSlider.addClass('slider slider-full-screen');
+        newSlider.css('height','90vh');
+        
+        newSlider.attr('id','slider-full-screen');
+        newSlider.removeAttr('data-full-screen');
+        
+        var wrapper = newSlider.find('.slider-wrapper');
+        wrapper.attr('class','');
+        wrapper.addClass('slider-wrapper');
+        wrapper.css('height','90vh');
+        
+        var sliderItems = newSlider.find('.slider-items');
+        sliderItems.css('height',"");
+        sliderItems.css('left',"");
+        
+        newSlider.find('.slide.cloned').remove();
+
+        var slides = newSlider.find('.slide');
+        
+        slides .each(function(index)
+        {
+            var slide = $(slides[index]);
+            slide.css('height',"");
+            slide.css('width',"");
+        });
+        
+        newSlider.find('[data-slider-delete-on-full-screen=true]').remove();
+        
+        $('body').append(newSlider).css('overflow','hidden');
+        
+        slide('#slider-full-screen');
+    }
 };
+
+function removeSlideFullScreen()
+{
+    $('#slider-full-screen').remove();
+    
+    $('body').css('overflow',"");
+    
+    return false;
+}

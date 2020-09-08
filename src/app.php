@@ -116,6 +116,7 @@ class App
 
     public function handle()
     {
+        ob_start();
         $page = $this->getCurrentPage();
         //create the theme, so we can use it's object in inner layout
         //it's okay, it's cached
