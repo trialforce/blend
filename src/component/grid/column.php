@@ -518,10 +518,12 @@ class Column
 
         if ($this->getEdit() && $td)
         {
+            $dom = \View\View::getDom();
+            $pageUrl = $dom->getPageUrl();
             $columName = $this->getName();
             $pkValue = \DataSource\Grab::getUserValue($this->getGrid()->getIdentificatorColumn(), $item);
             $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
-            $td->click("e('gridEdit/$pkValue/?columnName={$columName}');");
+            $td->click("p('{$pageUrl}/gridEdit/$pkValue/?columnName={$columName}');");
         }
     }
 
