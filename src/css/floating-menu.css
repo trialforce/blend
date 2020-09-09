@@ -52,7 +52,7 @@
     padding: 0 !important;
 }
 
-.blend-floating-menu li .fa {
+.blend-floating-menu li .fa, .blend-floating-menu li .fab {
     width: 14px;
     text-align: center;
 }

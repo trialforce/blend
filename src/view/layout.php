@@ -417,6 +417,13 @@ class Layout extends \View\Document
         return new \View\DomContainer($bodys->item(0));
     }
 
+    public function getFooter()
+    {
+        $footers = $this->getElementsByTagName('footer');
+
+        return new \View\DomContainer($footers->item(0));
+    }
+
     /**
      * Return the head element
      *

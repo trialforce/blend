@@ -256,7 +256,7 @@ class Text
 
     /**
      * Create and return all the input of the filter
-     * @return \VIew\Div
+     * @return \View\Div
      */
     public function getInput()
     {
@@ -296,7 +296,7 @@ class Text
 
         $columnName = $column ? $column->getName() : $this->getFilterName();
 
-        return new \VIew\Div($columnName . 'Filter', $views, 'filterField');
+        return new \View\Div($columnName . 'Filter', $views, 'filterField');
     }
 
     /**

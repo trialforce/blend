@@ -56,7 +56,7 @@ class Server extends DataHandle
      *
      * @return string
      */
-    public function getRequestURI($considerAjax = FALSE)
+    public function getRequestUri($considerAjax = FALSE)
     {
         $uri = $this->getVar('REQUEST_URI');
 

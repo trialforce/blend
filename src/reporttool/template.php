@@ -218,7 +218,7 @@ class Template
                 $sectionContentReplace = $this->getContentForSection($sectionName, $this->content);
                 $result = '';
 
-                if (count($data) > 0)
+                if (isIterable($data) && count($data) > 0)
                 {
                     foreach ($data as $item)
                     {
@@ -251,6 +251,9 @@ class Template
                 $this->content = str_replace($match, '', $this->content);
             }
         }
+
+        // necessário para remover as tags de looping, ex: <!--produto-images-->, <!--!produto-images-->
+        $this->content = preg_replace('/<!--(.|\s)*?-->/', '', $this->content);
     }
 
     /**

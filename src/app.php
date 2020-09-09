@@ -116,6 +116,7 @@ class App
 
     public function handle()
     {
+        ob_start();
         $page = $this->getCurrentPage();
         //create the theme, so we can use it's object in inner layout
         //it's okay, it's cached
@@ -215,7 +216,7 @@ class App
         return self::$theme;
     }
 
-    public function handleResult(\View\Document $content)
+    public function handleResult(\View\Document $content, $page404 = false)
     {
         $theme = self::getTheme($content);
 
@@ -237,6 +238,13 @@ class App
 
             $theme->appendLayout($defaultResponse, $content);
             $this->addJsToLayout($theme);
+
+            if ($page404)
+            {
+                // Send 404 response to client
+                http_response_code(404);
+            }
+
             echo $theme;
         }
 

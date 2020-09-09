@@ -95,6 +95,10 @@ function escape()
         $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
     }
+    else if ( $('slider-full-screen'.length > 0))
+    {
+        removeSlideFullScreen();
+    }
     
     return false;
 }
@@ -515,10 +519,14 @@ function dateTimeInput()
     {
         dateTimeInputMobile();
     } 
-    else if (isAndroid() || typeof $().datetimepicker === 'function')
+    else if (isAndroid())
+    {
+        dateTimeInputFallBackNative();
+    }
+    else if (typeof $().datetimepicker === 'function')
     {
         dateTimeInputDesktop();
-    } 
+    }
     else
     {
         dateTimeInputFallBackNative();
