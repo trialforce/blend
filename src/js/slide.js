@@ -12,6 +12,8 @@ function slide(selector)
     var next = wrapper.find('.slider-next').get(0);
     var autoSlide = wrapper.data('auto-slide');
     var fullScreen = wrapper.data('full-screen');
+    var dataStartIndex = wrapper.data('start-index');
+    console.log('startIndex='+dataStartIndex);
     
     //copy outter width to inner
     var outterWidth = wrapper.find('.slider-wrapper').width();
@@ -75,7 +77,7 @@ function slide(selector)
 
     var posFinal;
     var index = 0;
-    var threshold = 30;
+    var threshold = 50;
     var allowShift = true;
 
     var slides = items.getElementsByClassName('slide');
@@ -103,9 +105,16 @@ function slide(selector)
     items.addEventListener('touchend', dragEnd, {passive: true});
     items.addEventListener('touchmove', dragAction, {passive: true});
     
+    //auto slide
     if (Number.isInteger(autoSlide))
     {
         setInterval(function(){shiftSlide(1)}, autoSlide);
+    }
+    
+    //start position/index
+    if ( Number.isInteger(dataStartIndex))
+    {
+        setSlide(dataStartIndex);
     }
 
     // Click events
@@ -273,11 +282,11 @@ function slide(selector)
     
     function fullscreen()
     {
-        console.log('fullScreen='+selector);
-        
+        var oldIndex = index;
         var newSlider = $(selector).clone();
         
         newSlider.append('<div class="slider-close-full-screen" id="slider-close-full-screen" onclick="return removeSlideFullScreen()">&nbsp;</div>');
+        newSlider.attr('data-start-index',index);
         
         newSlider.attr('class', '');
         newSlider.addClass('slider slider-full-screen');

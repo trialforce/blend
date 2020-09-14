@@ -1015,10 +1015,6 @@ function getJson(page, formData, loadingShow, callBack)
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } 
-            else
-            {
-                toast('Impossível ler JSON!');
             }
         }
     });
@@ -1858,7 +1854,7 @@ function preparaVer()
     //esconde botão de salvar
     $('#btnSalvar').hide().data('hide-by-see');
 
-    $('.fa-trash-o').each(
+    $('.fa-trash-o,.fa-trash,.fa-edit').each(
             function ()
             {
                 var parent = $(this).parent();
@@ -1870,6 +1866,9 @@ function preparaVer()
                 }
             }
     );
+    
+    //remove clique duplo
+    $('[ondblclick]').removeAttr('ondblclick');
 
     $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
 

@@ -23,6 +23,12 @@ class Text implements \Type\Generic, \JsonSerializable
 
     public function __construct($string = null)
     {
+        //little control to avoid error in stdClass
+        if ($string instanceof \stdClass)
+        {
+            $string = null;
+        }
+
         //convert to string
         $this->setValue($string . '');
     }

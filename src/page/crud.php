@@ -742,7 +742,8 @@ class Crud extends \Page\Page
 
         $input = $fieldLayout->getInputField($column);
         $input->setValue($model->getValue($columnName));
-        $input->blur("e('saveGridEdit/$pkValue/?columnName={$columnName}');");
+        $pageUrl = $this->getPageUrl();
+        $input->blur("p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');");
 
         $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
         $this->byId($elementId)->html($input)->attr('onclick', '');
@@ -860,7 +861,8 @@ class Crud extends \Page\Page
 
         $column->setSql($idColumn);
 
-        $collection = \Db\Collection::create(null)->add($options);
+
+        $collection = new \Db\Collection($options);
         $filter = new \Filter\Collection($column, $collection);
         $filter->setDefaultValue($defaultValue);
 
