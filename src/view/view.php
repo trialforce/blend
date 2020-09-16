@@ -1199,14 +1199,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function show($param = FALSE)
     {
-        if ($param == 'inline')
-        {
-            return $this->addStyle('display', 'inline-block');
-        }
-        else
-        {
-            return $this->addStyle('display', 'block');
-        }
+        $param = $param ? $param : 'block';
+        return $this->addStyle('display', $param);
     }
 
     /**
