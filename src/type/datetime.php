@@ -1083,6 +1083,37 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         return $dias;
     }
 
+    public function countWorkingDays($dateFinal)
+    {
+        $countWorkingDays = 0;
+
+        $dateFinal = new \Type\DateTime($dateFinal);
+
+        if ($this->compare($dateFinal, '>'))
+        {
+            return 0;
+        }
+
+        while (!$this->equalsDate($dateFinal))
+        {
+            if ($this->isWorkingDay())
+            {
+                $countWorkingDays++;
+            }
+
+            $this->addDay(1);
+        }
+
+        return $countWorkingDays;
+    }
+
+    public function equalsDate($date)
+    {
+        $date = new \Type\DateTime($date);
+
+        return $this->getDay() == $date->getDay() && $this->getMonth() == $date->getMonth() && $this->getYear() == $date->getYear();
+    }
+
 }
 
 class DiffDate
