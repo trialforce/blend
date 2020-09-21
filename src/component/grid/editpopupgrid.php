@@ -67,17 +67,10 @@ class EditPopupGrid extends \Component\Grid\Grid
             $actionsBefore[] = $editar;
         }
 
-        $url = $this->getRemoveMethod();
-
         //fallback
-        if (!$url)
-        {
-            $url = $this->getPageName() . '/removerItem/&_id=:id?';
-        }
-
-        $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash-o', 'remover', $url);
+        $url = $this->getRemoveMethod() ? $this->getRemoveMethod() : $this->getPageName() . '/removerItem/&_id=:id?';
+        $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash', 'remover', $url);
         $remove->setRenderInGrid(true);
-
 
         parent::setActions(array_merge($actionsBefore, $actions));
     }
