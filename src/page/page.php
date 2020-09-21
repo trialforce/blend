@@ -916,7 +916,7 @@ class Page extends \View\Layout
         }
 
         $grid = new $gridClass;
-        $table = $grid->createTable();
+        $table = $grid->createTableInner();
 
         $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);
