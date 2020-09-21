@@ -13,8 +13,7 @@ function slide(selector)
     var autoSlide = wrapper.data('auto-slide');
     var fullScreen = wrapper.data('full-screen');
     var dataStartIndex = wrapper.data('start-index');
-    console.log('startIndex='+dataStartIndex);
-    
+   
     //copy outter width to inner
     var outterWidth = wrapper.find('.slider-wrapper').width();
     var outterHeight = wrapper.height();
