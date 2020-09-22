@@ -939,7 +939,7 @@ function r(type, page, formData, callBack)
             //if is GET get page from url+ formdata
             if (type === 'GET')
             {
-                page = url + '/?' + formData;
+                page = url + '?' + formData;
             }
             
             updateUrl(page);
