@@ -21,14 +21,12 @@ function slide(selector)
     //don't proccess the same slide again
     if ($(wrapper).hasClass('loaded'))
     {
-        console.log('return loadded');
         return;
     }
 
     //if the height it not loaded yet, wait a little
     if (outterHeight == 0 || outterHeight == '0px')
     {
-        console.log('return outterHeight');
         setTimeout(function ()
         {
             slide(selector);
@@ -41,12 +39,10 @@ function slide(selector)
     var slideCount = wrapper.find('.slide').length;
     
     //remove slide prev/next if not neeed
-    if (slideCount == 0 )
+    if (slideCount <= 1 )
     {
-        console.log('return slideCount 0');
         wrapper.find('.slider-prev').remove();
         wrapper.find('.slider-next').remove();
-        return;
     }
 
     //ajdust width e height
@@ -78,6 +74,11 @@ function slide(selector)
     var index = 0;
     var threshold = 50;
     var allowShift = true;
+    
+    if (!items)
+    {
+        return;
+    }
 
     var slides = items.getElementsByClassName('slide');
     var slidesLength = slides.length;
@@ -88,7 +89,19 @@ function slide(selector)
 
     var cloneFirst = firstSlide.cloneNode(true);
     cloneFirst.classList.add('cloned');
+    
+    if (cloneFirst.tagName == 'VIDEO')
+    {
+        cloneFirst.removeAttribute('autoplay');
+    }
+    
     var cloneLast = lastSlide.cloneNode(true);
+    
+    if (cloneLast.tagName == 'VIDEO')
+    {
+        cloneLast.removeAttribute('autoplay');
+    }
+    
     cloneLast.classList.add('cloned');
 
     // Clone first and last slide
