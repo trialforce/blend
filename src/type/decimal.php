@@ -128,7 +128,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
 
     public function toDb()
     {
-        return floatval(number_format($this->value, $this->decimals, '.', ''));
+        return number_format($this->value, $this->decimals, '.', '');
     }
 
     public function jsonSerialize()
