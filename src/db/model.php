@@ -1084,31 +1084,26 @@ class Model implements \JsonSerializable
     public function getArray()
     {
         $name = self::getName();
-        $columns = $name::getColumns();
         $temp = (array) ($this);
         $array = array();
 
-        foreach ($temp as $k => $v)
+        foreach ($temp as $property => $value)
         {
-            $k = preg_match('/^\x00(?:.*?)\x00(.+)/', $k, $matches) ? $matches[1] : $k;
+            $property = preg_match('/^\x00(?:.*?)\x00(.+)/', $property, $matches) ? $matches[1] : $property;
+            $getValue = $this->getValue($property);
+            $value = $getValue ? $getValue : $value;
 
-            if ($v instanceof \Type\Generic)
+            if ($value instanceof \Type\Generic)
             {
-                $v = $v->toDb();
+                $value = $value->toDb();
             }
 
-            if (isset($columns[$k]))
+            if ($value instanceof \Db\Model)
             {
-                $column = $columns[$k];
-
-                //add suport to decimal values, even if they are not using type
-                if ($column && $column->getType() == \Db\Column\Column::TYPE_DECIMAL)
-                {
-                    $v = \Type\Decimal::get($v)->toDb();
-                }
+                $value = $value->getArray();
             }
 
-            $array[$k] = $v;
+            $array[$property] = $value;
         }
 
         return $array;
