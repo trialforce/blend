@@ -5,6 +5,7 @@
 var formChangedAdvice = false;
 var invalidHover = true;
 var avoidUrlRegister = false;
+var isAjax = false;
 var blendJs = function(){};
 
 //avoid console.log problems
@@ -798,6 +799,7 @@ function hideLoading()
  */
 function r(type, page, formData, callBack)
 {
+    isAjax = true;
     var focused = $(':focus');
 
     if (focused.data('form-changed-advice') == 1 && $('#formChanged').val() == 1)
@@ -996,26 +998,26 @@ function getJson(page, formData, loadingShow, callBack)
         },
         success: function (response)
         {
-            hideLoading();
-
             if (response && typeof response.script == 'string')
             {
                 response.script.replace('\\\"', '\\"');
                 $('body').append('<script>' + response.script + '</script>');
             } 
-            else
+            else if ( typeof callBack == 'function')
             {
                 callBack(response);
             }
+            
+            hideLoading();
         }
         , error: function (xhr, ajaxOptions, thrownError)
         {
-            hideLoading();
-
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
             }
+            
+            hideLoading();
         }
     });
 }
