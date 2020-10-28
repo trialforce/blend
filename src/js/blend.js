@@ -415,6 +415,9 @@ function dateTimeInputDesktop()
             mask: true,
             allowBlank: true,
             format: 'd/m/Y',
+            scrollMonth:false,
+            scrollTime:false,
+            scrollInput:false,
             step: 15
         });
     });
@@ -433,6 +436,9 @@ function dateTimeInputDesktop()
             validateOnBlur: false,
             closeOnDateSelect: true,
             allowBlank: true,
+            scrollMonth:false,
+            scrollTime:false,
+            scrollInput:false,
             step: 15
         });
     });
@@ -450,7 +456,10 @@ function dateTimeInputDesktop()
         closeOnDateSelect: true,
         allowBlank: true,
         mask: true,
-        step: 15
+        step: 15,
+        scrollMonth:false,
+        scrollTime:false,
+        scrollInput:false,
     });
     
     $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
