@@ -161,7 +161,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
                 $valueB = self::getPropertyFromItem($b, $orderBy);
             }
 
-            return strcmp($valueA, $valueB);
+            if (is_numeric($valueA) && is_numeric($valueB))
+            {
+                return $valueA - $valueB;
+            }
+            else
+            {
+                return strcmp($valueA, $valueB);
+            }
         });
 
         //apply the order
