@@ -334,7 +334,7 @@ class Image extends \Disk\File
         if ($optmizeJpg == 'jpegtran')
         {
             //$cmd = 'jpegtran -copy none -optimize -outfile ' . $filename . ' ' . $filename;
-            $cmd = 'jpegoptim -f -s -m60 --all-progressive ' . $filename;
+            $cmd = 'jpegoptim -f -s -m56 --all-progressive ' . $filename;
             shell_exec($cmd);
 
             return 1;
