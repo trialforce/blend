@@ -124,6 +124,7 @@ class Log
 
     protected static $logSql = false;
     protected static $logSqlConsole = false;
+    protected static $indexData = null;
 
     /**
      * Determina se deve ou não efetuar o registro dos sqls
@@ -163,6 +164,25 @@ class Log
         return Log::$logSqlConsole;
     }
 
+    public static function setIndexData(\Log\IndexData $data)
+    {
+        \log::$indexData = $data;
+    }
+
+    /**
+     * Return the current index data
+     * @return \Log\IndexData
+     */
+    public static function getIndexData()
+    {
+        if (!\Log::$indexData instanceof \Log\IndexData)
+        {
+            \Log::$indexData = new \Log\IndexData();
+        }
+
+        return \Log::$indexData;
+    }
+
     /**
      * Registra uma exceção no log
      *
@@ -180,19 +200,44 @@ class Log
             $log = $exception->getCode() . ' - <b>' . $exception->getMessage() . '</b> - ' . $exception->getFile() . ' on line ' . $exception->getLine() . '</br></br>';
             $log .= $exception->getTraceAsString();
             \Log::screen($log);
-            return;
+            return false;
         }
 
+        $mysqlError = \Log::parseMysqlErrors($exception);
+
+        if ($mysqlError)
+        {
+            return false;
+        }
+
+        //don't make any log if it is an UserException
         if ($exception instanceof UserException)
         {
-            return FALSE;
+            return false;
         }
 
-        //http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+        $errorMessage = \Log::generateErrorLog($exception);
+        //put log in user file
+        Log::put(Log::ERROR_FILE, $errorMessage);
 
+        //put log in default file
+        $file = new \Disk\File(APP_PATH . '/error.log');
+        $file->append($errorMessage);
+
+        return \Log::sendDevelEmailIfNeeded($errorMessage);
+    }
+
+    /**
+     * This method verify common mysql erros and improve the message to user
+     *
+     * @param \Error $exception
+     * @return boolean
+     */
+    protected static function parseMysqlErrors($exception)
+    {
         $message = $exception->getMessage();
         $explode = explode('\'', $message);
-        //preg_match('/SQLSTATE\[(\w+)\] \[(\w+)\] (.*)/', $exception->getMessage(), $matches);
+
         //SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'criacao' cannot be null
         //required column
         if (stripos($message, ': 1048'))
@@ -200,25 +245,67 @@ class Log
             if (isset($explode[1]))
             {
                 $column = $explode[1];
-                $exception = self::setExceptionMessage($exception, 'Campo \'' . $column . '\' deve ser preenchido!');
-                Log::sql('ERROR:' . \Db\Conn::getLastSql());
-                Log::debug('SQL ERROR:' . \Db\Conn::getLastSql());
-                return;
+                $exception = \Log::setExceptionMessage($exception, 'Campo \'' . $column . '\' deve ser preenchido!');
+
+                return true;
             }
         }
-        //SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '6-91155908015' for key 'index_cliente_cpf_duplicado'
-        /* else if (stripos($message, ': 1062'))
-          {
-          if (isset($explode[1]))
-          {
-          $value = $explode[1];
-          $exception = self::setExceptionMessage($exception, 'Registro duplicado! Valor: ' . $value);
-          Log::sql('ERROR:' . \Db\Conn::getLastSql());
-          Log::debug('SQL ERROR:' . \Db\Conn::getLastSql());
-          return;
-          }
-          } */
 
+        //http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+        //SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '6-91155908015' for key 'index_cliente_cpf_duplicado'
+        //duplication
+        else if (stripos($message, ': 1062'))
+        {
+            //var_dump($message, $explode);
+            $idxName = $explode[3];
+
+            if (isset($explode[3]))
+            {
+                $message = \Log::getIndexData()->getIndex($idxName);
+                $exception = self::setExceptionMessage($exception, $message);
+                return;
+            }
+            else
+            {
+                //$value = $explode[1];
+                $exception = self::setExceptionMessage($exception, 'Registro duplicado! ' . $idxName);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Send an email to developer
+     *
+     * @param string $errorMessage the formatted message
+     * @return bool
+     */
+    protected static function sendDevelEmailIfNeeded($errorMessage)
+    {
+        $develEmail = \DataHandle\Config::get('develEmail');
+
+        if (!$develEmail)
+        {
+            return null;
+        }
+
+        $errorEmail = str_replace("###############################################" . PHP_EOL, '', $errorMessage);
+        $serverUrl = \DataHandle\Server::getInstance()->getHost();
+        $mail = new Mailer();
+        $mail->defineHtmlUft8("Exceção em " . $serverUrl, nl2br($errorEmail), $develEmail);
+
+        return $mail->send();
+    }
+
+    /**
+     * Generate a full log message based on a exception
+     *
+     * @param \Exception $exception
+     * @return string
+     */
+    protected static function generateErrorLog($exception)
+    {
         $error = '';
         $error .= "###############################################" . PHP_EOL;
         $error .= 'Exception in ' . date('d/m/y G:i:s:u') . ' = ' . $exception->getFile() . ' on line ' . $exception->getLine() . "\n";
@@ -240,24 +327,7 @@ class Log
             $error .= 'SQL ERROR:' . \Db\Conn::getLastSql();
         }
 
-        //put log in user file
-        Log::put(Log::ERROR_FILE, $error);
-
-        //put log in default file
-        $file = new \Disk\File(APP_PATH . '/error.log');
-        $file->append($error);
-
-        $develEmail = \DataHandle\Config::get('develEmail');
-
-        if ($develEmail)
-        {
-            $errorEmail = str_replace("###############################################" . PHP_EOL, '', $error);
-            $serverUrl = \DataHandle\Server::getInstance()->getHost();
-            $mail = new Mailer();
-            $mail->defineHtmlUft8("Exceção em " . $serverUrl, nl2br($errorEmail), $develEmail);
-
-            return $mail->send();
-        }
+        return $error;
     }
 
     /**

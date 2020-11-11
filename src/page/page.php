@@ -42,6 +42,11 @@ class Page extends \View\Layout
 
         $fields[] = $this->callEvent();
 
+        if (\App::isUrlChanged())
+        {
+            \App::addJs("$('body').attr('data-page-url','{$this->getPageUrl()}');");
+        }
+
         return $fields;
     }
 

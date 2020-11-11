@@ -135,7 +135,8 @@ class ImageColumn extends \Component\Grid\Column
                 $thumb = str_replace('media', 'thumb/w40/', $result);
             }
 
-            $img = new \View\Img(null, $thumb, $this->width, $this->height);
+            $img = new \View\Img(null, $thumb, $this->width);
+            $img->css('max-height', $this->height);
             $link = new \View\A(null, $img, $result, null, '_BLANK');
 
             if ($item instanceof \Db\Model)
