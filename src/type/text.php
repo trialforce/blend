@@ -3,12 +3,7 @@
 namespace Type;
 
 /**
- * Classe para lidar com strings
- *
- * Criado originalmente em 01/07/2011 por :
- * Eduardo Bonfandini [eduardo@solis.coop.br]
- * Jamiel Spezia [jamiel@solis.coop.br]
- * Na Solis - Cooperativa de Soluções Livres Ltda. e Univates - Centro Universitário.
+ * Classe to deal with String
  *
  * */
 class Text implements \Type\Generic, \JsonSerializable
@@ -119,71 +114,6 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
-     * Verifica se a string é UTF8
-     *
-     * @param o $string
-     *
-     * @internal param \o $string texto a verificar
-     * @return boolean
-     */
-    public static function isUTF8($string)
-    {
-        return preg_match('%(?:
-        [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
-        |\xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
-        |[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2} # straight 3-byte
-        |\xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-        |\xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-        |[\xF1-\xF3][\x80-\xBF]{3}         # planes 4-15
-        |\xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-        )+%xs', $string);
-    }
-
-    /**
-     * Verifica se a string é da codificação passada
-     *
-     * @param string $string
-     * @param string $enc
-     * @return boolean
-     */
-    public static function checkEncoding($string, $enc)
-    {
-        return \Type\Text::detectEncoding($string) == $enc;
-    }
-
-    /**
-     * Retorna a codifificação da string
-     *
-     * @param string $string
-     * @return string retorna a codifificação da string
-     */
-    public static function detectEncoding($string)
-    {
-        $encList = array('UTF-8', 'ISO-8859-1');
-
-        if (is_array($encList))
-        {
-            foreach ($encList as $enc)
-            {
-                if ($enc == 'UTF-8')
-                {
-                    if (iconv('ISO-8859-1//IGNORE', 'UTF-8//IGNORE', iconv('UTF-8//IGNORE', 'ISO-8859-1//IGNORE', $string)) === $string)
-                    {
-                        return 'UTF-8';
-                    }
-                }
-                else
-                {
-                    if (iconv('UTF-8', $enc, iconv($enc, 'UTF-8', $string)) === $string)
-                    {
-                        return $enc;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Retorna o tamnho da string
      *
      * @return tamanho da string
@@ -289,21 +219,6 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
-     * Função chamada automaticamente pelo PHP quando precisa converter objeto para String
-     *
-     * @return a data no formato do usuário
-     */
-    public function __toString()
-    {
-        return $this->string . '';
-    }
-
-    public function toHuman()
-    {
-        return $this->__toString();
-    }
-
-    /**
      * Se a string for maior que o $size (tamanho passado)
      * corta-a para o tamanho do $size e coloca $ellipsisText ao fim.
      *
@@ -361,37 +276,7 @@ class Text implements \Type\Generic, \JsonSerializable
      */
     public function contains($needle)
     {
-        return ( strpos($this->string, $needle) !== FALSE );
-    }
-
-    /**
-     * Contrutor estático usado para que possa se utilizar
-     * o construtor e chamar a função necessária na mesma linha.
-     *
-     * @param string $string
-     * @return \Type\Text
-     *
-     * @example Text::get( $string )->toLower() = retorna a string em formato de usuário
-     */
-    public static function get($string = NULL)
-    {
-        return new Text($string);
-    }
-
-    /**
-     * Return the value
-     *
-     * @param string $value
-     * @return string
-     */
-    public static function value($value)
-    {
-        return String::get($value)->getValue();
-    }
-
-    public function toDb()
-    {
-        return $this->__toString();
+        return ( stripos($this->string, $needle) !== FALSE );
     }
 
     /**
@@ -456,6 +341,40 @@ class Text implements \Type\Generic, \JsonSerializable
         return false;
     }
 
+    public function __toString()
+    {
+        return $this->string . '';
+    }
+
+    public function toHuman()
+    {
+        return $this->__toString();
+    }
+
+    public function toDb()
+    {
+        return $this->__toString();
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toDb();
+    }
+
+    /**
+     * Contrutor estático usado para que possa se utilizar
+     * o construtor e chamar a função necessária na mesma linha.
+     *
+     * @param string $string
+     * @return \Type\Text
+     *
+     * @example Text::get( $string )->toLower() = retorna a string em formato de usuário
+     */
+    public static function get($string = NULL)
+    {
+        return new Text($string);
+    }
+
     /**
      * Get a simple text and convert it to html
      *
@@ -483,6 +402,17 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
+     * Return the value
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function value($value)
+    {
+        return String::get($value)->getValue();
+    }
+
+    /**
      * Random string with defined lenght
      *
      * @param int $length
@@ -502,20 +432,69 @@ class Text implements \Type\Generic, \JsonSerializable
         return $str;
     }
 
-    public function jsonSerialize()
+    /**
+     * Verifica se a string é UTF8
+     *
+     * @param o $string
+     *
+     * @internal param \o $string texto a verificar
+     * @return boolean
+     */
+    public static function isUTF8($string)
     {
-        return $this->toDb();
+        return preg_match('%(?:
+        [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+        |\xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
+        |[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2} # straight 3-byte
+        |\xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+        |\xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+        |[\xF1-\xF3][\x80-\xBF]{3}         # planes 4-15
+        |\xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+        )+%xs', $string);
     }
 
-}
-
-//Create mb_str_pad function if not exists, for old php compatibility
-if (!function_exists('mb_str_pad'))
-{
-
-    function mb_str_pad($input, $padLength, $padString, $padStyle, $encoding = "UTF-8")
+    /**
+     * Verifica se a string é da codificação passada
+     *
+     * @param string $string
+     * @param string $enc
+     * @return boolean
+     */
+    public static function checkEncoding($string, $enc)
     {
-        return str_pad($input, strlen($input) - mb_strlen($input, $encoding) + $padLength, $padString, $padStyle);
+        return \Type\Text::detectEncoding($string) == $enc;
+    }
+
+    /**
+     * Retorna a codifificação da string
+     *
+     * @param string $string
+     * @return string retorna a codifificação da string
+     */
+    public static function detectEncoding($string)
+    {
+        $encList = array('UTF-8', 'ISO-8859-1');
+
+        if (is_array($encList))
+        {
+            foreach ($encList as $enc)
+            {
+                if ($enc == 'UTF-8')
+                {
+                    if (iconv('ISO-8859-1//IGNORE', 'UTF-8//IGNORE', iconv('UTF-8//IGNORE', 'ISO-8859-1//IGNORE', $string)) === $string)
+                    {
+                        return 'UTF-8';
+                    }
+                }
+                else
+                {
+                    if (iconv('UTF-8', $enc, iconv($enc, 'UTF-8', $string)) === $string)
+                    {
+                        return $enc;
+                    }
+                }
+            }
+        }
     }
 
 }

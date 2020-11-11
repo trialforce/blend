@@ -16,6 +16,18 @@ if (!function_exists('is_iterable'))
 
 }
 
+
+//Create mb_str_pad function if not exists, for old php compatibility
+if (!function_exists('mb_str_pad'))
+{
+
+    function mb_str_pad($input, $padLength, $padString, $padStyle, $encoding = "UTF-8")
+    {
+        return str_pad($input, strlen($input) - mb_strlen($input, $encoding) + $padLength, $padString, $padStyle);
+    }
+
+}
+
 //php 5.3 neeed http_response_code
 if (!function_exists('http_response_code'))
 {
