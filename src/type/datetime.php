@@ -530,7 +530,9 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         // format = yyyy-mm-dd
         if (mb_ereg("^([0-9]{4})-([0-9]{2})-([0-9]{2})\$", $date, $reg))
         {
-            $this->second = '00';
+            $this->second = 0;
+            $this->hour = 0;
+            $this->minute = 0;
             $this->month = $reg[2];
             $this->day = $reg[3];
             $this->year = $reg[1];
