@@ -170,8 +170,20 @@ class Manager
     {
         $file->load();
         $content = $file->getContent();
+        $queries = explode(';', $content);
         $conn = $this->getConn();
-        return $conn->execute($content);
+
+        foreach ($queries as $query)
+        {
+            if (!trim($query))
+            {
+                continue;
+            }
+
+            $result = $conn->execute($query . ';');
+        }
+
+        return $result;
     }
 
     public function getDbVersion()

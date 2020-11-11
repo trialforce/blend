@@ -60,10 +60,10 @@ function toast($message = NULL, $type = NULL, $duration = 4000)
     $messageParsed = \View\Script::treatStringToJs($message);
 
     //play error sound
-    if (stripos(' ' . $type, 'danger') > 0)
-    {
-        \View\Audio::playSoundOnce('theme/audio/error.mp3');
-    }
+//    if (stripos(' ' . $type, 'danger') > 0)
+//    {
+//        \View\Audio::playSoundOnce('theme/audio/error.mp3');
+//    }
 
     \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
 }
