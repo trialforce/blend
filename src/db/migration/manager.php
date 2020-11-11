@@ -103,14 +103,18 @@ class Manager
 
         $dbVersion = $this->getDbVersion();
         $list = $this->getVersionList();
+        $updates = 0;
 
         foreach ($list as $version)
         {
             if ($dbVersion < $version)
             {
                 $this->executeVersion($version);
+                $updates++;
             }
         }
+
+        return $updates;
     }
 
     /**
@@ -180,7 +184,16 @@ class Manager
                 continue;
             }
 
-            $result = $conn->execute($query . ';');
+            try
+            {
+                $result = $conn->execute($query . ';');
+            }
+            catch (\Exception $exception)
+            {
+                $message = $exception->getMessage() . ' WRONG SQL:' . $query . ';';
+                \Log::setExceptionMessage($exception, $message);
+                throw $exception;
+            }
         }
 
         return $result;
