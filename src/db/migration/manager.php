@@ -3,7 +3,7 @@
 namespace Db\Migration;
 
 /**
- * Migration manager
+ * Database Migration Manager
  */
 class Manager
 {
@@ -99,7 +99,7 @@ class Manager
 
     public function execute()
     {
-        $this->createMigrationTable();
+        $this->createMigrationTableIfNeeeded();
 
         $dbVersion = $this->getDbVersion();
         $list = $this->getVersionList();
@@ -113,8 +113,13 @@ class Manager
         }
     }
 
+    /**
+     * Verify if database need update
+     * @return boolean
+     */
     public function needUpdate()
     {
+        $this->createMigrationTableIfNeeeded();
         $dbVersion = $this->getDbVersion();
         $list = $this->getVersionList();
 
@@ -148,8 +153,14 @@ class Manager
 
     public function executeVersionPhp(\Disk\File $file)
     {
-        require $file->getPath();
+        //require $file->getPath();
         $className = str_replace('/', '\\', str_replace('.php', '', $file->getPath()));
+
+        if (!class_exists($className))
+        {
+            throw new \Exception('Atualizacao de banco de dados: classe/versão com nome ' . $className . ' não existe.');
+        }
+
         $versionObj = new $className();
         $versionObj->setMigration($this);
         return $versionObj->execute();
@@ -175,9 +186,10 @@ class Manager
         $this->getConn()->execute($sql);
     }
 
-    private function createMigrationTable()
+    private function createMigrationTableIfNeeeded()
     {
-        $catalog = new \Db\Catalog\Mysql();
+        $cataalogClass = $this->getCatalogClass();
+        $catalog = new $cataalogClass();
 
         if ($catalog->tableExists('migration', false))
         {
