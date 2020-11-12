@@ -2,6 +2,9 @@
 
 namespace Db\Column;
 
+/**
+ * Column collection
+ */
 class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
 
@@ -18,7 +21,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     protected $columns = array();
 
-    public function __construct($columns)
+    public function __construct($columns = null)
     {
         $this->setColumns($columns);
     }
@@ -242,6 +245,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Get/define columns for model
      *
+     * 1 - Search cached columns
+     * 2 - Search for folder schema
+     * 3 - Search for defineColumns in model
+     * 4 - Mount based on query in database table
+     *
      * @param string $modelName model name
      * @return \Db\Column\Collection
      */
@@ -249,14 +257,21 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $tableName = $modelName::getTableName();
 
-        //get information from cache
+        //1 - Search cached columns
         if (isset(self::$columnsCache[$modelName]))
         {
             return self::$columnsCache[$modelName];
         }
 
-        //try to locate method in child tables
-        if (method_exists($modelName, 'defineColumns'))
+        $schemaClass = str_replace('\Model\\', '\Schema\\', $modelName);
+
+        //2 - Search for folder schema
+        if (class_exists($schemaClass))
+        {
+            $columns = new $schemaClass();
+        }
+        //3 - Search for defineColumns in model
+        else if (method_exists($modelName, 'defineColumns'))
         {
             $columns = $modelName::defineColumns();
 
@@ -267,7 +282,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
         else
         {
-            //or, get from database
+            //4 - Mount based on query in database table
             $catalog = $modelName::getCatalogClass();
             $columns = $catalog::listColums($tableName::getTableName());
         }
