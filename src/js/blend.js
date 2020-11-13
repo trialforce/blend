@@ -1115,11 +1115,13 @@ function popup(action, selector)
     if (action === 'show' || action === 'open')
     {
         $('.makePopupFade').addClass('popupFaded');
+        $('body').css('overflow','hidden');
 
         element.fadeIn(600);
     } 
     else if (action === 'close')
     {
+        $('body').css('overflow');
         $('.makePopupFade').removeClass('popupFaded');
 
         element.find('.inner').animate(
@@ -1137,6 +1139,7 @@ function popup(action, selector)
     }
     else if (action === 'destroy')
     {
+        $('body').css('overflow','auto');
         //remake popup fade
         $('.makePopupFade').removeClass('popupFaded');
         //remove any action-list that has popup
