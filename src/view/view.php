@@ -520,7 +520,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $content instanceof \View\Document;
             $firstChild = $content->firstChild;
             $migratedNode = \View\View::getDom()->importNode($firstChild, true);
-            $element->append($migratedNode);
+
+            if (!($element instanceof \View\View || $element instanceof \View\DomContainer))
+            {
+                $element = new \View\DomContainer($element);
+                $element->append($migratedNode);
+            }
         }
         //dom container
         else if ($content instanceof \View\DomContainer)
