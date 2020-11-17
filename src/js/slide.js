@@ -155,6 +155,12 @@ function slide(selector)
     {
         e = e || window.event;
 
+        //avoid right mouse button
+        if (e.button === 2)
+        {
+            return false;
+        }
+
         posInitial = items.offsetLeft;
         posInitialY = $(window).scrollTop();
 
