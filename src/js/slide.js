@@ -118,7 +118,7 @@ function slide(selector)
     items.addEventListener('touchmove', dragAction, {passive: true});
     
     //auto slide
-    if (Number.isInteger(autoSlide) && slidesLength > 0) 
+    if (Number.isInteger(autoSlide) && slidesLength > 1) 
     {
         setInterval(function(){shiftSlide(1)}, autoSlide);
     }
