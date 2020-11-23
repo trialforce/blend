@@ -1121,7 +1121,7 @@ function popup(action, selector)
     } 
     else if (action === 'close')
     {
-        $('body').css('overflow');
+        $('body').css('overflow','auto');
         $('.makePopupFade').removeClass('popupFaded');
 
         element.find('.inner').animate(
@@ -1272,13 +1272,12 @@ function comboShowDropdown(id)
 
     //mininum width
     element.css('min-width', $('#labelField_' + id).width() + 'px');
-    //show
-    element.slideDown(50);
+    element.slideDown(30);
 }
 
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).slideUp(50);
+    $('#dropDownContainer_' + id).slideUp(30);
 }
 
 function comboDoSearch(id)

@@ -18,7 +18,7 @@ class IndexData
 
     public function getIndex($name)
     {
-        if (isset($name))
+        if (isset($name) && isset($this->data[$name]))
         {
             return $this->data[$name];
         }

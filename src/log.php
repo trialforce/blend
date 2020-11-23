@@ -259,11 +259,15 @@ class Log
             //var_dump($message, $explode);
             $idxName = $explode[3];
 
-            if (isset($explode[3]))
+            if (isset($explode[3]) && $explode[3])
             {
                 $message = \Log::getIndexData()->getIndex($idxName);
-                $exception = self::setExceptionMessage($exception, $message);
-                return;
+
+                if ($message)
+                {
+                    $exception = self::setExceptionMessage($exception, $message);
+                    return;
+                }
             }
             else
             {
