@@ -159,7 +159,7 @@ if (!function_exists('filePath'))
     function filePath($class, $extension = 'php')
     {
         $class = strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $class));
-        return (ADM_PATH ?? APP_PATH) . DIRECTORY_SEPARATOR . $class . '.' . $extension;
+        return (defined('ADM_PATH') ? ADM_PATH : APP_PATH) . DIRECTORY_SEPARATOR . $class . '.' . $extension;
     }
 
 }
