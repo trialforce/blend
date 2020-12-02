@@ -308,6 +308,15 @@ p {
                     //restore original to locate things, used in group export
                     \View\View::setDom($domOriginal);
                     $value = \DataSource\Grab::getUserValue($column, $model);
+
+                    //if it's a view, convert to string and remove it from original dom
+                    if ($value instanceof \View\View)
+                    {
+                        $valueTxt = $value . '';
+                        $value->remove();
+                        $value = $valueTxt;
+                    }
+
                     \View\View::setDom($layout);
                     $td[] = $myTd = new \View\Td(NULL, $value);
 
