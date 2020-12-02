@@ -179,7 +179,7 @@ class Layout extends \View\Document
 
         if ($element instanceof \DOMElement)
         {
-            $element->nodeValue = $title;
+            $element->nodeValue = htmlspecialchars($title);
         }
 
         if (Server::getInstance()->isAjax() || !$element)
