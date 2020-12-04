@@ -71,6 +71,10 @@ class Index
     public function setErrorMessage($errorMessage)
     {
         $this->errorMessage = $errorMessage;
+
+        $indexData = \Log::getIndexData();
+        $indexData->addIndex($this->getName(), $this->getErrorMessage());
+
         return $this;
     }
 
