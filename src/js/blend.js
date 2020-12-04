@@ -86,16 +86,25 @@ window.onload =  function ()
 
 function escape()
 {
-    if ( $('.popup').length )
+    //main menu
+    if ( $('body').hasClass('menu-open') )
+    {
+        menuClose();
+        return true;
+    }
+    //popup
+    else if ( $('.popup').length )
     {
         popup('destroy');
         return true;
     }
+    //calendar
     else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
     {
         $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
     }
+    //slider full screen
     else if ( $('slider-full-screen').length > 0)
     {
         removeSlideFullScreen();
@@ -390,12 +399,12 @@ function dateTimeInputMobile()
 
 function dateTimeInputDesktopOnChange(dp,input)
 {
-    console.log(dp, input);
+    //console.log(dp, input);
 }
 
 function dateTimeInputDesktopOnShow(currentTime, input)
 {
-    console.log(currentTime, input);
+    //console.log(currentTime, input);
 }
 
 //https://xdsoft.net/jqplugins/datetimepicker/
@@ -1570,10 +1579,23 @@ function menuToggle()
  * 
  * @returns {Boolean}
  */
+function menuOpen()
+{
+    menuSearch(''); 
+    $('body').addClass('menu-open');
+    setTimeout(function(){$('#main-menu-search').focus();}, 200);
+    
+    return false;
+}
+
+/**
+ * Close the main menu
+ * 
+ * @returns {Boolean}
+ */
 function menuClose()
 {
     $('body').removeClass('menu-open');
-    //$.removeCookie('menuAberto', {path: '/'});
 
     return false;
 }
