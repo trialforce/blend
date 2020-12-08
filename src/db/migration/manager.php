@@ -177,6 +177,8 @@ class Manager
         $queries = explode(';', $content);
         $conn = $this->getConn();
 
+        $result = true;
+
         foreach ($queries as $query)
         {
             if (!trim($query))
