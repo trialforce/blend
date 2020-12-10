@@ -5,6 +5,7 @@
 var formChangedAdvice = false;
 var invalidHover = true;
 var avoidUrlRegister = false;
+var isAjax = false;
 var blendJs = function(){};
 
 //avoid console.log problems
@@ -85,15 +86,28 @@ window.onload =  function ()
 
 function escape()
 {
-    if ( $('.popup').length )
+    //main menu
+    if ( $('body').hasClass('menu-open') )
+    {
+        menuClose();
+        return true;
+    }
+    //popup
+    else if ( $('.popup').length )
     {
         popup('destroy');
         return true;
     }
+    //calendar
     else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
     {
         $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
+    }
+    //slider full screen
+    else if ( $('slider-full-screen').length > 0)
+    {
+        removeSlideFullScreen();
     }
     
     return false;
@@ -385,12 +399,12 @@ function dateTimeInputMobile()
 
 function dateTimeInputDesktopOnChange(dp,input)
 {
-    console.log(dp, input);
+    //console.log(dp, input);
 }
 
 function dateTimeInputDesktopOnShow(currentTime, input)
 {
-    console.log(currentTime, input);
+    //console.log(currentTime, input);
 }
 
 //https://xdsoft.net/jqplugins/datetimepicker/
@@ -410,6 +424,9 @@ function dateTimeInputDesktop()
             mask: true,
             allowBlank: true,
             format: 'd/m/Y',
+            scrollMonth:false,
+            scrollTime:false,
+            scrollInput:false,
             step: 15
         });
     });
@@ -428,6 +445,9 @@ function dateTimeInputDesktop()
             validateOnBlur: false,
             closeOnDateSelect: true,
             allowBlank: true,
+            scrollMonth:false,
+            scrollTime:false,
+            scrollInput:false,
             step: 15
         });
     });
@@ -445,7 +465,10 @@ function dateTimeInputDesktop()
         closeOnDateSelect: true,
         allowBlank: true,
         mask: true,
-        step: 15
+        step: 15,
+        scrollMonth:false,
+        scrollTime:false,
+        scrollInput:false,
     });
     
     $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
@@ -515,10 +538,14 @@ function dateTimeInput()
     {
         dateTimeInputMobile();
     } 
-    else if (isAndroid() || typeof $().datetimepicker === 'function')
+    else if (isAndroid())
+    {
+        dateTimeInputFallBackNative();
+    }
+    else if (typeof $().datetimepicker === 'function')
     {
         dateTimeInputDesktop();
-    } 
+    }
     else
     {
         dateTimeInputFallBackNative();
@@ -654,7 +681,7 @@ function updateUrl(page)
     return true;
 }
 
-function correctUrl(url)
+function getBaseUrl()
 {
     var bases = document.getElementsByTagName('base');
     var base = '';
@@ -663,6 +690,13 @@ function correctUrl(url)
     {
         base = bases[0].href;
     }
+    
+    return base;
+}
+
+function correctUrl(url)
+{
+    var base = getBaseUrl();
 
     //make full url
     if (!startsWith(url, base))
@@ -783,6 +817,7 @@ function hideLoading()
  */
 function r(type, page, formData, callBack)
 {
+    isAjax = true;
     var focused = $(':focus');
 
     if (focused.data('form-changed-advice') == 1 && $('#formChanged').val() == 1)
@@ -924,7 +959,7 @@ function r(type, page, formData, callBack)
             //if is GET get page from url+ formdata
             if (type === 'GET')
             {
-                page = url + '/?' + formData;
+                page = url + '?' + formData;
             }
             
             updateUrl(page);
@@ -959,12 +994,12 @@ function r(type, page, formData, callBack)
     return false;
 }
 
-function getJson(page, formData, showLoading, callBack)
+function getJson(page, formData, loadingShow, callBack)
 {
     var host = $('base').attr('href');
     var url = host + page.replace(host, '');
 
-    if (showLoading)
+    if (loadingShow)
     {
         showLoading();
     }
@@ -986,23 +1021,21 @@ function getJson(page, formData, showLoading, callBack)
                 response.script.replace('\\\"', '\\"');
                 $('body').append('<script>' + response.script + '</script>');
             } 
-            else
+            else if ( typeof callBack == 'function')
             {
                 callBack(response);
             }
+            
+            hideLoading();
         }
         , error: function (xhr, ajaxOptions, thrownError)
         {
-            hideLoading();
-
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } 
-            else
-            {
-                toast('Impossível ler JSON!');
             }
+            
+            hideLoading();
         }
     });
 }
@@ -1091,11 +1124,13 @@ function popup(action, selector)
     if (action === 'show' || action === 'open')
     {
         $('.makePopupFade').addClass('popupFaded');
+        $('body').css('overflow','hidden');
 
         element.fadeIn(600);
     } 
     else if (action === 'close')
     {
+        $('body').css('overflow','auto');
         $('.makePopupFade').removeClass('popupFaded');
 
         element.find('.inner').animate(
@@ -1113,6 +1148,7 @@ function popup(action, selector)
     }
     else if (action === 'destroy')
     {
+        $('body').css('overflow','auto');
         //remake popup fade
         $('.makePopupFade').removeClass('popupFaded');
         //remove any action-list that has popup
@@ -1245,13 +1281,12 @@ function comboShowDropdown(id)
 
     //mininum width
     element.css('min-width', $('#labelField_' + id).width() + 'px');
-    //show
-    element.slideDown(50);
+    element.slideDown(30);
 }
 
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).slideUp(50);
+    $('#dropDownContainer_' + id).slideUp(30);
 }
 
 function comboDoSearch(id)
@@ -1363,7 +1398,6 @@ function comboModelClose(idInput)
     $('#'+idInput).val(editEditId);
     //call the ajax action to fill dropdown, put hideCombo, to make it work properly
     var code = $('#labelField_'+idInput).data('change');
-    console.log(code);
     //run the code fill label value
     eval(code.replace('mountDropDown','fillLabelByValue'));
     //fill dropdown
@@ -1545,10 +1579,23 @@ function menuToggle()
  * 
  * @returns {Boolean}
  */
+function menuOpen()
+{
+    menuSearch(''); 
+    $('body').addClass('menu-open');
+    setTimeout(function(){$('#main-menu-search').focus();}, 200);
+    
+    return false;
+}
+
+/**
+ * Close the main menu
+ * 
+ * @returns {Boolean}
+ */
 function menuClose()
 {
     $('body').removeClass('menu-open');
-    //$.removeCookie('menuAberto', {path: '/'});
 
     return false;
 }
@@ -1709,17 +1756,19 @@ function addScriptOnce(src, callBack)
     var list = document.getElementsByTagName('script');
     var i = list.length;
     var findedOnDoc = false;
+    var compare = src.replace(getBaseUrl(),'');
 
     //verify if is already loaded
     while (i--)
     {
-        if (list[i].src === src)
+        var myCompare = list[i].src.replace(getBaseUrl(),'');
+        if ( myCompare == compare)
         {
             findedOnDoc = true;
             break;
         }
     }
-
+    
     // if we didn't find it on the page, add it
     if (!findedOnDoc)
     {
@@ -1840,7 +1889,7 @@ function preparaVer()
     //esconde botão de salvar
     $('#btnSalvar').hide().data('hide-by-see');
 
-    $('.fa-trash-o').each(
+    $('.fa-trash-o,.fa-trash,.fa-edit').each(
             function ()
             {
                 var parent = $(this).parent();
@@ -1852,6 +1901,9 @@ function preparaVer()
                 }
             }
     );
+    
+    //remove clique duplo
+    $('[ondblclick]').removeAttr('ondblclick');
 
     $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
 
@@ -2103,10 +2155,16 @@ function useImageCkEditor(a)
 
 function createCkEditor(id)
 {
+    if (typeof CKEDITOR == 'undefined')
+    {
+        setTimeout(function(){createCkEditor(id)},300);
+        return;
+    }
+    
     //ckeditor allready exists, avoid error
     if ( typeof CKEDITOR.instances[id] === 'object')
     {
-        return;
+        //return;
     }
 
     var editor = CKEDITOR.replace( id );
@@ -2340,4 +2398,30 @@ function printScreenFinalize()
 function scrollTop()
 {
     $("html, body").animate({ scrollTop: 0 }, 300);
+}
+
+/**
+ * Turn string into a url optimized string easily.
+ * @param string str
+ * @returns url optimized string
+ */
+function slug(str) 
+{
+    str = str.replace(/^\s+|\s+$/g, ''); // strong trim
+    str = str.toLowerCase();
+
+    // remove accents, swap ñ for n, etc
+    var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
+    var to   = "aaaaaeeeeeiiiiooooouuuunc--_---";
+
+    for (var i=0, l=from.length ; i<l ; i++) 
+    {
+        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+    }
+
+    str = str.replace(/[^a-z0-9 -_]/g, '') // remove invalid chars
+      .replace(/\s+/g, '-') // collapse whitespace and replace by -
+      .replace(/-+/g, '-'); // collapse dashes
+
+    return str;
 }

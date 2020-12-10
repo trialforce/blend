@@ -3,7 +3,7 @@
 namespace Db\Migration;
 
 /**
- * Migration manager
+ * Database Migration Manager
  */
 class Manager
 {
@@ -99,22 +99,31 @@ class Manager
 
     public function execute()
     {
-        $this->createMigrationTable();
+        $this->createMigrationTableIfNeeeded();
 
         $dbVersion = $this->getDbVersion();
         $list = $this->getVersionList();
+        $updates = 0;
 
         foreach ($list as $version)
         {
             if ($dbVersion < $version)
             {
                 $this->executeVersion($version);
+                $updates++;
             }
         }
+
+        return $updates;
     }
 
+    /**
+     * Verify if database need update
+     * @return boolean
+     */
     public function needUpdate()
     {
+        $this->createMigrationTableIfNeeeded();
         $dbVersion = $this->getDbVersion();
         $list = $this->getVersionList();
 
@@ -148,8 +157,14 @@ class Manager
 
     public function executeVersionPhp(\Disk\File $file)
     {
-        require $file->getPath();
+        //require $file->getPath();
         $className = str_replace('/', '\\', str_replace('.php', '', $file->getPath()));
+
+        if (!class_exists($className))
+        {
+            throw new \Exception('Atualizacao de banco de dados: classe/versão com nome ' . $className . ' não existe.');
+        }
+
         $versionObj = new $className();
         $versionObj->setMigration($this);
         return $versionObj->execute();
@@ -159,8 +174,31 @@ class Manager
     {
         $file->load();
         $content = $file->getContent();
+        $queries = explode(';', $content);
         $conn = $this->getConn();
-        return $conn->execute($content);
+
+        $result = true;
+
+        foreach ($queries as $query)
+        {
+            if (!trim($query))
+            {
+                continue;
+            }
+
+            try
+            {
+                $result = $conn->execute($query . ';');
+            }
+            catch (\Exception $exception)
+            {
+                $message = $exception->getMessage() . ' WRONG SQL:' . $query . ';';
+                \Log::setExceptionMessage($exception, $message);
+                throw $exception;
+            }
+        }
+
+        return $result;
     }
 
     public function getDbVersion()
@@ -175,9 +213,10 @@ class Manager
         $this->getConn()->execute($sql);
     }
 
-    private function createMigrationTable()
+    private function createMigrationTableIfNeeeded()
     {
-        $catalog = new \Db\Catalog\Mysql();
+        $cataalogClass = $this->getCatalogClass();
+        $catalog = new $cataalogClass();
 
         if ($catalog->tableExists('migration', false))
         {

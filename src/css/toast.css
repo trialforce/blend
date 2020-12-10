@@ -25,7 +25,6 @@
     .toast {
         min-width: 98%;
         box-sizing: border-box;
-        left: 1%;
         margin-left: 0;
     }  
 }

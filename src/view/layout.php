@@ -179,7 +179,7 @@ class Layout extends \View\Document
 
         if ($element instanceof \DOMElement)
         {
-            $element->nodeValue = $title;
+            $element->nodeValue = htmlspecialchars($title);
         }
 
         if (Server::getInstance()->isAjax() || !$element)
@@ -187,6 +187,7 @@ class Layout extends \View\Document
             $title = \View\Script::treatStringToJs($title);
             \App::addJs("document.title = '{$title}'");
         }
+
 
         return $this;
     }
@@ -414,6 +415,13 @@ class Layout extends \View\Document
         $bodys = $this->getElementsByTagName('body');
 
         return new \View\DomContainer($bodys->item(0));
+    }
+
+    public function getFooter()
+    {
+        $footers = $this->getElementsByTagName('footer');
+
+        return new \View\DomContainer($footers->item(0));
     }
 
     /**

@@ -810,6 +810,16 @@ class UserAgent
     }
 
     /**
+     * Return true if is bot or service
+     * 
+     * @return bool
+     */
+    public function isBotOrService()
+    {
+        return $this->getPlatform() == \DataHandle\UserAgent::PLATFORM_BOT || $this->getPlatform() == \DataHandle\UserAgent::PLATFORM_SERVICE;
+    }
+
+    /**
      * Convert it to string
      *
      * @return string

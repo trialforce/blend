@@ -517,7 +517,7 @@ class QueryBuilder
      *
      * @param string $columnName the column name
      * @param string $param the condition param =, IN , >= etc
-     * @param string $value the field that is to be compared
+     * @param string $compare the field that is to be compared
      * @param string $condition AND, OR, etc
      * @return \Db\QueryBuilder
      */
@@ -806,6 +806,16 @@ class QueryBuilder
         }
 
         return NULL;
+    }
+
+    /**
+     * Simple method that return the count of all registers in query
+     * 
+     * @return int
+     */
+    public function count()
+    {
+        return $this->aggregation('count(*)');
     }
 
     /**

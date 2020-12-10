@@ -6,3 +6,9 @@
     padding: 6px 6px;
     font-size: 90%;
 }
+
+.badge.small {
+    height: 20px;
+    line-height: 20px;
+    padding: 2px 6px;
+}

@@ -218,7 +218,7 @@ class Template
                 $sectionContentReplace = $this->getContentForSection($sectionName, $this->content);
                 $result = '';
 
-                if (count($data) > 0)
+                if (isIterable($data) && count($data) > 0)
                 {
                     foreach ($data as $item)
                     {
@@ -251,6 +251,9 @@ class Template
                 $this->content = str_replace($match, '', $this->content);
             }
         }
+
+        // necessário para remover as tags de looping, ex: <!--produto-images-->, <!--!produto-images-->
+        $this->content = preg_replace('/<!--(.|\s)*?-->/', '', $this->content);
     }
 
     /**
@@ -470,8 +473,13 @@ class Template
             }
 
             //create variables for use in eval
-            $param = $this->params;
+            $params = $this->params;
             $father = array();
+
+            foreach ($params as $param => $value)
+            {
+                $$param = $value;
+            }
 
             //create variables for use in eval
             if (isIterable($item))
@@ -608,11 +616,17 @@ class Template
      * @param stirng $modelName model name
      * @return void
      */
-    public function setModelParams($model, $modelName)
+    public function setModelParams($model, $modelName, $setModel = false)
     {
         if (!$model || !$modelName)
         {
-            return;
+            return $this;
+        }
+
+        if ($setModel)
+        {
+            //put the entire model like a para
+            $this->setParam($modelName, $model);
         }
 
         $model = $model->getArray();
@@ -630,6 +644,16 @@ class Template
         }
 
         return $this;
+    }
+
+    /**
+     * Execute the template and return it's string represetation
+     *
+     * @return string return the result of the execute
+     */
+    public function __toString()
+    {
+        return $this->execute();
     }
 
 }

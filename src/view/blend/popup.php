@@ -238,7 +238,7 @@ class Popup extends Div
         $buttons[1]->setAutoFocus();
         $buttons[1]->focus();
 
-        $popup = new \View\Blend\Popup('prompt', $title, $question, $buttons, 'prompt no-overflow' . $class);
+        $popup = new \View\Blend\Popup('prompt', $title, $question, $buttons, 'prompt no-overflow ' . $class);
         $popup->setIcon('question');
 
         return $popup;

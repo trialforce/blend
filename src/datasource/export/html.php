@@ -127,7 +127,7 @@ p {
 
         $layout = new \View\Layout();
         \View\View::setDom($layout);
-        
+
         $viewTitle = new \View\Title($title . ' - ' . $formatedDate);
         $viewMeta = new \View\Meta();
         $viewMeta->setAttribute('http-equiv', 'Content-Type')->setAttribute('content', 'text/html; charset=UTF-8');
@@ -289,8 +289,9 @@ p {
         $data = $dataSource->getData();
         $columns = $dataSource->getColumns();
         $beforeGridExportRow = $domOriginal instanceof \Page\BeforeGridExportRow;
+        $tr = array();
 
-        if (is_array($data))
+        if (isIterable($data))
         {
             foreach ($data as $index => $model)
             {
@@ -307,6 +308,15 @@ p {
                     //restore original to locate things, used in group export
                     \View\View::setDom($domOriginal);
                     $value = \DataSource\Grab::getUserValue($column, $model);
+
+                    //if it's a view, convert to string and remove it from original dom
+                    if ($value instanceof \View\View)
+                    {
+                        $valueTxt = $value . '';
+                        $value->remove();
+                        $value = $valueTxt;
+                    }
+
                     \View\View::setDom($layout);
                     $td[] = $myTd = new \View\Td(NULL, $value);
 

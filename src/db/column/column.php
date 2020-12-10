@@ -356,6 +356,15 @@ class Column
         return $modelClass;
     }
 
+    /**
+     * Set reference name (foreign key)
+     *
+     * @param string $table the reference model\table
+     * @param string $field the refernece field, normally ID
+     * @param string $referenceDescription the description to show in lists ands grids (can be an sql)
+     * @param string $name the name of the foreyken /index
+     * @return $this
+     */
     public function setReferenceTable($table, $field = 'id', $referenceDescription = NULL, $name = null)
     {
         $this->constantValues = null;

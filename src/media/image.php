@@ -47,6 +47,11 @@ class Image extends \Disk\File
     const EXT_PSD = 'psd';
 
     /**
+     * Google WebP
+     */
+    const EXT_WEBP = 'webp';
+
+    /**
      * Cache for size of the image (getimagesizes)
      *
      * @var array
@@ -121,6 +126,10 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_WBMP)
         {
             $this->content = imagecreatefromwbmp($this->path);
+        }
+        else if ($extension == Image::EXT_WEBP)
+        {
+            $this->content = imagecreatefromwebp($this->path);
         }
         else if ($extension == Image::EXT_PSD)
         {
@@ -303,6 +312,10 @@ class Image extends \Disk\File
             {
                 imagexbm($this->content, $filename . '', NULL);
             }
+            else if ($extension == Image::EXT_WEBP)
+            {
+                imagewebp($this->content, $filename . '', $quality);
+            }
         }
 
         return $this;
@@ -321,7 +334,7 @@ class Image extends \Disk\File
         if ($optmizeJpg == 'jpegtran')
         {
             //$cmd = 'jpegtran -copy none -optimize -outfile ' . $filename . ' ' . $filename;
-            $cmd = 'jpegoptim -f -s -m60 --all-progressive ' . $filename;
+            $cmd = 'jpegoptim -f -s -m56 --all-progressive ' . $filename;
             shell_exec($cmd);
 
             return 1;
@@ -589,6 +602,7 @@ class Image extends \Disk\File
         $exts[] = self::EXT_JPG;
         $exts[] = self::EXT_GIF;
         $exts[] = self::EXT_PNG;
+        $exts[] = self::EXT_WEBP;
 
         return in_array($this->getExtension(), $exts);
     }
@@ -657,6 +671,10 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_XBM)
         {
             imagexbm($this->content);
+        }
+        else if ($extension == Image::EXT_WEBP)
+        {
+            imagewebp($this->content);
         }
     }
 

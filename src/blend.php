@@ -60,10 +60,10 @@ function toast($message = NULL, $type = NULL, $duration = 4000)
     $messageParsed = \View\Script::treatStringToJs($message);
 
     //play error sound
-    if (stripos(' ' . $type, 'danger') > 0)
-    {
-        \View\Audio::playSoundOnce('theme/audio/error.mp3');
-    }
+//    if (stripos(' ' . $type, 'danger') > 0)
+//    {
+//        \View\Audio::playSoundOnce('theme/audio/error.mp3');
+//    }
 
     \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
 }
@@ -161,7 +161,7 @@ if (!function_exists('filePath'))
     function filePath($class, $extension = 'php')
     {
         $class = strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $class));
-        return APP_PATH . DIRECTORY_SEPARATOR . $class . '.' . $extension;
+        return (defined('ADM_PATH') ? ADM_PATH : APP_PATH) . DIRECTORY_SEPARATOR . $class . '.' . $extension;
     }
 
 }

@@ -301,6 +301,7 @@ class File implements \JsonSerializable
             'tif' => 'image/tiff',
             'svg' => 'image/svg+xml',
             'svgz' => 'image/svg+xml',
+            'webp' => 'image/webp',
             // archives
             'zip' => 'application/zip',
             'rar' => 'application/x-rar-compressed',
@@ -579,6 +580,7 @@ class File implements \JsonSerializable
         $exts[] = 'jpg';
         $exts[] = 'gif';
         $exts[] = 'png';
+        $exts[] = 'webp';
 
         return in_array($this->getExtension(), $exts);
     }

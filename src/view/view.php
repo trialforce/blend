@@ -520,6 +520,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $content instanceof \View\Document;
             $firstChild = $content->firstChild;
             $migratedNode = \View\View::getDom()->importNode($firstChild, true);
+
+            if (!($element instanceof \View\View || $element instanceof \View\DomContainer))
+            {
+                $element = new \View\DomContainer($element);
+            }
+
             $element->append($migratedNode);
         }
         //dom container
@@ -1199,14 +1205,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function show($param = FALSE)
     {
-        if ($param == 'inline')
-        {
-            return $this->addStyle('display', 'inline-block');
-        }
-        else
-        {
-            return $this->addStyle('display', 'block');
-        }
+        $param = $param ? $param : 'block';
+        return $this->addStyle('display', $param);
     }
 
     /**

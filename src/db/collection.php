@@ -16,7 +16,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
     public function __construct($data = NULL)
     {
-        if (is_array($data))
+        if ($data)
         {
             $this->setData($data);
         }
@@ -66,6 +66,16 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function setData($array)
     {
+        //need interface
+        if ($array instanceof \Db\ConstantValues)
+        {
+            $array = $array->getArray();
+        }
+        else if ($array instanceof \Db\Collection)
+        {
+            $array = $array->getData();
+        }
+
         $this->data = $array;
 
         return $this;
@@ -151,7 +161,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
                 $valueB = self::getPropertyFromItem($b, $orderBy);
             }
 
-            return strcmp($valueA, $valueB);
+            if (is_numeric($valueA) && is_numeric($valueB))
+            {
+                return $valueA - $valueB;
+            }
+            else
+            {
+                return strcmp($valueA, $valueB);
+            }
         });
 
         //apply the order

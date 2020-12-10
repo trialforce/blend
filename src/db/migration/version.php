@@ -2,6 +2,10 @@
 
 namespace Db\Migration;
 
+/**
+ * Database Migration version
+ * Used when you neeed to create a PHP script as version
+ */
 abstract class Version
 {
 

@@ -28,11 +28,36 @@ class App
     private static $theme;
 
     /**
+     * Current app instance
+     * @var App
+     */
+    private static $instance;
+
+    /**
      *
      * @var array of string
      */
     protected static $js = array();
 
+    public function __construct()
+    {
+        self::$instance = $this;
+    }
+
+    /**
+     * Get current instance of app
+     * @return App
+     */
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
+
+    /**
+     * Return the raw representantion of current page
+     *
+     * @return string
+     */
     public function getCurrentPageRaw()
     {
         return Request::get('p');
@@ -91,6 +116,7 @@ class App
 
     public function handle()
     {
+        ob_start();
         $page = $this->getCurrentPage();
         //create the theme, so we can use it's object in inner layout
         //it's okay, it's cached
@@ -190,7 +216,7 @@ class App
         return self::$theme;
     }
 
-    public function handleResult(\View\Document $content)
+    public function handleResult(\View\Document $content, $page404 = false)
     {
         $theme = self::getTheme($content);
 
@@ -212,6 +238,13 @@ class App
 
             $theme->appendLayout($defaultResponse, $content);
             $this->addJsToLayout($theme);
+
+            if ($page404)
+            {
+                // Send 404 response to client
+                http_response_code(404);
+            }
+
             echo $theme;
         }
 
@@ -308,6 +341,16 @@ class App
     public static function dontChangeUrl()
     {
         Config::set('pushState', 'undefined');
+    }
+
+    /**
+     * Verify if url is changed or not in thss request
+     *
+     * @return bool
+     */
+    public static function isUrlChanged()
+    {
+        return Config::get('pushState') != 'undefined';
     }
 
     /**

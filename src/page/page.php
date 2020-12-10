@@ -42,6 +42,11 @@ class Page extends \View\Layout
 
         $fields[] = $this->callEvent();
 
+        if (\App::isUrlChanged())
+        {
+            \App::addJs("$('body').attr('data-page-url','{$this->getPageUrl()}');");
+        }
+
         return $fields;
     }
 
@@ -141,12 +146,14 @@ class Page extends \View\Layout
     public function validateModel(\Db\Model $model)
     {
         \View\View::removeAllInvalidate();
+        $ok = true;
         $arrayErrorMsg = NULL;
         $errors = $model->validate();
 
         if (is_array($errors) && count($errors) > 0)
         {
             $json = array();
+
             foreach ($errors as $field => $errorMsg)
             {
                 if (is_array($errorMsg))
@@ -168,15 +175,14 @@ class Page extends \View\Layout
                     $json[] = $stdClass;
                 }
 
-                $json = \Disk\Json::encode($json);
-
-                \App::addJs("showValidateErrors({$json});");
-
-                return FALSE;
+                $ok = false;
             }
+
+            $json = \Disk\Json::encode($json);
+            \App::addJs("showValidateErrors({$json});");
         }
 
-        return TRUE;
+        return $ok;
     }
 
     /**
@@ -732,7 +738,7 @@ class Page extends \View\Layout
             }
         }
 
-        if (count($return) == 1)
+        if (isCountable($return) && count($return) == 1)
         {
             $return = array_pop($return);
         }
@@ -915,7 +921,7 @@ class Page extends \View\Layout
         }
 
         $grid = new $gridClass;
-        $table = $grid->createTable();
+        $table = $grid->createTableInner();
 
         $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);

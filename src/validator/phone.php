@@ -185,4 +185,24 @@ class Phone extends \Validator\Validator
         return $number;
     }
 
+    /**
+     * Return a random brasilian cellphone number
+     *
+     * @return string the random generate cellphone
+     *
+     */
+    public static function createRandom()
+    {
+        $number = '';
+
+        for ($i = 0; $i < 11; $i++)
+        {
+            $number .= rand(0, 9);
+        }
+
+        $number[2] = '9';
+
+        return $number;
+    }
+
 }

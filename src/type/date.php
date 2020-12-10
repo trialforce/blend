@@ -75,4 +75,21 @@ class Date extends \Type\DateTime
         return $now->setTime(0, 0, 0);
     }
 
+    /**
+     * Create a rando date from 1980
+     *
+     * @return \Type\DateTime
+     */
+    public static function createRandom()
+    {
+        $day = rand(0, 28);
+        $month = rand(1, 12);
+        $year = 1980 + rand(0, 20);
+
+        $date = new \Type\Date();
+        $date->setDay($day)->setMonth($month)->setYear($year);
+
+        return $date;
+    }
+
 }

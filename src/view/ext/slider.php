@@ -2,6 +2,9 @@
 
 namespace View\Ext;
 
+/**
+ * Blend default slider
+ */
 class Slider extends \View\Div
 {
 

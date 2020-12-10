@@ -89,8 +89,15 @@ class ModelApi extends \Db\Model
 
     public static function createUniqueIdMobile()
     {
+        $t = microtime(true);
+        $micro = sprintf("%06d", ($t - floor($t)) * 1000000);
+        $d = new \DateTime(date('Y-m-d H:i:s.' . $micro, $t));
+
+        // note o 'u'
+        $time = $d->format("ymdHisu");
+
         //start with ZERO means created in backend
-        return '0' . \Type\DateTime::now()->getValue('ymdHis');
+        return '0' . $time;
     }
 
     public static function findOneByIdMobile($idMobile)
@@ -254,10 +261,19 @@ class ModelApi extends \Db\Model
             }
         }
 
+        //no máximo 20 se não passar limite
+        $limit = $limit ? $limit : 20;
+
         //merge where
         if (is_array($extraWhere))
         {
             $wheres = array_merge($wheres, $extraWhere);
+        }
+
+        //caso não tenha where retorna nada
+        if (!$wheres)
+        {
+            $wheres = [new \Db\Cond("1=0")];
         }
 
         $result = $name::smartFind($smartSearch, $wheres, $limit, $offset, $orderBy, $orderWay, 'array');

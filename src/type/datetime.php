@@ -530,7 +530,9 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         // format = yyyy-mm-dd
         if (mb_ereg("^([0-9]{4})-([0-9]{2})-([0-9]{2})\$", $date, $reg))
         {
-            $this->second = '00';
+            $this->second = 0;
+            $this->hour = 0;
+            $this->minute = 0;
             $this->month = $reg[2];
             $this->day = $reg[3];
             $this->year = $reg[1];
@@ -1081,6 +1083,37 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         $dias[$sunday] = "Domingo";
 
         return $dias;
+    }
+
+    public function countWorkingDays($dateFinal)
+    {
+        $countWorkingDays = 0;
+
+        $dateFinal = new \Type\DateTime($dateFinal);
+
+        if ($this->compare($dateFinal, '>'))
+        {
+            return 0;
+        }
+
+        while (!$this->equalsDate($dateFinal))
+        {
+            if ($this->isWorkingDay())
+            {
+                $countWorkingDays++;
+            }
+
+            $this->addDay(1);
+        }
+
+        return $countWorkingDays;
+    }
+
+    public function equalsDate($date)
+    {
+        $date = new \Type\DateTime($date);
+
+        return $this->getDay() == $date->getDay() && $this->getMonth() == $date->getMonth() && $this->getYear() == $date->getYear();
     }
 
 }

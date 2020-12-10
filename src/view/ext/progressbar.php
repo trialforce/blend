@@ -19,7 +19,7 @@ class ProgressBar extends \View\Div implements \View\Chart\Chart
 
         if ($percent)
         {
-            $percent = \Type\Decimal::get($percent)->toDb();
+            $percent = intval(\Type\Decimal::get($percent)->toDb());
             $this->addSegment('progress-bar-value-' . $id, null, $percent, 0, true);
             $this->addLabel('progress-bar-label-' . $id, $percent);
         }

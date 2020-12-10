@@ -86,6 +86,12 @@ class Optimizer
         foreach ($files as $file)
         {
             $obj = new \Disk\File($file);
+
+            if (!$obj->exists())
+            {
+                throw new \Exception('Arquivo ' . $file . ' não existe na otimização de arquivos');
+            }
+
             $myMTime = $obj->getMTime();
 
             if ($myMTime > $mTime)
@@ -97,12 +103,50 @@ class Optimizer
 
         if ($needRedo)
         {
-            $objOut->save(\Type\DateTime::now()->getTimestampUnix());
-            $outputFile = \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $objOut->getMTime() . '.' . $objOut->getExtension());
-            $outputFile->save($this->optimize());
+            $outputFile = $this->reallyExecute($objOut);
         }
 
         return $outputFile;
+    }
+
+    /**
+     * Really execute the file optmization
+     *
+     * @param \Disk\File $objOut file
+     * @return \Disk\File the output file
+     */
+    protected function reallyExecute(\Disk\File $objOut)
+    {
+        $this->deleteOld();
+
+        $objOut->save(\Type\DateTime::now()->getTimestampUnix());
+        $outputFile = \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $objOut->getMTime() . '.' . $objOut->getExtension());
+        $outputFile->save($this->optimize());
+
+        return $outputFile;
+    }
+
+    /**
+     * Delete old generated files when needed
+     *
+     * @return $this
+     */
+    protected function deleteOld()
+    {
+        $file = new \Disk\File($this->getOutFile());
+
+        $folder = $file->getFolder();
+        $name = $file->getBasename(false);
+        $ext = $file->getExtension();
+
+        $filesToDelete = $folder->listFiles($name . '_*.' . $ext);
+
+        foreach ($filesToDelete as $file)
+        {
+            $file->remove();
+        }
+
+        return $this;
     }
 
     /**
