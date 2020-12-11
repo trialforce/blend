@@ -273,7 +273,9 @@ class Model extends DataSource
      */
     public function executeAggregator(Aggregator $aggregator)
     {
-        return $this->executeAggregators([$aggregator]);
+        $result = array_values($this->executeAggregators([$aggregator]));
+        \Log::debug($result);
+        return $result[0];
     }
 
     /**
