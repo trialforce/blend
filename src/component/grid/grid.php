@@ -767,7 +767,17 @@ class Grid extends \Component\Component
      */
     public static function addPaginationToDataSource(\DataSource\DataSource $dataSource)
     {
-        $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
+        $event = Request::get('e');
+
+        //avoid pagination limit when exporting file
+        if ($event == 'exportGridFile')
+        {
+            $dataSource->setPaginationLimit(999999);
+        }
+        else
+        {
+            $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
+        }
 
         if (Request::get('orderBy'))
         {
@@ -779,7 +789,7 @@ class Grid extends \Component\Component
             $dataSource->setOrderWay(Request::get('orderWay'));
         }
 
-        if (Request::get('page'))
+        if (Request::get('page') && $event != 'exportGridFile')
         {
             $dataSource->setPage(Request::get('page'));
         }

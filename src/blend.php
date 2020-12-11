@@ -138,6 +138,8 @@ function byId($id)
  */
 function parseUrl($url)
 {
+    //gambiarra temporária pra resolver porque não funcionava com .com.br
+    $url = str_replace('.br', '', $url);
     $out = null;
     $r = "^(?:(?P<scheme>\w+)://)?";
     $r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";

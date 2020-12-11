@@ -72,7 +72,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $actionsBefore[] = $remove = new \Component\Action\Action('removeitem', 'trash', 'remover', $url);
         $remove->setRenderInGrid(true);
 
-        parent::setActions(array_merge($actionsBefore, $actions));
+        return parent::setActions(array_merge($actionsBefore, $actions));
     }
 
     public function getLink($event = NULL, $value = NULL, $params = NULL, $putUrl = TRUE)
