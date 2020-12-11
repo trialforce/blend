@@ -274,48 +274,7 @@ class Model extends DataSource
      */
     public function executeAggregator(Aggregator $aggregator)
     {
-        $model = $this->model;
-        $sqlColumn = $aggregator->getColumnName();
-        $column = $model->getColumn($aggregator->getColumnName());
-        $forceExternalSelect = FALSE;
-
-        if ($column instanceof \Db\Column\Search)
-        {
-            $forceExternalSelect = TRUE;
-        }
-
-        $connInfoType = $model->getConnInfo()->getType();
-
-        $method = $aggregator->getMethod();
-        $query = $method . '( ' . $sqlColumn . ' )';
-
-        //make sum of time work
-        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
-        {
-            $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
-        }
-
-        //programatelly callback
-        $filters = NULL;
-        if ($this->getSmartFilterCallback())
-        {
-            $filters = $this->getSmartFilter();
-        }
-        else
-        {
-            $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-            $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
-            $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
-        }
-
-        $result = $model->aggregation($filters, $query, $forceExternalSelect);
-
-        if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME)
-        {
-            $result = \Type\Time::get($result)->toHuman();
-        }
-
-        return $aggregator->getLabelledValue($result);
+        return $this->executeAggregators([$aggregator]);
     }
 
     /**

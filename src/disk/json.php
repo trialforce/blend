@@ -32,8 +32,8 @@ class Json
     /**
      * Decode json string
      *
-     * @param string $json
-     * @param bool $assoc
+     * @param string $json json string
+     * @param bool $assoc associaty array or not
      * @return mixed
      *
      * @throws \Exception
