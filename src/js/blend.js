@@ -1250,13 +1250,21 @@ if(body)
 
 function comboInputClick(id,eThis)
 {
+    //close other popups
     $('.dropDownContainer').not('#'+id).slideUp(50);
+    //open this popup
     comboToggleDropdown(id);
 }
 
 function comboToggleDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
+
+    if ( $('#'+id).attr('readonly') )
+    {
+        comboHideDropdown(id);
+        return;
+    }
     
     if(element.is(':visible'))
     {
