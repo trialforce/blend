@@ -1260,7 +1260,7 @@ function comboToggleDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
 
-    if ( $('#'+id).attr('readonly') )
+    if ( $('#labelField_'+id).attr('readonly')  )
     {
         comboHideDropdown(id);
         return;
