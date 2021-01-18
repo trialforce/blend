@@ -1863,6 +1863,11 @@ function onlyNumbersAndPoint(num)
     return num.replace(/[^0-9.\-]/gi, '');
 }
 
+function onlyNumbers(num)
+{
+    return num.replace(/[^0-9]/gi, '');
+}
+
 //adiciona método contains no array
 function arrayContains(array, obj)
 {
