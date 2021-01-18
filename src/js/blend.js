@@ -95,7 +95,18 @@ function escape()
     //popup
     else if ( $('.popup').length )
     {
-        popup('destroy');
+        //try to call the close action of the popup
+        var jsText= $('#btbClosePopup').attr('onclick');
+        
+        if (jsText)
+        {
+            eval(jsText);
+        }
+        else
+        {
+           popup('destroy');
+        }
+        
         return true;
     }
     //calendar
