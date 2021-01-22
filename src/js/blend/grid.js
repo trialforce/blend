@@ -1,0 +1,99 @@
+
+var grid = {};
+
+grid.changeTextSize = function(element)
+{
+    var fontSize = localStorage.getItem('grid-font-size');
+    fontSize = fontSize ? parseInt(fontSize): 0;
+    fontSize = fontSize> 30 ? 0 : fontSize += 10;
+
+    $('.table-grid').css("font-size", (fontSize + 100)+'%');
+    
+    localStorage.setItem('grid-font-size',fontSize);
+};
+
+grid.restoreTextSize = function(element)
+{
+    var fontSize = localStorage.getItem('grid-font-size');
+    fontSize = fontSize ? parseInt(fontSize): 0;
+
+    $('.table-grid').css("font-size", (fontSize + 100)+'%');
+}
+
+grid.openTrDetail = function(element)
+{
+    event.preventDefault();
+    
+    var tr= $(element);
+    var grid = tr.parents('.grid');
+    var gridId = grid.attr('id').replace(/\\/g,'-');
+    var id = tr.data('model-id');
+    var link = grid.data('link');
+    var detailId = ('grid-detail-'+gridId+'-'+id).toLowerCase();
+    var detailElement = $('#'+detailId);
+ 
+    if (detailElement.length > 0)
+    {
+        detailElement.remove();
+    }
+    else
+    {
+        var newTr = $.create('tr');
+        newTr.addClass('grid-tr-detail-column-group');
+        var newTd = $.create('td',detailId);
+        newTd.attr('colspan', grid.find('th').length);
+        newTr.append(newTd);
+        newTr.insertAfter(tr);
+        
+        p(link+'/openTrDetail/'+id+'?elementId='+detailId);
+    }
+    
+    return false;
+}
+
+function setTableFontSize()
+{
+    var value = localStorage.getItem('tablegridfontsize');
+    if (!value)
+    {
+        value = 10;
+    }
+
+    $('.table-grid').css("font-size", value / 10 + "em");
+    $('#tableGridFontSize').val(value);
+}
+
+function changeTableFontSize()
+{
+    var value = $('#tableGridFontSize').val();
+    value = value ? value : 10;
+
+    $('.table-grid').css("font-size", value / 10 + "em");
+    localStorage.setItem('tablegridfontsize', value);
+}
+
+//used in grid checkcolumn, need refactor
+function selecteChecks(gridName)
+{
+    $('#'+gridName+'Table .checkBoxcheck').each( function()
+    {
+        if ( $(this).prop('checked') === true )
+        {
+            $(this).parent().parent().addClass('select');
+        }
+        else
+        {
+            $(this).parent().parent().removeClass('select');
+        }
+    });
+}
+
+//used in grid checkcolumn, need refactor
+function selecteCheck(elementId)
+{
+    var element = $('#' + elementId);
+    var checked = !element.prop('checked');
+    element.prop('checked', checked);
+    
+    $('#checkAllcheck').prop('checked', false);
+}

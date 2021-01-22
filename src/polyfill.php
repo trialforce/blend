@@ -16,7 +16,6 @@ if (!function_exists('is_iterable'))
 
 }
 
-
 //Create mb_str_pad function if not exists, for old php compatibility
 if (!function_exists('mb_str_pad'))
 {
