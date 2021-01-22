@@ -7,6 +7,8 @@ var invalidHover = true;
 var avoidUrlRegister = false;
 var isAjax = false;
 var blendJs = function(){};
+var blend = {};
+blend.plugins = [];
 
 //avoid console.log problems
 if (!window.console)
@@ -20,7 +22,7 @@ if (!window.console)
 if (typeof $ == 'function')
 {
     $(window).bind('popstate', function (event)
-    {
+    { 
         var okay = escape();
         
         if ( !okay )
@@ -39,6 +41,7 @@ if (typeof $ == 'function')
 //Loading without ajax
 window.onload =  function ()
 {
+    pluginsRegister();
     dataAjax();
         
     /**
@@ -140,6 +143,32 @@ function stripTags(str)
     return str.replace(/<\/?[^>]+(>|$)/g, "");
 }
 
+function pluginsRegister()
+{
+    for (i = 0; i < blend.plugins.length; i++)
+    {
+        var plugin = blend.plugins[i];
+        
+        if ( typeof plugin.register == 'function')
+        {
+            plugin.register();
+        }
+    }
+}
+
+function pluginsStart()
+{
+    for (i = 0; i < blend.plugins.length; i++)
+    {
+        var plugin = blend.plugins[i];
+        
+        if ( typeof plugin.start == 'function')
+        {
+            plugin.start();
+        }
+    }
+}
+
 /**
  * Parse data-ajax attribute, to make a link ajax
  *
@@ -157,6 +186,8 @@ function dataAjax()
         console.error(e);
         hideLoading();
     }
+    
+    pluginsStart();
     
     //clear the function to avoid calling more times
     blendJs = function(){};
