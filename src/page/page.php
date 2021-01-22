@@ -636,6 +636,11 @@ class Page extends \View\Layout
      */
     public function getContainer($label, $view, $class = NULL)
     {
+        return self::createContainer($label, $view, $class);
+    }
+
+    public static function createContainer($label, $view, $class = NULL)
+    {
         if ($view instanceof \Component\Component)
         {
             $view = $view->onCreate();
