@@ -13,8 +13,6 @@ use DataHandle\Session;
 class Page extends \View\Layout
 {
 
-    protected $popupAdd = FALSE;
-
     /**
      * Listagem de grids da páginas
      *
@@ -48,18 +46,6 @@ class Page extends \View\Layout
         }
 
         return $fields;
-    }
-
-    public function getPopupAdd()
-    {
-        return $this->popupAdd || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
-    }
-
-    public function setPopupAdd($popupAdd)
-    {
-        $this->popupAdd = $popupAdd;
-
-        return $this;
     }
 
     /**
@@ -592,16 +578,9 @@ class Page extends \View\Layout
      */
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        if ($this->getPopupAdd())
-        {
-            \View\Blend\Popup::delete();
-        }
-        else
-        {
-            \App::dontChangeUrl();
-            toast($mensagem, $type);
-            \App::redirect($this->getSearchUrl(), TRUE);
-        }
+        \App::dontChangeUrl();
+        toast($mensagem, $type);
+        \App::redirect($this->getSearchUrl(), TRUE);
     }
 
     public function saveModelDialog()
@@ -987,14 +966,7 @@ class Page extends \View\Layout
      */
     public function getMainForm()
     {
-        if ($this->getPopupAdd())
-        {
-            return $this->byId('popupHolder', '\View\Div');
-        }
-        else
-        {
-            return $this->byId('content', '\View\Div');
-        }
+        return $this->byId('content', '\View\Div');
     }
 
     /**

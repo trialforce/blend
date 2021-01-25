@@ -46,18 +46,8 @@ class Crud extends \Page\Page
             $model = new $class();
         }
 
-        if ($this->getPopupAdd())
-        {
-            $this->setPopupAdd(true);
-        }
-
         $this->setModel($model);
         parent::__construct();
-    }
-
-    public function getPopupAdd()
-    {
-        return $this->popupAdd || $this->getFormValue('popupAdd') || Request::get('popupAdd') || Get::get('popupAddRedirectPage');
     }
 
     /**
@@ -222,40 +212,10 @@ class Crud extends \Page\Page
     {
         $this->setFocusOnFirstField();
 
-        if ($this->popupAdd)
-        {
-            \App::dontChangeUrl();
-            return $this->getPopup();
-        }
-        else
-        {
-            $this->append($this->getHead());
-            $this->append($this->getBodyDiv($this->mountFieldLayout()));
-        }
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
 
         $this->adjustFields();
-    }
-
-    public function getPopup()
-    {
-        $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
-
-        $this->adjustFields();
-
-        //add popupadd to form, to make ir post corret
-        $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input('popupAdd', \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input('popupAddInputName', \View\Input::TYPE_HIDDEN, Request::get('popupAddInputName'));
-        $body[] = new \View\Input('popupAddPageName', \View\Input::TYPE_HIDDEN, $this->getPageUrl());
-
-        $buttons[] = $this->getTopButtons();
-
-        $popup = new \View\Blend\Popup('popupAdicionar', $this->getTitle(), $body, $buttons, 'form ' . $this->getPageUrl());
-        $popup->body->setId('bodyPopup');
-        $popup->setIcon($this->icon);
-        $popup->show();
-
-        $this->byId('btnVoltar')->click(\View\Blend\Popup::getJs('destroy'));
     }
 
     /**
@@ -285,21 +245,9 @@ class Crud extends \Page\Page
         $this->setFocusOnFirstField();
         $this->setModelFromIdUrl();
 
-        if ($this->popupAdd)
-        {
-            \App::dontChangeUrl();
-            $popup = $this->getPopup();
-            $this->createFloatingMenu();
-            $this->floatingMenu->addClass('action-list-popup');
-
-            return $popup;
-        }
-        else
-        {
-            $this->append($this->getHead());
-            $this->append($this->getBodyDiv($this->mountFieldLayout()));
-            $this->createFloatingMenu();
-        }
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
+        $this->createFloatingMenu();
 
         $this->adjustFields();
     }
@@ -548,13 +496,6 @@ class Crud extends \Page\Page
 
         $body[] = 'Confirma remoção do registro?';
 
-        //add support for popup remove inside gridpopup
-        if ($this->getPopupAdd())
-        {
-            $body[] = new \View\Input('popupAdd', 'hidden', 'popupAdd');
-            $body[] = new \View\Input('_id', 'hidden', Request::get('_id'));
-        }
-
         $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', $body, $footer);
         $popup->show();
     }
@@ -577,11 +518,6 @@ class Crud extends \Page\Page
 
         $pkValue = $this->getFormValue($pk);
 
-        if ($this->getPopupAdd())
-        {
-            $pkValue = Request::get('_id');
-        }
-
         $model->setValue($pk, $pkValue);
 
         try
@@ -591,15 +527,7 @@ class Crud extends \Page\Page
             if ($ok)
             {
                 toast('Registro removido com sucesso!!', 'success');
-
-                if ($this->getPopupAdd())
-                {
-                    \View\Blend\Popup::delete();
-                }
-                else
-                {
-                    \App::addjs('history.back(1);');
-                }
+                \App::addjs('history.back(1);');
             }
             else
             {
@@ -645,17 +573,9 @@ class Crud extends \Page\Page
 
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        if ($this->getPopupAdd())
-        {
-            //TODO update grid
-            \View\Blend\Popup::delete();
-        }
-        else
-        {
-            \App::dontChangeUrl();
-            toast($mensagem, $type);
-            \App::redirect($this->getPageUrl(), TRUE);
-        }
+        \App::dontChangeUrl();
+        toast($mensagem, $type);
+        \App::redirect($this->getPageUrl(), TRUE);
     }
 
     /**
@@ -998,14 +918,7 @@ class Crud extends \Page\Page
      */
     public function getMainDiv()
     {
-        if ($this->getPopupAdd())
-        {
-            return $this->byId('popupHolder');
-        }
-        else
-        {
-            return $this->byId('divLegal');
-        }
+        return $this->byId('divLegal');
     }
 
     public function openTrDetail()
