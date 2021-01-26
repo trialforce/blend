@@ -17,7 +17,13 @@ function showValidateErrors(errors)
     errors.forEach( function(item, index)
     {
         var str = '<strong>'+item.label + '</strong> |' + item.messages.join(',');
-        var tabLabel = getTabLabel(getTabFromId(item.name).attr('id'));
+        
+        var tabLabel = null;
+
+        if (typeof getTabLabel == 'function')
+        {
+            tabLabel = getTabLabel(getTabFromId(item.name).attr('id'));
+        }
         
         if (tabLabel)
         {

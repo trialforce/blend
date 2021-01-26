@@ -45,3 +45,22 @@ var maskSimpleFone = function (e, r, n, t)
 
     return str.length > 12 ? "(99)99999-9999" : "(99)9999-99999";
 };
+
+
+function applyAllMasks()
+{
+    $("input[data-mask]").each(function () {
+        $(this).mask($(this).attr("data-mask"));
+    });
+
+    //mask functions
+    $("input[data-mask-function]").each(function () 
+    {
+        var maskVar = window[$(this).attr("data-mask-function")];
+        
+        $(this).mask(maskVar, {onKeyPress: function (input, e, currentField, options) 
+        {
+            $(currentField).mask(maskVar(input), options);
+        }});
+    });
+}

@@ -319,40 +319,13 @@ function dataAjax()
     //make masks work
     if (typeof jQuery().mask == 'function')
     {
-        $("input[data-mask]").each(function () {
-            $(this).mask($(this).attr("data-mask"));
-        });
+        applyAllMasks(); 
     }
-
-    //mask functions
-    $("input[data-mask-function]").each(function () {
-        var maskVar = window[$(this).attr("data-mask-function")];
-        $(this).mask(maskVar, {onKeyPress: function (input, e, currentField, options) {
-                  $(currentField).mask(maskVar(input), options);
-            }});
-    });
 
     //input float and integer
     if (typeof ($('input.float').autoNumeric) === "function")
     {
-        $('input.float').autoNumeric('init');
-        //limpa campo quando entrar nele e for zerado
-        $('input.float').focus(function () {
-            if ($(this).val() == '0,00')
-            {
-                $(this).val('');
-            }
-        });
-
-        //limpa campo quando entrar nele e for zerado
-        $('input.float').blur(function () {
-            if ($(this).val() == '')
-            {
-                $(this).val('0,00');
-            }
-        });
-
-        $('input.integer').autoNumeric('init');
+        applyAutonumeric();
     }
 
     if (typeof ($('.swipebox').swipebox) === "function")
@@ -418,6 +391,29 @@ function dataAjax()
     hideLoading();
 
     return false;
+}
+
+function applyAutonumeric()
+{
+    $('input.float').autoNumeric('init');
+    
+    //limpa campo quando entrar nele e for zerado
+    $('input.float').focus(function () {
+        if ($(this).val() == '0,00')
+        {
+            $(this).val('');
+        }
+    });
+
+    //limpa campo quando entrar nele e for zerado
+    $('input.float').blur(function () {
+        if ($(this).val() == '')
+        {
+            $(this).val('0,00');
+        }
+    });
+
+    $('input.integer').autoNumeric('init');
 }
 
 /**

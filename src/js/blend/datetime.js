@@ -91,10 +91,13 @@ function dateTimeInputDesktop()
         scrollInput:false,
     });
     
-    $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
+    if (typeof markFormChanged == 'function' ) 
     {
-        markFormChanged();
-    });
+        $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
+        {
+            markFormChanged();
+        });
+    }
     
     //avoid open the keyboard
     $('.dateinput,.datetimeinput,.timeinput').on('click', function () 
@@ -168,6 +171,6 @@ function dateTimeInput()
     }
     else
     {
-        dateTimeInputFallBackNative();
+        //dateTimeInputFallBackNative();
     }
 }
