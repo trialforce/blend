@@ -164,7 +164,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      *
      * @param $year
      */
-    public function addYear($year)
+    public function addYear($year = 1)
     {
         $date = date(self::MASK_TIMESTAMP_USER, mktime($this->hour, $this->minute, $this->second, $this->month, $this->day, $this->year + $year));
         $this->setValue($date);

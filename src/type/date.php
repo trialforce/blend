@@ -11,6 +11,12 @@ namespace Type;
 class Date extends \Type\DateTime
 {
 
+    public function __construct($value = NULL, $column = NULL)
+    {
+        parent::__construct($value, $column);
+        $this->setTime(0, 0, 0);
+    }
+
     public function __toString()
     {
         return $this->getValue(self::MASK_DATE_USER);
