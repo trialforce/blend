@@ -139,7 +139,7 @@ class MountFilter
      */
     public static function getFilters($columns, $dbModel, $fixedFilters = null)
     {
-        $filters = array();
+        $filters = $fixedFilters;
 
         if (!is_array($columns))
         {
@@ -171,6 +171,7 @@ class MountFilter
             $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
             $filter = $mountFilter->getFilter();
 
+            //avoid create two filters for the same column
             if (is_array($filter))
             {
                 foreach ($filter as $filt)

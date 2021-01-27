@@ -1,10 +1,10 @@
 
 i.fa.filter-menu {
-    position: relative;
+    position: absolute;
     font-size: 24px;
     margin-top: 7px;
     margin-bottom: 9px;
-    float: right;
+    right: 0;
     margin-top: 0;
     cursor: pointer;
     background: transparent;
@@ -44,7 +44,46 @@ i.fa.filter-menu .blend-floating-menu li span .fa-trash, #icon-save-new-item {
     margin-right: 0;
     line-height: 22px;
     text-align: center;
-    top: 0;
-    right: 0px;
+    top: 2px;
+    right: 32px;
     width: 22px;
+}
+
+i.fa-thumbtack.filter-menu {
+    right: 30px;
+    margin-top: 1px;
+    font-size: 26px;
+}
+
+.filterInput.integer, .filterInput.float {
+    min-width: inherit;
+    /*width: 35%;*/
+}
+
+.fixed-filter-interval {
+    width: 49%;
+}
+
+.removeFilter {
+    cursor: pointer;
+    padding: 4px 0px;
+    position: absolute;
+    right: -8px;
+    top: 30px;
+    font-size: 18px !important;
+}
+
+.addFilter {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    bottom: 5px;
+    font-size: 9px;
+}
+
+.fa.trashFilter {
+    cursor: pointer;
+    margin-right: 0;
+    margin-left: 4px;
+    margin-top: 10px
 }

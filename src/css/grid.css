@@ -50,3 +50,7 @@
         padding: 2px;
     }
 }
+
+#containerHead {
+    position: relative;
+}

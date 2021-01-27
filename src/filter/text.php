@@ -30,7 +30,7 @@ class Text
     protected $filterName = NULL;
 
     /**
-     * Filter type
+     * Filter type/visibilty
      * Consult FILTER_TYPE_ constants
      *
      * @var int
@@ -77,7 +77,7 @@ class Text
      * @param string $filterName the filter name
      * @param string $filterType the filter type
      */
-    public function __construct($column, $filterName = \NULL, $filterType = NULL)
+    public function __construct($column = NULL, $filterName = NULL, $filterType = NULL)
     {
         if (is_string($column))
         {
