@@ -136,19 +136,12 @@ class Vector
             $dom = \View\View::getDom();
             $tabs = $this->array;
             $tab = new \View\Ext\Tab('fieldLayoutTab');
-            $formName = '';
-
-            //auto apply formname to id and name
-            if (method_exists($dom, 'getFormName') && $dom->getFormName())
-            {
-                $formName = $dom->getFormName();
-            }
 
             foreach ($tabs as $label => $campos)
             {
                 $id = \Type\Text::get($label)->toFile();
                 $this->array = $campos;
-                $tab->add('tab-' . $formName . $id, $label, $this->createFieldLayout());
+                $tab->add('tab-' . $id, $label, $this->createFieldLayout());
             }
 
             return $tab;
@@ -268,12 +261,6 @@ class Vector
         $referenceTable = $column->getReferenceTable();
         $constantValues = $column->getConstantValues();
         $property = $column->getProperty();
-
-        //auto apply formname to id and name, to avoid duplicate ids on master form
-        if (method_exists($dom, 'getFormName') && $dom->getFormName())
-        {
-            $property = $dom->getFormName() . '[' . $property . ']';
-        }
 
         //TODO padronize 100% and put it on \Db\Column\Column or not?
         $classes[\Db\Column\Column::TYPE_INTEGER] = '\View\Ext\IntInput';

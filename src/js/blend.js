@@ -2,7 +2,6 @@
  
 "use strict";
 //handle the back and forward buttons
-var formChangedAdvice = false;
 var invalidHover = true;
 var avoidUrlRegister = false;
 var isAjax = false;
@@ -341,27 +340,6 @@ function dataAjax()
     
     dateTimeInput();
     
-    if (typeof markFormChanged == 'function' ) 
-    {
-        //mark form changed on change
-        $('input, select, textarea').on('change', function () {
-            markFormChanged();
-        });
-
-        //on key press, add support for nick editor, and other contenteditable
-        $('input, select, textarea, *[contenteditable]').on('keypress', function () {
-            markFormChanged();
-        });
-    }
-
-    $('*[data-form-changed-advice]').on('click', function (event)
-    {
-        if (formChangedAdvice == false && $('#formChanged').val() == 1)
-        {
-            return showFormChangedAdvice();
-        }
-    });
-    
     //add system class
     if ( isIos())
     {
@@ -579,15 +557,6 @@ function r(type, page, formData, callBack)
 {
     isAjax = true;
     var focused = $(':focus');
-
-    if (focused.data('form-changed-advice') == 1 && $('#formChanged').val() == 1)
-    {
-        if (formChangedAdvice == false)
-        {
-            focused.removeAttr('disabled');
-            return showFormChangedAdvice();
-        }
-    }
 
     //disable focused element, perhaps a button or link
     if (typeof focused.get(0) != 'undefined')

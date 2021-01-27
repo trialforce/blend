@@ -53,17 +53,9 @@ class SearchGrid extends \Component\Grid\Grid
 
         $div = $this->createTable();
         $searchField = $this->getSearchField();
+        $this->setContent(array($searchField, $div));
 
-        if ($searchField instanceof SearchField)
-        {
-            $searchField = $searchField->onCreate();
-        }
-
-        $content = array($searchField, $div);
-
-        $this->setContent($content);
-
-        return $content;
+        return $this->content;
     }
 
     public function getSearchField()

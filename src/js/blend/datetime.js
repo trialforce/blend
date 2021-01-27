@@ -91,14 +91,6 @@ function dateTimeInputDesktop()
         scrollInput:false,
     });
     
-    if (typeof markFormChanged == 'function' ) 
-    {
-        $('.dateinput,.datetimeinput,.timeinput').on('blur', function () 
-        {
-            markFormChanged();
-        });
-    }
-    
     //avoid open the keyboard
     $('.dateinput,.datetimeinput,.timeinput').on('click', function () 
     {     

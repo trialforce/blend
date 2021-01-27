@@ -230,14 +230,7 @@ class Page extends \View\Layout
      */
     public function getFormTitle()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
-        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle()));
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle()));
     }
 
     /**
@@ -247,13 +240,6 @@ class Page extends \View\Layout
      */
     public function getHead()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
         $title = $this->getFormTitle();
         $view = null;
 
@@ -262,7 +248,7 @@ class Page extends \View\Layout
             //$view = $this->getSaveListFields();
         }
 
-        $head[] = new \View\H1($formName . 'formTitle', $title, 'formTitle');
+        $head[] = new \View\H1('formTitle', $title, 'formTitle');
 
         if (is_array($view))
         {
@@ -923,9 +909,8 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
         \App::setResponse('NULL'); //for grid
-        //TODO suport columns with description in name
-        $originalValue = Request::get('v');
-        $value = str_replace('Description', '', $originalValue);
+        //support columns with description in name
+        $value = str_replace('Description', '', Request::get('v'));
         $grid = $this->setDefaultGrid();
 
         if (!$grid instanceof \Component\Grid\Grid)

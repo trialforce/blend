@@ -57,13 +57,6 @@ class Crud extends \Page\Page
      */
     public function getFormTitle()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
         $btnSearch = null;
 
         if ($this->getEvent() == 'listar')
@@ -73,7 +66,7 @@ class Crud extends \Page\Page
             $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
         }
 
-        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
     }
 
     /**
@@ -91,22 +84,9 @@ class Crud extends \Page\Page
             $model = $this->model;
         }
 
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
         if ($request)
         {
-            if ($formName)
-            {
-                $request = new Request();
-                $request->setData(Request::get($formName));
-
-                $model->setData($request);
-            }
-            else
-            {
-                $model->setData($request);
-            }
+            $model->setData($request);
         }
 
         $this->model = $model;
@@ -404,7 +384,7 @@ class Crud extends \Page\Page
             $btnSalvar->setTitle('Salva o registro atual no banco de dados!')->setDisabled();
 
             $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
-            $btnVoltar->setTitle('Volta para a listagem!')->formChangedAdvice();
+            $btnVoltar->setTitle('Volta para a listagem!');
 
             if ($this->isUpdate())
             {
@@ -855,11 +835,6 @@ class Crud extends \Page\Page
         return isset($_REQUEST[$variable]) ? Request::get($variable) : $defaultValue;
     }
 
-    public static function getFormName()
-    {
-        return '';
-    }
-
     /**
      * Return a "name" for html input considering the form name
      *
@@ -868,17 +843,7 @@ class Crud extends \Page\Page
      */
     public function getInputName($id)
     {
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
-        if ($formName)
-        {
-            return $formName . '[' . $id . ']';
-        }
-        else
-        {
-            return $id;
-        }
+        return $id;
     }
 
     /**
@@ -889,26 +854,7 @@ class Crud extends \Page\Page
      */
     public function getFormValue($var)
     {
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
-        if ($formName && $var)
-        {
-            //convert object to string if needed
-            $var = $var . '';
-            $formValues = Request::get($formName);
-
-            if (isset($formValues[$var]))
-            {
-                return $formValues[$var];
-            }
-        }
-        else
-        {
-            return Request::get($var);
-        }
-
-        return null;
+        return Request::get($var);
     }
 
     /**

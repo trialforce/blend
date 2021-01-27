@@ -99,7 +99,7 @@ class SearchField extends \Component\Component
             }
         }
 
-        $innerHtml[] = $this->getAdvancedFilters();
+        $innerHtml[] = $this->mountAdvancedFiltersMenu();
         $innerHtml[] = $this->getSearchButton();
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
@@ -181,7 +181,7 @@ class SearchField extends \Component\Component
      * @param string $idBtn
      * @return \View\Div
      */
-    protected function getAdvancedFilters()
+    protected function mountAdvancedFiltersMenu()
     {
         $grid = $this->getGrid();
         $pageUrl = \View\View::getDom()->getPageUrl();
