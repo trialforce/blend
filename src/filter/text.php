@@ -143,7 +143,7 @@ class Text
     {
         if (!$this->filterSql)
         {
-            $this->filterSql = $column ? $column->getSql() : $this->getFilterName();
+            $this->filterSql = $this->column ? $this->column->getSql() : $this->getFilterName();
         }
 
         return $this->filterSql;
