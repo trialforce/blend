@@ -52,6 +52,24 @@ class SearchField extends \Component\Component
         return $this->filters;
     }
 
+    /**
+     * Get Filter
+     *
+     * @param string $filterName filter name
+     * @return \Filter\Text
+     */
+    public function getExtraFilter($filterName)
+    {
+        $filters = $this->getExtraFilters();
+
+        if (isset($filters[$filterName]))
+        {
+            return $filters[$filterName];
+        }
+
+        return null;
+    }
+
     protected function createAutoFilters()
     {
         $dbModel = $this->getDbModel();
@@ -197,7 +215,7 @@ class SearchField extends \Component\Component
     {
         $pageUrl = \View\View::getDom()->getPageUrl();
 
-        $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
+        $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
@@ -208,6 +226,13 @@ class SearchField extends \Component\Component
             foreach ($filters as $filter)
             {
                 $filter instanceof \Filter\Text;
+
+                //don't add fixed filter to menu
+                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
+                {
+                    continue;
+                }
+
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
             }
@@ -222,7 +247,7 @@ class SearchField extends \Component\Component
     {
         $pageUrl = \View\View::getDom()->getPageUrl();
 
-        $icon = new \View\Ext\Icon('thumbtack filter-menu');
+        $icon = new \View\Ext\Icon('thumbtack filter-menu blend-floating-menu-holder');
         $icon->setId('bookmark-filter')->click('$(\'#fm-bookmark\').toggle(\'fast\');');
 
         $menu = new \View\Blend\FloatingMenu('fm-bookmark');
@@ -287,7 +312,7 @@ class SearchField extends \Component\Component
                 $hasCondValues = is_array($filterCondValues) || is_string($filterCondValues);
                 $hasFilterValues = is_array($filterNameValues) || is_string($filterNameValues);
 
-                $needCreation = $hasCondValues || $hasFilterValues || $filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS;
+                $needCreation = $hasCondValues || $hasFilterValues || $filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '';
 
                 //create the filter if not ajax (reload (F5))
                 if ($needCreation)

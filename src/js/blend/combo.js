@@ -1,4 +1,3 @@
-
 var timerTypeWatch = 0;
 var body = $('body')[0];
 //close combos on click outside

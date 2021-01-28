@@ -23,7 +23,7 @@ class DateTime extends \Filter\Text
     const COND_NEXT_MONTH = 'nextmonth';
     const COND_MONTH_FIXED = 'month-';
 
-    public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column = NULL, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
         $this->setDefaultCondition(self::COND_IGUAL);
@@ -87,7 +87,7 @@ class DateTime extends \Filter\Text
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
-        $columnName = $column->getSql();
+        $columnName = $this->getFilterSql();
 
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);

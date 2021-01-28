@@ -17,7 +17,7 @@ class Reference extends \Filter\Collection
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, $filterType = NULL, $dbColumn = null)
+    public function __construct(\Component\Grid\Column $column = NULL, $filterType = NULL, $dbColumn = null)
     {
         parent::__construct($column, NULL, $filterType);
 
@@ -28,15 +28,11 @@ class Reference extends \Filter\Collection
             $this->dbColumn = $dbColumn;
         }
         //perhaps this if can be removed
-        else if (method_exists($dom, 'getModel'))
+        else if (method_exists($dom, 'getModel') && $column)
         {
             $model = $dom->getModel();
             $dbColumn = $model::getColumn($column->getName());
             $this->setDbColumn($dbColumn);
-        }
-        else
-        {
-            throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
         }
 
         if (is_object($this->dbColumn) && $this->dbColumn->getClass())
@@ -89,7 +85,7 @@ class Reference extends \Filter\Collection
         $columnValue = $this->getValueName();
         $class = 'filterInput reference';
         $value = $this->getFilterValue($index);
-        $formatter = $this->column->getFormatter();
+        $formatter = $this->column ? $this->column->getFormatter() : null;
 
         //add support for a formatter as \Db\ConstantValues
         if ($formatter instanceof \Db\ConstantValues)

@@ -918,10 +918,12 @@ class Page extends \View\Layout
             return false;
         }
 
-        $column = $grid->getColumn($value);
-        $dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
-        $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
-        $filter = $mountFilter->getFilter();
+        $filter = $grid->getFilter($value);
+
+        //$column = $grid->getColumn($value);
+        //$dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
+        //$mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
+        //$filter = $mountFilter->getFilter();
 
         if ($filter)
         {
@@ -931,6 +933,10 @@ class Page extends \View\Layout
             $this->byId('containerFiltros')->append($input); //put the input inside containerFiltros
             \App::addJs("$('.filterCondition').change();"); //call js change
             \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
+        }
+        else
+        {
+            toast('Impossível encontrar filtro ' . $value);
         }
     }
 

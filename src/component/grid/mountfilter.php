@@ -111,23 +111,31 @@ class MountFilter
         //it's the default fallback
         if (!$filter)
         {
-            $dataType = $dataType == 'bool' ? 'boolean' : $dataType;
-            $formatter = $column->getFormatter();
+            $filterClass = \Component\Grid\MountFilter::getFilterClass($column);
 
-            if ($formatter instanceof \Type\DateTime)
-            {
-                $dataType = 'datetime';
-            }
-            else if ($formatter instanceof \Db\ConstantValues)
-            {
-                $dataType = 'reference';
-            }
-
-            $filterClass = '\\Filter\\' . ucfirst($dataType);
             $filter = new $filterClass($column, NULL, $filterType);
         }
 
         return $filter;
+    }
+
+    public static function getFilterClass(\Component\Grid\Column $column)
+    {
+        $dataType = $column->getType() == 'bool' ? 'boolean' : $column->getType();
+        $formatter = $column->getFormatter();
+
+        if ($formatter instanceof \Type\DateTime)
+        {
+            $dataType = 'datetime';
+        }
+        else if ($formatter instanceof \Db\ConstantValues)
+        {
+            $dataType = 'reference';
+        }
+
+        $filterClass = '\\Filter\\' . ucfirst($dataType);
+
+        return $filterClass;
     }
 
     /**

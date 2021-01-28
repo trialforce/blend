@@ -50,7 +50,12 @@ class SearchGrid extends \Component\Grid\Grid
 
     function getFilters()
     {
-        return $this->searchField->filters;
+        return $this->searchField->getExtraFilters();
+    }
+
+    function getFilter($filterName)
+    {
+        return $this->searchField->getExtraFilter($filterName);
     }
 
     function setFilters($filters)
