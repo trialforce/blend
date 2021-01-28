@@ -381,7 +381,7 @@ class Crud extends \Page\Page
         if (!$this->isSearch())
         {
             $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
-            $btnSalvar->setTitle('Salva o registro atual no banco de dados!')->setDisabled();
+            $btnSalvar->setTitle('Salva o registro atual no banco de dados!');
 
             $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
             $btnVoltar->setTitle('Volta para a listagem!');

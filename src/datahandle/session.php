@@ -158,12 +158,6 @@ class Session extends DataHandle
      */
     public function destroy()
     {
-        //if php > 5.4
-        /* if ( \Session::getStatus() == \Session::STATUS_ACTIVE )
-          {
-          session_destroy();
-          } */
-
         $vars = array_keys(get_object_vars($this));
 
         //session destroy parece não ser o suficiente
@@ -178,7 +172,10 @@ class Session extends DataHandle
             }
         }
 
-        @session_destroy();
+        if (\DataHandle\Session::getStatus() == \DataHandle\Session::STATUS_ACTIVE)
+        {
+            session_destroy();
+        }
     }
 
 }
