@@ -276,7 +276,13 @@ WHERE index_name = '{$indexName}'";
             foreach ($columnNames as $idx => $columnName)
             {
                 //subselect
-                if (stripos($columnName, 'SELECT') || stripos($columnName, '(') || stripos($columnName, ' ' || stripos($columnName, '`')))
+                $columnName = $columnName . '';
+                $hasSelect = stripos($columnName, 'SELECT');
+                $hasParentesis = stripos($columnName, '(');
+                $hasEscape = stripos($columnName, '`');
+                $hasSpace = stripos($columnName, ' ');
+
+                if ($hasSelect || $hasParentesis || $hasEscape || $hasSpace)
                 {
                     $columnName = $columnName;
                 }

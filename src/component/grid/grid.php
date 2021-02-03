@@ -752,7 +752,9 @@ class Grid extends \Component\Component
         {
             foreach ($filters as $filter)
             {
-                $dataSource->addExtraFilter($filter->getDbCond());
+                $filter instanceof \Filter;
+                $cond = $filter->getDbCond();
+                $dataSource->addExtraFilter($cond);
             }
         }
 

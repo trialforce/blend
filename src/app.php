@@ -435,7 +435,7 @@ class App
      * @param string $scriptUrl the url of the script
      * @param sttring $callBack the call back function
      */
-    public static function addScriptOnce($scriptUrl, $callBack)
+    public static function addScriptOnce($scriptUrl, $callBack = null)
     {
         \App::addJs("addScriptOnce('$scriptUrl', function(){{$callBack}} );");
     }

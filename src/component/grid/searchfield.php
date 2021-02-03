@@ -20,7 +20,13 @@ class SearchField extends \Component\Component
      * Extra filters
      * @var array
      */
-    protected $extraFilters;
+    protected $filters = array();
+
+    /**
+     * auto filters created
+     * @var bool
+     */
+    protected $autoFiltersCreated = false;
 
     /**
      * Construct the Search field.
@@ -38,7 +44,41 @@ class SearchField extends \Component\Component
 
     function getExtraFilters()
     {
-        return $this->extraFilters;
+        if (!$this->autoFiltersCreated)
+        {
+            $this->filters = $this->createAutoFilters();
+        }
+
+        return $this->filters;
+    }
+
+    /**
+     * Get Filter
+     *
+     * @param string $filterName filter name
+     * @return \Filter\Text
+     */
+    public function getExtraFilter($filterName)
+    {
+        $filters = $this->getExtraFilters();
+
+        if (isset($filters[$filterName]))
+        {
+            return $filters[$filterName];
+        }
+
+        return null;
+    }
+
+    protected function createAutoFilters()
+    {
+        $dbModel = $this->getDbModel();
+        $grid = $this->getGrid();
+        $smartFilter = new \Filter\Smart(null, 'q', \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
+        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->filters);
+        $filters = array_merge(array($smartFilter), $filters);
+        $this->autoFiltersCreated = true;
+        return $filters;
     }
 
     function setExtraFilters($extraFilters)
@@ -48,7 +88,7 @@ class SearchField extends \Component\Component
             $extraFilters = array($extraFilters);
         }
 
-        $this->extraFilters = $extraFilters;
+        $this->filters = $extraFilters;
     }
 
     function addExtraFilter($extraFilter)
@@ -62,12 +102,13 @@ class SearchField extends \Component\Component
         {
             foreach ($extraFilter as $filter)
             {
-                $this->extraFilters[] = $filter;
+                $filter instanceof \Filter\Text;
+                $this->filters[$filter->getFilterName()] = $filter;
             }
         }
         else
         {
-            $this->extraFilters[] = $extraFilter;
+            $this->filters[$extraFilter->getFilterName()] = $extraFilter;
         }
 
         return $this;
@@ -81,25 +122,9 @@ class SearchField extends \Component\Component
             return $this->getContent();
         }
 
-        $innerHtml[] = $this->getInput('q', 'buscar');
-
-        if ($this->extraFilters)
-        {
-            $filters = $this->extraFilters;
-
-            foreach ($filters as $filter)
-            {
-                //add support for filter passed as \Filter\Text
-                if ($filter instanceof \Filter\Text)
-                {
-                    $filter = $filter->getInput();
-                }
-
-                $innerHtml[] = $filter;
-            }
-        }
-
-        $innerHtml[] = $this->getAdvancedFilters();
+        $innerHtml[] = $this->mountAdvancedFiltersMenu();
+        $innerHtml[] = $this->createBookmarkMenu();
+        $innerHtml[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded(), 'clearfix');
         $innerHtml[] = $this->getSearchButton();
 
         $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
@@ -107,6 +132,11 @@ class SearchField extends \Component\Component
         $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
 
         $this->setContent($div);
+
+        //update the filter js
+        \App::addJs("$('.filterCondition').change();");
+        //order the list in alpha
+        \App::addJs("sortList('#fm-filters');");
 
         return $div;
     }
@@ -181,36 +211,34 @@ class SearchField extends \Component\Component
      * @param string $idBtn
      * @return \View\Div
      */
-    protected function getAdvancedFilters()
+    protected function mountAdvancedFiltersMenu()
     {
-        $grid = $this->getGrid();
         $pageUrl = \View\View::getDom()->getPageUrl();
-        $dbModel = $this->getDbModel();
 
-        $icon = new \View\Ext\Icon('filter filter-menu', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
+        $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
-        $filters = \Component\Grid\MountFilter::getFilters($grid->getColumns(), $dbModel, $this->getExtraFilters());
+        $filters = $this->getExtraFilters();
 
         if (is_array($filters))
         {
             foreach ($filters as $filter)
             {
                 $filter instanceof \Filter\Text;
+
+                //don't add fixed filter to menu
+                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
+                {
+                    continue;
+                }
+
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
             }
         }
 
         $result[] = $icon;
-        $result[] = $this->createBookmarkMenu();
-        $result[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded($filters), 'clearfix');
-
-        //update the filter js
-        \App::addJs("$('.filterCondition').change();");
-        //order the list in alpha
-        \App::addJs("sortList('#fm-filters');");
 
         return $result;
     }
@@ -219,8 +247,8 @@ class SearchField extends \Component\Component
     {
         $pageUrl = \View\View::getDom()->getPageUrl();
 
-        $icon = new \View\Ext\Icon('thumb-tack filter-menu');
-        $icon->setId('bookmark-filter')->click('$("#fm-bookmark").toggle(\'fast\');');
+        $icon = new \View\Ext\Icon('thumbtack filter-menu blend-floating-menu-holder');
+        $icon->setId('bookmark-filter')->click('$(\'#fm-bookmark\').toggle(\'fast\');');
 
         $menu = new \View\Blend\FloatingMenu('fm-bookmark');
         $icon->append($menu->hide());
@@ -228,7 +256,7 @@ class SearchField extends \Component\Component
         $saveList = new \Filter\SavedList();
         $json = $saveList->getObject();
 
-        if (isCountable($json) && count($json) > 0)
+        if (isIterable($json))
         {
             foreach ($json as $id => $item)
             {
@@ -236,9 +264,9 @@ class SearchField extends \Component\Component
                 {
                     $content = array();
                     $span = new \View\Span(null, $item->title);
-                    $span->click("window.location = ('$item->page/?$item->url');");
+                    $span->click("window.location = (\"$item->page/?$item->url\");");
 
-                    $removeUrl = "return p('$pageUrl/deleteListItem/?savedList=$id');";
+                    $removeUrl = "return p(\"$pageUrl/deleteListItem/?savedList=$id\");";
                     $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl);
 
                     $content[] = $span;
@@ -267,13 +295,14 @@ class SearchField extends \Component\Component
      * @param array $filters the array of filter
      * @return array the array of fields
      */
-    protected function createFilterFieldsNeeded($filters)
+    protected function createFilterFieldsNeeded()
     {
-        $filterContent = null;
+        //$filterContent = array($this->getInput('q', 'buscar'));
+        $filterContent = array();
 
-        if (is_array($filters))
+        if (is_array($this->filters))
         {
-            foreach ($filters as $filter)
+            foreach ($this->filters as $filter)
             {
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
@@ -283,7 +312,7 @@ class SearchField extends \Component\Component
                 $hasCondValues = is_array($filterCondValues) || is_string($filterCondValues);
                 $hasFilterValues = is_array($filterNameValues) || is_string($filterNameValues);
 
-                $needCreation = $hasCondValues || $hasFilterValues || $filter->getFilterType() . '' == '2';
+                $needCreation = $hasCondValues || $hasFilterValues || $filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '';
 
                 //create the filter if not ajax (reload (F5))
                 if ($needCreation)

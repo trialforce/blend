@@ -12,7 +12,7 @@ use DataHandle\Session;
 function blend_shutdown()
 {
     $error = error_get_last();
-    $friendlyType = FriendlyErrorType($error['type']);
+    $friendlyType = isset($error['type']) ? FriendlyErrorType($error['type']) : 'E_UNKNOWN';
 
     if (isset($error) && is_array($error))
     {

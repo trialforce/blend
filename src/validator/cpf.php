@@ -39,35 +39,12 @@ class Cpf extends \Validator\Validator
      */
     protected static function validaCPF($cpf)
     {
-        // Verifica se nenhuma das sequências abaixo foi digitada, caso seja, retorna falso
-        if (mb_strlen($cpf) != 11)
-        {
-            return false;
-        }
-        else
-        {   // Calcula os números para verificar se o CPF é verdadeiro
-            for ($t = 9; $t < 11; $t++)
-            {
-                for ($d = 0, $c = 0; $c < $t; $c++)
-                {
-                    $d += $cpf{$c} * (($t + 1) - $c);
-                }
-
-                $d = ((10 * $d) % 11) % 10;
-
-                if ($cpf{$c} != $d)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        return \Validator\CnpjCpf::validaCPF($cpf);
     }
 
     /**
      * Create random CPF
-     * 
+     *
      * @return string
      */
     public static function createRandom()

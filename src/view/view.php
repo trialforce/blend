@@ -103,7 +103,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $id = $idName;
             $name = $idName;
 
-            //add support for formName
+            //add support for [
             if (stripos($idName, '[') > 0)
             {
                 $id = str_replace(array('[', ']'), '', $id);
@@ -1443,13 +1443,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             if ($this->getOutputJS())
             {
                 $name = $this->getRealId();
-
-                //TODO not cool!
-                if (method_exists($this->getDom(), 'getFormName') && $this->getDom()->getFormName())
-                {
-                    $name = $this->getDom()->getFormName() . '\\\\[' . $name . '\\\\]';
-                }
-
                 \App::addJs("$('[name={$name}]').attr('data-invalid', '{$invalid}');");
                 \App::addJs("$('[data-invalid-id={$name}]').attr('data-invalid', '{$invalid}');");
             }
@@ -1543,16 +1536,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             return $this->removeAttribute('autofocus');
         }
-    }
-
-    /**
-     * Form changed adviced
-     *
-     * @return string
-     */
-    public function formChangedAdvice($advice = true)
-    {
-        return $this->data('form-changed-advice', $advice);
     }
 
     /**

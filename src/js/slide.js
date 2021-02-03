@@ -71,8 +71,10 @@ function slide(selector)
     var posY2 = 0;
 
     var posFinal;
+    var posFinalY;
     var index = 0;
     var threshold = 50;
+    var thresholdMove = 5;
     var allowShift = true;
     
     if (!items)
@@ -197,7 +199,10 @@ function slide(selector)
             posY2 = posY1 - e.clientY;
         }
 
-        items.style.left = (items.offsetLeft - posX2) + "px";
+        if (Math.abs(posX2)> thresholdMove)
+        {
+            items.style.left = (items.offsetLeft - posX2) + "px";
+        }
 
         $(window).scrollTop(posInitialY + posY2);
     }
@@ -205,11 +210,13 @@ function slide(selector)
     function dragEnd(e)
     {
         posFinal = items.offsetLeft;
+        posFinalY = $(window).scrollTop();
         
-        var diff = (posFinal - posInitial);
+        var diffX = (posFinal - posInitial);
+        var diffY = (posFinalY - posInitialY);
 
         //click
-        if( diff === 0)
+        if( diffX === 0 && diffY == 0 )
         {
             var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
             
@@ -224,12 +231,12 @@ function slide(selector)
             }
         }
         //draf left
-        else if (diff < -threshold)
+        else if (diffX < -threshold)
         {
             shiftSlide(1, 'drag');
         } 
         //drag right
-        else if (diff > threshold)
+        else if (diffX > threshold)
         {
             shiftSlide(-1, 'drag');
         }

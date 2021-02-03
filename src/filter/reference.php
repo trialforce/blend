@@ -9,6 +9,7 @@ class Reference extends \Filter\Collection
 {
 
     const COND_TEXT = 'text';
+    const COND_TEXT_EQUALS = 'textEquals';
 
     /**
      *
@@ -16,7 +17,7 @@ class Reference extends \Filter\Collection
      */
     protected $dbColumn;
 
-    public function __construct(\Component\Grid\Column $column, $filterType = NULL, $dbColumn = null)
+    public function __construct(\Component\Grid\Column $column = NULL, $filterType = NULL, $dbColumn = null)
     {
         parent::__construct($column, NULL, $filterType);
 
@@ -27,15 +28,11 @@ class Reference extends \Filter\Collection
             $this->dbColumn = $dbColumn;
         }
         //perhaps this if can be removed
-        else if (method_exists($dom, 'getModel'))
+        else if (method_exists($dom, 'getModel') && $column)
         {
             $model = $dom->getModel();
             $dbColumn = $model::getColumn($column->getName());
             $this->setDbColumn($dbColumn);
-        }
-        else
-        {
-            throw new \Exception('Impossível encontrar modelo ao criar filtro de referencia');
         }
 
         if (is_object($this->dbColumn) && $this->dbColumn->getClass())
@@ -66,6 +63,7 @@ class Reference extends \Filter\Collection
         if ($this->dbColumn && $this->dbColumn->getClass())
         {
             $options[self::COND_TEXT] = 'Texto';
+            $options[self::COND_TEXT_EQUALS] = 'Texto - Igual';
             $options[self::COND_EQUALS] = 'Cód - Igual';
             $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
             $options[self::COND_NULL_OR_EMPTY] = 'Cód - Vazio';
@@ -87,7 +85,7 @@ class Reference extends \Filter\Collection
         $columnValue = $this->getValueName();
         $class = 'filterInput reference';
         $value = $this->getFilterValue($index);
-        $formatter = $this->column->getFormatter();
+        $formatter = $this->column ? $this->column->getFormatter() : null;
 
         //add support for a formatter as \Db\ConstantValues
         if ($formatter instanceof \Db\ConstantValues)
@@ -125,15 +123,30 @@ class Reference extends \Filter\Collection
 
     public function createWhere($index = 0)
     {
+        $column = $this->getColumn();
+        $columnName = $column ? $column->getSql() : $this->getFilterName();
+        $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
-        if ($conditionValue && $conditionValue == self::COND_TEXT && $wasFiltered)
+        if ($conditionValue && $wasFiltered)
         {
-            $dbColumn = $this->dbColumn;
-            return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue), $conditionType);
+            if ($conditionValue == self::COND_TEXT)
+            {
+                $dbColumn = $this->dbColumn;
+                return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue), $conditionType);
+            }
+            else if ($conditionValue == self::COND_TEXT_EQUALS)
+            {
+                $dbColumn = $this->dbColumn;
+                return new \Db\Where($dbColumn->getReferenceSql(FALSE), '=', $filterValue, $conditionType);
+            }
+            else
+            {
+                return parent::createWhere($index);
+            }
         }
         else
         {

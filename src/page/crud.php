@@ -46,18 +46,8 @@ class Crud extends \Page\Page
             $model = new $class();
         }
 
-        if ($this->getPopupAdd())
-        {
-            $this->setPopupAdd(true);
-        }
-
         $this->setModel($model);
         parent::__construct();
-    }
-
-    public function getPopupAdd()
-    {
-        return $this->popupAdd || $this->getFormValue('popupAdd') || Request::get('popupAdd') || Get::get('popupAddRedirectPage');
     }
 
     /**
@@ -67,13 +57,6 @@ class Crud extends \Page\Page
      */
     public function getFormTitle()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
         $btnSearch = null;
 
         if ($this->getEvent() == 'listar')
@@ -83,7 +66,7 @@ class Crud extends \Page\Page
             $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
         }
 
-        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
     }
 
     /**
@@ -101,22 +84,9 @@ class Crud extends \Page\Page
             $model = $this->model;
         }
 
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
         if ($request)
         {
-            if ($formName)
-            {
-                $request = new Request();
-                $request->setData(Request::get($formName));
-
-                $model->setData($request);
-            }
-            else
-            {
-                $model->setData($request);
-            }
+            $model->setData($request);
         }
 
         $this->model = $model;
@@ -222,40 +192,10 @@ class Crud extends \Page\Page
     {
         $this->setFocusOnFirstField();
 
-        if ($this->popupAdd)
-        {
-            \App::dontChangeUrl();
-            return $this->getPopup();
-        }
-        else
-        {
-            $this->append($this->getHead());
-            $this->append($this->getBodyDiv($this->mountFieldLayout()));
-        }
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
 
         $this->adjustFields();
-    }
-
-    public function getPopup()
-    {
-        $body[] = new \View\Div('popupHolder', $this->mountFieldLayout());
-
-        $this->adjustFields();
-
-        //add popupadd to form, to make ir post corret
-        $body[] = new \View\Input($this->getInputName('popupAdd'), \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input('popupAdd', \View\Input::TYPE_HIDDEN, 'popupAdd');
-        $body[] = new \View\Input('popupAddInputName', \View\Input::TYPE_HIDDEN, Request::get('popupAddInputName'));
-        $body[] = new \View\Input('popupAddPageName', \View\Input::TYPE_HIDDEN, $this->getPageUrl());
-
-        $buttons[] = $this->getTopButtons();
-
-        $popup = new \View\Blend\Popup('popupAdicionar', $this->getTitle(), $body, $buttons, 'form ' . $this->getPageUrl());
-        $popup->body->setId('bodyPopup');
-        $popup->setIcon($this->icon);
-        $popup->show();
-
-        $this->byId('btnVoltar')->click(\View\Blend\Popup::getJs('destroy'));
     }
 
     /**
@@ -285,21 +225,9 @@ class Crud extends \Page\Page
         $this->setFocusOnFirstField();
         $this->setModelFromIdUrl();
 
-        if ($this->popupAdd)
-        {
-            \App::dontChangeUrl();
-            $popup = $this->getPopup();
-            $this->createFloatingMenu();
-            $this->floatingMenu->addClass('action-list-popup');
-
-            return $popup;
-        }
-        else
-        {
-            $this->append($this->getHead());
-            $this->append($this->getBodyDiv($this->mountFieldLayout()));
-            $this->createFloatingMenu();
-        }
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
+        $this->createFloatingMenu();
 
         $this->adjustFields();
     }
@@ -453,16 +381,15 @@ class Crud extends \Page\Page
         if (!$this->isSearch())
         {
             $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
-            $btnSalvar->setTitle('Salva o registro atual no banco de dados!')->setDisabled();
+            $btnSalvar->setTitle('Salva o registro atual no banco de dados!');
 
             $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
-            $btnVoltar->setTitle('Volta para a listagem!')->formChangedAdvice();
+            $btnVoltar->setTitle('Volta para a listagem!');
 
             if ($this->isUpdate())
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
-                $btnAction = new \View\Div('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'btn clean blend-floating-menu-holder action-list-toogle');
-                $btnAction->click('return actionList.toggle();');
+                $btnAction = new \View\Button('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'return actionList.toggle();', 'btn clean blend-floating-menu-holder action-list-toogle');
                 $buttons[] = $btnAction;
             }
         }
@@ -548,13 +475,6 @@ class Crud extends \Page\Page
 
         $body[] = 'Confirma remoção do registro?';
 
-        //add support for popup remove inside gridpopup
-        if ($this->getPopupAdd())
-        {
-            $body[] = new \View\Input('popupAdd', 'hidden', 'popupAdd');
-            $body[] = new \View\Input('_id', 'hidden', Request::get('_id'));
-        }
-
         $popup = new \View\Blend\Popup('remocao', 'Confirmar remoção...', $body, $footer);
         $popup->show();
     }
@@ -577,11 +497,6 @@ class Crud extends \Page\Page
 
         $pkValue = $this->getFormValue($pk);
 
-        if ($this->getPopupAdd())
-        {
-            $pkValue = Request::get('_id');
-        }
-
         $model->setValue($pk, $pkValue);
 
         try
@@ -591,15 +506,7 @@ class Crud extends \Page\Page
             if ($ok)
             {
                 toast('Registro removido com sucesso!!', 'success');
-
-                if ($this->getPopupAdd())
-                {
-                    \View\Blend\Popup::delete();
-                }
-                else
-                {
-                    \App::addjs('history.back(1);');
-                }
+                \App::addjs('history.back(1);');
             }
             else
             {
@@ -645,17 +552,9 @@ class Crud extends \Page\Page
 
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        if ($this->getPopupAdd())
-        {
-            //TODO update grid
-            \View\Blend\Popup::delete();
-        }
-        else
-        {
-            \App::dontChangeUrl();
-            toast($mensagem, $type);
-            \App::redirect($this->getPageUrl(), TRUE);
-        }
+        \App::dontChangeUrl();
+        toast($mensagem, $type);
+        \App::redirect($this->getPageUrl(), TRUE);
     }
 
     /**
@@ -864,6 +763,7 @@ class Crud extends \Page\Page
         $collection = new \Db\Collection($options);
         $filter = new \Filter\Collection($column, $collection);
         $filter->setDefaultValue($defaultValue);
+        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
 
         if (!$onlyFilter)
         {
@@ -935,11 +835,6 @@ class Crud extends \Page\Page
         return isset($_REQUEST[$variable]) ? Request::get($variable) : $defaultValue;
     }
 
-    public static function getFormName()
-    {
-        return '';
-    }
-
     /**
      * Return a "name" for html input considering the form name
      *
@@ -948,17 +843,7 @@ class Crud extends \Page\Page
      */
     public function getInputName($id)
     {
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
-        if ($formName)
-        {
-            return $formName . '[' . $id . ']';
-        }
-        else
-        {
-            return $id;
-        }
+        return $id;
     }
 
     /**
@@ -969,26 +854,7 @@ class Crud extends \Page\Page
      */
     public function getFormValue($var)
     {
-        $class = get_called_class();
-        $formName = $class::getFormName();
-
-        if ($formName && $var)
-        {
-            //convert object to string if needed
-            $var = $var . '';
-            $formValues = Request::get($formName);
-
-            if (isset($formValues[$var]))
-            {
-                return $formValues[$var];
-            }
-        }
-        else
-        {
-            return Request::get($var);
-        }
-
-        return null;
+        return Request::get($var);
     }
 
     /**
@@ -998,14 +864,7 @@ class Crud extends \Page\Page
      */
     public function getMainDiv()
     {
-        if ($this->getPopupAdd())
-        {
-            return $this->byId('popupHolder');
-        }
-        else
-        {
-            return $this->byId('divLegal');
-        }
+        return $this->byId('divLegal');
     }
 
     public function openTrDetail()

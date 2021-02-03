@@ -30,7 +30,13 @@ class Text
     protected $filterName = NULL;
 
     /**
-     * Filter type
+     * Filter sql
+     * @var string
+     */
+    protected $filterSql = NULL;
+
+    /**
+     * Filter type/visibilty
      * Consult FILTER_TYPE_ constants
      *
      * @var int
@@ -77,7 +83,7 @@ class Text
      * @param string $filterName the filter name
      * @param string $filterType the filter type
      */
-    public function __construct($column, $filterName = \NULL, $filterType = NULL)
+    public function __construct($column = NULL, $filterName = NULL, $filterType = NULL)
     {
         if (is_string($column))
         {
@@ -130,6 +136,22 @@ class Text
     public function setFilterName($filterName)
     {
         $this->filterName = $filterName;
+        return $this;
+    }
+
+    public function getFilterSql()
+    {
+        if (!$this->filterSql)
+        {
+            $this->filterSql = $this->column ? $this->column->getSql() : $this->getFilterName();
+        }
+
+        return $this->filterSql;
+    }
+
+    public function setFilterSql($filterSql)
+    {
+        $this->filterSql = $filterSql;
         return $this;
     }
 
@@ -554,7 +576,7 @@ class Text
     {
         $cond = null;
         $column = $this->getColumn();
-        $columnSql = $column ? $column->getSql() : $this->getFilterName();
+        $columnSql = $this->getFilterSql();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;

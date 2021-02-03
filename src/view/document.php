@@ -241,12 +241,6 @@ class Document extends \DomDocument implements \Countable
         //compatibility with jquery
         $elementId = str_replace('#', '', $elementId);
 
-        //add support for formName
-        if (stripos($elementId, '[') > 0)
-        {
-            $elementId = str_replace(array('[', ']'), '', $elementId);
-        }
-
         //tenta o atalho pelo elemento registrado
         if (isset($this->elementList[$elementId]))
         {

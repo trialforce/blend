@@ -110,22 +110,6 @@ class EditPopupGrid extends \Component\Grid\Grid
         $model = $this->getModel();
         $model->setData(Request::getInstance());
         $id = Request::get('v') ? Request::get('v') : Request::get('id');
-
-        if (!$id)
-        {
-            $dom = \View\View::getDom();
-
-            if (method_exists($dom, 'getFormName'))
-            {
-                $formRequest = \DataHandle\Request::get($dom->getFormName());
-
-                if (!empty($formRequest))
-                {
-                    $id = isset($formRequest['id']) ? $formRequest['id'] : NULL;
-                }
-            }
-        }
-
         return $id;
     }
 

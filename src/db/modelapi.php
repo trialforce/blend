@@ -143,7 +143,7 @@ class ModelApi extends \Db\Model
      *
      * @return array array of models
      */
-    protected static function parseWhereFromRequest()
+    public static function parseWhereFromRequest()
     {
         $name = self::getName();
         $name = $name::getModelName();
@@ -178,7 +178,7 @@ class ModelApi extends \Db\Model
                 unset($params['orderWay']);
             }
 
-            //put the params in the reques, to filters can use
+            //put the params in the request, to filters can use
             \DataHandle\Request::getInstance()->setData($params);
             //create a model to use in datasource and in page
             $model = new $name();

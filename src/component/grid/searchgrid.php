@@ -20,7 +20,7 @@ class SearchGrid extends \Component\Grid\Grid
 
     /**
      * Search field
-     * @var array
+     * @var \Component\Grid\SearchField
      */
     protected $searchField = NULL;
 
@@ -35,7 +35,32 @@ class SearchGrid extends \Component\Grid\Grid
             $this->setColumns($columns);
         }
 
-        $this->setSearchField(new \Component\Grid\SearchField($this));
+        $this->setSearchField($this->createSearchField());
+    }
+
+    protected function createSearchField()
+    {
+        return new \Component\Grid\SearchField($this);
+    }
+
+    public function addFilter($filters)
+    {
+        $this->searchField->addExtraFilter($filters);
+    }
+
+    function getFilters()
+    {
+        return $this->searchField->getExtraFilters();
+    }
+
+    function getFilter($filterName)
+    {
+        return $this->searchField->getExtraFilter($filterName);
+    }
+
+    function setFilters($filters)
+    {
+        return $this->searchField->setExtraFilters($filters);
     }
 
     /**
@@ -53,17 +78,9 @@ class SearchGrid extends \Component\Grid\Grid
 
         $div = $this->createTable();
         $searchField = $this->getSearchField();
+        $this->setContent(array($searchField, $div));
 
-        if ($searchField instanceof SearchField)
-        {
-            $searchField = $searchField->onCreate();
-        }
-
-        $content = array($searchField, $div);
-
-        $this->setContent($content);
-
-        return $content;
+        return $this->content;
     }
 
     public function getSearchField()

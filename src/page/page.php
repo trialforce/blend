@@ -13,8 +13,6 @@ use DataHandle\Session;
 class Page extends \View\Layout
 {
 
-    protected $popupAdd = FALSE;
-
     /**
      * Listagem de grids da páginas
      *
@@ -48,18 +46,6 @@ class Page extends \View\Layout
         }
 
         return $fields;
-    }
-
-    public function getPopupAdd()
-    {
-        return $this->popupAdd || Get::get('popupAdd') || Get::get('popupAddRedirectPage');
-    }
-
-    public function setPopupAdd($popupAdd)
-    {
-        $this->popupAdd = $popupAdd;
-
-        return $this;
     }
 
     /**
@@ -244,14 +230,7 @@ class Page extends \View\Layout
      */
     public function getFormTitle()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
-        return new \View\Span($formName . 'extraTitle', array($this->getIcon(), $this->getTitle()));
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle()));
     }
 
     /**
@@ -261,13 +240,6 @@ class Page extends \View\Layout
      */
     public function getHead()
     {
-        $formName = '';
-
-        if (method_exists($this, 'getFormName'))
-        {
-            $formName = $this->getFormName();
-        }
-
         $title = $this->getFormTitle();
         $view = null;
 
@@ -276,7 +248,7 @@ class Page extends \View\Layout
             //$view = $this->getSaveListFields();
         }
 
-        $head[] = new \View\H1($formName . 'formTitle', $title, 'formTitle');
+        $head[] = new \View\H1('formTitle', $title, 'formTitle');
 
         if (is_array($view))
         {
@@ -592,16 +564,9 @@ class Page extends \View\Layout
      */
     public function defaultRedirect($mensagem = 'OK! Gravado!', $type = 'success')
     {
-        if ($this->getPopupAdd())
-        {
-            \View\Blend\Popup::delete();
-        }
-        else
-        {
-            \App::dontChangeUrl();
-            toast($mensagem, $type);
-            \App::redirect($this->getSearchUrl(), TRUE);
-        }
+        \App::dontChangeUrl();
+        toast($mensagem, $type);
+        \App::redirect($this->getSearchUrl(), TRUE);
     }
 
     public function saveModelDialog()
@@ -635,6 +600,11 @@ class Page extends \View\Layout
      * @return \View\Div
      */
     public function getContainer($label, $view, $class = NULL)
+    {
+        return self::createContainer($label, $view, $class);
+    }
+
+    public static function createContainer($label, $view, $class = NULL)
     {
         if ($view instanceof \Component\Component)
         {
@@ -939,9 +909,8 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
         \App::setResponse('NULL'); //for grid
-        //TODO suport columns with description in name
-        $originalValue = Request::get('v');
-        $value = str_replace('Description', '', $originalValue);
+        //support columns with description in name
+        $value = str_replace('Description', '', Request::get('v'));
         $grid = $this->setDefaultGrid();
 
         if (!$grid instanceof \Component\Grid\Grid)
@@ -949,10 +918,12 @@ class Page extends \View\Layout
             return false;
         }
 
-        $column = $grid->getColumn($value);
-        $dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
-        $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
-        $filter = $mountFilter->getFilter();
+        $filter = $grid->getFilter($value);
+
+        //$column = $grid->getColumn($value);
+        //$dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
+        //$mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
+        //$filter = $mountFilter->getFilter();
 
         if ($filter)
         {
@@ -962,6 +933,10 @@ class Page extends \View\Layout
             $this->byId('containerFiltros')->append($input); //put the input inside containerFiltros
             \App::addJs("$('.filterCondition').change();"); //call js change
             \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
+        }
+        else
+        {
+            toast('Impossível encontrar filtro ' . $value);
         }
     }
 
@@ -982,14 +957,7 @@ class Page extends \View\Layout
      */
     public function getMainForm()
     {
-        if ($this->getPopupAdd())
-        {
-            return $this->byId('popupHolder', '\View\Div');
-        }
-        else
-        {
-            return $this->byId('content', '\View\Div');
-        }
+        return $this->byId('content', '\View\Div');
     }
 
     /**

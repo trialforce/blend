@@ -19,7 +19,7 @@ class Integer extends \Filter\Text
     const COND_MENOR_IGUAL = '<=';
     const COND_BETWEEN = 'between';
 
-    public function __construct(\Component\Grid\Column $column, $filterName = \NULL, $filterType = NULL)
+    public function __construct(\Component\Grid\Column $column = NULL, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
         //$this->setDefaultCondition(self::COND_IGUAL);
@@ -63,7 +63,7 @@ class Integer extends \Filter\Text
     {
         $cond = null;
         $column = $this->getColumn();
-        $columnName = $column->getSql();
+        $columnName = $this->getFilterSql();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $filterFinalValue = $this->getFilterValueFinal($index);
