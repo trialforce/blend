@@ -763,6 +763,7 @@ class Crud extends \Page\Page
         $collection = new \Db\Collection($options);
         $filter = new \Filter\Collection($column, $collection);
         $filter->setDefaultValue($defaultValue);
+        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
 
         if (!$onlyFilter)
         {
