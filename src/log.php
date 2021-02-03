@@ -315,7 +315,6 @@ class Log
         $error .= 'Exception in ' . date('d/m/y G:i:s:u') . ' = ' . $exception->getFile() . ' on line ' . $exception->getLine() . "\n";
         $error .= $exception->getMessage() . PHP_EOL;
         $error .= $exception->getTraceAsString() . PHP_EOL;
-        $error .= print_r($exception, 1) . PHP_EOL;
         $error .= PHP_EOL . PHP_EOL;
         $error .= '$_REQUEST:' . PHP_EOL;
         $error .= print_r($_REQUEST, TRUE) . PHP_EOL;
