@@ -8,7 +8,7 @@ var isAjax = false;
 var blendJs = function(){};
 var blend = {};
 blend.plugins = [];
-
+ 
 function pluginsRegister()
 {
     for (var i = 0; i < blend.plugins.length; i++)

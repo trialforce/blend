@@ -263,7 +263,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             return self::$columnsCache[$modelName];
         }
 
-        $schemaClass = str_replace('\Model\\', '\Schema\\', $modelName);
+        $schemaClass = str_replace(array('\Api\\', '\Model\\'), '\Schema\\', $modelName);
 
         //2 - Search for folder schema
         if (class_exists($schemaClass))

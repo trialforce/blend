@@ -18,7 +18,7 @@ function isCellPhone()
 function startsWith(originalString, searchString)
 {
     if (typeof searchString == 'undefined')
-    {
+    { 
         return false;
     }
 

@@ -802,6 +802,7 @@ class Crud extends \Page\Page
         $column->setSql($idColumn);
 
         $filter = new \Filter\DateInterval($column, $idColumn);
+        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
 
         if ($defaultValueBegin)
         {
