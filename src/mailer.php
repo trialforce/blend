@@ -2,7 +2,7 @@
 
 use DataHandle\Config;
 
-class Mailer extends \PhpMailer
+class Mailer extends \PHPMailer\PHPMailer\PHPMailer
 {
 
     public function __construct()
@@ -33,6 +33,26 @@ class Mailer extends \PhpMailer
      * Define que o item a ser anexado será um arquivo.
      */
     const ATTACHMENT_TYPE_FILE = 1;
+
+    public function addAddress($address, $name = '')
+    {
+        if (is_string($address) && stripos($address, ','))
+        {
+            $address = explode(',', $address);
+        }
+
+        if (is_array($address))
+        {
+            foreach ($address as $ad)
+            {
+                $this->addOrEnqueueAnAddress('to', $ad, $ad);
+            }
+
+            return TRUE;
+        }
+
+        return $this->AddAnAddress('to', $address, $name);
+    }
 
     protected function parseImages()
     {
@@ -215,6 +235,92 @@ class Mailer extends \PhpMailer
         }
 
         return parent::Send();
+    }
+
+    /**
+     * Send trough Gmail
+     *
+     * @param string $user
+     * @param string $password
+     * @return \PHPMailer
+     */
+    public function sendThroughGMail($user, $password)
+    {
+        return $this->configSmtp('smtp.gmail.com', 465, $user, $password);
+    }
+
+    /**
+     * Define a configuration to smtp server
+     *
+     * @param string $smtp
+     * @param string $port
+     * @param string $user
+     * @param string $pass
+     * @return \PHPMailer
+     */
+    public function configSmtp($smtp, $port, $user, $pass, $protocol = NULL, $auth = TRUE)
+    {
+        $this->SMTPDebug = FALSE;
+        $this->Mailer = 'smtp';
+        $this->SMTPAuth = $auth;
+
+        if (!is_null($protocol))
+        {
+            $this->SMTPSecure = $protocol;
+        }
+        else if (is_null($protocol) && $port != 25)
+        {
+            $this->SMTPSecure = 'ssl';
+        }
+
+        $this->IsSMTP();
+        $this->Host = $smtp;
+        $this->Port = $port;
+        $this->Username = $user;
+        $this->Password = $pass;
+
+        $this->SetFrom($user);
+        //$this->Sender = $user;
+        $this->AddReplyTo($user);
+
+        return $this;
+    }
+
+    /**
+     * Define subject, body and adresss, as html and utf8
+     *
+     * @param string $subject
+     * @param string $body
+     * @param string $address
+     * @return \PHPMailer
+     */
+    public function defineHtmlUft8($subject, $body, $address)
+    {
+        $this->IsHTML(TRUE);
+        $this->CharSet = 'UTF-8';
+        $this->Subject = $subject;
+        $this->Body = $body;
+        $this->addAddress($address);
+
+        return $this;
+    }
+
+    /**
+     * Send or throw
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function sendOrThrow()
+    {
+        $ok = $this->Send();
+
+        if (!$ok)
+        {
+            throw new Exception($this->ErrorInfo);
+        }
+
+        return $ok;
     }
 
 }
