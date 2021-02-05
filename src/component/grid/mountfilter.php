@@ -99,7 +99,6 @@ class MountFilter
         {
             $filterClassName = $dbColumn->getFilterClassName();
             $filter = new $filterClassName($column);
-            $filter->setFilterType($filterType);
 
             if (method_exists($filter, 'setDbColumn'))
             {
@@ -107,14 +106,15 @@ class MountFilter
             }
         }
 
-        //if not find in model, create a default filter based on column type
-        //it's the default fallback
+        //if not find in model, create a default filter based on column type it's the default fallback
         if (!$filter)
         {
             $filterClass = \Component\Grid\MountFilter::getFilterClass($column);
 
             $filter = new $filterClass($column, NULL, $filterType);
         }
+
+        $filter->setFilterType($filterType);
 
         return $filter;
     }
@@ -147,13 +147,12 @@ class MountFilter
      */
     public static function getFilters($columns, $dbModel, $fixedFilters = null)
     {
-        $filters = $fixedFilters;
-
         if (!is_array($columns))
         {
             return NULL;
         }
 
+        $filters = $fixedFilters;
         $extraFilters = array();
 
         if (is_array($fixedFilters))
@@ -197,6 +196,67 @@ class MountFilter
                     $filters[$filter->getFilterName()] = $filter;
                 }
             }
+        }
+
+        $modelLabel = $dbModel::getLabel();
+
+        foreach ($filters as $filter)
+        {
+            if (!$filter->getFilterGroup())
+            {
+                $filter->setFilterGroup($modelLabel);
+            }
+        }
+
+        $filters = array_merge($filters, self::mountFiltersRelations($dbModel));
+
+        return $filters;
+    }
+
+    public static function mountFiltersRelations(\Db\Model $dbModel)
+    {
+        $filters = array();
+
+        $relations = $dbModel::getRelations();
+
+        foreach ($relations as $relation)
+        {
+            $filters = array_merge($filters, self::mountFiltersRelation($dbModel, $relation));
+        }
+
+        return $filters;
+    }
+
+    public static function mountFiltersRelation(\Db\Model $dbModel, \Db\Relation $relation)
+    {
+        $otherModel = $relation->getModelName();
+        $columns = $otherModel::getColumns();
+        $modelLabel = $otherModel::getLabel();
+        $tableName = $otherModel::getTableName();
+        $filters = [];
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Db\Column\Column;
+            $filterClassName = $column->getFilterClassName();
+            $filterName = $tableName . '-' . $column->getName();
+            $filterSql = '(SELECT ' . $column->getName() . ' FROM ' . $tableName . ' WHERE ' . $relation->getSql() . ')';
+
+            $filter = new $filterClassName();
+            $filter instanceof \Filter\Text;
+
+            $filter->setFilterLabel($modelLabel . ' - ' . $column->getLabel());
+            $filter->setFilterSql($filterSql);
+            $filter->setFilterName($filterName);
+            $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE);
+            $filter->setFilterGroup($modelLabel);
+
+            if (method_exists($filter, 'setDbColumn'))
+            {
+                $filter->setDbColumn($column);
+            }
+
+            $filters[$filterName] = $filter;
         }
 
         return $filters;

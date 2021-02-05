@@ -33,6 +33,11 @@ abstract class Table extends \Db\Column\Collection
         return $this;
     }
 
+    public static function defineRelations()
+    {
+        
+    }
+
     public abstract static function defineColumns();
 
     public abstract static function defineIndexes();

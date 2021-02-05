@@ -87,3 +87,14 @@ i.fa-thumbtack.filter-menu {
     margin-left: 4px;
     margin-top: 10px
 }
+
+i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
+    font-weight: bold;
+    font-size: 17px;
+    line-height: 33px;
+}
+
+#fm-filters {
+    min-width: 300px;
+    max-width: 300px;
+}

@@ -135,8 +135,6 @@ class SearchField extends \Component\Component
 
         //update the filter js
         \App::addJs("$('.filterCondition').change();");
-        //order the list in alpha
-        \App::addJs("sortList('#fm-filters');");
 
         return $div;
     }
@@ -204,6 +202,30 @@ class SearchField extends \Component\Component
         return $dbModel;
     }
 
+    protected static function organizeByGroup($filters)
+    {
+        $groups = [];
+
+        if (is_array($filters))
+        {
+            foreach ($filters as $filter)
+            {
+                $filter instanceof \Filter\Text;
+                $groups[$filter->getFilterGroup()][$filter->getFilterLabel()] = $filter;
+            }
+        }
+
+        ksort($groups);
+
+        foreach ($groups as $groupName => $group)
+        {
+            ksort($group);
+            $groups[$groupName] = $group;
+        }
+
+        return $groups;
+    }
+
     /**
      * Mount the advance filters
      *
@@ -215,14 +237,22 @@ class SearchField extends \Component\Component
     {
         $pageUrl = \View\View::getDom()->getPageUrl();
 
-        $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', '$(\'#fm-filters\').toggle(\'fast\');');
+        $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', 'floatingMenuToggle();');
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
-        $filters = $this->getExtraFilters();
+        $groups = self::organizeByGroup($this->getExtraFilters());
+        $menuComplex = count($groups) > 2;
 
-        if (is_array($filters))
+        foreach ($groups as $groupName => $filters)
         {
+            if ($groupName && $menuComplex)
+            {
+                $groupNameFile = \Type\Text::get($groupName)->toFile('-');
+                $item = $fMenu->addItem('group-' . $groupNameFile, null, $groupName, '', 'advanced-filter-menu-group');
+                $item->attr('tabindex', 1);
+            }
+
             foreach ($filters as $filter)
             {
                 $filter instanceof \Filter\Text;
@@ -234,7 +264,13 @@ class SearchField extends \Component\Component
                 }
 
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
-                $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
+                $item = $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
+                $item->attr('data-item-group', 'group-' . $groupNameFile);
+
+                if ($menuComplex)
+                {
+                    $item->hide();
+                }
             }
         }
 

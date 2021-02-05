@@ -44,6 +44,12 @@ class Text
     protected $filterType = '';
 
     /**
+     *
+     * @var string
+     */
+    protected $filterGroup = '';
+
+    /**
      * Default fitler type
      * @var string
      */
@@ -163,6 +169,17 @@ class Text
     public function setFilterType($filterType)
     {
         $this->filterType = $filterType;
+        return $this;
+    }
+
+    public function getFilterGroup()
+    {
+        return $this->filterGroup;
+    }
+
+    public function setFilterGroup($filterGroup)
+    {
+        $this->filterGroup = $filterGroup;
         return $this;
     }
 

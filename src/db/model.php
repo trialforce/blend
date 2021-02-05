@@ -1201,4 +1201,24 @@ class Model implements \JsonSerializable
         return \Db\Criteria::createCriteria(\Db\Model::parseSearchColumnWhere($filters, self::getName()));
     }
 
+    public static function getRelations()
+    {
+        $relations = self::defineRelations();
+
+        return $relations;
+    }
+
+    public static function defineRelations()
+    {
+        $name = self::getName();
+        $schemaName = \Db\Column\Collection::getSchemaClassName($name);
+
+        if (class_exists($schemaName))
+        {
+            $relations = $schemaName::defineRelations();
+        }
+
+        return $relations;
+    }
+
 }

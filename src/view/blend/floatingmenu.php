@@ -55,7 +55,7 @@ class FloatingMenu extends \View\Ul
 
         $this->append($item);
 
-        return $this;
+        return $item;
     }
 
     /**

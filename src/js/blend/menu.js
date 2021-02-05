@@ -116,3 +116,21 @@ function menuSearch(term)
         
     });
 }
+
+
+function floatingMenuToggle()
+{
+    var focused = $(document.activeElement);
+     
+    if (focused.hasClass('advanced-filter-menu-group'))
+    {
+        var idGroup = focused.attr('id');
+        
+        $('[data-item-group='+idGroup+']').toggle('fast');
+     }
+    else
+    {
+
+        $('#fm-filters').toggle('fast');
+    }
+}

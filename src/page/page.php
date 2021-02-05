@@ -388,13 +388,6 @@ class Page extends \View\Layout
     public function listar()
     {
         $this->setFocusOnFirstField();
-        $groupType = Request::get('group-type');
-
-        if (is_array($groupType) && count($groupType) > 1)
-        {
-            return $this->createGroupGrid();
-        }
-
         $this->setDefaultGrid();
         $grid = $this->getGrid(Request::get('stateId'));
 
@@ -413,11 +406,6 @@ class Page extends \View\Layout
         $this->append($views);
 
         $this->byId('q')->focus();
-    }
-
-    public function createGroupGrid()
-    {
-
     }
 
     public function gridExportData()
@@ -919,11 +907,6 @@ class Page extends \View\Layout
         }
 
         $filter = $grid->getFilter($value);
-
-        //$column = $grid->getColumn($value);
-        //$dbModel = method_exists($this, 'getModel') ? $this->getModel() : null;
-        //$mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
-        //$filter = $mountFilter->getFilter();
 
         if ($filter)
         {

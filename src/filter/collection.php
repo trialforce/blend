@@ -79,6 +79,7 @@ class Collection extends \Filter\Text
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
         $hasFilter = (strlen($filterValue) > 0);
+        $sql = $this->getFilterSql() ? $this->getFilterSql() : $columnName;
 
         //no condition selected, does nothing
         if (!$conditionValue)
@@ -88,11 +89,11 @@ class Collection extends \Filter\Text
 
         if ($conditionValue == self::COND_NULL_OR_EMPTY)
         {
-            return new \Db\Cond('( (' . $columnName . ') IS NULL OR (' . $columnName . ') = \'\' )', NULL, $conditionType);
+            return new \Db\Cond('( (' . $sql . ') IS NULL OR (' . $sql . ') = \'\' )', NULL, $conditionType);
         }
         else if ($conditionValue == self::COND_NOT_NULL_OR_EMPTY)
         {
-            return new \Db\Cond('( (' . $columnName . ') IS NOT NULL AND (' . $columnName . ') != \'\' )', NULL, $conditionType);
+            return new \Db\Cond('( (' . $sql . ') IS NOT NULL AND (' . $sql . ') != \'\' )', NULL, $conditionType);
         }
         //no filter selected does nothing
         else if (!$hasFilter)
@@ -108,18 +109,18 @@ class Collection extends \Filter\Text
                 //optimize for 1 register
                 if (count($filterValue) == 1)
                 {
-                    return new \Db\Cond($columnName . ' = ? ', $filterValue, $conditionType);
+                    return new \Db\Cond($sql . ' = ? ', $filterValue, $conditionType);
                 }
                 else
                 {
                     $filterValue = implode("','", Request::get($filterName));
-                    $cond = new \Db\Cond($columnName . " IN ( '$filterValue' )", NULL, $conditionType);
+                    $cond = new \Db\Cond($sql . " IN ( '$filterValue' )", NULL, $conditionType);
                     return $cond;
                 }
             }
             else
             {
-                return new \Db\Where($columnName, $conditionValue, $filterValue . '', $conditionType);
+                return new \Db\Where($sql, $conditionValue, $filterValue . '', $conditionType);
             }
         }
         else if ($conditionValue == self::COND_NOT_EQUALS)
@@ -132,23 +133,23 @@ class Collection extends \Filter\Text
                 //optimize for 1 register
                 if (count($filterValue) == 1 && strlen($filterValue[0]) > 0)
                 {
-                    return new \Db\Cond($columnName . ' != ? ', $filterValue, $conditionType);
+                    return new \Db\Cond($sql . ' != ? ', $filterValue, $conditionType);
                 }
                 else if (count($filterValue) > 1)
                 {
                     $filterValue = implode("','", Request::get($filterName));
-                    return new \Db\Cond($columnName . " NOT IN ( '$filterValue' )", NULL, $conditionType);
+                    return new \Db\Cond($sql . " NOT IN ( '$filterValue' )", NULL, $conditionType);
                 }
             }
             else if ($filterValue || $filterValue === '0')
             {
-                return new \Db\Cond($columnName . ' != ?', $filterValue . '', $conditionType);
+                return new \Db\Cond($sql . ' != ?', $filterValue . '', $conditionType);
             }
         }
         //fallback
         else
         {
-            return new \Db\Cond($columnName . ' = ?', $filterValue . '', $conditionType);
+            return new \Db\Cond($sql . ' = ?', $filterValue . '', $conditionType);
         }
     }
 

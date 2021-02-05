@@ -124,24 +124,24 @@ class Reference extends \Filter\Collection
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
+        $dbColumn = $this->dbColumn;
         $columnName = $column ? $column->getSql() : $this->getFilterName();
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
+        $sql = $this->getFilterSql() ? $this->getFilterSql() : $dbColumn->getReferenceSql(FALSE);
 
         if ($conditionValue && $wasFiltered)
         {
             if ($conditionValue == self::COND_TEXT)
             {
-                $dbColumn = $this->dbColumn;
-                return new \Db\Where($dbColumn->getReferenceSql(FALSE), 'like', \Db\Where::contains($filterValue), $conditionType);
+                return new \Db\Where($sql, 'like', \Db\Where::contains($filterValue), $conditionType);
             }
             else if ($conditionValue == self::COND_TEXT_EQUALS)
             {
-                $dbColumn = $this->dbColumn;
-                return new \Db\Where($dbColumn->getReferenceSql(FALSE), '=', $filterValue, $conditionType);
+                return new \Db\Where($sql, '=', $filterValue, $conditionType);
             }
             else
             {

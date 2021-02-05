@@ -46,8 +46,8 @@ if (!window.console)
 
 if (typeof $ == 'function')
 {
-    $(window).bind('popstate', function (event)
-    { 
+    window.onpopstate = function(event) 
+    {
         var okay = escape();
         
         if ( !okay )
@@ -59,8 +59,8 @@ if (typeof $ == 'function')
         {
             //não mudar a url
             return false;
-        }
-    });
+        }       
+    };
 }
 
 //Loading without ajax
@@ -114,6 +114,7 @@ window.onload =  function ()
 
 function escape()
 {
+    console.log('escape');
     //main menu
     if ( $('body').hasClass('menu-open') )
     {
@@ -121,10 +122,11 @@ function escape()
         return true;
     }
     //popup
-    else if ( $('.popup').length )
+    else if ( $('.popup:visible').length )
     {
         //try to call the close action of the popup
-        var jsText= $('#btbClosePopup').attr('onclick');
+        var jsText= $('#btbClosePopup:visible').attr('onclick');
+        console.log(jsText);
         
         if (jsText)
         {

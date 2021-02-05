@@ -242,6 +242,13 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
     }
 
+    public static function getSchemaClassName($modelName)
+    {
+        $schemaClass = str_replace(array('\Model\\', '\Api\\'), '\Schema\\', $modelName);
+
+        return $schemaClass;
+    }
+
     /**
      * Get/define columns for model
      *
@@ -263,7 +270,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             return self::$columnsCache[$modelName];
         }
 
-        $schemaClass = str_replace('\Model\\', '\Schema\\', $modelName);
+        $schemaClass = self::getSchemaClassName($modelName);
 
         //2 - Search for folder schema
         if (class_exists($schemaClass))
