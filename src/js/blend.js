@@ -8,10 +8,10 @@ var isAjax = false;
 var blendJs = function(){};
 var blend = {};
 blend.plugins = [];
-
+ 
 function pluginsRegister()
 {
-    for (i = 0; i < blend.plugins.length; i++)
+    for (var i = 0; i < blend.plugins.length; i++)
     {
         var plugin = blend.plugins[i];
         
@@ -24,7 +24,7 @@ function pluginsRegister()
 
 function pluginsStart()
 {
-    for (i = 0; i < blend.plugins.length; i++)
+    for (var i = 0; i < blend.plugins.length; i++)
     {
         var plugin = blend.plugins[i];
         
