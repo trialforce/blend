@@ -219,9 +219,12 @@ class MountFilter
 
         $relations = $dbModel::getRelations();
 
-        foreach ($relations as $relation)
+        if (isCountable($relations))
         {
-            $filters = array_merge($filters, self::mountFiltersRelation($dbModel, $relation));
+            foreach ($relations as $relation)
+            {
+                $filters = array_merge($filters, self::mountFiltersRelation($dbModel, $relation));
+            }
         }
 
         return $filters;
