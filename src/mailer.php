@@ -87,7 +87,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
             $cid = basename($relative);
             $path = APP_PATH . '/' . $relative;
 
-            if (file_exists($path))
+            if (file_exists($path) && !is_dir($path))
             {
                 $this->Body = str_replace($image, 'cid:' . $cid, $this->Body);
                 $this->AddEmbeddedImage($path, $cid, $cid);
@@ -118,7 +118,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
                 $path = APP_PATH . '/' . $relative;
 
                 //verifica se o arquivo existe e se não está na lista de não atachar
-                if (file_exists($path))
+                if (file_exists($path) && !is_dir($path))
                 {
                     //obtem nome do arquivo sem a extensão.
                     $nomeArquivo = explode('.', basename($link));
