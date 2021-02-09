@@ -265,10 +265,10 @@ class SearchField extends \Component\Component
 
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $item = $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
-                $item->attr('data-item-group', 'group-' . $groupNameFile);
 
                 if ($menuComplex)
                 {
+                    $item->attr('data-item-group', 'group-' . $groupNameFile);
                     $item->hide();
                 }
             }
