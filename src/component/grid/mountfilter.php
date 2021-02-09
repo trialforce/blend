@@ -245,7 +245,8 @@ class MountFilter
             $filter = new $filterClassName();
             $filter instanceof \Filter\Text;
 
-            $filter->setFilterLabel($modelLabel . ' - ' . $column->getLabel());
+            //hide the model label, so we can filter in JS
+            $filter->setFilterLabel('<span style="display:none;">' . $modelLabel . '</span>' . $column->getLabel());
             $filter->setFilterSql($filterSql);
             $filter->setFilterName($filterName);
             $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE);

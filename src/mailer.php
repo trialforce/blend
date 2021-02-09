@@ -280,7 +280,6 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         $this->Password = $pass;
 
         $this->SetFrom($user);
-        //$this->Sender = $user;
         $this->AddReplyTo($user);
 
         return $this;

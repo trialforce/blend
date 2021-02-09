@@ -1212,10 +1212,40 @@ class Model implements \JsonSerializable
     {
         $name = self::getName();
         $schemaName = \Db\Column\Collection::getSchemaClassName($name);
+        $relations = [];
 
         if (class_exists($schemaName))
         {
             $relations = $schemaName::defineRelations();
+        }
+        else
+        {
+            $relations = \Db\Model::mountForeignRelations();
+        }
+
+        return $relations;
+    }
+
+    public static function mountForeignRelations()
+    {
+        $name = self::getName();
+        $columns = $name::getColumns();
+        $relations = [];
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Db\Column\Column;
+            $referenceModel = $column->getReferenceTable();
+
+            if ($referenceModel)
+            {
+                $referenceModelClass = '\Model\\' . $referenceModel;
+                $referenceField = $column->getReferenceField();
+                $referenceTable = $referenceModelClass::getTableName();
+                $sql = 'cliente.id = clienteTipo.idCliente';
+                $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
+                $relations[] = new \Db\Relation($referenceModelClass, $sql);
+            }
         }
 
         return $relations;

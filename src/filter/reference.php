@@ -121,6 +121,23 @@ class Reference extends \Filter\Collection
         return $field;
     }
 
+    public function getFilterSql()
+    {
+        if (!$this->filterSql)
+        {
+            if ($this->dbColumn)
+            {
+                $this->filterSql = $this->dbColumn->getReferenceSql(FALSE);
+            }
+            else
+            {
+                $this->filterSql = $this->column ? $this->column->getSql() : $this->getFilterName();
+            }
+        }
+
+        return $this->filterSql;
+    }
+
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
@@ -135,11 +152,11 @@ class Reference extends \Filter\Collection
 
         if ($conditionValue && $wasFiltered)
         {
-            if ($conditionValue == self::COND_TEXT)
+            if ($sql && $conditionValue == self::COND_TEXT)
             {
                 return new \Db\Where($sql, 'like', \Db\Where::contains($filterValue), $conditionType);
             }
-            else if ($conditionValue == self::COND_TEXT_EQUALS)
+            else if ($sql && $conditionValue == self::COND_TEXT_EQUALS)
             {
                 return new \Db\Where($sql, '=', $filterValue, $conditionType);
             }

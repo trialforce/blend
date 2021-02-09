@@ -419,6 +419,12 @@ class Column
     public function getReferenceSql($withAs = TRUE, $referencedColumn = NULL)
     {
         $referenceClass = $this->getReferenceModelClass();
+
+        if (!class_exists($referenceClass))
+        {
+            return null;
+        }
+
         $catalog = $referenceClass::getCatalogClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
         $tableName = $catalog::parseTableNameForQuery($this->getTableName());
