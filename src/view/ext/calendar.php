@@ -208,7 +208,7 @@ class Calendar extends \View\Table
             {
                 while ($cont < $dayOfWeek)
                 {
-                    $tds[] = new \View\Td(NULL, NULL);
+                    $tds[] = new \View\Td(NULL, NULL, 'calendarEmpty');
 
                     $cont++;
                 }
