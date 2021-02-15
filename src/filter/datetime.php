@@ -21,7 +21,7 @@ class DateTime extends \Filter\Text
     const COND_CURRENT_MONTH = 'currentmonth';
     const COND_PAST_MONTH = 'pastmonth';
     const COND_NEXT_MONTH = 'nextmonth';
-    const COND_MONTH_FIXED = 'month-';
+    const COND_BIRTH_MONTH = 'birthmonth';
 
     public function __construct(\Component\Grid\Column $column = NULL, $filterName = \NULL, $filterType = NULL)
     {
@@ -49,19 +49,7 @@ class DateTime extends \Filter\Text
         $options[self::COND_CURRENT_MONTH] = 'Mês (atual)';
         $options[self::COND_PAST_MONTH] = 'Mês (passado)';
         $options[self::COND_NEXT_MONTH] = 'Mês (próximo)';
-
-        $options[self::COND_MONTH_FIXED . '1'] = 'Janeiro';
-        $options[self::COND_MONTH_FIXED . '2'] = 'Fevereiro';
-        $options[self::COND_MONTH_FIXED . '3'] = 'Março';
-        $options[self::COND_MONTH_FIXED . '4'] = 'Abril';
-        $options[self::COND_MONTH_FIXED . '5'] = 'Maio';
-        $options[self::COND_MONTH_FIXED . '6'] = 'Junho';
-        $options[self::COND_MONTH_FIXED . '7'] = 'Julho';
-        $options[self::COND_MONTH_FIXED . '8'] = 'Agosto';
-        $options[self::COND_MONTH_FIXED . '9'] = 'Setembro';
-        $options[self::COND_MONTH_FIXED . '10'] = 'Outubro';
-        $options[self::COND_MONTH_FIXED . '11'] = 'Novembro';
-        $options[self::COND_MONTH_FIXED . '12'] = 'Dezembro';
+        $options[self::COND_BIRTH_MONTH] = 'Mês de aniversário';
 
         return $options;
     }
@@ -75,10 +63,12 @@ class DateTime extends \Filter\Text
     public function getInputValue($index = 0)
     {
         $columnValue = $this->getValueName();
-        $view[0] = $input = new \View\Ext\DateInput($columnValue . '[]', $this->getFilterValue($index), 'filterInput');
+        $view[0] = $input = new \View\Ext\DateInput($columnValue . '[]', $this->getFilterValue($index), 'filterInput filter-date-date');
         $view[0]->onPressEnter("$('#buscar').click()");
         $view[2] = $hide = new \View\Ext\DateInput($columnValue . 'Final[]', $this->getFilterValueFinal($index), 'filterInput filterDataFinal final');
         $view[2]->onPressEnter("$('#buscar').click()");
+        $view[3] = $hide = new \View\Select($columnValue . '[]', \Type\DateTime::listMonth(), $this->getFilterValue($index), 'filterInput filter-date-month');
+        $view[3]->onPressEnter("$('#buscar').click()");
 
         $hide->addStyle('display', 'none');
         return $view;
@@ -96,17 +86,11 @@ class DateTime extends \Filter\Text
 
         //add support for clean value
         $filterValue = str_replace('__/__/____', '', $filterValue);
-
         $isFiltered = (strlen(trim($filterValue)) > 0);
 
-        if (stripos($conditionValue, self::COND_MONTH_FIXED) === 0)
+        if ($conditionValue == self::COND_BIRTH_MONTH)
         {
-            $explode = explode('-', $conditionValue);
-            $month = isset($explode[1]) ? $explode[1] : 1;
-
-            $begin = \Type\Date::now()->setMonth($month)->setDay(1);
-            $end = \Type\Date::now()->setMonth($month)->setLastDayOfMonth();
-            return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
+            return new \Db\Where('MONTH(' . $columnName . ')', '=', $filterValue, $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_TODAY)
         {

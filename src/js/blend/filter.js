@@ -88,12 +88,24 @@ function filterChangeInteger(element)
 function filterChangeDate(element)
 {
     var val = $(element).val();
-    var input = $(element).parent().find('.filterInput');
     var prefix = $(element).attr('id').replace('Condition', '');
-    var elValue = $(element).parent().find('.filterInput');
+    var elValue = $(element).parent().find('.filter-date-date');
     var elValueFinal = $(element).parent().find('.final');
+    var elValueMonth = $(element).parent().find('.filter-date-month');
     
-    if ( val== 'nullorempty' 
+    elValueMonth.attr('disabled','disabled').hide();
+    elValue.removeAttr('disabled');
+    
+    if ( val == 'birthmonth')
+    {
+        element.removeClass('fullWidth');
+        
+        elValueMonth.show().removeAttr('disabled');
+        
+        elValue.hide().val('').attr('disabled','disabled').removeClass('filterInterval');
+        elValueFinal.hide().val('').attr('disabled','disabled').removeClass('filterInterval');
+    }
+    else if ( val== 'nullorempty' 
             || val == 'notnullorempty'
             || val == 'today' 
             || val == 'yesterday' 
@@ -103,22 +115,19 @@ function filterChangeDate(element)
             || val == 'nextmonth' 
             || val.indexOf('month-')==0)
     { 
-        input.val('').hide();
-        element.addClass('fullWidth');
-        elValue.value = '';
-        elValueFinal.value = '';
+         element.addClass('fullWidth');
+        elValue.hide().val('');
+        elValueFinal.hide().val('');
     } 
     else if ( val == 'between' ) 
     { 
-        input.show();
-        element.removeClass('fullWidth');
+         element.removeClass('fullWidth');
         elValue.show().addClass('filterInterval');
         elValueFinal.removeAttr('disabled').addClass('filterInterval').show();
     }
     else 
     { 
-        input.show();
-        element.removeClass('fullWidth');
+         element.removeClass('fullWidth');
         elValue.show().removeClass('filterInterval');
         elValueFinal.hide().attr('disabled','disabled').removeClass('filterInterval');
         elValue.value = '';
