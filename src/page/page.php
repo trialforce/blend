@@ -536,8 +536,6 @@ class Page extends \View\Layout
         }
         else
         {
-            $this->byId('formChanged')->val('');
-            //caso padrao
             if ($defaultRedirect)
             {
                 $this->defaultRedirect();

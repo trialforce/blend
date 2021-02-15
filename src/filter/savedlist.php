@@ -148,7 +148,6 @@ class SavedList
         unset($parts['p']);
         unset($parts['e']);
         unset($parts['v']);
-        unset($parts['formChanged']);
         unset($parts['selectFilters']);
         unset($parts['selectGroups']);
         unset($parts['_']);
