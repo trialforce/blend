@@ -174,6 +174,7 @@ class Session extends DataHandle
 
         if (\DataHandle\Session::getStatus() == \DataHandle\Session::STATUS_ACTIVE)
         {
+            session_regenerate_id(true);
             session_destroy();
         }
     }
