@@ -562,7 +562,6 @@ class Grid extends \Component\Component
             unset($queryString['_']);
             unset($queryString['e']);
             unset($queryString['v']);
-            unset($queryString['formChanged']);
             unset($queryString['total_notificacoes']);
             unset($queryString['paginationLimit']);
 
@@ -817,6 +816,17 @@ class Grid extends \Component\Component
 
         if (is_array($columns))
         {
+            $columnK = [];
+
+            foreach ($columns as $column)
+            {
+                $columnK[$column->getLabel()] = $column;
+            }
+
+            //order by label
+            ksort($columnK);
+            $columns = $columnK;
+
             foreach ($columns as $column)
             {
                 if ($column->getExport())
