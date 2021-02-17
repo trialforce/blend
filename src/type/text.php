@@ -193,6 +193,8 @@ class Text implements \Type\Generic, \JsonSerializable
         $this->replace($space . $space, $space);
         $this->replace($space . $space, $space);
 
+        $this->string = rtrim($this->string, $space);
+
         return $this;
     }
 
