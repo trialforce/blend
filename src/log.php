@@ -451,6 +451,8 @@ class Log
      */
     public static function sql($sql)
     {
+        $sql = str_replace(array("\r\n", "\r", "\n"), ' ', $sql);
+
         if (Log::getLogSql())
         {
             Log::logInFile(LOG::SQL_FILE, $sql);

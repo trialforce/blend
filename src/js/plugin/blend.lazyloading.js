@@ -1,5 +1,10 @@
 /* global blend */
 
+/**
+ * Lazy loading of images src and background images
+ *
+ */
+
 blend.lazyloading = {};
 blend.lazyloading.adjust = 40;
 blend.plugins.push(blend.lazyloading); 
