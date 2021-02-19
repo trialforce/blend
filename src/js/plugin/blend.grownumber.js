@@ -11,18 +11,15 @@ blend.plugins.push(blend.grownumber);
 
 blend.grownumber.register = function()
 {
-    console.log('abc1');
 };
 
 blend.grownumber.start = function()
 {
-    console.log('abc2');
     var elements = $('[data-grow-number]');
     
     elements.each (function(idx)
     {
         var element = $(elements[idx]);
-        console.log(element.html());
         var type = element.data('grow-number');
         var valueOriginal = parseInt(element.text());
         var intervalTime = blend.grownumber.defaultTime / valueOriginal;
@@ -36,7 +33,6 @@ blend.grownumber.start = function()
         
         var myInterval = setInterval( function()
         {
-            console.log();
             var newValue = parseInt(element.text())+1;
             if (newValue < valueOriginal)
             {
