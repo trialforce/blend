@@ -1,5 +1,5 @@
 /* global CKEDITOR, shortcut */
- 
+
 "use strict";
 //handle the back and forward buttons
 var invalidHover = true;
@@ -437,9 +437,11 @@ function getBaseUrl()
 function correctUrl(url)
 {
     var base = getBaseUrl();
+    
+    var startsWith = url.substr(0, base.length) === base;
 
     //make full url
-    if (!startsWith(url, base))
+    if (!startsWith)
     {
         url = base + url;
     }
@@ -897,4 +899,14 @@ function addScriptOnce(src, callBack)
     {
         callBack();
     }
+}
+
+
+/**
+ * Scroll to top
+ * @returns void
+ */
+function scrollTop()
+{
+    $("html, body").animate({ scrollTop: 0 }, 300);
 }
