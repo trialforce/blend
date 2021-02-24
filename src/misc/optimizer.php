@@ -75,7 +75,12 @@ class Optimizer
     {
         $objOut = new \Disk\File($this->getOutFile());
 
-        $mTime = intval($objOut->getMTime());
+        $mTime = 0;
+
+        if ($objOut->exists())
+        {
+            $mTime = intval($objOut->getMTime());
+        }
 
         $outputFile = \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $mTime . '.' . $objOut->getExtension());
 
