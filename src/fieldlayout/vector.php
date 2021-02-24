@@ -35,7 +35,7 @@ class Vector
      *
      * @var string
      */
-    protected $defaultClass = 'span3';
+    protected static $defaultClass = 'span3';
 
     /**
      * Define if is to create the question or not
@@ -59,14 +59,14 @@ class Vector
         self::$weightOnField = $weightOnField;
     }
 
-    function getDefaultClass()
+    public static function getDefaultClass()
     {
-        return $this->defaultClass;
+        return self::$defaultClass;
     }
 
-    function setDefaultClass($defaultClass)
+    public static function setDefaultClass($defaultClass)
     {
-        $this->defaultClass = $defaultClass;
+        self::$defaultClass = $defaultClass;
     }
 
     public function getModel()
@@ -133,40 +133,48 @@ class Vector
 
         if ($makeTab)
         {
-            $dom = \View\View::getDom();
-            $tabs = $this->array;
-            $tab = new \View\Ext\Tab('fieldLayoutTab');
-
-            foreach ($tabs as $label => $campos)
-            {
-                $id = \Type\Text::get($label)->toFile();
-                $this->array = $campos;
-                $tab->add('tab-' . $id, $label, $this->createFieldLayout());
-            }
-
-            return $tab;
+            return $this->createTab($this->array, 'fieldLayoutTab');
         }
         else
         {
-            return $this->createFieldLayout();
+            return $this->createFieldLayout($this->getArray());
         }
     }
 
-    public function createFieldLayout()
+    public function createTab($tabs, $tabId)
+    {
+        $tab = new \View\Ext\Tab($tabId);
+
+        foreach ($tabs as $label => $campos)
+        {
+            $id = \Type\Text::get($label)->toFile();
+            $tab->add('tab-' . $id, $label, $this->createFieldLayout($campos));
+        }
+
+        return $tab;
+    }
+
+    public function createFieldLayout($array)
     {
         $model = $this->getModel();
-        $array = $this->getArray();
 
         if (!$this->model)
         {
             return false;
         }
 
-        $fields = null;
+        $fields = [];
+        $tabArray = [];
 
         //pass trough all line
         foreach ($array as $line => $arrayLine)
         {
+            if (is_string($line))
+            {
+                $tabArray[$line] = $arrayLine;
+                continue;
+            }
+
             $arrayPosition = 0;
 
             //passe trough all fields
@@ -176,6 +184,7 @@ class Vector
 
                 if (!$column)
                 {
+                    $tabArray[$columnName] = $weight;
                     continue;
                 }
 
@@ -211,6 +220,17 @@ class Vector
                 $this->setElementValue($input, $column);
 
                 $arrayPosition++;
+            }
+        }
+
+        if (count($tabArray) > 0)
+        {
+            $keys = array_keys($tabArray);
+
+            if (is_string($keys[0]))
+            {
+                $mainInnerTab = \Type\Text::get($keys[0])->toFile();
+                $fields[] = $this->createTab($tabArray, 'inner-tab-' . $mainInnerTab);
             }
         }
 
