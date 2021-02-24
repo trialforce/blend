@@ -20,14 +20,21 @@ blend.grownumber.start = function()
     elements.each (function(idx)
     {
         var element = $(elements[idx]);
-        var valueOriginal = element.data('grow-number');
+        var valueOriginal = parseInt(element.data('grow-number'));
         var intervalTime = blend.grownumber.defaultTime / valueOriginal;
+        var increment = 1;
+        
+        if (intervalTime < 10)
+        {
+            increment = 10;
+            intervalTime *= 10;
+        }
         
         element.html('0');
         
         var myInterval = setInterval( function()
         {
-            var newValue = parseInt(element.text())+1;
+            var newValue = parseInt(element.text())+increment;
             if (newValue < valueOriginal)
             {
                 element.html(newValue);
