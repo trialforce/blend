@@ -16,7 +16,7 @@ class Collection extends \Filter\Text
      */
     protected $collection;
 
-    public function __construct($column, $collection, $filterType = NULL)
+    public function __construct($column, $collection, $filterType = \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS)
     {
         parent::__construct($column, NULL, $filterType);
         $this->setCollection($collection);

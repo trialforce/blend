@@ -67,10 +67,11 @@ class DateTime extends \Filter\Text
         $view[0]->onPressEnter("$('#buscar').click()");
         $view[2] = $hide = new \View\Ext\DateInput($columnValue . 'Final[]', $this->getFilterValueFinal($index), 'filterInput filterDataFinal final');
         $view[2]->onPressEnter("$('#buscar').click()");
-        $view[3] = $hide = new \View\Select($columnValue . '[]', \Type\DateTime::listMonth(), $this->getFilterValue($index), 'filterInput filter-date-month');
-        $view[3]->onPressEnter("$('#buscar').click()");
+        $view[3] = $month = new \View\Select($columnValue . '[]', \Type\DateTime::listMonth(), $this->getFilterValue($index), 'filterInput filter-date-month');
+        $month->onPressEnter("$('#buscar').click()")->setId($columnValue . '-month');
 
         $hide->addStyle('display', 'none');
+        $month->addStyle('display', 'none');
         return $view;
     }
 
