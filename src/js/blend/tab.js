@@ -3,17 +3,15 @@ function selectTab(tabItemId)
 {
     tabItemId = tabItemId.replace('#', '');
     var tab = $('#' + tabItemId).parents('.tab').eq(0);
-
-    //atualiza url
-    //updateUrl(window.location.href.replace(window.location.hash, '') + '#' + tabItemId);
+    var tabId = tab.attr('id') ;
 
     //body
-    tab.find('.tabBody>.item').hide();
-    tab.find('.tabBody #' + tabItemId).show();
+    $('#' + tabId+'>.tabBody>.item').hide();
+    $('#' + tabId+'>.tabBody #' + tabItemId).show();
 
     //head
-    tab.find('.tabHead>.item').removeClass('selected');
-    tab.find('.tabHead #' + tabItemId + 'Label').addClass('selected');
+    $('#' + tabId+'>.tabHead>.item').removeClass('selected');
+    $('#' + tabId+'>.tabHead #' + tabItemId + 'Label').addClass('selected');
     
     //show actions as tab-group needed
     $('.action-list li').hide();
