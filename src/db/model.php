@@ -1220,10 +1220,15 @@ class Model implements \JsonSerializable
         }
         else
         {
-            $relations = \Db\Model::mountForeignRelations();
+            $relations = $name::mountForeignRelations();
         }
 
         return $relations;
+    }
+
+    public static function getAutoAddToRelations()
+    {
+        return true;
     }
 
     public static function mountForeignRelations()
@@ -1240,9 +1245,16 @@ class Model implements \JsonSerializable
             if ($referenceModel)
             {
                 $referenceModelClass = '\Model\\' . $referenceModel;
+
+                $autoAddToRelations = $referenceModelClass::getAutoAddToRelations();
+
+                if (!$autoAddToRelations)
+                {
+                    continue;
+                }
+
                 $referenceField = $column->getReferenceField();
                 $referenceTable = $referenceModelClass::getTableName();
-                $sql = 'cliente.id = clienteTipo.idCliente';
                 $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
                 $relations[] = new \Db\Relation($referenceModelClass, $sql);
             }
