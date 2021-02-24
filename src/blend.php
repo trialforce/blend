@@ -39,33 +39,34 @@ function alert($message)
     \App::addJs('alert(\'' . $message . '\');');
 }
 
-/**
- * Make a Simple js toast.
- *
- * Type valid values:
- * NULL
- * danger
- * primary
- * info
- * alert
- * success
- * Or any other css class
- *
- * @param string $message toast message, can be html
- * @param string $type a custom css type, in case a extra class in css.
- * @param int $duration default 4000 mileseconds
- */
-function toast($message = NULL, $type = NULL, $duration = 4000)
+if (!function_exists('toast'))
 {
-    $messageParsed = \View\Script::treatStringToJs($message);
 
-    //play error sound
-//    if (stripos(' ' . $type, 'danger') > 0)
-//    {
-//        \View\Audio::playSoundOnce('theme/audio/error.mp3');
-//    }
+    /**
+     * Make a Simple js toast.
+     *
+     * Type valid values:
+     * NULL
+     * danger
+     * primary
+     * info
+     * alert
+     * success
+     * Or any other css class
+     *
+     * @param string $message toast message, can be html
+     * @param string $type a custom css type, in case a extra class in css.
+     * @param int $duration default 4000 mileseconds
+     */
+    function toast($message = NULL, $type = NULL, $duration = 4000)
+    {
+        $messageParsed = \View\Script::treatStringToJs($message);
 
-    \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
+        alert(1);
+
+        \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
+    }
+
 }
 
 /**
