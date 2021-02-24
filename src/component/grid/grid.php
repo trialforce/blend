@@ -731,11 +731,14 @@ class Grid extends \Component\Component
         {
             $filters = $grid->getFilters();
 
-            foreach ($filters as $filter)
+            if (is_array($filters))
             {
-                $filter instanceof \Filter;
-                $cond = $filter->getDbCond();
-                $dataSource->addExtraFilter($cond);
+                foreach ($filters as $filter)
+                {
+                    $filter instanceof \Filter;
+                    $cond = $filter->getDbCond();
+                    $dataSource->addExtraFilter($cond);
+                }
             }
         }
 
