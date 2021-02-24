@@ -166,3 +166,16 @@ function dateTimeInput()
         //dateTimeInputFallBackNative();
     }
 }
+
+//to work without basefunctions
+function isAndroid()
+{
+    return navigator.userAgent.toLowerCase().indexOf("android") > -1;
+}
+
+//to work without basefunctions
+function isIos()
+{
+    var ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
+}

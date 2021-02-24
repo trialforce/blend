@@ -3,7 +3,7 @@ function isAndroid()
     return navigator.userAgent.toLowerCase().indexOf("android") > -1;
 }
 
-function isIos() 
+function isIos()
 {
     var ua = navigator.userAgent.toLowerCase();
     return ua.indexOf("iphone") > -1 || ua.indexOf("ipad") > -1;
@@ -145,13 +145,4 @@ function sortList(ul)
     { 
         list.append(itm); 
     });
-}
-
-/**
- * Scroll to top
- * @returns void
- */
-function scrollTop()
-{
-    $("html, body").animate({ scrollTop: 0 }, 300);
 }
