@@ -168,6 +168,12 @@ function dateTimeInput()
 }
 
 //to work without basefunctions
+function isCellPhone()
+{
+    return $(document).width() <= 800;
+}
+
+//to work without basefunctions
 function isAndroid()
 {
     return navigator.userAgent.toLowerCase().indexOf("android") > -1;
