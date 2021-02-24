@@ -61,9 +61,6 @@ if (!function_exists('toast'))
     function toast($message = NULL, $type = NULL, $duration = 4000)
     {
         $messageParsed = \View\Script::treatStringToJs($message);
-
-        alert(1);
-
         \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
     }
 
