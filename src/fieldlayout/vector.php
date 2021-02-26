@@ -156,6 +156,11 @@ class Vector
 
     public function createFieldLayout($array)
     {
+        if (!is_array($array))
+        {
+            return;
+        }
+
         $model = $this->getModel();
 
         if (!$this->model)

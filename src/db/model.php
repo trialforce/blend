@@ -1244,7 +1244,7 @@ class Model implements \JsonSerializable
 
             if ($referenceModel)
             {
-                $referenceModelClass = '\Model\\' . $referenceModel;
+                $referenceModelClass = '\Model\\' . str_ireplace('\Model\\', '', $referenceModel);
 
                 $autoAddToRelations = $referenceModelClass::getAutoAddToRelations();
 
