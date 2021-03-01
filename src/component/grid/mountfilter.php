@@ -200,7 +200,7 @@ class MountFilter
 
         $modelLabel = null;
 
-        if ($model)
+        if ($dbModel)
         {
             $modelLabel = $dbModel::getLabel();
         }
@@ -213,7 +213,7 @@ class MountFilter
             }
         }
 
-        if ($model)
+        if ($dbModel)
         {
             $filters = array_merge($filters, self::mountFiltersRelations($dbModel));
         }
