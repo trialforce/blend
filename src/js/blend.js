@@ -340,14 +340,17 @@ function dataAjax()
         seletMenuItem();
     }
     
-    dateTimeInput();
+    if (typeof dateTimeInput == "function")
+    {
+        dateTimeInput();
+    }
     
     //add system class
-    if ( isIos())
+    if ( typeof isIos =="function" && isIos())
     {
         $('body').removeClass('os-ios').addClass('os-ios');
     }
-    else if ( isAndroid())
+    else if ( typeof isAndroid =="function" && isAndroid())
     {
         $('body').removeClass('os-android').addClass('os-android');
     }
