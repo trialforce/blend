@@ -390,11 +390,8 @@ class Crud extends \Page\Page
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
 
-                if ($this->floatingMenu)
-                {
-                    $btnAction = new \View\Button('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'return actionList.toggle();', 'btn clean blend-floating-menu-holder action-list-toogle');
-                    $buttons[] = $btnAction;
-                }
+                $btnAction = new \View\Button('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'return actionList.toggle();', 'btn clean blend-floating-menu-holder action-list-toogle');
+                $buttons[] = $btnAction;
             }
         }
         else

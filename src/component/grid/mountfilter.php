@@ -198,7 +198,12 @@ class MountFilter
             }
         }
 
-        $modelLabel = $dbModel::getLabel();
+        $modelLabel = null;
+
+        if ($model)
+        {
+            $modelLabel = $dbModel::getLabel();
+        }
 
         foreach ($filters as $filter)
         {
@@ -208,7 +213,10 @@ class MountFilter
             }
         }
 
-        $filters = array_merge($filters, self::mountFiltersRelations($dbModel));
+        if ($model)
+        {
+            $filters = array_merge($filters, self::mountFiltersRelations($dbModel));
+        }
 
         return $filters;
     }

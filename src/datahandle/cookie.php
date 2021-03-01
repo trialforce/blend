@@ -25,8 +25,15 @@ class Cookie extends DataHandle
      */
     public function setVar($var, $value)
     {
+        if (headers_sent())
+        {
+            return false;
+        }
+
         parent::setVar($var, $value);
         setcookie($var, $value, time() + 3600, "/", '', false, false);
+
+        return true;
     }
 
 }

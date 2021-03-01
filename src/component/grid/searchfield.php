@@ -238,6 +238,7 @@ class SearchField extends \Component\Component
         $pageUrl = \View\View::getDom()->getPageUrl();
 
         $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', 'floatingMenuToggle();');
+        $icon->append(new \View\Span('advanced-filter-span', 'Filtros'));
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
@@ -285,6 +286,7 @@ class SearchField extends \Component\Component
 
         $icon = new \View\Ext\Icon('thumbtack filter-menu blend-floating-menu-holder');
         $icon->setId('bookmark-filter')->click('$(\'#fm-bookmark\').toggle(\'fast\');');
+        $icon->append(new \View\Span('advanced-filter-span', 'Relatórios'));
 
         $menu = new \View\Blend\FloatingMenu('fm-bookmark');
         $icon->append($menu->hide());

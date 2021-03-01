@@ -98,3 +98,7 @@ i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
     min-width: 300px;
     max-width: 300px;
 }
+
+#advanced-filter-span {
+    display: none;
+}
