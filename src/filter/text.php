@@ -83,6 +83,11 @@ class Text
     const FILTER_TYPE_ENABLE_SHOW_ALWAYS = 2;
 
     /**
+     * Main group name
+     */
+    const GROUP_MAIN = 'AAAAAA';
+
+    /**
      * Create a text filter
      *
      * @param \Component\Grid\Column $column the grid column
@@ -345,7 +350,14 @@ class Text
      */
     public function getInputLabel()
     {
-        return new \View\Label(NULL, $this->getValueName() . '[]', $this->getFilterLabel(), 'filterLabel');
+        $label = $this->getFilterLabel();
+
+        if ($this->getFilterGroup() && $this->getFilterGroup() != \Filter\Text::GROUP_MAIN)
+        {
+            $label = $this->getFilterGroup() . ' - ' . $label;
+        }
+
+        return new \View\Label(NULL, $this->getValueName() . '[]', $label, 'filterLabel');
     }
 
     /**

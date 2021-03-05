@@ -25,13 +25,14 @@ i.fa.filter-menu:active {
 i.fa.filter-menu .blend-floating-menu {
     top: 33px;
     right: 6px;
-    max-height: 400px;
-    overflow-y: auto;
+    max-height: 80vh;
+    overflow-y: scroll;
 }
 
 i.fa.filter-menu .blend-floating-menu li {
     line-height: 24px;
     position: relative;
+    text-indent: 10px;
 }
 
 i.fa.filter-menu .blend-floating-menu li span {
@@ -89,8 +90,8 @@ i.fa-thumbtack.filter-menu {
 }
 
 i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
-    font-weight: bold;
-    font-size: 15px;
+    font-weight: 500;
+    text-indent: 0px;
     line-height: 33px;
 }
 
@@ -101,4 +102,11 @@ i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
 
 #advanced-filter-span {
     display: none;
+}
+
+.blend-floating-menu li i.fa.filter-group-arrow {
+    float: right;
+    height: 30px;
+    line-height: 30px ;
+    width: 20px;
 }

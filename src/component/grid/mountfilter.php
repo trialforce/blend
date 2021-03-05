@@ -198,18 +198,11 @@ class MountFilter
             }
         }
 
-        $modelLabel = null;
-
-        if ($dbModel)
-        {
-            $modelLabel = $dbModel::getLabel();
-        }
-
         foreach ($filters as $filter)
         {
             if (!$filter->getFilterGroup())
             {
-                $filter->setFilterGroup($modelLabel);
+                $filter->setFilterGroup(\Filter\Text::GROUP_MAIN);
             }
         }
 
@@ -221,6 +214,12 @@ class MountFilter
         return $filters;
     }
 
+    /**
+     * Mount filter for multiple relations
+     *
+     * @param \Db\Model $dbModel original model
+     * @return array array of filters
+     */
     public static function mountFiltersRelations(\Db\Model $dbModel)
     {
         $filters = array();
@@ -238,30 +237,38 @@ class MountFilter
         return $filters;
     }
 
+    /**
+     * Mount filters from one relation
+     *
+     * @param \Db\Model $dbModel original model
+     * @param \Db\Relation $relation the relation
+     * @return \Filter\Text the filter
+     */
     public static function mountFiltersRelation(\Db\Model $dbModel, \Db\Relation $relation)
     {
         $otherModel = $relation->getModelName();
         $columns = $otherModel::getColumns();
-        $modelLabel = $otherModel::getLabel();
+        $label = $relation->getLabel() ? $relation->getLabel() : $otherModel::getLabel();
         $tableName = $otherModel::getTableName();
+        $labelAscii = \Type\Text::get($label)->toFile("-");
         $filters = [];
 
         foreach ($columns as $column)
         {
             $column instanceof \Db\Column\Column;
             $filterClassName = $column->getFilterClassName();
-            $filterName = $tableName . '-' . $column->getName();
+            $filterName = $labelAscii . '-' . $tableName . '-' . $column->getName();
             $filterSql = '(SELECT ' . $column->getName() . ' FROM ' . $tableName . ' WHERE ' . $relation->getSql() . ')';
 
             $filter = new $filterClassName();
             $filter instanceof \Filter\Text;
 
             //hide the model label, so we can filter in JS
-            $filter->setFilterLabel('<span style="display:none;">' . $modelLabel . '</span>' . $column->getLabel());
+            $filter->setFilterLabel('<span style="display:none;">' . $label . '</span>' . $column->getLabel());
             $filter->setFilterSql($filterSql);
             $filter->setFilterName($filterName);
             $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE);
-            $filter->setFilterGroup($modelLabel);
+            $filter->setFilterGroup($label);
 
             if (method_exists($filter, 'setDbColumn'))
             {
@@ -269,6 +276,31 @@ class MountFilter
             }
 
             $filters[$filterName] = $filter;
+        }
+
+        return $filters;
+    }
+
+    /**
+     * Diable a list of filter groups
+     * @param array $filters the filter array
+     * @param array $groupLabels the array of filter group labels
+     * @return array the filtered filter list
+     */
+    public static function disableGroup(array $filters, array $groupLabels)
+    {
+        foreach ($filters as $position => $filter)
+        {
+            $filter instanceof \Filter\Text;
+
+            foreach ($groupLabels as $groupLabel)
+            {
+                if (strtoupper($filter->getFilterGroup()) == strtoupper($groupLabel))
+                {
+                    $filter->setFilterType(\Filter\Text::FILTER_TYPE_DISABLE);
+                    unset($filters[$position]);
+                }
+            }
         }
 
         return $filters;

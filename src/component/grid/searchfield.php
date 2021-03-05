@@ -249,14 +249,30 @@ class SearchField extends \Component\Component
         {
             if ($groupName && $menuComplex)
             {
+                $groupLabel = $groupName;
+
+                //change visual grouplabel, to show correctely in menu
+                if ($groupName == \Filter\Text::GROUP_MAIN)
+                {
+                    $groupLabel = $this->getDbModel()->getLabel();
+                }
+
+                $groupLabel .= ' <i class="filter-group-arrow fa fa-angle-down" >&nbsp;</i>';
+
                 $groupNameFile = \Type\Text::get($groupName)->toFile('-');
-                $item = $fMenu->addItem('group-' . $groupNameFile, null, $groupName, '', 'advanced-filter-menu-group');
+                $item = $fMenu->addItem('group-' . $groupNameFile, null, $groupLabel, '', 'advanced-filter-menu-group');
                 $item->attr('tabindex', 1);
             }
 
             foreach ($filters as $filter)
             {
                 $filter instanceof \Filter\Text;
+
+                //avoid disabled filters
+                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_DISABLE . '')
+                {
+                    continue;
+                }
 
                 //don't add fixed filter to menu
                 if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')

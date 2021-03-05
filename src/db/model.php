@@ -1226,11 +1226,6 @@ class Model implements \JsonSerializable
         return $relations;
     }
 
-    public static function getAutoAddToRelations()
-    {
-        return true;
-    }
-
     public static function mountForeignRelations()
     {
         $name = self::getName();
@@ -1246,17 +1241,10 @@ class Model implements \JsonSerializable
             {
                 $referenceModelClass = '\Model\\' . str_ireplace('\Model\\', '', $referenceModel);
 
-                $autoAddToRelations = $referenceModelClass::getAutoAddToRelations();
-
-                if (!$autoAddToRelations)
-                {
-                    continue;
-                }
-
                 $referenceField = $column->getReferenceField();
                 $referenceTable = $referenceModelClass::getTableName();
                 $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
-                $relations[] = new \Db\Relation($referenceModelClass, $sql);
+                $relations[] = new \Db\Relation($column->getLabel(), $referenceModelClass, $sql);
             }
         }
 

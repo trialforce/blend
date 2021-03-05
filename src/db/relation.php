@@ -31,11 +31,29 @@ class Relation
      */
     protected $modelName;
 
-    public function __construct($modelName, $sql, $type = self::TYPE_OTHER)
+    /**
+     * Relation label
+     * @var string
+     */
+    protected $label;
+
+    public function __construct($label, $modelName, $sql, $type = self::TYPE_OTHER)
     {
+        $this->setLabel($label);
         $this->setType($type);
         $this->setModelName($modelName);
         $this->setSql($sql);
+    }
+
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    public function setLabel($label)
+    {
+        $this->label = $label;
+        return $this;
     }
 
     public function getType()
