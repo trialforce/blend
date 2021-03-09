@@ -538,23 +538,47 @@ class Column
             return $this->getLabel();
         }
 
-        $orderBy = $this->getGrid()->getDataSource()->getOrderBy();
-        $orderWay = $this->getGrid()->getDataSource()->getOrderWay();
+        $safeName = $this->getSafeName();
+        $grid = $this->getGrid();
+        $dataSource = $grid->getDataSource();
+        $order = $dataSource->getOrderByParsedForColumn($safeName);
+        $newOrderWay = 'asc';
+        $class = 'orderBy ';
 
-        $newOrderWay = $orderWay == 'asc' ? 'desc' : 'asc';
+        if ($order->orderWay == 'asc')
+        {
+            $class .= 'fa fa-angle-up';
+            $newOrderWay = 'desc';
+        }
+        else if ($order->orderWay == 'desc')
+        {
+            $class .= 'fa fa-angle-down';
+            $newOrderWay = '';
+        }
 
-        $param['orderBy'] = $this->getSafeName();
-        $param['orderWay'] = $newOrderWay;
+        $orderFromPost = urldecode(\DataHandle\Request::get('orderBy'));
+        $orders = $dataSource->getOrderByParsed($orderFromPost);
+        $orders[$safeName] = new \stdClass();
+        $orders[$safeName]->orderBy = $safeName;
+        $orders[$safeName]->orderWay = $newOrderWay;
+
+        $orderSql = [];
+
+        foreach ($orders as $order)
+        {
+            $orderSql[] = $order->orderBy . ' ' . $order->orderWay;
+        }
+
+        $orderTxt = implode(', ', $orderSql);
+        $param['orderBy'] = urlencode($orderTxt);
 
         //normal link
         $url = $this->getGrid()->getLink('listar', '', $param);
         $link = new \View\A('order' . ucfirst($this->getSafeName()), $this->getLabel() . ' ', $url);
 
-        if ($orderBy === $this->getSql())
+        if ($order->orderBy)
         {
             byId('col-' . $this->getName())->addClass('order-by');
-            $class = 'orderBy ';
-            $class .= $orderWay == 'asc' ? 'fa fa-sort-down' : 'fa fa-sort-up';
             $i = new \View\I(null, null, $class);
             $link->appendChild($i);
         }

@@ -152,6 +152,55 @@ abstract class DataSource
         return $this->orderBy;
     }
 
+    public function getOrderByParsedForColumn($columName)
+    {
+        $orders = $this->getOrderByParsed($this->orderBy);
+
+        if (isset($orders[$columName]))
+        {
+            return $orders[$columName];
+        }
+
+        $obj = new \stdClass();
+        $obj->orderBy = null;
+        $obj->orderWay = null;
+
+        return $obj;
+    }
+
+    public function getOrderByParsed($orderBy)
+    {
+        $result = [];
+
+        if (trim($orderBy) == '')
+        {
+            return $result;
+        }
+
+        $explode = explode(',', trim($orderBy));
+
+        foreach ($explode as $line)
+        {
+            $orderWay = '';
+            $lineExplode = explode(' ', $line);
+            $lastWord = strtolower($lineExplode[count($lineExplode) - 1]);
+
+            if ($lastWord == 'desc' || $lastWord == 'asc')
+            {
+                unset($lineExplode[count($lineExplode) - 1]);
+                $orderWay = $lastWord;
+            }
+
+            $obj = new \stdClass();
+            $obj->orderBy = trim(implode(' ', $lineExplode));
+            $obj->orderWay = $orderWay;
+
+            $result[$obj->orderBy] = $obj;
+        }
+
+        return $result;
+    }
+
     public function setOrderBy($orderBy)
     {
         $this->orderBy = $orderBy;

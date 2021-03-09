@@ -389,7 +389,6 @@ class Grid extends \Component\Component
      */
     public function mountColGroup()
     {
-        $orderBy = $this->getDataSource()->getOrderBy();
         $columns = $this->getColumns();
         $cols = null;
 
@@ -767,7 +766,8 @@ class Grid extends \Component\Component
 
         if (Request::get('orderBy'))
         {
-            $dataSource->setOrderBy(Request::get('orderBy'));
+            $dataSource->setOrderBy(urldecode(Request::get('orderBy')));
+            $dataSource->setOrderWay('');
         }
 
         if (Request::get('orderWay'))

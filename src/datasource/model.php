@@ -122,7 +122,6 @@ class Model extends DataSource
         if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
-
             //programatelly callback
             if ($this->getSmartFilterCallback())
             {
