@@ -308,6 +308,47 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Index this Collection by property and add distinct values from 'other' param.
+     *
+     * @param string $property
+     * @param mixed $other
+     */
+    public function addDistinct($property, $other)
+    {
+        $this->indexByProperty($property);
+
+        if ($other instanceof \Db\Collection || is_array($other))
+        {
+            foreach ($other as $item)
+            {
+                $this->addDistinctExecute($property, $item);
+            }
+        }
+        else
+        {
+            $this->addDistinctExecute($property, $other);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add single item to collection if its property is distinct.
+     *
+     * @param string $property
+     * @param mixed $item
+     */
+    public function addDistinctExecute($property, $item)
+    {
+        $index = self::getPropertyFromItem($item, $property);
+
+        if (!isset($this->data[$index]) || !$this->get($index))
+        {
+            $this->add($item);
+        }
+    }
+
+    /**
      * Push a data to array, same effect as add
      *
      * @param mixed $value
