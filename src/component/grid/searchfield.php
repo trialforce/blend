@@ -247,6 +247,8 @@ class SearchField extends \Component\Component
 
         foreach ($groups as $groupName => $filters)
         {
+            $groupNameFile = '';
+
             if ($groupName && $menuComplex)
             {
                 $groupLabel = $groupName;
