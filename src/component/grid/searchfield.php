@@ -247,6 +247,7 @@ class SearchField extends \Component\Component
 
         foreach ($groups as $groupName => $filters)
         {
+            $groupNameFile = null;
             if ($groupName && $menuComplex)
             {
                 $groupLabel = $groupName;
@@ -283,7 +284,7 @@ class SearchField extends \Component\Component
                 $url = "p('$pageUrl/addAdvancedFilter/{$filter->getFilterName()}');";
                 $item = $fMenu->addItem('advanced-filter-item-' . $filter->getFilterName(), null, $filter->getFilterLabel(), $url);
 
-                if ($menuComplex)
+                if ($groupNameFile)
                 {
                     $item->attr('data-item-group', 'group-' . $groupNameFile);
                     $item->hide();

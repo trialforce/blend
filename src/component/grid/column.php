@@ -547,20 +547,28 @@ class Column
 
         if ($order->orderWay == 'asc')
         {
-            $class .= 'fa fa-angle-up';
+            $class .= 'fa fa-angle-down';
             $newOrderWay = 'desc';
         }
         else if ($order->orderWay == 'desc')
         {
-            $class .= 'fa fa-angle-down';
+            $class .= 'fa fa-angle-up';
             $newOrderWay = '';
         }
 
         $orderFromPost = urldecode(\DataHandle\Request::get('orderBy'));
         $orders = $dataSource->getOrderByParsed($orderFromPost);
-        $orders[$safeName] = new \stdClass();
-        $orders[$safeName]->orderBy = $safeName;
-        $orders[$safeName]->orderWay = $newOrderWay;
+
+        if ($newOrderWay)
+        {
+            $orders[$safeName] = new \stdClass();
+            $orders[$safeName]->orderBy = $safeName;
+            $orders[$safeName]->orderWay = $newOrderWay;
+        }
+        else
+        {
+            unset($orders[$safeName]);
+        }
 
         $orderSql = [];
 
