@@ -263,16 +263,8 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         $this->SMTPDebug = FALSE;
         $this->Mailer = 'smtp';
         $this->SMTPAuth = $auth;
-
-        if (!is_null($protocol))
-        {
-            $this->SMTPSecure = $protocol;
-        }
-        else if (is_null($protocol) && $port != 25)
-        {
-            $this->SMTPSecure = 'ssl';
-        }
-
+        $this->SMTPAutoTLS = false;
+        $this->SMTPSecure = $protocol;
         $this->IsSMTP();
         $this->Host = $smtp;
         $this->Port = $port;
