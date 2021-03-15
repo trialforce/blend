@@ -38,6 +38,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function count()
     {
+        if (!is_array($this->data))
+        {
+            return 0;
+        }
+
         return count($this->data);
     }
 
@@ -301,7 +306,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
         else
         {
-            $this->set(NULL, $value);
+            $this->set(array(), $value);
         }
 
         return $this;
@@ -403,7 +408,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function indexByProperty($property)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
@@ -434,7 +439,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function toKeyValue($key, $value)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
@@ -488,7 +493,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function getValues($property)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
