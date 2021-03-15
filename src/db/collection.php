@@ -312,7 +312,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
         else
         {
-            $this->set(array(), $value);
+            $this->set(null, $value);
         }
 
         return $this;
@@ -349,7 +349,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param string $property
      * @param mixed $item
      */
-    public function addDistinctExecute($property, $item)
+    private function addDistinctExecute($property, $item)
     {
         $index = self::getPropertyFromItem($item, $property);
 
