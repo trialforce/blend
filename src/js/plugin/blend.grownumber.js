@@ -20,7 +20,7 @@ blend.grownumber.start = function()
     elements.each (function(idx)
     {
         var element = $(elements[idx]);
-        var valueOriginal = parseInt(element.data('grow-number'));
+        var valueOriginal = toNumber(element.data('grow-number'));
         var intervalTime = blend.grownumber.defaultTime / valueOriginal;
         var increment = 1;
         
@@ -44,7 +44,8 @@ blend.grownumber.start = function()
             {
                 element.html(newValue);
                 clearInterval(myInterval);
-                element.data('grow-number', '');
+                //avoid do ite again
+                element.removeAttr('data-grow-number');
             }
             
         }, intervalTime);

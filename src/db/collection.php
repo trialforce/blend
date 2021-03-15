@@ -260,6 +260,12 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function set($key, $value)
     {
+        //avoid crappy error
+        if (!is_array($this->data))
+        {
+            $this->data = array();
+        }
+
         if (is_null($key))
         {
             $this->data[] = $value;
