@@ -535,6 +535,52 @@ class Image extends \Disk\File
         return $this;
     }
 
+    /**
+     * Resize the image to fit a square, adding white letterboxes where needed
+     *
+     * @param int $maxWidth
+     */
+    function toSquare($maxWidth = null)
+    {
+        $this->load();
+
+        if ($this->getWidth() == 0 || $this->getHeight() == 0)
+        {
+            return $this;
+        }
+
+        $width = $this->getWidth();
+        $height = $this->getHeight();
+
+        if ($height > $width)
+        {
+            $ratio = $maxWidth / $height;
+            $x = $width * $ratio;
+            $y = $maxWidth;
+            $pos_x = round(($maxWidth - $x) / 2);
+            $pos_y = 0;
+        }
+        else
+        {
+            $ratio = $maxWidth / $width;
+            $x = $maxWidth;
+            $y = $height * $ratio;
+            $pos_x = 0;
+            $pos_y = round(($maxWidth - $y) / 2);
+        }
+
+        $thumb = imagecreate($maxWidth, $maxWidth);
+        imagepalettetotruecolor($thumb);
+
+        $color = imagecolorallocatealpha($thumb, 255, 255, 255, 0);
+        imagefill($thumb, 0, 0, $color);
+        imagecopyresized($thumb, $this->content, $pos_x, $pos_y, 0, 0, $x, $y, $width, $height);
+
+        $this->content = $thumb;
+
+        return $this;
+    }
+
     public function copyresampled($dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH)
     {
         $dstW = intval($dstW);
