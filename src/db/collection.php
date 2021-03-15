@@ -38,6 +38,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function count()
     {
+        if (!is_array($this->data))
+        {
+            return 0;
+        }
+
         return count($this->data);
     }
 
@@ -255,6 +260,12 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function set($key, $value)
     {
+        //avoid crappy error
+        if (!is_array($this->data))
+        {
+            $this->data = array();
+        }
+
         if (is_null($key))
         {
             $this->data[] = $value;
@@ -301,7 +312,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
         else
         {
-            $this->set(NULL, $value);
+            $this->set(null, $value);
         }
 
         return $this;
@@ -338,7 +349,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param string $property
      * @param mixed $item
      */
-    public function addDistinctExecute($property, $item)
+    private function addDistinctExecute($property, $item)
     {
         $index = self::getPropertyFromItem($item, $property);
 
@@ -403,7 +414,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function indexByProperty($property)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
@@ -434,7 +445,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function toKeyValue($key, $value)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
@@ -488,7 +499,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function getValues($property)
     {
-        $result = NULL;
+        $result = array();
         $array = $this->getData();
 
         if (is_array($array))
