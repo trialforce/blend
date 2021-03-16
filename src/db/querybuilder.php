@@ -810,7 +810,7 @@ class QueryBuilder
 
     /**
      * Simple method that return the count of all registers in query
-     * 
+     *
      * @return int
      */
     public function count()

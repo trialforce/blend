@@ -201,7 +201,19 @@ class Cond implements \Db\Filter
 
         if ($this->getValue())
         {
-            $where = str_replace('?', implode(',', $this->getValue()), $where);
+            $parts = explode('?', $where);
+            $values = $this->getValue();
+            $param = '';
+
+            foreach ($parts as $i => $part)
+            {
+                if ($part && isset($values[$i]) && $values[$i])
+                {
+                    $param .= $part . '\'' . $values[$i] . '\' ';
+                }
+            }
+
+            $where = $param;
         }
 
         if ($first)

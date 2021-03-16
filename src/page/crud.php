@@ -190,6 +190,7 @@ class Crud extends \Page\Page
      */
     public function adicionar()
     {
+        \App::dontChangeUrl();
         $this->setFocusOnFirstField();
 
         $this->append($this->getHead());

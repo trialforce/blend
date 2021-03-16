@@ -241,7 +241,14 @@ class Where implements \Db\Filter
         //when it has ? keep as it is
         if (stripos($this->param, '?') !== false)
         {
-            $param = str_replace('?', implode(',', $this->getValue()), $this->param);
+            $parts = explode('?', $this->param);
+            $values = $this->getValue();
+            $param = '';
+
+            foreach ($parts as $i => $part)
+            {
+                $param .= $part . '\'' . $values[$i] . '\' ';
+            }
         }
         //specifs for IN parameter
         else if ($this->param == 'IN')

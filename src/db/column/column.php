@@ -946,13 +946,15 @@ class Column
     {
         $result = $sqlForColumn;
 
+        //have AS
         if (stripos($sqlForColumn, ' AS '))
         {
+            //padronize AS
             $sqlForColumn = str_replace(array(' as ', ' As', ' aS '), ' AS ', $sqlForColumn);
             $explode = explode(' AS ', $sqlForColumn);
             unset($explode[count($explode) - 1]);
 
-            $result = implode(' ', $explode);
+            $result = implode(' AS ', $explode);
         }
 
         //remove " and ` from start and end

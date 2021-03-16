@@ -99,12 +99,34 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilderFeeded();
         $realName = $aggregator->getColumnName();
         $sqlColumn = $this->getQueryColumnByRealname($realName);
+
         $sqlColumn = \Db\Column\Column::getRealSqlColumn($sqlColumn);
 
-        $method = $aggregator->getMethod();
-        $query = $method . '( ' . $sqlColumn . ' )';
+        if ($qBuilder->getGroupBy())
+        {
+            $method = $aggregator->getMethod();
+            //store groupby to apply select without it
+            $groupBy = $qBuilder->getGroupBy();
+            $query = '(' . $sqlColumn . ')';
+            $qBuilder->setGroupBy(null);
 
-        $result = $qBuilder->aggregation($query);
+            /* $qBuilder->clearOrderBy();
+              $qBuilder->limit(null, null);
+              $qBuilder->setColumns($query . ' AS aggregation');
+              $sql = $qBuilder->getSelectSql(true);
+              $sql = 'SELECT ' . $method . '(aggregation) FROM (' . $sql . ') as tableAgg'; */
+
+            $result = $qBuilder->aggregation($query);
+            //restore groupby
+            $qBuilder->setGroupBy($groupBy);
+        }
+        else
+        {
+            $method = $aggregator->getMethod();
+            $query = $method . '( ' . $sqlColumn . ' )';
+
+            $result = $qBuilder->aggregation($query);
+        }
 
         return $aggregator->getLabelledValue($result);
     }
@@ -115,7 +137,6 @@ class QueryBuilder extends DataSource
         {
             $qBuilder = $this->getQueryBuilderFeeded();
             $qBuilder = clone($qBuilder);
-
             $countSql = 'COUNT(*)';
 
             //TODO verify if it works in all time
