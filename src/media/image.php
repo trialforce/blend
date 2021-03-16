@@ -574,7 +574,7 @@ class Image extends \Disk\File
 
         $color = imagecolorallocatealpha($thumb, 255, 255, 255, 0);
         imagefill($thumb, 0, 0, $color);
-        imagecopyresized($thumb, $this->content, $pos_x, $pos_y, 0, 0, $x, $y, $width, $height);
+        imagecopyresampled($thumb, $this->content, $pos_x, $pos_y, 0, 0, $x, $y, $width, $height);
 
         $this->content = $thumb;
 
