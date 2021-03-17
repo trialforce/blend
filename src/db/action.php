@@ -127,20 +127,27 @@ abstract class Action
             $post_string = http_build_query($params);
         }
 
-        $parts = parse_url($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 
-        $port = isset($parts['port']) ? $parts['port'] : 80;
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
+        curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
 
-        $fp = fsockopen($parts['host'], $port, $errno, $errstr, 30);
+        if (stripos($url, 'localhost:8080') !== false)
+        {
+            curl_setopt($ch, CURLOPT_PORT, 80);
+        }
 
-        //you can use POST instead of GET if you like
-        $out = "GET " . $parts['path'] . "?$post_string" . " HTTP/1.1\r\n";
-        $out .= "Host: " . $parts['host'] . "\r\n";
-        $out .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $out .= "Content-Length: " . strlen($post_string) . "\r\n";
-        $out .= "Connection: Close\r\n\r\n";
-        fwrite($fp, $out);
-        fclose($fp);
+        curl_exec($ch);
+        // also get the error and response code
+//        $error = curl_error($ch);
+
+        curl_close($ch);
 
         return TRUE;
     }
