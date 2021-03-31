@@ -52,7 +52,7 @@ class Option extends \View\View
             else //simple object
             {
                 $values = array_values((array) $item);
-                $option = new \View\Option($values[0], $values[1] . '', FALSE, $parent);
+                $option = new \View\Option($values[0], isset($values[1]) ? $values[1] : $values[0] . '', FALSE, $parent);
             }
         }
         else //simple array
