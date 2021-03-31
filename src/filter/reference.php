@@ -127,7 +127,14 @@ class Reference extends \Filter\Collection
         {
             if ($this->dbColumn)
             {
-                $this->filterSql = $this->dbColumn->getReferenceSql(FALSE);
+                if ($this->dbColumn->getClass())
+                {
+                    $this->filterSql = $this->dbColumn->getReferenceSql(FALSE);
+                }
+                else
+                {
+                    $this->filterSql = $this->dbColumn->getName();
+                }
             }
             else
             {
@@ -141,8 +148,10 @@ class Reference extends \Filter\Collection
     public function createWhere($index = 0)
     {
         $column = $this->getColumn();
+
         $dbColumn = $this->dbColumn;
         $columnName = $column ? $column->getSql() : $this->getFilterName();
+
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
