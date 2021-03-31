@@ -64,10 +64,6 @@ class Reference extends \Filter\Collection
         {
             $options[self::COND_TEXT] = 'Texto';
             $options[self::COND_TEXT_EQUALS] = 'Texto - Igual';
-            $options[self::COND_EQUALS] = 'Cód - Igual';
-            $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
-            $options[self::COND_NULL_OR_EMPTY] = 'Cód - Vazio';
-            $options[self::COND_NOT_NULL_OR_EMPTY] = 'Cód - Não vazio';
         }
         else
         {
