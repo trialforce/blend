@@ -28,9 +28,8 @@ blend.lazyloading.onScroll = function()
 blend.lazyloading.parse = function()
 {
     var elements = $('[data-lazyloading-background-image]');
-    var imgs = $('[data-lazyloading-src');
+    var imgs = $('[data-lazyloading-src]');
     var heightVisible = body.scrollTop+screen.height;
-    
     
     elements.each(function(idx)
     {
