@@ -29,7 +29,8 @@ class ImageUpload extends \View\Div
         $pageUrl = \View\View::getDom()->getPageUrl();
 
         $upload = new \View\Input('label_' . $id, \View\Input::TYPE_FILE);
-        $upload->change("fileUpload('{$pageUrl}/{$phpFunction}/?idUpload={$id}');");
+        $urlChangeUpload = "fileUpload('{$pageUrl}/{$phpFunction}/?idUpload={$id}');";
+        $upload->change($urlChangeUpload);
 
         $accept = $accept ? $accept : 'image/*';
         $upload->setAttribute('accept', $accept);
@@ -61,6 +62,44 @@ class ImageUpload extends \View\Div
         $labelImg->click("$(this).parent().find('input').click()");
 
         $this->append($labelImg);
+
+        $this->addJs($urlChangeUpload);
+    }
+
+    private function addJs($urlChangeUpload)
+    {
+        \App::addJs("
+    var dropContainer = document.getElementById('{$this->getId()}');
+    var fileInput = document.getElementById('label_{$this->getId()}');
+
+    dropContainer.ondragover = function(evt)
+    {
+        $('#{$this->getId()}').addClass('drag-over');
+        //dropContainer.classList.add('drag-over')
+        evt.preventDefault();
+    }
+
+    dropContainer.ondragenter = function(evt)
+    {
+        evt.preventDefault();
+    };
+
+    dropContainer.ondrop = function(evt)
+    {
+        $('#{$this->getId()}').removeClass('drag-over');
+        // pretty simple -- but not for IE :(
+        fileInput.files = evt.dataTransfer.files;
+
+        // If you want to use some of the dropped files
+        //const dT = new DataTransfer();
+        //dT.items.add(evt.dataTransfer.files[0]);
+        //dT.items.add(evt.dataTransfer.files[3]);
+        //fileInput.files = dT.files;
+
+        evt.preventDefault();
+        {$urlChangeUpload}
+    };
+");
     }
 
     /**
