@@ -111,7 +111,7 @@ class Vector
                     continue;
                 }
 
-                $this->array[] = array($column->getName() => $this->defaultClass);
+                $this->array[] = array($column->getName() => self::$defaultClass);
             }
         }
 
