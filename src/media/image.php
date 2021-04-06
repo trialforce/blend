@@ -397,11 +397,11 @@ class Image extends \Disk\File
     {
         if ($color->getAlpha() == NULL)
         {
-            return imagecolorallocate($this->content, $color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlpha());
+            return imagecolorallocate($this->content, $color->getRed(), $color->getGreen(), $color->getBlue());
         }
         else
         {
-            return imagecolorallocatealpha($this->content, $color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlpha());
+            return imagecolorallocatealpha($this->content, $color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlphaGd());
         }
     }
 
@@ -753,6 +753,38 @@ class Image extends \Disk\File
         {
             imagedestroy($this->content);
         }
+    }
+
+    /**
+     * Get the RGBA color at informed pixel
+     * @param int $x x
+     * @param int $y y
+     * @return \Media\Color
+     */
+    public function getColorAt($x, $y)
+    {
+        $rgba = imagecolorsforindex($this->getContent(), imagecolorat($this->getContent(), $x, $y));
+        return \Media\Color::fromRGBArray($rgba);
+    }
+
+    /**
+     * Set the RGBA color at informed pixel
+     *
+     * @param int $x x
+     * @param int $y y
+     * @param \Media\Color $color color
+     * @return $this \Media\Image
+     */
+    public function setColorAt($x, $y, \Media\Color $color)
+    {
+        $this->setPixel($x, $y, $this->allocateColor($color));
+
+        return $this;
+    }
+
+    public function setPixel($x, $y, $allocate)
+    {
+        return imagesetpixel($this->getContent(), $x, $y, $allocate);
     }
 
 }
