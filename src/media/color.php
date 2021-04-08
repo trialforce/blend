@@ -232,6 +232,16 @@ class Color
     }
 
     /**
+     * Return the hexadecimal description of color
+     *
+     * @return string
+     */
+    public function getHex()
+    {
+        return sprintf("#%02x%02x%02x", $this->getRed(), $this->getGreen(), $this->getBlue());
+    }
+
+    /**
      * Convert RGB to HSV
      *
      * RGB values:    0-255, 0-255, 0-255
