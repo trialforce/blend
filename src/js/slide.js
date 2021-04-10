@@ -6,20 +6,20 @@
  */
 function slide(selector)
 {
-    var wrapper = $($(selector).get(0));
-    var items = wrapper.find('.slider-items').get(0);
-    var prev = wrapper.find('.slider-prev').get(0);
-    var next = wrapper.find('.slider-next').get(0);
-    var autoSlide = wrapper.data('auto-slide');
-    var fullScreen = wrapper.data('full-screen');
-    var dataStartIndex = wrapper.data('start-index');
+    var group = $($(selector).get(0));
+    var items = group.find('.slider-items').get(0);
+    var prev = group.find('.slider-prev').get(0);
+    var next = group.find('.slider-next').get(0);
+    var autoSlide = group.data('auto-slide');
+    var fullScreen = group.data('full-screen');
+    var dataStartIndex = group.data('start-index');
    
     //copy outter width to inner
-    var outterWidth = wrapper.find('.slider-wrapper').width();
-    var outterHeight = wrapper.height();
+    var outterWidth = group.find('.slider-wrapper').width();
+    var outterHeight = parseInt(group.height());
     
     //don't proccess the same slide again
-    if ($(wrapper).hasClass('loaded'))
+    if ($(group).hasClass('loaded'))
     {
         return;
     }
@@ -36,22 +36,22 @@ function slide(selector)
     }
     
     //if it don't has any slide, does nothing
-    var slideCount = wrapper.find('.slide').length;
+    var slideCount = group.find('.slide').length;
     
     //remove slide prev/next if not neeed
     if (slideCount <= 1 )
     {
-        wrapper.find('.slider-prev').remove();
-        wrapper.find('.slider-next').remove();
+        group.find('.slider-prev').remove();
+        group.find('.slider-next').remove();
     }
 
     //ajdust width e height
-    wrapper.find('.slide').css('width', outterWidth+'px');
-    wrapper.find('.slide').css('height', outterHeight+'px');
-    wrapper.find('.slider-items').css('left', '-' + outterWidth+'px');
-    wrapper.find('.slider-wrapper').css('height', outterHeight+'px');
+    group.find('.slide').css('width', outterWidth+'px');
+    group.find('.slide').css('height', outterHeight+'px');
+    group.find('.slider-items').css('left', '-' + outterWidth+'px');
+    group.find('.slider-wrapper').css('height', outterHeight+'px');
     
-    var slicker = wrapper.find('.slider-slick');
+    var slicker = group.find('.slider-slick');
     
     slicker.each( function(index)
     {
@@ -109,7 +109,7 @@ function slide(selector)
     // Clone first and last slide
     items.appendChild(cloneFirst);
     items.insertBefore(cloneLast, firstSlide);
-    wrapper.addClass('loaded');
+    group.addClass('loaded');
 
     // Mouse and Touch events
     items.onmousedown = dragStart;
@@ -320,10 +320,10 @@ function slide(selector)
         newSlider.attr('id','slider-full-screen');
         newSlider.removeAttr('data-full-screen');
         
-        var wrapper = newSlider.find('.slider-wrapper');
-        wrapper.attr('class','');
-        wrapper.addClass('slider-wrapper');
-        wrapper.css('height','90vh');
+        var group = newSlider.find('.slider-wrapper');
+        group.attr('class','');
+        group.addClass('slider-wrapper');
+        group.css('height','90vh');
         
         var sliderItems = newSlider.find('.slider-items');
         sliderItems.css('height',"");
