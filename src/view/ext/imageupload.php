@@ -69,36 +69,41 @@ class ImageUpload extends \View\Div
     private function addJs($urlChangeUpload)
     {
         \App::addJs("
-    var dropContainer = document.getElementById('{$this->getId()}');
-    var fileInput = document.getElementById('label_{$this->getId()}');
-
-    dropContainer.ondragover = function(evt)
+    setTimeout( function()
     {
-        $('#{$this->getId()}').addClass('drag-over');
-        //dropContainer.classList.add('drag-over')
-        evt.preventDefault();
-    }
+        var dropContainer = document.getElementById('{$this->getId()}');
+        var fileInput = document.getElementById('label_{$this->getId()}');
 
-    dropContainer.ondragenter = function(evt)
-    {
-        evt.preventDefault();
-    };
+        if (dropContainer && fileInput)
+        {
+            dropContainer.ondragover = function(evt)
+            {
+                $('#{$this->getId()}').addClass('drag-over');
+                evt.preventDefault();
+            }
 
-    dropContainer.ondrop = function(evt)
-    {
-        $('#{$this->getId()}').removeClass('drag-over');
-        // pretty simple -- but not for IE :(
-        fileInput.files = evt.dataTransfer.files;
+            dropContainer.ondragenter = function(evt)
+            {
+                evt.preventDefault();
+            };
 
-        // If you want to use some of the dropped files
-        //const dT = new DataTransfer();
-        //dT.items.add(evt.dataTransfer.files[0]);
-        //dT.items.add(evt.dataTransfer.files[3]);
-        //fileInput.files = dT.files;
+            dropContainer.ondrop = function(evt)
+            {
+                $('#{$this->getId()}').removeClass('drag-over');
+                // pretty simple -- but not for IE :(
+                fileInput.files = evt.dataTransfer.files;
 
-        evt.preventDefault();
-        {$urlChangeUpload}
-    };
+                // If you want to use some of the dropped files
+                //const dT = new DataTransfer();
+                //dT.items.add(evt.dataTransfer.files[0]);
+                //dT.items.add(evt.dataTransfer.files[3]);
+                //fileInput.files = dT.files;
+
+                evt.preventDefault();
+                {$urlChangeUpload}
+            };
+        }
+    },500);
 ");
     }
 
