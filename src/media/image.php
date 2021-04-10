@@ -572,7 +572,7 @@ class Image extends \Disk\File
         $thumb = imagecreate($maxWidth, $maxWidth);
         imagepalettetotruecolor($thumb);
 
-        $color = imagecolorallocatealpha($thumb, 255, 255, 255, 0);
+        $color = $this->allocateColor($this->getColorAt(0, 0));
         imagefill($thumb, 0, 0, $color);
         imagecopyresampled($thumb, $this->content, $pos_x, $pos_y, 0, 0, $x, $y, $width, $height);
 
