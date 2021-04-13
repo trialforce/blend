@@ -301,6 +301,8 @@ function slide(selector)
             items.style.left = -(1 * slideSize) + "px";
             index = 0;
         }
+        
+        setActiveSymbol(index);
 
         allowShift = true;
     }
@@ -345,6 +347,26 @@ function slide(selector)
         $('body').append(newSlider).css('overflow','hidden');
         
         slide('#slider-full-screen');
+    }
+    
+    function setActiveSymbol(position)
+    {
+        // refreshes page count symbols
+        var pages = group.find('.slider-slick');
+        
+        if (typeof pages == undefined || pages.length == 0)
+        {
+            return false;
+        }
+        
+        for (var i = 0; i < pages.length; i++)
+        {
+            var page = pages.get(i);
+            page.classList.remove('active');
+        }
+        
+        var page = pages.get(position);
+        page.classList.add('active');
     }
 };
 
