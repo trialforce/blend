@@ -201,9 +201,7 @@ class Template
 
     public function execute()
     {
-        $this->content = $this->replaceContentParams($this->content);
-        $originalContent = $this->content;
-
+        //pass trough datasource to put the default _count parameters
         $dataSources = $this->getDataSources();
 
         if (isIterable($dataSources) && count($dataSources) > 0)
@@ -211,6 +209,19 @@ class Template
             foreach ($dataSources as $sectionName => $dataSource)
             {
                 $data = $dataSource->getData();
+                $this->setParam($sectionName . '_count', count($data));
+            }
+        }
+
+        $this->content = $this->replaceContentParams($this->content);
+        $originalContent = $this->content;
+
+        if (isIterable($dataSources) && count($dataSources) > 0)
+        {
+            foreach ($dataSources as $sectionName => $dataSource)
+            {
+                $data = $dataSource->getData();
+
                 //stores for further use
                 $this->data[$sectionName] = $data;
                 $columns = $dataSource->getColumns();
