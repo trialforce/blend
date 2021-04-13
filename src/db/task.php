@@ -58,7 +58,8 @@ abstract class Task
      */
     public function getResultView()
     {
-        return new \View\Div(null, nl2br($this->getResult()));
+        $result = is_array($this->getResult()) ? implode('<br/>', $this->getResult()) : $this->getResult();
+        return new \View\Div(null, nl2br($result));
     }
 
     /**
