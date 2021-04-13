@@ -70,9 +70,7 @@ blend.lazyloading.parse = function()
     {
         var element = $(actives[idx]);
         var offsetTop = element.offset().top + (150);
-        
-        console.log(heightVisible+'='+offsetTop);
-    
+          
         if ( heightVisible > offsetTop)
         {
             element.addClass('lazyloading-active');

@@ -152,8 +152,6 @@ class Grid extends \Component\Component
     /**
      * Retturn the columns of the grid
      *
-     * @deprecated since version 2019-09-25 Use getDatasource->getColumns()
-     *
      * @return array
      */
     public function getColumns()

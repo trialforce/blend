@@ -124,6 +124,7 @@ class SearchField extends \Component\Component
 
         $innerHtml[] = $this->mountAdvancedFiltersMenu();
         $innerHtml[] = $this->createBookmarkMenu();
+        $innerHtml[] = $this->createGroupButton();
         $innerHtml[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded(), 'clearfix');
         $innerHtml[] = $this->getSearchButton();
 
@@ -238,7 +239,7 @@ class SearchField extends \Component\Component
         $pageUrl = \View\View::getDom()->getPageUrl();
 
         $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', 'floatingMenuToggle();');
-        $icon->append(new \View\Span('advanced-filter-span', 'Filtros'));
+        $icon->append(new \View\Span(null, 'Filtros', 'advanced-filter-span'));
         $fMenu = new \View\Blend\FloatingMenu('fm-filters');
         $icon->append($fMenu->hide());
 
@@ -304,7 +305,7 @@ class SearchField extends \Component\Component
 
         $icon = new \View\Ext\Icon('thumbtack filter-menu blend-floating-menu-holder');
         $icon->setId('bookmark-filter')->click('$(\'#fm-bookmark\').toggle(\'fast\');');
-        $icon->append(new \View\Span('advanced-filter-span', 'Relatórios'));
+        $icon->append(new \View\Span(null, 'Relatórios', 'advanced-filter-span'));
 
         $menu = new \View\Blend\FloatingMenu('fm-bookmark');
         $icon->append($menu->hide());
@@ -342,6 +343,17 @@ class SearchField extends \Component\Component
 
         $url = "p('{$pageUrl}/saveListItem',$('.content').serialize());";
         $menu->addItem('save-item-new', null, $content, $url);
+
+        return $icon;
+    }
+
+    public function createGroupButton()
+    {
+        $pageUrl = \View\View::getDom()->getPageUrl();
+
+        $icon = new \View\Ext\Icon('layer-group filter-menu');
+        $icon->setId('bookmark-filter')->click("p('{$pageUrl}/gridGroupPopup');");
+        $icon->append(new \View\Span(null, 'Agrupamento', 'advanced-filter-span'));
 
         return $icon;
     }

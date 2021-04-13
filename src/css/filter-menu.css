@@ -56,6 +56,12 @@ i.fa-thumbtack.filter-menu {
     font-size: 26px;
 }
 
+i.fa-layer-group.filter-menu {
+    right: 60px;
+    margin-top: 1px;
+    font-size: 23px;
+}
+
 .filterInput.integer, .filterInput.float {
     min-width: inherit;
     /*width: 35%;*/
@@ -100,7 +106,7 @@ i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
     max-width: 300px;
 }
 
-#advanced-filter-span {
+.advanced-filter-span {
     display: none;
 }
 

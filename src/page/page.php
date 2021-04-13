@@ -952,4 +952,152 @@ class Page extends \View\Layout
         \App::addJs("toolTip('{$selector}', '{$message}');");
     }
 
+    public function gridGroupPopup()
+    {
+        \App::dontChangeUrl();
+        $grid = $this->getGrid();
+        $columns = $grid->getColumns();
+        $left[] = new \View\H3(null, 'Agrupar por');
+
+        $options = [];
+
+        foreach ($columns as $column)
+        {
+            $column instanceof \Component\Grid\Column;
+            $options[$column->getName()] = $column->getLabel();
+        }
+
+        $left[] = new \View\Select('gridGroupBy', $options, null, 'column-12');
+
+        //$left[] = $btn = new \View\Div(null, array(new \View\Ext\Icon('plus'), 'Adicionar agrupamento'), 'addFilter');
+        //$btn->click("p('{$this->getPageUrl()}/gridGroupAddGroup');");
+
+        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup', 'clean small');
+        //$btn->css('margin-top', '16px');
+        $btn->css('border', 'none');
+        $left[] = $leftHolder = new \View\Div('leftHolder', null);
+        $leftHolder->css('margin-top', '30px');
+
+        $right[] = new \View\H3(null, 'Mostrar agregação');
+
+        $right[] = new \View\Select('gridAggrBy', $options, null, 'column-6');
+
+        $right[] = new \View\Select('gridAggrMethods', self::gridAggrMethods(), null, 'column-6');
+
+        $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr', 'clean small');
+        //$btn->css('margin-top', '16px');
+        $btn->css('border', 'none');
+        $right[] = $rightHolder = new \View\Div('rightHolder', null);
+        $rightHolder->css('margin-top', '30px');
+
+        $content[] = new \View\Div('left', $left, 'column-p-6');
+        $content[] = new \View\Div('right', $right, 'column-p-6');
+
+        $buttons = [];
+        $buttons[] = new \View\Ext\Button('ok', 'check', 'Executar', 'gridGroupExecute', 'primary');
+
+        $popup = new \View\Blend\Popup('popupAggr', 'Agrupamento de dados', $content, $buttons, 'form');
+        $popup->show();
+    }
+
+    public function gridGroupAddGroup()
+    {
+        \App::dontChangeUrl();
+        $gridGroupBy = Request::get('gridGroupBy');
+        $grid = $this->getGrid();
+        $columns = $grid->getColumns();
+        $column = $columns[$gridGroupBy];
+
+        if (!$column)
+        {
+            throw new \UserException('Impossível encontrar coluna ' . $gridGroupBy);
+        }
+
+        $selecionados = Request::get('grid-groupby-field');
+
+        if (isset($selecionados[$gridGroupBy]))
+        {
+            throw new \UserException('Campo \'' . $column->getLabel() . '\' já adicionado ao agrupamento.');
+        }
+
+        $idField = 'grid-groupby-field-' . $gridGroupBy;
+
+        $content = [];
+        $content[] = new \View\Input('grid-groupby-field[' . $gridGroupBy . ']', 'hidden', $gridGroupBy);
+
+        $content[] = $column->getLabel();
+        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();");
+        $btnRemove->css('float', 'right');
+
+        $div = new \View\Div($idField, $content, 'column-12');
+
+        $this->byId('leftHolder')->append($div);
+        $this->byId('gridGroupBy')->val('');
+    }
+
+    public function gridGroupAddAggr()
+    {
+        \App::dontChangeUrl();
+        $methods = self::gridAggrMethods();
+        $gridAggrBy = Request::get('gridAggrBy');
+        $gridAggrMethods = Request::get('gridAggrMethods');
+
+        if (!$gridAggrBy || !$gridAggrMethods)
+        {
+            throw new \UserException('Selecione ambos parametros!');
+        }
+
+        $grid = $this->getGrid();
+        $columns = $grid->getColumns();
+        $column = $columns[$gridAggrBy];
+
+        if (!$column)
+        {
+            throw new \UserException('Impossível encontrar coluna ' . $gridAggrBy);
+        }
+
+        $posted = Request::get('grid-aggrby-field');
+        $value = $gridAggrMethods . '-' . $gridAggrBy;
+        $label = $methods[$gridAggrMethods] . ' - ' . $column->getLabel();
+
+        if (isset($posted[$value]))
+        {
+            throw new \UserException('Campo \'' . $label . '\' já adicionado ao agrupamento.');
+        }
+
+        $idField = 'grid-aggrby-field-' . $gridAggrBy;
+
+        $content = [];
+        $content[] = new \View\Input('grid-aggrby-field[' . $value . ']', 'hidden', $value);
+
+        $content[] = $label;
+        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();");
+        $btnRemove->css('float', 'right');
+
+        $div = new \View\Div($idField, $content, 'column-12');
+
+        $this->byId('rightHolder')->append($div);
+        $this->byId('gridAggrBy')->val('');
+        $this->byId('gridAggrMethods')->val('');
+    }
+
+    public function gridGroupExecute()
+    {
+        \App::dontChangeUrl();
+        \View\Blend\Popup::delete();
+        alert(1);
+    }
+
+    public static function gridAggrMethods()
+    {
+        $methods = [];
+        $methods['sum'] = 'Soma';
+        $methods['max'] = 'Máximo';
+        $methods['min'] = 'Mínimo';
+        $methods['avg'] = 'Média';
+        $methods['count'] = 'Contagem';
+
+        return $methods;
+    }
+
 }
