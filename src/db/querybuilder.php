@@ -786,7 +786,20 @@ class QueryBuilder
     }
 
     /**
-     * Simple method to make an aggregation
+     * Execute an aggregation in database
+     * sum, max, min, avg, count
+     *
+     * @param string $method
+     * @param string $property
+     * @return int
+     */
+    public function aggr($method, $property)
+    {
+        return $this->aggregation($method . '(' . $property . ')');
+    }
+
+    /**
+     * Execute an aggregation in database
      *
      * @param string $aggr the aggregation, Ex.: SUM(price)
      * @return mixed
