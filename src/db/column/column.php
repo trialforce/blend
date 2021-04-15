@@ -472,6 +472,16 @@ class Column
         return $this->constantValues;
     }
 
+    public function getConstantValuesArray()
+    {
+        if ($this->constantValues instanceof \Db\ConstantValues)
+        {
+            return $this->constantValues->getArray();
+        }
+
+        return $this->constantValues;
+    }
+
     public function setConstantValues($constantValues)
     {
         $this->constantValues = $constantValues;
