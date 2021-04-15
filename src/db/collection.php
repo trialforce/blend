@@ -199,6 +199,42 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     }
 
     /**
+     * Make an aggregation passing its method and property
+     * sum, max, min, avg, count
+     *
+     * @param string $method method
+     * @param string $property property
+     * @return int
+     */
+    public function aggr($method, $property)
+    {
+        $method = trim(strtolower($method));
+
+        if ($method == 'sum')
+        {
+            return $this->sum($property);
+        }
+        else if ($method == 'max')
+        {
+            return $this->max($property);
+        }
+        else if ($method == 'min')
+        {
+            return $this->min($property);
+        }
+        else if ($method == 'avg')
+        {
+            return $this->avg($property);
+        }
+        else if ($method == 'count')
+        {
+            return $this->count();
+        }
+
+        return 0;
+    }
+
+    /**
      * Make a sum of an property
      *
      * @param string $property the property to sum
@@ -232,6 +268,52 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
 
         return $total / $this->count();
+    }
+
+    /**
+     * Return the minimum of property
+     *
+     * @param string $property
+     * @return int
+     */
+    public function min($property)
+    {
+        $min = 0;
+
+        foreach ($this->data as $idx => $item)
+        {
+            $value = self::getPropertyFromItem($item, $property)->toDb();
+
+            if ($value < $min)
+            {
+                $min = $value;
+            }
+        }
+
+        return $min;
+    }
+
+    /**
+     * Return the maximum of property
+     *
+     * @param string $property
+     * @return int
+     */
+    public function max($property)
+    {
+        $min = 0;
+
+        foreach ($this->data as $idx => $item)
+        {
+            $value = self::getPropertyFromItem($item, $property)->toDb();
+
+            if ($value > $min)
+            {
+                $min = $value;
+            }
+        }
+
+        return $min;
     }
 
     /**
