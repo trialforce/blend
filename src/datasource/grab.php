@@ -117,12 +117,7 @@ class Grab
 
         if ($dbColumn)
         {
-            $constantValues = $dbColumn->getConstantValues();
-
-            if ($constantValues instanceof \Db\ConstantValues)
-            {
-                $constantValues = $constantValues->getArray();
-            }
+            $constantValues = $dbColumn->getConstantValuesArray();
 
             if (isIterable($constantValues))
             {
@@ -248,6 +243,7 @@ class Grab
      */
     public static function getUserValue($column, $item)
     {
+
         if (!$column)
         {
             return NULL;

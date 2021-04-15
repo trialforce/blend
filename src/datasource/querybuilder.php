@@ -96,10 +96,17 @@ class QueryBuilder extends DataSource
 
     public function executeAggregator(Aggregator $aggregator)
     {
+        $data = $this->getData();
+
+        //we can execut aggregation trough php
+        if ($this->getCount() == count($data) && $data instanceof \Db\Collection)
+        {
+            return $aggregator->getLabelledValue($data->aggr($aggregator->getMethod(), $aggregator->getColumnName()));
+        }
+
         $qBuilder = $this->getQueryBuilderFeeded();
         $realName = $aggregator->getColumnName();
         $sqlColumn = $this->getQueryColumnByRealname($realName);
-
         $sqlColumn = \Db\Column\Column::getRealSqlColumn($sqlColumn);
 
         if ($qBuilder->getGroupBy())
@@ -109,12 +116,6 @@ class QueryBuilder extends DataSource
             $groupBy = $qBuilder->getGroupBy();
             $query = '(' . $sqlColumn . ')';
             $qBuilder->setGroupBy(null);
-
-            /* $qBuilder->clearOrderBy();
-              $qBuilder->limit(null, null);
-              $qBuilder->setColumns($query . ' AS aggregation');
-              $sql = $qBuilder->getSelectSql(true);
-              $sql = 'SELECT ' . $method . '(aggregation) FROM (' . $sql . ') as tableAgg'; */
 
             $result = $qBuilder->aggregation($query);
             //restore groupby
@@ -160,6 +161,7 @@ class QueryBuilder extends DataSource
         }
 
         $qBuilder = $this->getQueryBuilderFeeded();
+
         $this->data = $qBuilder->toCollection();
 
         $this->adjustColumnAlign();

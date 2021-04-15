@@ -390,7 +390,17 @@ abstract class DataSource
      */
     public function addAggregator($aggregator)
     {
-        $this->aggregator[$aggregator->getColumnName()] = $aggregator;
+        if (is_array($aggregator))
+        {
+            foreach ($aggregator as $agg)
+            {
+                $this->addAggregator($agg);
+            }
+        }
+        else
+        {
+            $this->aggregator[$aggregator->getColumnName()] = $aggregator;
+        }
     }
 
     public function getSmartFilterCallback()
