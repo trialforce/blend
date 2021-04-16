@@ -38,6 +38,11 @@ class SearchGrid extends \Component\Grid\Grid
         $this->setSearchField($this->createSearchField());
     }
 
+    public function isGrouped()
+    {
+        return \DataHandle\Request::get('grid-groupby-field') ? true : false;
+    }
+
     protected function createSearchField()
     {
         return new \Component\Grid\SearchField($this);
@@ -135,30 +140,36 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $dom = \View\View::getDom();
 
-        //from page
-        if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\BeforeGridCreateRow)
+        if (!$this->isGrouped())
         {
-            $dom->beforeGridCreateRow($item, $index, NULL);
-        }
+            //from page
+            if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\BeforeGridCreateRow)
+            {
+                $dom->beforeGridCreateRow($item, $index, NULL);
+            }
 
-        //from grid
-        if ($this instanceof \Page\BeforeGridCreateRow)
-        {
-            $this->beforeGridCreateRow($item, $index, null);
+            //from grid
+            if ($this instanceof \Page\BeforeGridCreateRow)
+            {
+                $this->beforeGridCreateRow($item, $index, null);
+            }
         }
 
         $tr = parent::createTr($columns, $index, $item);
 
-        //from page
-        if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\AfterGridCreateRow)
+        if (!$this->isGrouped())
         {
-            \View\View::getDom()->afterGridCreateRow($item, $index, $tr);
-        }
+            //from page
+            if ($this->getCallInterfaceFunctions() && $dom instanceof \Page\AfterGridCreateRow)
+            {
+                \View\View::getDom()->afterGridCreateRow($item, $index, $tr);
+            }
 
-        //from grid
-        if ($this instanceof \Page\AfterGridCreateRow)
-        {
-            $this->afterGridCreateRow($item, $index, $tr);
+            //from grid
+            if ($this instanceof \Page\AfterGridCreateRow)
+            {
+                $this->afterGridCreateRow($item, $index, $tr);
+            }
         }
 
         return $tr;

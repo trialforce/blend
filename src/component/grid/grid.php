@@ -73,6 +73,12 @@ class Grid extends \Component\Component
     protected $dataSource;
 
     /**
+     * Original datasource, before group
+     * @var \DataSource\DataSource
+     */
+    protected $dataSourceOriginal;
+
+    /**
      * List of action
      * @var array
      */
@@ -105,9 +111,29 @@ class Grid extends \Component\Component
      * Define the DataSource
      * @param type $dataSource
      */
-    public function setDataSource($dataSource)
+    public function setDataSource(\DataSource\DataSource $dataSource)
     {
         $this->dataSource = $dataSource;
+
+        if (!$this->dataSourceOriginal)
+        {
+            //force the creating of columns
+            $this->dataSource->getColumns();
+            $this->dataSourceOriginal = $this->dataSource;
+        }
+
+        return $this;
+    }
+
+    public function getDataSourceOriginal()
+    {
+        return $this->dataSourceOriginal;
+    }
+
+    public function setDataSourceOriginal(\DataSource\DataSource $dataSourceOriginal)
+    {
+        $this->dataSourceOriginal = $dataSourceOriginal;
+        return $this;
     }
 
     public function getActions()
@@ -807,7 +833,8 @@ class Grid extends \Component\Component
     {
         \App::dontChangeUrl();
         $grid = $this;
-        $columns = $grid->getColumns();
+        $dataSource = $grid->getDataSource();
+        $columns = $dataSource->getColumns();
         $checks = null;
 
         //get selected columns from file

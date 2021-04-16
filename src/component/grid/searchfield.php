@@ -42,6 +42,33 @@ class SearchField extends \Component\Component
         parent::__construct('searchHead', null);
     }
 
+    public function onCreate()
+    {
+        //avoid double creation
+        if ($this->isCreated())
+        {
+            return $this->getContent();
+        }
+
+        $innerHtml[] = $this->mountAdvancedFiltersMenu();
+        $innerHtml[] = $this->createBookmarkMenu();
+        $innerHtml[] = $this->createGroupButton();
+        $innerHtml[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded(), 'clearfix');
+        $innerHtml[] = $this->getSearchButton();
+        \Component\Grid\GroupHelper::createPopup(\View\View::getDom());
+
+        $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
+
+        $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
+
+        $this->setContent($div);
+
+        //update the filter js
+        \App::addJs("$('.filterCondition').change();");
+
+        return $div;
+    }
+
     function getExtraFilters()
     {
         if (!$this->autoFiltersCreated)
@@ -112,32 +139,6 @@ class SearchField extends \Component\Component
         }
 
         return $this;
-    }
-
-    public function onCreate()
-    {
-        //avoid double creation
-        if ($this->isCreated())
-        {
-            return $this->getContent();
-        }
-
-        $innerHtml[] = $this->mountAdvancedFiltersMenu();
-        $innerHtml[] = $this->createBookmarkMenu();
-        $innerHtml[] = $this->createGroupButton();
-        $innerHtml[] = new \View\Div('containerFiltros', $this->createFilterFieldsNeeded(), 'clearfix');
-        $innerHtml[] = $this->getSearchButton();
-
-        $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
-
-        $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
-
-        $this->setContent($div);
-
-        //update the filter js
-        \App::addJs("$('.filterCondition').change();");
-
-        return $div;
     }
 
     public function getGrid()
@@ -349,10 +350,8 @@ class SearchField extends \Component\Component
 
     public function createGroupButton()
     {
-        $pageUrl = \View\View::getDom()->getPageUrl();
-
         $icon = new \View\Ext\Icon('layer-group filter-menu');
-        $icon->setId('bookmark-filter')->click("p('{$pageUrl}/gridGroupPopup');");
+        $icon->setId('bookmark-filter')->click("return popup('show', '#popupAggr');");
         $icon->append(new \View\Span(null, 'Agrupamento', 'advanced-filter-span'));
 
         return $icon;

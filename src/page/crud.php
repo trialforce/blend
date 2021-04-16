@@ -179,10 +179,15 @@ class Crud extends \Page\Page
         //avoid new data source
         if (!$this->dataSource)
         {
-            $this->dataSource = new \DataSource\Model($this->getModel());
+            $this->dataSource = $this->createNewDataSource();
         }
 
         return $this->dataSource;
+    }
+
+    public function createNewDataSource()
+    {
+        return new \DataSource\Model($this->getModel());
     }
 
     /**

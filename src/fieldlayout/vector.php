@@ -176,6 +176,7 @@ class Vector
         {
             if (is_string($line))
             {
+
                 $tabArray[$line] = $arrayLine;
                 continue;
             }
@@ -187,9 +188,14 @@ class Vector
             {
                 $column = $model->getColumn($columnName);
 
-                if (!$column)
+                if (!$column && $weight)
                 {
                     $tabArray[$columnName] = $weight;
+                    continue;
+                }
+
+                if (!$column)
+                {
                     continue;
                 }
 
@@ -278,7 +284,7 @@ class Vector
      * @param \Db\Column\Column $column
      * @return \View\View
      */
-    public function getInputField(\Db\Column\Column $column, $weight = NULL)
+    public function getInputField($column, $weight = NULL)
     {
         $dom = \View\View::getDom();
         $type = $column->getType();
