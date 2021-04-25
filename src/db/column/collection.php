@@ -291,7 +291,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             //4 - Mount based on query in database table
             $catalog = $modelName::getCatalogClass();
-            $columns = $catalog::listColums($tableName::getTableName());
+            $modelName = '\Model\\' . str_replace('\Model\\', '', $tableName);
+            $columns = $catalog::listColums($modelName::getTableName());
         }
 
         //define the tablename of columns in needed
