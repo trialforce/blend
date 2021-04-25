@@ -261,13 +261,7 @@ class Document extends \DomDocument implements \Countable
         //erro e facilitar a programação
         if (!$element instanceof \DOMElement)
         {
-            $dataServerClass = Request::get('data-server-class');
-            $serverClass = isset($dataServerClass[$elementId]) ? $dataServerClass[$elementId] : NULL;
-
-            $class = $class ? $class : $serverClass;
-            $class = $class ? $class : '\View\Div';
-
-            $element = new $class(\View\View::REPLACE_SHARP . $elementId);
+            $element = new \View\Div(\View\View::REPLACE_SHARP . $elementId);
             $element->setOutputJs(TRUE);
             //remove do dom para não reaparecer
             $element->parentNode->removeChild($element);
