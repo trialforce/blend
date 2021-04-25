@@ -1,4 +1,4 @@
-/* global CKEDITOR, shortcut */
+/* global CKEDITOR, shortcut, FormData */
 
 "use strict";
 //handle the back and forward buttons
@@ -7,6 +7,7 @@ var avoidUrlRegister = false;
 var isAjax = false;
 var blendJs = function(){};
 var blend = {};
+blend.defaultFormPost = 'form';
 blend.plugins = [];
  
 function pluginsRegister()
@@ -114,7 +115,6 @@ window.onload =  function ()
 
 function escape()
 {
-    console.log('escape');
     //main menu
     if ( $('body').hasClass('menu-open') )
     {
@@ -551,6 +551,83 @@ function hideLoading()
     $(".loading").fadeOut('fast');
 }
 
+function getFormDataToPost(formData)
+{
+    var isEmpty = typeof formData === 'undefined' || formData == null;
+    
+    //1 - support html5 formdata
+    if (formData instanceof FormData)
+    {
+        return formData;
+    } 
+    //2 - simple js object, make a "serialize"
+    else if (typeof formData == 'object')
+    {
+        formData = $.param(formData);
+        return formData;
+    }
+    //3 - string or simillar
+    else if (!isEmpty)
+    {
+        return formData;   
+    }
+    
+    //4 - this is the the defafult case, blend will post the entire form
+    var hasFiles = $('input[type=file]').length > 0;
+
+    //4.1 the post don't has files, make default formData (all forms)
+    if ( !hasFiles )
+    {
+        formData = $(blend.defaultFormPost).serialize();
+        return formData;
+    }
+
+    //4.2 - has files, so we need to make js magic in formData
+    return mountHtml5FormData();
+}
+
+function mountHtml5FormData()
+{
+    var formData = new FormData();
+
+    //add all files
+    jQuery.each($('input[type=file]'), function (i, element)
+    {
+        var files = $(element).prop('files');
+        formData.append('file-' + i, files[0]);
+    });
+
+    //add all form fields
+    $('input, select, textarea').each(function ()
+    {
+        formData.append(this.name, this.value);
+    });
+
+    //control uncked checkbox
+    $("input:checkbox:not(:checked)").each(function ()
+    {
+        formData.append(this.name, '0');
+    });
+
+    //minnor support for multiple values
+    $("select[multiple]").each(function () 
+    {
+        var el = $(this);
+        var id = el.attr('id').replace('[', '\\[').replace(']', '\\]');
+        var name = el.attr('name').replace('[', '').replace(']', '');
+
+        var value = Array();
+
+        $("#" + id + " :selected").map(function (i, el) {
+            value[i] = $(el).val();
+        });
+
+        formData.append(name, value);
+    });
+    
+    return formData;
+}
+
 /**
  *
  * Make a ajax to a page
@@ -587,72 +664,13 @@ function r(type, page, formData, callBack)
 
     //default jquery value https://api.jquery.com/jQuery.ajax/
     var contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
-
-    if (typeof formData === 'undefined' || formData == null )
+    formData = getFormDataToPost(formData);
+   
+    if (formData instanceof FormData)
     {
-        if ($('input[type=file]').length > 0)
-        {
-            contentType = false;
-            var formData = new FormData();
-
-            // Adiciona todos arquivos selecionados no campo
-            jQuery.each($('input[type=file]'), function (i, element)
-            {
-                var files = $(element).prop('files');
-                formData.append('file-' + i, files[0]);
-            });
-
-            // Adiciona demais campos do formulário
-            $('input, select, textarea').each(function ()
-            {
-                formData.append(this.name, this.value);
-            });
-
-            //control uncked checkbox
-            $("input:checkbox:not(:checked)").each(function ()
-            {
-                formData.append(this.name, '0');
-            });
-
-            //minnor support for multiple values
-            $("select[multiple]").each(function () {
-                var el = $(this);
-                var id = el.attr('id').replace('[', '\\[').replace(']', '\\]');
-                var name = el.attr('name').replace('[', '').replace(']', '');
-
-                var value = Array();
-
-                $("#" + id + " :selected").map(function (i, el) {
-                    value[i] = $(el).val();
-                });
-
-                formData.append(name, value);
-            });
-        }
-        else
-        {
-            formData = $('form').serialize();
-
-            //add server class to post
-            $('[data-server-class]').each(
-                    function () {
-                        formData += '&data-server-class[' + $(this).attr('id') + ']=' + $(this).data('server-class');
-                    }
-            )
-
-        }
-    } else
-    {
-        if (formData instanceof FormData)
-        {
-            contentType = false;
-        } 
-        else if (typeof formData == 'object')
-        {
-            formData = $.param(formData);
-        }
+        contentType = false;
     }
-
+    
     $.ajax({
         type: type,
         url: url,
@@ -706,7 +724,17 @@ function r(type, page, formData, callBack)
             updateUrl(page);
             //put the js inside body element, to execute
             data.script.replace('\\\"', '\\"');
-            $('body').append('<script>' + data.script + '</script>');
+            
+            try
+            {
+                $('body').append('<script>' + data.script + '</script>');
+            }
+            catch (e) 
+            {
+                alert('Erro ao executar javascript vindo do servidor!');
+                console.error(e);
+            }
+            
             //treat js especials
             dataAjax();
             
@@ -723,7 +751,8 @@ function r(type, page, formData, callBack)
             if (xhr.responseText === '')
             {
                 toast('Sem resposta do servidor! Verifique sua conexão!', 'alert');
-            } else
+            } 
+            else
             {
                 focused.removeAttr('disabled');
                 toast(xhr.responseText);
