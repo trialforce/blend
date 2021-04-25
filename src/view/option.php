@@ -33,7 +33,7 @@ class Option extends \View\View
         $option = null;
 
         //allready an option
-        if ($item instanceof \View\Option)
+        if ($item instanceof \View\Option || $item instanceof \View\OptGroup)
         {
             $option = $item;
 
