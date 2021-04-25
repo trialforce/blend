@@ -291,25 +291,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
-     * Return Server class
-     *
-     * This attribute is used by ->byId to know the server class of
-     * an id when in a ajax request
-     *
-     * @return string
-     */
-    public function getServerClass()
-    {
-        if ($this->getOutputJs())
-        {
-            $dataServerClass = Request::get('data-server-class');
-            return $dataServerClass[$this->getId()];
-        }
-
-        return $this->getData('server-class');
-    }
-
-    /**
      * Define o nome do elemento
      *
      * @param string $name
