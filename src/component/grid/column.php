@@ -45,6 +45,20 @@ class Column
     protected $name;
 
     /**
+     * The model that the columns is related
+     *
+     * @var string
+     */
+    protected $modelName;
+
+    /**
+     * The group name of the columns
+     *
+     * @var string
+     */
+    protected $groupName;
+
+    /**
      * Sql for the column
      *
      * @var string
@@ -214,6 +228,28 @@ class Column
     {
         $this->name = $name;
         $this->sql = $name;
+        return $this;
+    }
+
+    public function getModelName()
+    {
+        return $this->modelName;
+    }
+
+    public function setModelName($modelName)
+    {
+        $this->modelName = $modelName;
+        return $this;
+    }
+
+    public function getGroupName()
+    {
+        return $this->groupName;
+    }
+
+    public function setGroupName($groupName)
+    {
+        $this->groupName = $groupName;
         return $this;
     }
 
