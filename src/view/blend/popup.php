@@ -153,12 +153,12 @@ class Popup extends Div
      * Define the title of popup.
      * Also make the X button.
      *
-     * @param mixed $title
+     * @param string $closeEvent X close event
      * @return \View\Blend\Popup
      */
-    public function generateTitle()
+    public function generateTitle($closeEvent = "destroy")
     {
-        $headerContent = null;
+        $headerContent = [];
         $icon = $this->getIcon();
 
         if ($icon)
@@ -166,14 +166,16 @@ class Popup extends Div
             $headerContent[] = new \View\Ext\Icon($icon);
         }
 
-        $this->header->html($headerContent, $this->title);
+        $headerContent[] = $this->title;
+
+        $this->header->html($headerContent);
 
         $id = $this->getId();
 
         $close = new \View\Ext\Icon('times', 'black');
         $close->setId('btbClosePopup')
                 ->css('float', 'right')
-                ->click(self::getJs('destroy', $id))
+                ->click(self::getJs($closeEvent ? $closeEvent : 'destroy', $id))
                 ->setTitle('Fechar');
 
         $this->header->append($close);
