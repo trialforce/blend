@@ -115,51 +115,63 @@ class Grab
         $value = $item->getValue($columnName);
         $dbColumn = $item->getColumn($columnName);
 
-        if ($dbColumn)
+        //custom complex/user added column
+        if (!$dbColumn)
         {
-            $constantValues = $dbColumn->getConstantValuesArray();
+            $columnDescriptionName = $columnName . 'Description';
+            $valueDescription = $item->getValue($columnDescriptionName);
 
-            if (isIterable($constantValues))
+            if ($valueDescription)
             {
-                if (is_object($value))
+                $value = $valueDescription;
+            }
+
+            return $value;
+        }
+
+        $constantValues = $dbColumn->getConstantValuesArray();
+
+        if (isIterable($constantValues))
+        {
+            if (is_object($value))
+            {
+                //if is a generic, get the db value
+                if ($value instanceof \Type\Generic)
                 {
-                    //if is a generic, get the db value
-                    if ($value instanceof \Type\Generic)
-                    {
-                        $value = $value->toDb();
-                    }
-                    //if is a default object, convert to string
-                    else
-                    {
-                        $value = $value . '';
-                    }
+                    $value = $value->toDb();
                 }
-
-                if (($value || $value == '0') && $constantValues && isset($constantValues[$value]))
+                //if is a default object, convert to string
+                else
                 {
-                    $value = $constantValues[$value];
-                }
-
-                //TODO is this needed yet?
-                //add supports for simple object inside collection
-                if (is_object($value))
-                {
-                    //if is a simple object, it presumes second property
-                    //is the description, and firs is id
-                    $array = array_values((array) $value);
-
-                    if (isset($array[1]))
-                    {
-                        $value = $array[0] . '-' . $array[1];
-                    }
+                    $value = $value . '';
                 }
             }
-            else if ($dbColumn->getReferenceDescription())
+
+            if (($value || $value == '0') && $constantValues && isset($constantValues[$value]))
             {
-                $columnDescriptionName = $columnName . 'Description';
-                $value = $item->getValue($columnDescriptionName);
+                $value = $constantValues[$value];
+            }
+
+            //TODO is this needed yet?
+            //add supports for simple object inside collection
+            if (is_object($value))
+            {
+                //if is a simple object, it presumes second property
+                //is the description, and firs is id
+                $array = array_values((array) $value);
+
+                if (isset($array[1]))
+                {
+                    $value = $array[0] . '-' . $array[1];
+                }
             }
         }
+        else if ($dbColumn->getReferenceDescription())
+        {
+            $columnDescriptionName = $columnName . 'Description';
+            $value = $item->getValue($columnDescriptionName);
+        }
+
 
         return $value;
     }
