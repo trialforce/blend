@@ -250,7 +250,9 @@ WHERE index_name = '{$indexName}'";
         if (is_numeric($table) ||
                 stripos($table, '(') > 0 ||
                 stripos($table, '(') === 0 ||
-                stripos($table, ' ON ') > 0
+                stripos($table, ' ON ') > 0 ||
+                stripos($table, ' ASC') > 0 ||
+                stripos($table, ' DESC') > 0
         )
         {
             return trim($table);
