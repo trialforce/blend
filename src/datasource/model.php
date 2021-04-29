@@ -130,6 +130,7 @@ class Model extends DataSource
             else
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+
                 $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
                 $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
                 $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
@@ -283,102 +284,7 @@ class Model extends DataSource
      */
     public function mountColumns($availableColumns = null)
     {
-        return \DataSource\Model::createColumn($this->model->getColumns(), $this->getOrderBy());
-    }
-
-    /**
-     * Create grid columns based on model information
-     *
-     * @param array $columns
-     * @param string $orderBy
-     * @return \Component\Grid\Column
-     */
-    public static function createColumn($columns, $orderBy = NULL)
-    {
-        //avoid errors in PHPMD nullifyng the parameter
-        $orderBy = null;
-        $gridColumns = array();
-
-        if (isIterable($columns))
-        {
-            foreach ($columns as $column)
-            {
-                $gridColumns[$column->getName()] = self::createOneColumn($column);
-            }
-        }
-
-        return $gridColumns;
-    }
-
-    /**
-     * Create one column
-     *
-     * @param \Db\Column\Search $column
-     * @return \Component\Grid\Column
-     */
-    public static function createOneColumn($column)
-    {
-        $columnLabel = $column->getLabel() ? $column->getLabel() : $column->getName();
-        $columnLabel = $columnLabel == 'Código' ? 'Cód' : $columnLabel;
-
-        if ($column->getType() == \Db\Column\Column::TYPE_TIMESTAMP || $column->getType() == \Db\Column\Column::TYPE_DATETIME || $column->getType() == \Db\Column\Column::TYPE_DATE)
-        {
-            $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
-        }
-        else if ($column->getType() == \Db\Column\Column::TYPE_BOOL || $column->getType() == \Db\Column\Column::TYPE_TINYINT)
-        {
-            if ($column->getConstantValues())
-            {
-                $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
-            }
-            else
-            {
-                $gridColumn = new \Component\Grid\BoolColumn($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_RIGHT, $column->getType());
-            }
-        }
-        else if ($column->isPrimaryKey())
-        {
-            $gridColumn = new \Component\Grid\PkColumnEdit($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_COLAPSE, $column->getType());
-        }
-        else
-        {
-            $gridColumn = new \Component\Grid\Column($column->getName(), $columnLabel, \Component\Grid\Column::ALIGN_LEFT, $column->getType());
-
-            if (($column->getType() == \Db\Column\Column::TYPE_INTEGER || $column->getType() == \Db\Column\Column::TYPE_DECIMAL || $column->getType() == \Db\Column\Column::TYPE_TIME) && !$column->getReferenceDescription())
-            {
-                $gridColumn->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
-            }
-        }
-
-        //correct the align of integer columns with constant values
-        //by default constant values are string, to by default has bo be align to left
-        if ($column->getConstantValues())
-        {
-            $gridColumn->setAlign(\Component\Grid\Column::ALIGN_LEFT);
-        }
-
-        $gridColumn->setIdentificator($column->isPrimaryKey());
-
-        //search column has no filter as default
-        if ($column instanceof \Db\Column\Search)
-        {
-            $sqls = $column->getSql(FALSE);
-
-            if (isset($sqls[0]))
-            {
-                $gridColumn->setSql($sqls[0]);
-            }
-
-            $gridColumn->setFilter(FALSE);
-        }
-
-        //hide text columns by default
-        if ($column->getType() === \Db\Column\Column::TYPE_TEXT)
-        {
-            $gridColumn->setRender(FALSE)->setRenderInDetail(FALSE);
-        }
-
-        return $gridColumn;
+        return \DataSource\ColumnConvert::dbToGridAll($this->model);
     }
 
 }

@@ -8,54 +8,157 @@ class GroupHelper
 {
 
     /**
+     * Safe any name
+     * @param string $name name
+     * @return string safe name
+     */
+    public static function safeName($name)
+    {
+        return \Type\Text::get($name)->toFile() . '';
+    }
+
+    /**
+     * List possible aggregations methods
+     *
+     * @return array
+     */
+    public static function listAggrMethods()
+    {
+        $methods = [];
+        $methods['sum'] = 'Soma';
+        $methods['max'] = 'Máximo';
+        $methods['min'] = 'Mínimo';
+        $methods['avg'] = 'Média';
+        $methods['count'] = 'Contagem';
+
+        return $methods;
+    }
+
+    protected static function getRelationsIndexed($model)
+    {
+        $relations = $model->getRelations();
+        $result = [];
+
+        if (is_array($relations))
+        {
+            foreach ($relations as $relation)
+            {
+                $result[self::safeName($relation->getLabel())] = $relation;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Create the group dataSource
      * @param \Page\Page $page page
      * @return \DataSource\QueryBuilder datasource
      */
-    public static function getDataSource(\Page\Page $page)
+    public static function getGroupedDataSource(\Page\Page $page)
     {
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
+        $groupColumns = self::getAllColumns($page);
         $model = $page->getModel();
+        $modelColumns = $model->getColumns();
+        $relations = self::getRelationsIndexed($model);
         $gridGroupBy = Request::get('grid-groupby-field');
         $gridAggrBy = Request::get('grid-aggrby-field');
 
         $groupBy = [];
         $sqlColumns = [];
+        $aggregators = [];
+        $queryBuilder = $model::query();
+        $queryBuilder instanceof \Db\QueryBuilder;
+
+        //store column labels to adjust in end
+        $columnLabels = [];
 
         foreach ($gridGroupBy as $columnName)
         {
-            $dbColumn = $model->getColumn($columnName);
+            $explode = explode('.', $columnName);
+            $groupName = $explode[0];
+            $simpleColumnName = $explode[1];
+            $dbColumn = $modelColumns[$simpleColumnName];
 
-            $sqlColumns[] = $columnName;
+            //a try
+            $columnLabel = '<small>' . ucfirst($groupName) . '</small><br/>' . ucfirst($simpleColumnName);
+
+            if (isset($groupColumns[$groupName][$simpleColumnName]))
+            {
+                $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+                $columnLabel = '<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel();
+            }
+
+            $columnLabelSafe = $groupName . '_' . $simpleColumnName;
+            //store to use in the end
+            $columnLabels[$columnLabelSafe] = $columnLabel;
+
+            $sqlColumns[] = $columnName . ' AS ' . $columnLabelSafe;
 
             if ($dbColumn instanceof \Db\Column\Column)
             {
                 if ($dbColumn->getReferenceTable())
                 {
-                    $sqlColumns[] = $dbColumn->getReferenceSql(TRUE);
+                    $sqlColumns[] = $dbColumn->getReferenceSql(false) . ' AS ' . $columnLabelSafe . 'Description';
+                }
+            }
+
+            if (isset($relations[$groupName]))
+            {
+                $relation = $relations[$groupName];
+                $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
+
+                if (!$queryBuilder->joinExistsAlias($groupName))
+                {
+                    $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
                 }
             }
 
             $groupBy[] = $columnName;
         }
 
-        $aggregators = [];
-
+        //groupments
         foreach ($gridAggrBy as $value)
         {
             $explode = explode('--', $value);
             $method = $explode[0];
             $columnName = $explode[1];
-            $dbColumn = $model->getColumn($columnName);
+            $explode2 = explode('.', $columnName);
+            $groupName = $explode2[0];
+            $simpleColumnName = $explode2[1];
 
-            $columnLabel = $methods[$method] . ' de ' . $dbColumn->getLabel();
-            $sqlColumns[] = $method . '(' . $columnName . ') AS "' . $columnLabel . '"';
+            //if columns does not exists, ignore it
+            if (!isset($groupColumns[$groupName][$simpleColumnName]))
+            {
+                continue;
+            }
 
-            $aggregators[] = new \DataSource\Aggregator($columnLabel, $method);
+            $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+
+            $columnLabel = $methods[$method] . ' de <br/> <small>' . $gridColumn->getGroupName() . '</small> - ' . $gridColumn->getLabel();
+            $columnLabelSafe = self::safeName($columnLabel);
+            $sqlColumns[] = $method . '(' . $columnName . ') AS "' . $columnLabelSafe . '"';
+            //store to use in the end
+            $columnLabels[$columnLabelSafe] = $columnLabel;
+
+            //add left join
+            if (isset($relations[$groupName]))
+            {
+                $relation = $relations[$groupName];
+                $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
+
+                if (!$queryBuilder->joinExistsAlias($groupName))
+                {
+                    $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
+                }
+            }
+
+            //correct method to aggregation
+            $aggrMethod = $method == 'count' ? 'sum' : $method;
+            $aggregators[] = new \DataSource\Aggregator($columnLabelSafe, $aggrMethod);
         }
 
-        $queryBuilder = $model::query();
-        $queryBuilder instanceof \Db\QueryBuilder;
         $queryBuilder->setColumns($sqlColumns);
         $queryBuilder->setGroupBy(implode(',', $groupBy));
 
@@ -64,6 +167,16 @@ class GroupHelper
 
         $page->addFiltersToDataSource($dataSource);
         $columns = $dataSource->getColumns();
+
+        foreach ($columnLabels as $columnLabelSafe => $columnLabel)
+        {
+            $column = $dataSource->getColumn($columnLabelSafe);
+
+            if ($column)
+            {
+                $column->setLabel($columnLabel);
+            }
+        }
 
         $grid = $page->getGrid();
         $grid->setDataSource($dataSource);
@@ -107,90 +220,155 @@ class GroupHelper
         return $data;
     }
 
-    public static function listAggrMethods()
+    /**
+     * Mount collumn list options for group
+     *
+     * @param array $columnGroup \Component\Grid\Column column list list
+     * @return array array of stdClass
+     */
+    public static function createColumnOptions($columnGroup)
     {
-        $methods = [];
-        $methods['sum'] = 'Soma';
-        $methods['max'] = 'Máximo';
-        $methods['min'] = 'Mínimo';
-        $methods['avg'] = 'Média';
-        $methods['count'] = 'Contagem';
-
-        return $methods;
-    }
-
-    public static function createColumnOptions($columns)
-    {
-        $options = [];
-
-        foreach ($columns as $column)
+        foreach ($columnGroup as $columnGroupLabelSafe => $columns)
         {
-            $column instanceof \Component\Grid\Column;
-            $option = new \stdClass();
-            $option->value = $column->getName();
-            $option->label = $column->getLabel();
-            $options[$column->getLabel()] = $option;
+            $arrayColumns = array_values($columns);
+            $firstColumn = $arrayColumns[0];
+            $columnGroupLabel = $firstColumn->getGroupName();
+            $options = [];
+
+            $optgroup[] = $opt = new \View\OptGroup($columnGroupLabelSafe, $columnGroupLabel);
+
+            foreach ($columns as $column)
+            {
+                $column instanceof \Component\Grid\Column;
+                $columnName = $columnGroupLabelSafe . '.' . $column->getName();
+                $option = new \View\Option($columnName, $column->getLabel());
+                $options[$column->getLabel()] = $option;
+            }
+
+            $opt->html($options);
         }
 
         ksort($options);
-        return $options;
+
+        return $optgroup;
     }
 
-    public static function createPopup(\Page\Page $page)
+    protected static function getAllColumns(\Page\Page $page)
     {
+        $dbModel = $page->getModel();
+        $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
+
+        if (method_exists($page, 'setDefaultGroups'))
+        {
+            $columnGroup = $page->setDefaultGroups($columnGroup);
+        }
+
+        return $columnGroup;
+    }
+
+    public static function createColumns(\Page\Page $page = null)
+    {
+        $page = $page ? $page : \View\View::getDom();
         $grid = $page->getGrid();
-        $originalDataSource = $grid->getDataSourceOriginal();
-        $columns = $originalDataSource->getColumns();
-        $options = self::createColumnOptions($columns);
+
+        $columns = self::getAllColumns($page);
+        $left[] = new \View\H3(null, 'Adicionar colunas');
+        $left[] = $select = new \View\Div(null, new \View\Select('addColumn', self::createColumnOptions($columns), null, 'column-6'), 'column-12');
+        $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn', 'clean small');
+        $btn->css('border', 'none');
+
+        $content[] = new \View\Div('columns-definition', $left, 'column-p-12');
+        $content[] = new \View\Div('columns-holder', null, 'columns-holder column-p-6');
+
+        $extraColumns = Request::get('grid-addcolumn-field');
+        $elements = [];
+
+        //allready customized columns
+        if (is_array($extraColumns))
+        {
+            foreach ($extraColumns as $extraColumn)
+            {
+                $explode = explode('.', $extraColumn);
+                $columnGroup = $explode[0];
+                $columnName = $explode[1];
+
+                if (isset($columns[$columnGroup][$columnName]))
+                {
+                    $column = $columns[$columnGroup][$columnName];
+                    $elements[] = self::createFieldColumn($column);
+                }
+            }
+        }
+        //starting columns to be customized
+        else
+        {
+            $mainColumns = $grid->getDataSourceOriginal()->getColumns();
+
+            foreach ($mainColumns as $column)
+            {
+                if ($column->getRender())
+                {
+                    $elements[] = self::createFieldColumn($column);
+                }
+            }
+        }
+
+        $page->byId('columns-holder')->append($elements);
+
+        return $content;
+    }
+
+    public static function createContent(\Page\Page $page = null)
+    {
+        $page = $page ? $page : \View\View::getDom();
+        $columns = self::getAllColumns($page);
         $left[] = new \View\H3(null, 'Agrupar por');
-        $left[] = new \View\Select('gridGroupBy', $options, null, 'column-12');
+        $left[] = $select = new \View\Select('gridGroupBy', self::createColumnOptions($columns), null, 'column-12');
+        //$select->click('alert()');
+
         $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup', 'clean small');
         $btn->css('border', 'none');
-        $left[] = $leftHolder = new \View\Div('leftHolder', null);
-        $leftHolder->css('margin-top', '30px');
+        $left[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
 
         $right[] = new \View\H3(null, 'Mostrar agregação');
-        $right[] = new \View\Select('gridAggrBy', $options, null, 'column-6');
+        $right[] = new \View\Select('gridAggrBy', self::createColumnOptions($columns), null, 'column-6');
         $right[] = new \View\Select('gridAggrMethods', \Component\Grid\GroupHelper::listAggrMethods(), null, 'column-6');
 
         $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr', 'clean small');
         $btn->css('border', 'none');
-        $right[] = $rightHolder = new \View\Div('rightHolder', null);
-        $rightHolder->css('margin-top', '30px');
+        $right[] = $rightHolder = new \View\Div('rightHolder', null, 'column-12 grid-group-by-right-holder');
 
         $content[] = new \View\Div('left', $left, 'column-p-6');
         $content[] = new \View\Div('right', $right, 'column-p-6');
 
-        $buttons = [];
-
-        $url = "g('{$page->getPageUrl()}');";
-
-        $buttons[] = new \View\Ext\Button('ok', 'check', 'Executar', $url, 'primary');
-
-        $popup = new \View\Blend\Popup('popupAggr', 'Agrupamento de dados', $content, $buttons, 'form');
-
         self::createLoadedInputs($page);
 
-        return $popup;
+        return $content;
     }
 
     public static function createLoadedInputs(\Page\Page $page)
     {
         $gridGroupBy = Request::get('grid-groupby-field');
         $gridAggrBy = Request::get('grid-aggrby-field');
-        $grid = $page->getGrid();
-        $originalDatasource = $grid->getDataSourceOriginal();
-        $columns = $originalDatasource->getColumns();
+
+        $groupColumns = self::getAllColumns($page);
+
+        $elements = [];
 
         if (is_array($gridGroupBy))
         {
             foreach ($gridGroupBy as $groupBy)
             {
-                $column = $columns[$groupBy];
-                $div = self::createFieldGroupBy($column);
-                $page->byId('leftHolder')->append($div);
+                $explode = explode('.', $groupBy);
+                $columnGroup = $explode[0];
+                $columnName = $explode[1];
+                $column = $groupColumns[$columnGroup][$columnName];
+                $elements[] = self::createFieldGroupBy($column);
             }
         }
+
+        $page->byId('leftHolder')->append($elements);
+        $elements = [];
 
         if (is_array($gridAggrBy))
         {
@@ -198,38 +376,80 @@ class GroupHelper
             {
                 $explode = explode('--', $aggr);
                 $method = $explode[0];
-                $columName = $explode[1];
-                $column = $columns[$columName];
-                $div = self::createFieldAggr($column, $method);
-                $page->byId('rightHolder')->append($div);
+                $columNameGrouped = explode('.', $explode[1]);
+                $columnGroup = $columNameGrouped[0];
+                $columnName = $columNameGrouped[1];
+                $column = $groupColumns[$columnGroup][$columnName];
+                $elements[] = self::createFieldAggr($column, $method);
             }
         }
 
-        \Log::dump($gridGroupBy);
-        \Log::dump($gridAggrBy);
+        $page->byId('rightHolder')->append($elements);
     }
 
+    /**
+     * Create a column field
+     *
+     * @param \Component\Grid\Column $column
+     * @return \View\Div
+     */
+    public static function createFieldColumn(\Component\Grid\Column $column)
+    {
+        $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
+        $label = $column->getGroupName() . ' - ' . $column->getLabel();
+        $idField = 'grid-addcolumn-field-' . $columName;
+        $value = $columName;
+
+        $content = [];
+        $content[] = new \View\Input('grid-addcolumn-field[' . $value . ']', 'hidden', $value);
+
+        $content[] = $label;
+
+        if (!$column instanceof \Component\Grid\PkColumnEdit)
+        {
+            $content[] = new \View\Ext\Icon('trash', null, "return gridAddColumnRemove(this)", 'grid-addcolumn-icon');
+            $content[] = new \View\Ext\Icon('arrow-down', null, "return gridAddColumnDown(this)", 'grid-addcolumn-icon');
+            $content[] = new \View\Ext\Icon('arrow-up', null, "return gridAddColumnUp(this)", 'grid-addcolumn-icon');
+        }
+
+        $div = new \View\Div($idField, $content, 'grid-addcolumn-field column-12');
+
+        return $div;
+    }
+
+    /**
+     * Crete a group by filter
+     *
+     * @param \Component\Grid\Column $column
+     * @return \View\Div
+     */
     public static function createFieldGroupBy(\Component\Grid\Column $column)
     {
-        $columName = $column->getName();
+        $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
         $idField = 'grid-groupby-field-' . $columName;
 
         $content = [];
         $content[] = new \View\Input('grid-groupby-field[' . $columName . ']', 'hidden', $columName);
 
-        $content[] = $column->getLabel();
-        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();");
-        $btnRemove->css('float', 'right');
+        $content[] = $column->getGroupName() . ' - ' . $column->getLabel();
+        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();", 'trashFilter');
 
-        $div = new \View\Div($idField, $content, 'column-12');
+        $div = new \View\Div($idField, $content, 'column-12 grid-addcolumn-field');
 
         return $div;
     }
 
+    /**
+     * Create a aggregation field
+     *
+     * @param \Component\Grid\Column $column
+     * @param type $method
+     * @return \View\Div
+     */
     public static function createFieldAggr(\Component\Grid\Column $column, $method)
     {
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
-        $columName = $column->getName();
+        $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
         $label = $methods[$method] . ' - ' . $column->getLabel();
         $idField = 'grid-aggrby-field-' . $columName;
         $value = $method . '--' . $columName;
@@ -238,20 +458,71 @@ class GroupHelper
         $content[] = new \View\Input('grid-aggrby-field[' . $value . ']', 'hidden', $value);
 
         $content[] = $label;
-        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();");
-        $btnRemove->css('float', 'right');
+        $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();", 'trashFilter');
 
-        $div = new \View\Div($idField, $content, 'column-12');
+        $div = new \View\Div($idField, $content, 'column-12 grid-addcolumn-field');
 
         return $div;
     }
 
+    /**
+     * Action called when user is adding a column
+     *
+     * @param \Page\Page $page
+     * @throws \UserException
+     */
+    public static function gridGroupAddColumn(\Page\Page $page)
+    {
+        $addColumn = Request::get('addColumn');
+
+        if (!$addColumn)
+        {
+            throw new \UserException('Selecione uma coluna!');
+        }
+
+        $explode = explode('.', $addColumn);
+        $columnGroup = $explode[0];
+        $columnName = $explode[1];
+        $groupColumns = self::getAllColumns($page);
+        $column = $groupColumns[$columnGroup][$columnName];
+
+        if (!$column)
+        {
+            throw new \UserException('Impossível encontrar coluna ' . $addColumn);
+        }
+
+        $selecionados = Request::get('grid-addcolumn-field');
+
+        if (isset($selecionados[$addColumn]))
+        {
+            throw new \UserException('Campo \'' . $column->getGroupName() . ' - ' . $column->getLabel() . '\' já adicionado ao agrupamento.');
+        }
+
+        $div = self::createFieldColumn($column);
+
+        $page->byId('columns-holder')->append($div);
+        $page->byId('addColumn')->val('');
+    }
+
+    /**
+     * Action called when user add a group
+     * @param \Page\Page $page
+     * @throws \UserException
+     */
     public static function popupAddGroup(\Page\Page $page)
     {
         $gridGroupBy = Request::get('gridGroupBy');
-        $grid = $page->getGrid();
-        $columns = $grid->getDataSourceOriginal()->getColumns();
-        $column = $columns[$gridGroupBy];
+
+        if (!$gridGroupBy)
+        {
+            throw new \UserException('Selecione uma coluna!');
+        }
+
+        $explode = explode('.', $gridGroupBy);
+        $columnGroup = $explode[0];
+        $columnName = $explode[1];
+        $groupColumns = self::getAllColumns($page);
+        $column = $groupColumns[$columnGroup][$columnName];
 
         if (!$column)
         {
@@ -262,7 +533,7 @@ class GroupHelper
 
         if (isset($selecionados[$gridGroupBy]))
         {
-            throw new \UserException('Campo \'' . $column->getLabel() . '\' já adicionado ao agrupamento.');
+            throw new \UserException('Campo \'' . $column->getGroupName() . ' - ' . $column->getLabel() . '\' já adicionado ao agrupamento.');
         }
 
         $div = self::createFieldGroupBy($column);
@@ -273,17 +544,21 @@ class GroupHelper
 
     public static function popupAddAggr(\Page\Page $page)
     {
-        $columnName = Request::get('gridAggrBy');
+        $gridAggrBy = Request::get('gridAggrBy');
         $method = Request::get('gridAggrMethods');
 
-        if (!$columnName || !$method)
+        if (!$gridAggrBy || !$method)
         {
             throw new \UserException('Selecione ambos parametros!');
         }
 
         $grid = $page->getGrid();
         $columns = $grid->getDataSourceOriginal()->getColumns();
-        $column = $columns[$columnName];
+        $explode = explode('.', $gridAggrBy);
+        $columnGroup = $explode[0];
+        $columnName = $explode[1];
+        $groupColumns = self::getAllColumns($page);
+        $column = $groupColumns[$columnGroup][$columnName];
 
         if (!$column)
         {
@@ -303,6 +578,88 @@ class GroupHelper
         $page->byId('rightHolder')->append($div);
         $page->byId('gridAggrBy')->val('');
         $page->byId('gridAggrMethods')->val('');
+    }
+
+    /**
+     * Create a new user defined datasource
+     *
+     * @param \DataSource\DataSource $dataSource original datasource
+     * @return \DataSource\DataSource user defined datasource
+     */
+    public static function getUserDefinedDataSource()
+    {
+        $page = \View\View::getDom();
+        $extraColumns = Request::get('grid-addcolumn-field');
+        $groupColumns = self::getAllColumns($page);
+        $model = $page->getModel();
+        $modelColumns = $model->getColumns();
+        $relations = self::getRelationsIndexed($model);
+
+        $queryBuilder = $model::query();
+        $queryBuilder instanceof \Db\QueryBuilder;
+        $userDataSource = new \DataSource\QueryBuilder($queryBuilder);
+
+        if (!is_array($extraColumns))
+        {
+            return null;
+        }
+
+        foreach ($extraColumns as $extraColumm)
+        {
+            $explode = explode('.', $extraColumm);
+            $groupName = $explode[0];
+            $simpleColumnName = $explode[1];
+
+            if (isset($groupColumns[$groupName][$simpleColumnName]))
+            {
+                $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+                $gridColumn instanceof \Component\Grid\Column;
+
+                $dbColumn = $modelColumns[$simpleColumnName];
+
+                $columnName = self::safeName($gridColumn->getGroupName()) . '_' . $gridColumn->getName();
+                $gridColumn->setUserAdded(true);
+                $gridColumn->setRender(true);
+                $gridColumn->setName($columnName);
+                $gridColumn->setLabel('<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel());
+
+                if ($dbColumn instanceof \Db\Column\Search)
+                {
+                    $sql = $dbColumn->getSql(FALSE);
+                    $sqlColumns[] = $sql[0] . ' AS ' . $columnName;
+                }
+                else
+                {
+                    $sqlColumns[] = $extraColumm . ' AS ' . $columnName;
+                }
+
+                //references columns
+                if ($dbColumn instanceof \Db\Column\Column)
+                {
+                    if ($dbColumn->getReferenceTable())
+                    {
+                        $sqlColumns[] = $dbColumn->getReferenceSql(FALSE) . ' AS ' . $columnName . 'Description';
+                    }
+                }
+
+                //add left join for tables
+                if (isset($relations[$groupName]))
+                {
+                    $relation = $relations[$groupName];
+                    $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
+
+                    if (!$queryBuilder->joinExistsAlias($groupName))
+                    {
+                        $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
+                    }
+                }
+
+                $userDataSource->addColumn($gridColumn);
+            }
+        }
+
+        $queryBuilder->setColumns($sqlColumns);
+        return $userDataSource;
     }
 
 }

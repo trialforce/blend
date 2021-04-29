@@ -152,9 +152,10 @@ abstract class DataSource
         return $this->orderBy;
     }
 
-    public function getOrderByParsedForColumn($columName)
+    public function getOrderByParsedForColumn($columName, $passedOrderBy = null)
     {
-        $orders = $this->getOrderByParsed($this->orderBy);
+        $orderBy = $passedOrderBy ? $passedOrderBy : $this->orderBy;
+        $orders = $this->getOrderByParsed($orderBy);
 
         if (isset($orders[$columName]))
         {
@@ -454,6 +455,26 @@ abstract class DataSource
         }
     }
 
+    /**
+     * Add a collumn to datasource
+     *
+     * @param \Component\Grid\Column $column
+     * @return $this
+     */
+    public function addColumn(\Component\Grid\Column $column = null)
+    {
+        if (!$column)
+        {
+            return $this;
+        }
+
+        $columns = $this->columns;
+        $columns[$column->getName()] = $column;
+        $this->setColumns($columns);
+
+        return $this;
+    }
+
     public function setColumns($columns)
     {
         $this->columns = $columns;
@@ -501,38 +522,10 @@ abstract class DataSource
         {
             $item = $data[0];
 
-            if ($item instanceof \Db\Model)
-            {
-                return \DataSource\Model::createColumn($item->getColumns());
-            }
-            else if (is_object($item))
-            {
-                //convert to array to use above
-                $item = (array) $item;
-            }
-
-            if (is_array($item))
-            {
-                foreach ($item as $name => $value)
-                {
-                    //support for private variables
-                    $name = str_replace(' * ', '', $name);
-                    $align = \Component\Grid\Column::ALIGN_LEFT;
-
-                    //if is numeric align to right
-                    if (\Type\Integer::isNumeric($value . ''))
-                    {
-                        $align = \Component\Grid\Column::ALIGN_RIGHT;
-                    }
-
-                    $columns[$name] = new \Component\Grid\Column($name, $name, $align);
-                }
-
-                $this->setColumns($columns);
-
-                return $columns;
-            }
+            $columns = \DataSource\ColumnConvert::toGridItemAll($item);
         }
+
+        $this->setColumns($columns);
 
         return $columns;
     }

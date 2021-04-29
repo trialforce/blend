@@ -78,11 +78,11 @@ class MountFilter
         $filter = NULL;
         $dbModel = $this->dbModel;
         $dataType = $column->getType();
-        $filterType = $column->getFilterType();
+        //$filterType = $column->getFilterType();
         $dbColumn = null;
 
         //don't mount filter if column don't has data type, or if don't have to be filtered
-        if (!$dataType || !$filterType)
+        if (!$dataType)
         {
             return NULL;
         }
@@ -111,10 +111,13 @@ class MountFilter
         {
             $filterClass = \Component\Grid\MountFilter::getFilterClass($column);
 
-            $filter = new $filterClass($column, NULL, $filterType);
+            $filter = new $filterClass($column, NULL);
         }
 
-        $filter->setFilterType($filterType);
+        $filter instanceof \Filter\Text;
+        //active filter
+        $filter->setFilterType(1);
+        $filter->setFilterLabel($column->getLabel());
 
         return $filter;
     }
@@ -169,12 +172,6 @@ class MountFilter
         //prepare filters to an array
         foreach ($columns as $column)
         {
-            //step by the columsn that is not filtered
-            if (!$column->getFilter())
-            {
-                continue;
-            }
-
             $mountFilter = new \Component\Grid\MountFilter($column, $dbModel);
             $filter = $mountFilter->getFilter();
 
@@ -264,7 +261,7 @@ class MountFilter
             $filter instanceof \Filter\Text;
 
             //hide the model label, so we can filter in JS
-            $filter->setFilterLabel('<span style="display:none;">' . $label . '</span>' . $column->getLabel());
+            $filter->setFilterLabel($column->getLabel());
             $filter->setFilterSql($filterSql);
             $filter->setFilterName($filterName);
             $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE);

@@ -128,7 +128,6 @@ class Text
         $column instanceof \Component\Grid\Column;
         $this->column = $column;
 
-        $this->setFilterLabel($column->getFilterLabel());
         $this->setFilterName(\Db\Column\Column::getRealColumnName($this->getColumn()->getName()));
 
         return $this;
@@ -664,7 +663,7 @@ class Text
      */
     public static function getCloseFilterButton()
     {
-        $icon = new \View\Ext\Icon('cancel');
+        $icon = new \View\Ext\Icon('trash');
         $icon->click('filterRemove(this)')->addClass('removeFilter');
 
         return $icon;

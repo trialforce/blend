@@ -790,7 +790,9 @@ class Grid extends \Component\Component
 
         if (Request::get('orderBy'))
         {
-            $dataSource->setOrderBy(urldecode(Request::get('orderBy')));
+            $orderBys = urldecode(Request::get('orderBy'));
+            $orderBysParsed = self::parseOrderBy($dataSource, $orderBys);
+            $dataSource->setOrderBy($orderBysParsed);
             $dataSource->setOrderWay('');
         }
 
@@ -810,6 +812,39 @@ class Grid extends \Component\Component
                 $dataSource->setPage(0);
             }
         }
+    }
+
+    /**
+     * Change the order by column name to the sql of the column, if needed
+     *
+     * @param \DataSource\DataSource $dataSource
+     * @param string $orderBy order by string
+     * @return string parsed order by string
+     */
+    public static function parseOrderBy(\DataSource\DataSource $dataSource, $orderBys)
+    {
+        $result = [];
+        $explode = explode(',', $orderBys);
+
+        foreach ($explode as $orderBy)
+        {
+            $columnNameOriginal = str_replace(array(' asc', ' desc'), '', $orderBy);
+            $orderByColumn = $dataSource->getColumn($columnNameOriginal);
+
+            if ($orderByColumn)
+            {
+                //$name = $orderByColumn->getName();
+                //$safeSql = \Component\Grid\GroupHelper::safeName($orderByColumn->getSql());
+                //if ($name != $safeSql)
+                //{
+                $orderBy = str_replace($columnNameOriginal, $orderByColumn->getSql(), $orderBy);
+                //}
+            }
+
+            $result[] = $orderBy;
+        }
+
+        return implode(', ', $result);
     }
 
     /**
@@ -908,7 +943,7 @@ class Grid extends \Component\Component
         $url = $this->getLink('exportGridFile');
 
         $buttons[] = new \View\Ext\LinkButton('exportGridFile', 'download', 'Gerar arquivo', $url, 'primary');
-        $buttons[] = new \View\Ext\Button('cancel', 'cancel', 'Cancelar', \View\Blend\Popup::getJs('destroy'));
+        $buttons[] = new \View\Ext\Button('cancel', 'cancel', 'Cancelar', \View\Blend\Popup::getJs('destroy', 'gridExportData'));
         $popup = new \View\Blend\Popup('gridExportData', 'Criação de relatórios / exportação de dados ', $view, $buttons);
         $popup->setIcon('download');
 

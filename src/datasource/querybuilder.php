@@ -224,24 +224,21 @@ class QueryBuilder extends DataSource
             $columnSql = \Db\Column\Column::getRealSqlColumn($orignalColumnName);
             $columnLabel = self::columnNameToLabel($columnName);
 
+            //jump description columns in grid
             if (\Type\Text::get($columnName)->endsWith('Description'))
             {
                 continue;
             }
 
             $obj = new \Component\Grid\Column($columnName, $columnLabel, 'alignLeft');
-            $obj->setFilter(TRUE)->setSql($columnSql);
+            $obj->setSql($columnSql);
 
             //case it has a model name, vinculate it with the column of model
             if ($modelName)
             {
                 $columnModel = $modelName::getColumn($columnName);
-                $columnModel instanceof \Db\Column\Column;
-
-                if ($columnModel)
-                {
-                    $obj = \DataSource\Model::createOneColumn($columnModel);
-                }
+                $okay = \DataSource\ColumnConvert::dbToGrid($columnModel);
+                $obj = $okay ? $okay : $obj;
             }
 
             //add support for ..Description column

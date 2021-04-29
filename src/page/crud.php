@@ -50,6 +50,11 @@ class Crud extends \Page\Page
         parent::__construct();
     }
 
+    public function adjustFields()
+    {
+
+    }
+
     /**
      * Return the form title element
      *
@@ -78,7 +83,7 @@ class Crud extends \Page\Page
      */
     public function getModel($request = NULL, $model = NULL)
     {
-        //caso padrão
+        //default case
         if (is_null($model))
         {
             $model = $this->model;
@@ -187,7 +192,8 @@ class Crud extends \Page\Page
 
     public function createNewDataSource()
     {
-        return new \DataSource\Model($this->getModel());
+        $dataSource = new \DataSource\Model($this->getModel());
+        return $dataSource;
     }
 
     /**
@@ -971,7 +977,7 @@ class Crud extends \Page\Page
         //allow to update the original input if needed
         if ($idInput)
         {
-            $this->byId('btbClosePopup')->click("return comboModelClose('{$idInput}')");
+            $this->byId('btbClosePopup')->click("comboModelClose('{$idInput}')");
         }
     }
 

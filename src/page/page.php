@@ -392,7 +392,7 @@ class Page extends \View\Layout
      */
     public function listar()
     {
-
+        \Log::setLogSql(true);
         $this->setFocusOnFirstField();
         $this->setDefaultGrid();
         $grid = $this->getGrid(Request::get('stateId'));
@@ -416,6 +416,7 @@ class Page extends \View\Layout
         $this->append($views);
 
         $this->byId('q')->focus();
+        \Log::setLogSql(false);
     }
 
     public function gridExportData()
@@ -508,16 +509,29 @@ class Page extends \View\Layout
             $this->setGrid($grid);
             $this->setDefaultFilters($grid);
 
-            $gridGroupBy = Request::get('grid-groupby-field');
-
-            if (is_array($gridGroupBy))
+            if ($this->getEvent() == 'listar')
             {
-                $dataSource = $grid->getDataSource();
-                $dataSource->getColumns();
-                $dataSource = \Component\Grid\GroupHelper::getDataSource($this);
-                $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
+                $extraColumns = Request::get('grid-addcolumn-field');
+                $gridGroupBy = Request::get('grid-groupby-field');
 
-                $dataSource->setCount($data->count());
+                if (is_array($extraColumns))
+                {
+                    $userDataSource = \Component\Grid\GroupHelper::getUserDefinedDataSource($grid->getDataSource());
+
+                    if ($userDataSource)
+                    {
+                        $grid->setDataSource($userDataSource);
+                    }
+                }
+                else if (is_array($gridGroupBy))
+                {
+                    $dataSource = $grid->getDataSource();
+                    $dataSource->getColumns(); //forece column mount
+                    $dataSource = \Component\Grid\GroupHelper::getGroupedDataSource($this);
+                    $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
+
+                    $dataSource->setCount($data->count());
+                }
             }
 
             return $grid;
@@ -532,6 +546,16 @@ class Page extends \View\Layout
     public function setDefaultFilters(\Component\Grid\SearchGrid $grid)
     {
 
+    }
+
+    /**
+     * Set the default column groups for grid groupment
+     *
+     * @param array $columnGroup
+     */
+    public function setDefaultGroups($columnGroup)
+    {
+        return $columnGroup;
     }
 
     public function salvar($model = NULL, $defaultRedirect = TRUE)
@@ -918,7 +942,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         \App::setResponse('NULL'); //for grid
         //support columns with description in name
-        $value = str_replace('Description', '', Request::get('v'));
+        $value = str_replace('Description', '', Request::get('advancedFiltersList'));
         $grid = $this->setDefaultGrid();
 
         if (!$grid instanceof \Component\Grid\Grid)
@@ -928,19 +952,29 @@ class Page extends \View\Layout
 
         $filter = $grid->getFilter($value);
 
-        if ($filter)
+        if (!$filter->getFilterLabel())
         {
-            $input = $filter->getInput();
-            //remove the filter if exists
-            \App::addJs("$('#{$input->getId()}').remove();");
-            $this->byId('containerFiltros')->append($input); //put the input inside containerFiltros
-            \App::addJs("$('.filterCondition').change();"); //call js change
-            \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
+            toast('Impossível encontrar filtro selecionado: ' . $value, 'danger');
+            return;
         }
-        else
+
+        $this->byId('advancedFiltersList')->val('');
+
+        //filter is allready on pae
+        if ($filter->getFilterValue(0))
         {
-            toast('Impossível encontrar filtro ' . $value);
+            \App::addJs("setTimeout(function(){ $('#{$filter->getFilterName()}Filter .addFilter').click() }, 300);");
+            return;
         }
+
+        $input = $filter->getInput();
+        //remove the filter if exists
+        \App::addJs("$('#{$input->getId()}').remove();");
+        //put the input inside containerFiltros
+        //$this->byId('containerFiltros')->append($input);
+        $this->byId('tab-filters-right')->append($input);
+        \App::addJs("$('.filterCondition').change();"); //call js change
+        \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
     }
 
     /**
@@ -980,10 +1014,25 @@ class Page extends \View\Layout
         \Component\Grid\GroupHelper::popupAddGroup($this);
     }
 
+    public function gridGroupAddColumn()
+    {
+        \App::dontChangeUrl();
+        \Component\Grid\GroupHelper::gridGroupAddColumn($this);
+    }
+
     public function gridGroupAddAggr()
     {
         \App::dontChangeUrl();
         \Component\Grid\GroupHelper::popupAddAggr($this);
+    }
+
+    public function gridGroupCreateColumns()
+    {
+        \App::dontChangeUrl();
+        $content = \Component\Grid\GroupHelper::createColumns($this);
+        $this->byId('tab-column')->html($content);
+        $this->byId('tab-columnLabel')->attr('onclick', "return selectTab('tab-column');");
+        \App::addJs("return selectTab('tab-column');");
     }
 
 }

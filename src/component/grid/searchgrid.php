@@ -43,6 +43,11 @@ class SearchGrid extends \Component\Grid\Grid
         return \DataHandle\Request::get('grid-groupby-field') ? true : false;
     }
 
+    public function isUserAddedColumns()
+    {
+        return \DataHandle\Request::get('grid-addcolumn-field') ? true : false;
+    }
+
     protected function createSearchField()
     {
         return new \Component\Grid\SearchField($this);
@@ -58,9 +63,21 @@ class SearchGrid extends \Component\Grid\Grid
         return $this->searchField->getExtraFilters();
     }
 
+    /**
+     * Get filter by name
+     * @param string $filterName filter name
+     * @return  \Filter\Text
+     */
     function getFilter($filterName)
     {
-        return $this->searchField->getExtraFilter($filterName);
+        $filter = $this->searchField->getExtraFilter($filterName);
+
+        if (!$filter)
+        {
+            return new \Filter\Text();
+        }
+
+        return $filter;
     }
 
     function setFilters($filters)
