@@ -203,6 +203,56 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Verify if some join exists, by table name
+     * @param string $tableName table name
+     * @return boolean
+     */
+    function joinExistsTable($tableName)
+    {
+        if (!is_array($this->join))
+        {
+            return false;
+        }
+
+        foreach ($this->join as $join)
+        {
+            $join instanceof \Db\Join;
+
+            if ($join->getTableName() == $tableName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify if some join exists by alias
+     * @param string $alias alias
+     * @return boolean
+     */
+    function joinExistsAlias($alias)
+    {
+        if (!is_array($this->join))
+        {
+            return false;
+        }
+
+        foreach ($this->join as $join)
+        {
+            $join instanceof \Db\Join;
+
+            if ($join->getAlias() == $alias)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function getModelName()
     {
         return $this->modelName;
