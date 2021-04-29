@@ -22,7 +22,7 @@ function popup(action, selector)
 
         element.fadeIn(600);
     } 
-    else if (action === 'close')
+    else if (action === 'close' || action === 'hide')
     {
         $('body').css('overflow','auto');
         $('.makePopupFade').removeClass('popupFaded');
