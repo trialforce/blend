@@ -122,6 +122,29 @@ class Time implements \Type\Generic, \JsonSerializable
     }
 
     /**
+     * Soma minutos no horário
+     *
+     * @param $minute
+     *
+     * @return \Type\Time
+     */
+    public function addMinute($minute)
+    {
+        $minutes = $this->minute + $minute;
+
+        $hours = intval($minutes / 60);
+
+        $minutes %= 60;
+
+        $hours += $this->getHour();
+
+        $this->setHour($hours);
+        $this->setMinute($minutes);
+
+        return $this;
+    }
+
+    /**
      * Treat value to support brazilian format
      *
      * @param string $value
@@ -167,6 +190,14 @@ class Time implements \Type\Generic, \JsonSerializable
         {
             $string .= '.' . str_pad($this->milesecond, 6, '0', STR_PAD_LEFT);
         }
+
+        return $string;
+    }
+
+    public function format()
+    {
+        $string = str_pad($this->hour, 2, '0', STR_PAD_LEFT) .
+                ':' . str_pad($this->minute, 2, '0', STR_PAD_LEFT);
 
         return $string;
     }
