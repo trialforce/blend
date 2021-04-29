@@ -114,26 +114,11 @@ class Column
     protected $export = TRUE;
 
     /**
-     * Determina se a coluna é filtrável ou não.
-     * Ou seja, se irá gerar um filtro automático.
-     * @todo rename to filterType
-     *
-     * @var boolean
-     */
-    protected $filter = TRUE;
-
-    /**
      * Define if this column go to Smart filter column list
      *
      * @var boolean
      */
     protected $smartFilter = TRUE;
-
-    /**
-     * Define the label used in filter
-     * @var String
-     */
-    protected $filterLabel;
 
     /**
      * Determina se a coluna é ordenável
@@ -175,6 +160,12 @@ class Column
      * @var \Type\Generic
      */
     protected $formatter;
+
+    /**
+     * If the column is "user" added
+     * @var bool
+     */
+    protected $userAdded = false;
 
     /**
      * Construct the column
@@ -428,11 +419,6 @@ class Column
         return $this;
     }
 
-    public function getFilter()
-    {
-        return $this->filter;
-    }
-
     public function getSmartFilter()
     {
         return $this->smartFilter;
@@ -441,28 +427,6 @@ class Column
     public function setSmartFilter($smartFilter)
     {
         $this->smartFilter = $smartFilter;
-        return $this;
-    }
-
-    public function getFilterType()
-    {
-        return $this->filter;
-    }
-
-    public function setFilter($filter)
-    {
-        $this->filter = $filter;
-        return $this;
-    }
-
-    public function getFilterLabel()
-    {
-        return $this->filterLabel ? $this->filterLabel : $this->label;
-    }
-
-    public function setFilterLabel($filterLabel)
-    {
-        $this->filterLabel = $filterLabel;
         return $this;
     }
 
@@ -522,6 +486,17 @@ class Column
         return $this;
     }
 
+    public function getUserAdded()
+    {
+        return $this->userAdded;
+    }
+
+    public function setUserAdded($userAdded)
+    {
+        $this->userAdded = $userAdded;
+        return $this;
+    }
+
     /**
      * Parse and format the value.
      *
@@ -574,10 +549,12 @@ class Column
             return $this->getLabel();
         }
 
+        $postedOrderBy = urldecode(\DataHandle\Request::get('orderBy'));
+
         $safeName = $this->getSafeName();
         $grid = $this->getGrid();
         $dataSource = $grid->getDataSource();
-        $order = $dataSource->getOrderByParsedForColumn($safeName);
+        $order = $dataSource->getOrderByParsedForColumn($safeName, $postedOrderBy);
         $newOrderWay = 'asc';
         $class = 'orderBy ';
 
