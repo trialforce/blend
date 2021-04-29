@@ -22,25 +22,26 @@ i.fa.filter-menu:active {
     background: #ccc;
 }
 
-i.fa.filter-menu .blend-floating-menu {
-    top: 33px;
+#popupSearchField .blend-floating-menu {
+    /*top: 33px;
     right: 6px;
     max-height: 80vh;
-    overflow-y: scroll;
+    overflow-y: scroll;*/
+    position: relative;
 }
 
-i.fa.filter-menu .blend-floating-menu li {
+#popupSearchField .blend-floating-menu li {
     line-height: 24px;
     position: relative;
     text-indent: 10px;
 }
 
-i.fa.filter-menu .blend-floating-menu li span {
+#popupSearchField .blend-floating-menu li span {
     display: block;
     margin-right: 10px;
 }
 
-i.fa.filter-menu .blend-floating-menu li span .fa-trash, #icon-save-new-item {
+#popupSearchField .blend-floating-menu li span .fa-trash, #icon-save-new-item {
     position: absolute;
     margin-right: 0;
     line-height: 22px;
@@ -62,6 +63,25 @@ i.fa-layer-group.filter-menu {
     font-size: 23px;
 }
 
+.filterCondition {
+    width: 30%;
+    float:left;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+.filterInput {
+    font-size: 13px;
+    width: calc(70% - 18px);
+    float: left;
+    box-sizing: border-box;
+}
+
+.filterInterval {
+    width: 31%;
+    font-size: 10px;
+}
+
 .filterInput.integer, .filterInput.float {
     min-width: inherit;
     /*width: 35%;*/
@@ -71,13 +91,14 @@ i.fa-layer-group.filter-menu {
     width: 49%;
 }
 
-.removeFilter {
+.fa.removeFilter {
+    position: absolute;
     cursor: pointer;
     padding: 4px 0px;
     position: absolute;
-    right: -8px;
-    top: 30px;
-    font-size: 18px !important;
+    top: 4px;
+    right: 4px;
+    font-size: 13px;
 }
 
 .addFilter {
@@ -89,21 +110,22 @@ i.fa-layer-group.filter-menu {
 }
 
 .fa.trashFilter {
+    position: absolute;
     cursor: pointer;
     margin-right: 0;
-    margin-left: 4px;
-    margin-top: 10px
+    right: 4px;
+    margin-top: 10px;
+    font-size: 13px;
 }
 
-i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
+#popupSearchField .blend-floating-menu li.advanced-filter-menu-group {
     font-weight: 500;
     text-indent: 0px;
     line-height: 33px;
 }
 
 #fm-filters {
-    min-width: 300px;
-    max-width: 300px;
+    width:100%;
 }
 
 .advanced-filter-span {
@@ -115,4 +137,161 @@ i.fa.filter-menu .blend-floating-menu li.advanced-filter-menu-group {
     height: 30px;
     line-height: 30px ;
     width: 20px;
+}
+
+
+.filters-tooltip {
+    font-size: 10px;
+    margin-top: 10px;
+    display: inline-block;
+    text-indent: 10px;
+}
+
+.filters-tooltip i {
+    font-weight: bold;
+}
+
+.filterLabel {
+    text-align: left;
+    line-height: 30px;
+    height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    font-size: 80%;
+}
+
+.filterLabel small {
+    font-size: 10px;
+}
+
+.tab-filters-right {
+    border: solid 1px #ccc;
+    border-radius: 5px;
+    width: 49%;
+    overflow: hidden;
+}
+
+.filterField {
+    text-align: left;
+    width: 220px;
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: top;
+    position: relative;
+    padding-bottom: 16px;
+}
+
+.filter-field-header {
+    font-weight: bold;
+}
+
+.tab-filters-right .filterField {
+    border-bottom: solid 1px #ccc;
+    width: 100%;
+    padding: 0;
+}
+
+.tab-filters-right .filterField:last-child {
+    border-bottom: none;
+}
+
+.tab-filters-right .filterField .addFilter {
+    display: none;
+}
+
+.tab-filters-right .filterField .filterLabel {
+    width: 40%;
+    float:left;
+    font-size: 13px;
+    text-indent: 6px;
+    height: 29px;
+    line-height: 29px;
+}
+
+.tab-filters-right .filterField .filterBase, 
+.tab-filters-right .filterField .filterBase-cloned  {
+    width: 60%;
+    float:right;
+}
+
+.tab-filters-right .filterField .filterInput {
+    border-top: none;
+    border-bottom: none;
+    height: 29px;
+    line-height: 29px;
+}
+
+.tab-filters-right .filterField .filterCondition {
+    border-top: none;
+    border-bottom: none;
+    height: 29px;
+    line-height: 29px;
+}
+
+
+#buscar {
+    margin:0;
+    margin-bottom: 16px;
+}
+
+#buscar i {
+    margin-right: 0;
+}
+
+.btn.btn-search-clear {
+    background-color: transparent;
+}
+
+#tab-holder-search-field i.fa, #tab-holder-search-field i.fab {
+    margin-right: 0;
+}
+
+.columns-holder {
+    margin-right: 0;
+    width: 49%;
+    border-radius: 5px;
+    overflow: hidden;
+    border: solid 1px #ccc;
+}
+
+.grid-addcolumn-field {
+    position: relative;
+    border-bottom: solid 1px #ccc;
+    font-size: 13px;
+    height: 30px;
+    line-height: 30px;
+    text-indent: 6px;
+}
+
+.grid-addcolumn-field:hover {
+    background-color: #eee;
+}
+
+.grid-addcolumn-field .grid-addcolumn-icon {
+    float: right;
+    margin-top: 8px;
+    margin-right: 4px !important;
+}
+
+.grid-group-by-left-holder {
+    margin-top: 20px;
+    border: solid 1px #ccc; 
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.grid-savedlist-holder {
+    margin-top: 20px;
+    border: solid 1px #ccc; 
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.grid-group-by-right-holder{
+    margin-top: 20px;
+    border: solid 1px #ccc; 
+    border-radius: 5px;
+    overflow: hidden;
 }

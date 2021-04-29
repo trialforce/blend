@@ -2,6 +2,9 @@
 
 namespace View\Blend;
 
+/**
+ * A Simple floating/popup menu
+ */
 class FloatingMenu extends \View\Ul
 {
 
