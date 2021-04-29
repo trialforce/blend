@@ -965,6 +965,31 @@ class Crud extends \Page\Page
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
+        $this->createEditPopup($id, $idInput, $url, $title);
+    }
+
+    /**
+     * Open a popup of this crud, to add while referencing parent.
+     * It uses a internal iframe soluction to avoid mixing the forms post and values.
+     */
+    public function adicionarPopup()
+    {
+        \App::dontChangeUrl();
+        $idInput = Request::get('idInput');
+
+        $idParent = Request::get('v');
+
+        // add referencing parent
+        $url = $this->getPageUrl() . '/adicionar/' . $idParent;
+        $url .= '?iframe=true';
+
+        $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
+
+        $this->createEditPopup($idParent, $idInput, $url, $title);
+    }
+
+    public function createEditPopup($id, $idInput, $url, $title)
+    {
         $body = new \View\IFrame('edit-popup-iframe', $url);
         $body->setWidth('100', '%')->setHeight('70', 'vh');
         $buttons = null;

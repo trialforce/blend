@@ -209,7 +209,10 @@ class Template
             foreach ($dataSources as $sectionName => $dataSource)
             {
                 $data = $dataSource->getData();
-                $this->setParam($sectionName . '_count', count($data));
+
+                $countData = isCountable($data) ? count($data) : 0;
+
+                $this->setParam($sectionName . '_count', $countData);
             }
         }
 
