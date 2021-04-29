@@ -32,6 +32,12 @@ class Relation
     protected $modelName;
 
     /**
+     * Table name
+     * @var string
+     */
+    protected $tableName;
+
+    /**
      * Relation label
      * @var string
      */
@@ -43,6 +49,11 @@ class Relation
         $this->setType($type);
         $this->setModelName($modelName);
         $this->setSql($sql);
+
+        if (class_exists($modelName))
+        {
+            $this->setTableName($modelName::getTableName());
+        }
     }
 
     public function getLabel()
@@ -61,20 +72,15 @@ class Relation
         return $this->type;
     }
 
-    public function getSql()
-    {
-        return $this->sql;
-    }
-
-    public function getModelName()
-    {
-        return $this->modelName;
-    }
-
     public function setType($type)
     {
         $this->type = $type;
         return $this;
+    }
+
+    public function getSql()
+    {
+        return $this->sql;
     }
 
     public function setSql($sql)
@@ -83,10 +89,37 @@ class Relation
         return $this;
     }
 
+    public function getModelName()
+    {
+        return $this->modelName;
+    }
+
     public function setModelName($modelName)
     {
         $this->modelName = $modelName;
         return $this;
+    }
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
+    public function setTableName($tableName)
+    {
+        $this->tableName = $tableName;
+        return $this;
+    }
+
+    /**
+     * Return a new instance of the model of the relation
+     *
+     * @return \Db\Model the model
+     */
+    public function getModel()
+    {
+        $modelName = $this->getModelName();
+        return new $modelName();
     }
 
 }
