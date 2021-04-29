@@ -23,6 +23,7 @@ function filterAdd(element)
     clone.find('.filterInput').val('').removeAttr('data-on-press-enter-converted');
     //restore condition value (clone is not filling it)
     clone.find('.filterCondition').val(filterConditionValue);
+    clone.addClass('filterBase-cloned');
     
     //show with animation
     clone.hide()
@@ -142,4 +143,86 @@ function filterChangeBoolean(element)
 
     input.val('').hide();
     element.addClass('fullWidth');
+}
+
+function mountExtraFiltersLabel()
+{
+    var filters= $('#tab-filters-right .filterLabel');
+    
+    if (filters.length <= 1)
+    {
+        $('#filters-tooltip').html('');
+        return;
+    }
+    
+    var html = 'Existem filtros adicionais aplicados:';
+
+    filters.each( function(idx) 
+    {
+        //jump header
+        if(idx==0)
+        {
+            return;
+        }
+        
+        var element = $(filters[idx]);
+        var values = element.parent().find('.filterInput');
+        var valuesTxt = '';
+        
+        /*values.each (function(idx2) 
+        {
+            var element2 = $(values[idx2]);
+            console.log(element2);
+            var value = element2.val();
+            var text = element2.find('option:selected').text();
+            console.log(text);
+            
+            if ( value )
+            {
+                valuesTxt += '['+value+']';
+            }
+        });*/
+        
+        html+= ' <i>'+element.text()+'</i> '+valuesTxt;
+    });
+    
+    $('#filters-tooltip').html(html);
+}
+
+function gridAddColumnRemove(element)
+{
+    var parent = $(element).parent();
+    
+    parent.hide('fast', function(){ 
+        parent.remove() 
+    });
+}
+
+function gridAddColumnUp(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    
+    if (parent.not(':first-child') )
+    {
+        parent.prev().before(parent);
+    }
+}
+
+function gridAddColumnDown(element)
+{
+    var element = $(element);
+    var parent = element.parent();
+    
+    if (parent.not(':first-child') )
+    {
+        parent.next().after(parent);
+    }
+}
+
+function gridClosePopupAndMakeSearch()
+{
+    popup('close', '#popupSearchField'); 
+    $('#buscar').click();
+    return false;
 }

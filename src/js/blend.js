@@ -417,8 +417,15 @@ function updateUrl(page)
         avoidUrlRegister = false;
         return false;
     }
-
+    
     var urlToRegister = correctUrl(page);
+    
+    //don't register same url twice (simplifies back)
+    if (urlToRegister == window.location.href)
+    {
+        return false;
+    }
+    
     window.history.pushState({url: urlToRegister}, "", urlToRegister);
     avoidUrlRegister = false;
     return true;
