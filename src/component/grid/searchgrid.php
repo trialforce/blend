@@ -58,11 +58,6 @@ class SearchGrid extends \Component\Grid\Grid
         $this->searchField->addExtraFilter($filters);
     }
 
-    function getFilters()
-    {
-        return $this->searchField->getExtraFilters();
-    }
-
     /**
      * Get filter by name
      * @param string $filterName filter name
@@ -80,9 +75,39 @@ class SearchGrid extends \Component\Grid\Grid
         return $filter;
     }
 
+    /**
+     * Remove an filter
+     * @param strring $filterName filter name
+     *
+     * @return $this
+     */
+    function removeFilter($filterName)
+    {
+        $this->searchField->getRemoveFilter($filterName);
+
+        return $this;
+    }
+
+    /**
+     * Return an array with all filter
+     *
+     * @return array
+     */
+    function getFilters()
+    {
+        return $this->searchField->getExtraFilters();
+    }
+
+    /**
+     * Define/overwrite all filter
+     * @param array $filters array of filter
+     * @return $this
+     */
     function setFilters($filters)
     {
-        return $this->searchField->setExtraFilters($filters);
+        $this->searchField->setExtraFilters($filters);
+
+        return $this;
     }
 
     /**

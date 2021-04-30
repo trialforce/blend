@@ -128,6 +128,25 @@ class SearchField extends \Component\Component
         return null;
     }
 
+    /**
+     * Remove one filter
+     * @param string $filterName filter name
+     * @return $this
+     */
+    public function removeExtraFilter($filterName)
+    {
+        $filters = $this->getExtraFilters();
+
+        if (isset($filters[$filterName]))
+        {
+            unset($filters[$filterName]);
+        }
+
+        $this->setExtraFilters($filters);
+
+        return $this;
+    }
+
     protected function createAutoFilters()
     {
         $dbModel = $this->getDbModel();
