@@ -281,7 +281,7 @@ class Grab
         //add support for column formatter
         $formatter = $column->getFormatter();
 
-        if ($formatter)
+        if ($formatter && $value)
         {
             $formatter->setValue($value);
             $value = $formatter->__toString();

@@ -494,6 +494,39 @@ class Column
     public function setUserAdded($userAdded)
     {
         $this->userAdded = $userAdded;
+
+        if ($userAdded)
+        {
+            $this->setFormatterByDataType();
+        }
+
+        return $this;
+    }
+
+    public function setFormatterByDataType()
+    {
+        if ($this->formatter)
+        {
+            return;
+        }
+
+        if ($this->getType() == \Db\Column\Column::TYPE_DATETIME || $this->getType() == \Db\Column\Column::TYPE_TIMESTAMP)
+        {
+            $this->setFormatter(new \Type\DateTime());
+        }
+        else if ($this->getType() == \Db\Column\Column::TYPE_DATE)
+        {
+            $this->setFormatter(new \Type\Date());
+        }
+        else if ($this->getType() == \Db\Column\Column::TYPE_TIME)
+        {
+            $this->setFormatter(new \Type\Time());
+        }
+        else if ($this->getType() == \Db\Column\Column::TYPE_DATETIME)
+        {
+            $this->setFormatter(new \Type\Decimal());
+        }
+
         return $this;
     }
 

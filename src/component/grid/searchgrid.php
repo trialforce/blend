@@ -48,6 +48,11 @@ class SearchGrid extends \Component\Grid\Grid
         return \DataHandle\Request::get('grid-addcolumn-field') ? true : false;
     }
 
+    public function isCustomized()
+    {
+        return $this->isGrouped() || $this->isUserAddedColumns();
+    }
+
     protected function createSearchField()
     {
         return new \Component\Grid\SearchField($this);

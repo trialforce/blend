@@ -658,6 +658,8 @@ class GroupHelper
             self::addLeftJoin($queryBuilder, $relations, $groupName);
         }
 
+        \Log::debug($userDataSource);
+
         $queryBuilder->setColumns($sqlColumns);
         return $userDataSource;
     }
