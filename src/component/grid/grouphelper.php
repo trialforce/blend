@@ -14,7 +14,7 @@ class GroupHelper
      */
     public static function safeName($name)
     {
-        return \Type\Text::get($name)->toFile() . '';
+        return \Type\Text::get(strip_tags($name))->toFile() . '';
     }
 
     /**
@@ -60,6 +60,7 @@ class GroupHelper
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
         $groupColumns = self::getAllColumns($page);
         $model = $page->getModel();
+        $modelGroupName = self::safeName($model->getLabel());
         $modelColumns = $model->getColumns();
         $relations = self::getRelationsIndexed($model);
         $gridGroupBy = Request::get('grid-groupby-field');
@@ -79,41 +80,22 @@ class GroupHelper
             $explode = explode('.', $columnName);
             $groupName = $explode[0];
             $simpleColumnName = $explode[1];
-            $dbColumn = $modelColumns[$simpleColumnName];
+            $dbColumn = null;
 
-            //a try
-            $columnLabel = '<small>' . ucfirst($groupName) . '</small><br/>' . ucfirst($simpleColumnName);
+            if ($groupName == $modelGroupName && issset($modelColumns[$simpleColumnName]))
+            {
+                $dbColumn = $modelColumns[$simpleColumnName];
+            }
 
             if (isset($groupColumns[$groupName][$simpleColumnName]))
             {
                 $gridColumn = $groupColumns[$groupName][$simpleColumnName];
-                $columnLabel = '<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel();
             }
 
-            $columnLabelSafe = $groupName . '_' . $simpleColumnName;
-            //store to use in the end
-            $columnLabels[$columnLabelSafe] = $columnLabel;
+            $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn, $dbColumn));
+            $columnLabels[$gridColumn->getName()] = $gridColumn->getLabel();
 
-            $sqlColumns[] = $columnName . ' AS ' . $columnLabelSafe;
-
-            if ($dbColumn instanceof \Db\Column\Column)
-            {
-                if ($dbColumn->getReferenceTable())
-                {
-                    $sqlColumns[] = $dbColumn->getReferenceSql(false) . ' AS ' . $columnLabelSafe . 'Description';
-                }
-            }
-
-            if (isset($relations[$groupName]))
-            {
-                $relation = $relations[$groupName];
-                $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
-
-                if (!$queryBuilder->joinExistsAlias($groupName))
-                {
-                    $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
-                }
-            }
+            self::addLeftJoin($queryBuilder, $relations, $groupName);
 
             $groupBy[] = $columnName;
         }
@@ -134,25 +116,28 @@ class GroupHelper
                 continue;
             }
 
+            if ($groupName == $modelGroupName)
+            {
+                $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
+            }
+
             $gridColumn = $groupColumns[$groupName][$simpleColumnName];
 
             $columnLabel = $methods[$method] . ' de <br/> <small>' . $gridColumn->getGroupName() . '</small> - ' . $gridColumn->getLabel();
             $columnLabelSafe = self::safeName($columnLabel);
-            $sqlColumns[] = $method . '(' . $columnName . ') AS "' . $columnLabelSafe . '"';
+
+            $columnSql = $groupName . '.' . $simpleColumnName;
+
+            if ($dbColumn)
+            {
+                $columnSql = $model::getTableName() . '.' . $simpleColumnName;
+            }
+
+            $sqlColumns[] = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
             //store to use in the end
             $columnLabels[$columnLabelSafe] = $columnLabel;
 
-            //add left join
-            if (isset($relations[$groupName]))
-            {
-                $relation = $relations[$groupName];
-                $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
-
-                if (!$queryBuilder->joinExistsAlias($groupName))
-                {
-                    $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
-                }
-            }
+            self::addLeftJoin($queryBuilder, $relations, $groupName);
 
             //correct method to aggregation
             $aggrMethod = $method == 'count' ? 'sum' : $method;
@@ -183,6 +168,50 @@ class GroupHelper
         $grid->setColumns($columns);
 
         return $dataSource;
+    }
+
+    public static function addLeftJoin(\Db\QueryBuilder $queryBuilder, array $relations, $groupName)
+    {
+        if (isset($relations[$groupName]))
+        {
+            $relation = $relations[$groupName];
+            $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
+
+            if (!$queryBuilder->joinExistsAlias($groupName))
+            {
+                $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
+            }
+        }
+
+        return $queryBuilder;
+    }
+
+    public static function getGroupedDataColumn(\Component\Grid\Column $gridColumn, \Db\Column\Column $dbColumn = null)
+    {
+        $sqlColumns = [];
+        //a try
+        //$columnLabel = '<small>' . ucfirst($groupName) . '</small><br/>' . ucfirst($simpleColumnName);
+        $columnLabel = '<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel();
+        $gridColumn->setLabel($columnLabel);
+        $columnLabelSafe = self::safeName($gridColumn->getGroupName() . '_' . $gridColumn->getName());
+        //store to use in the end
+        //$columnLabels[$columnLabelSafe] = $columnLabel;
+
+        $modelName = $gridColumn->getModelName();
+        $tableName = $modelName::getTableName();
+        $columnSql = $tableName . '.' . $gridColumn->getSql();
+
+        $sqlColumns[] = $columnSql . ' AS ' . $columnLabelSafe;
+
+        if ($dbColumn instanceof \Db\Column\Column)
+        {
+            if ($dbColumn->getReferenceTable())
+            {
+                $sqlColumns[] = $dbColumn->getReferenceSql(false) . ' AS ' . $columnLabelSafe . 'Description';
+            }
+        }
+
+        return $sqlColumns;
     }
 
     public static function parseData(\Page\Page $page, \DataSource\QueryBuilder $dataSource)
@@ -592,6 +621,7 @@ class GroupHelper
         $extraColumns = Request::get('grid-addcolumn-field');
         $groupColumns = self::getAllColumns($page);
         $model = $page->getModel();
+        $modelGroupName = self::safeName($model->getLabel());
         $modelColumns = $model->getColumns();
         $relations = self::getRelationsIndexed($model);
 
@@ -604,62 +634,79 @@ class GroupHelper
             return null;
         }
 
+        $sqlColumns = [];
+
         foreach ($extraColumns as $extraColumm)
         {
             $explode = explode('.', $extraColumm);
             $groupName = $explode[0];
             $simpleColumnName = $explode[1];
+            $dbColumn = null;
+
+            if ($groupName == $modelGroupName)
+            {
+                $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
+            }
 
             if (isset($groupColumns[$groupName][$simpleColumnName]))
             {
                 $gridColumn = $groupColumns[$groupName][$simpleColumnName];
-                $gridColumn instanceof \Component\Grid\Column;
-
-                $dbColumn = $modelColumns[$simpleColumnName];
-
-                $columnName = self::safeName($gridColumn->getGroupName()) . '_' . $gridColumn->getName();
-                $gridColumn->setUserAdded(true);
-                $gridColumn->setRender(true);
-                $gridColumn->setName($columnName);
-                $gridColumn->setLabel('<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel());
-
-                if ($dbColumn instanceof \Db\Column\Search)
-                {
-                    $sql = $dbColumn->getSql(FALSE);
-                    $sqlColumns[] = $sql[0] . ' AS ' . $columnName;
-                }
-                else
-                {
-                    $sqlColumns[] = $extraColumm . ' AS ' . $columnName;
-                }
-
-                //references columns
-                if ($dbColumn instanceof \Db\Column\Column)
-                {
-                    if ($dbColumn->getReferenceTable())
-                    {
-                        $sqlColumns[] = $dbColumn->getReferenceSql(FALSE) . ' AS ' . $columnName . 'Description';
-                    }
-                }
-
-                //add left join for tables
-                if (isset($relations[$groupName]))
-                {
-                    $relation = $relations[$groupName];
-                    $sql = str_replace($relation->getTableName(), $groupName, $relation->getSql());
-
-                    if (!$queryBuilder->joinExistsAlias($groupName))
-                    {
-                        $queryBuilder->leftJoin($relation->getTableName(), $sql, $groupName);
-                    }
-                }
-
+                $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn, $dbColumn));
                 $userDataSource->addColumn($gridColumn);
             }
+
+            self::addLeftJoin($queryBuilder, $relations, $groupName);
         }
 
         $queryBuilder->setColumns($sqlColumns);
         return $userDataSource;
+    }
+
+    public static function getUserDefinedColumn(\Component\Grid\Column $gridColumn, \Db\Column\Column $dbColumn = null)
+    {
+        $sqlColumns = [];
+        $columnAlias = self::safeName($gridColumn->getGroupName()) . '_' . $gridColumn->getName();
+        $modelName = $gridColumn->getModelName();
+        $tableName = $modelName::getTableName();
+
+        $gridColumn->setUserAdded(true);
+        $gridColumn->setRender(true);
+        $gridColumn->setLabel('<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel());
+
+        if ($dbColumn)
+        {
+            $columnSql = $tableName . '.' . $gridColumn->getSql();
+        }
+        else
+        {
+            $columnSql = self::safeName($gridColumn->getGroupName()) . '.' . $gridColumn->getSql();
+        }
+
+        $gridColumn->setSql($columnSql);
+        $gridColumn->setName($columnAlias);
+
+        //search column
+        if ($dbColumn instanceof \Db\Column\Search)
+        {
+            $sql = $dbColumn->getSql(FALSE);
+            $sqlColumns[] = $sql[0] . ' AS ' . $columnAlias;
+        }
+        //simple column
+        else
+        {
+            $sqlColumns[] = $columnSql . ' AS ' . $columnAlias;
+        }
+
+        //references columns
+        if ($dbColumn instanceof \Db\Column\Column)
+        {
+            if ($dbColumn->getReferenceTable())
+            {
+                $sqlColumns[] = $dbColumn->getReferenceSql(FALSE) . ' AS ' . $columnAlias . 'Description';
+            }
+        }
+
+        return $sqlColumns;
     }
 
 }
