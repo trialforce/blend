@@ -55,8 +55,9 @@ class GroupHelper
      * @param \Page\Page $page page
      * @return \DataSource\QueryBuilder datasource
      */
-    public static function getGroupedDataSource(\Page\Page $page)
+    public static function getGroupedDataSource(\Page\Page $page = null)
     {
+        $page = $page ? $page : \View\View::getDom();
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
         $groupColumns = self::getAllColumns($page);
         $model = $page->getModel();
@@ -284,8 +285,19 @@ class GroupHelper
 
     protected static function getAllColumns(\Page\Page $page)
     {
-        $dbModel = $page->getModel();
-        $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
+        if (method_exists($page, 'getModel'))
+        {
+            $dbModel = $page->getModel();
+            $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
+        }
+        else
+        {
+            $datasource = $page->getDatasource();
+            $columns = $datasource->getColumns();
+            $title = $page->getTitle() ? self::safeName($page->getTitle()) : 'Colunas';
+
+            $columnGroup[$title] = $columns;
+        }
 
         if (method_exists($page, 'setDefaultGroups'))
         {
@@ -425,7 +437,13 @@ class GroupHelper
     public static function createFieldColumn(\Component\Grid\Column $column)
     {
         $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
-        $label = $column->getGroupName() . ' - ' . $column->getLabel();
+        $label = $column->getLabel();
+
+        if ($column->getGroupName())
+        {
+            $label = $column->getGroupName() . ' - ' . $label;
+        }
+
         $idField = 'grid-addcolumn-field-' . $columName;
         $value = $columName;
 

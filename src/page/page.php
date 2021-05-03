@@ -2,7 +2,6 @@
 
 namespace Page;
 
-use DataHandle\Get;
 use DataHandle\Request;
 use DataHandle\Config;
 use DataHandle\Session;
@@ -241,46 +240,10 @@ class Page extends \View\Layout
     public function getHead()
     {
         $title = $this->getFormTitle();
-        $view = null;
-
-        if ($this->isSearch())
-        {
-            //$view = $this->getSaveListFields();
-        }
-
         $head[] = new \View\H1('formTitle', $title, 'formTitle');
-
-        if (is_array($view))
-        {
-            $head[] = new \View\Div('savedListGroup', $view, 'savedListGroup');
-        }
-
         $head[] = new \View\Div('btnGroup', $this->getTopButtons($this->getEvent()), 'btnGroup clearfix');
 
         return new \View\Div('pageHead', $head, 'makePopupFade');
-    }
-
-    /**
-     * Return save list fields
-     *
-     * @return \View\Ext\Button
-     */
-    public function getSaveListFields()
-    {
-        $pageUrl = $this->getPageUrl();
-        $savedList = new \Filter\SavedList();
-        $view[] = $savedList = new \View\Select('savedList', $savedList->getOptions($pageUrl), Request::get('savedList'), 'savedList');
-        $savedList->change("var url = $(this).find('option:selected').data('url'); if (typeof url !== 'undefined'){ window.location = url } else { window.location='{$pageUrl}'}");
-
-        $params['orderBy'] = Request::get('orderBy');
-        $params['orderWay'] = Request::get('orderWay');
-
-        $url = http_build_query($params);
-
-        $view[] = new \View\Ext\Button('saveListItem', 'save', '', "return g('{$this->getPageUrl()}/saveListItem/','{$url}'+ '&' + $('form').serialize())", 'add');
-        $view[] = new \View\Ext\Button('deleteListItem', 'trash', '', 'deleteListItem', 'add');
-
-        return $view;
     }
 
     /**
@@ -511,26 +474,26 @@ class Page extends \View\Layout
 
             if ($this->getEvent() == 'listar')
             {
-                $extraColumns = Request::get('grid-addcolumn-field');
                 $gridGroupBy = Request::get('grid-groupby-field');
+                $extraColumns = Request::get('grid-addcolumn-field');
 
-                if (is_array($extraColumns))
+                if (is_array($gridGroupBy))
                 {
-                    $userDataSource = \Component\Grid\GroupHelper::getUserDefinedDataSource($grid->getDataSource());
+                    $dataSource = $grid->getDataSource();
+                    $dataSource->getColumns(); //forece column mount
+                    $dataSource = $this->getGroupedDataSource();
+                    $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
+
+                    $dataSource->setCount($data->count());
+                }
+                else if (is_array($extraColumns))
+                {
+                    $userDataSource = $this->getUserDefinedDatasource();
 
                     if ($userDataSource)
                     {
                         $grid->setDataSource($userDataSource);
                     }
-                }
-                else if (is_array($gridGroupBy))
-                {
-                    $dataSource = $grid->getDataSource();
-                    $dataSource->getColumns(); //forece column mount
-                    $dataSource = \Component\Grid\GroupHelper::getGroupedDataSource($this);
-                    $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
-
-                    $dataSource->setCount($data->count());
                 }
             }
 
@@ -539,9 +502,42 @@ class Page extends \View\Layout
     }
 
     /**
+     * Create/Return the default datasource
+     * This method can be used to customize the default datasource
+     *
+     * @return \DataSource\Vector
+     */
+    public function getDatasource()
+    {
+        return new \DataSource\Vector();
+    }
+
+    /**
+     * Create/Return the user defined datasource
+     * This method can be used to customize the user datasource
+     *
+     * @return \DataSource\QueryBuilder
+     */
+    public function getUserDefinedDatasource()
+    {
+        return \Component\Grid\GroupHelper::getUserDefinedDataSource();
+    }
+
+    /**
+     * Create/Return the grouped datasource
+     * This method can be used to customize the grouped datasource
+     *
+     * @return \DataSource\QueryBuilder datasource
+     */
+    public function getGroupedDataSource()
+    {
+        return \Component\Grid\GroupHelper::getGroupedDataSource();
+    }
+
+    /**
      * A Simple method that is used to define the default filters of this page
      *
-     * @param \Commponent\Grid\SearchGrid $grid
+     * @param \Commponent\Grid\SearchGrid $grid the main grid of the page
      */
     public function setDefaultFilters(\Component\Grid\SearchGrid $grid)
     {
@@ -577,7 +573,7 @@ class Page extends \View\Layout
 
         if (!$result)
         {
-            toast('Problemas ao salvar registro!');
+            toast('Problemas ao salvar registro!', 'danger');
             return $result;
         }
         else
@@ -663,8 +659,6 @@ class Page extends \View\Layout
 
         $footer[] = $btnAddMedia = new \View\Input('btnAddMedia', \View\Input::TYPE_SUBMIT, 'Adicionar media', 'btn primary fl');
         $btnAddMedia->click('passThis.submit(document.getElementById(\'btnAddMedia\')); ' . \View\Blend\Popup::getJs('destroy', 'id'));
-
-        //$footer[] = $btnExcluirFoto = new \View\Ext\Button( 'deletaFoto', '', 'Excluir Foto', 'removerFoto', 'btn danger', '' );
 
         $footer = new \View\Form(NULL, $footer, NULL, NULL);
         $footer->attr('onsubmit', 'return false;');
@@ -934,6 +928,7 @@ class Page extends \View\Layout
 
     /**
      * Add advanced filter
+     * Called from grid popup
      *
      * @return boolean
      */
@@ -970,11 +965,11 @@ class Page extends \View\Layout
         $input = $filter->getInput();
         //remove the filter if exists
         \App::addJs("$('#{$input->getId()}').remove();");
-        //put the input inside containerFiltros
-        //$this->byId('containerFiltros')->append($input);
         $this->byId('tab-filters-right')->append($input);
         \App::addJs("$('.filterCondition').change();"); //call js change
-        \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();"); //put focus on input field
+        //put focus on input field
+        \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();");
+        return $this;
     }
 
     /**

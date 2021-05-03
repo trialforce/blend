@@ -341,7 +341,8 @@ class SearchField extends \Component\Component
             //rare case with only one model
             if (count($options) > 0)
             {
-                $optGroup[] = new \View\OptGroup($groupNameFile, $this->getDbModel()->getLabel(), $options);
+                $title = $this->getDbModel() ? $this->getDbModel()->getLabel() : 'Filtros';
+                $optGroup[] = new \View\OptGroup($groupNameFile, $title, $options);
             }
         }
 
@@ -408,7 +409,6 @@ class SearchField extends \Component\Component
      */
     protected function createFixedFilters()
     {
-        //$filterContent = array($this->getInput('q', 'buscar'));
         $filterContent = array();
 
         if (is_array($this->filters))
