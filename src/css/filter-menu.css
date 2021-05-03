@@ -295,3 +295,7 @@ i.fa-layer-group.filter-menu {
     border-radius: 5px;
     overflow: hidden;
 }
+
+.exportColumns br {
+    display: none;
+}

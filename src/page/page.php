@@ -332,7 +332,7 @@ class Page extends \View\Layout
     {
         if (is_null($this->grid))
         {
-            $this->setDefaultGrid();
+            return $this->setDefaultGrid();
         }
 
         return $this->grid;
@@ -472,7 +472,12 @@ class Page extends \View\Layout
             $this->setGrid($grid);
             $this->setDefaultFilters($grid);
 
-            if ($this->getEvent() == 'listar')
+            $events = [];
+            $events[] = 'listar';
+            $events[] = 'gridExportData';
+            $events[] = 'exportGridFile';
+
+            if (in_array($this->getEvent(), $events))
             {
                 $gridGroupBy = Request::get('grid-groupby-field');
                 $extraColumns = Request::get('grid-addcolumn-field');

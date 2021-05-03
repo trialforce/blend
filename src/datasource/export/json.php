@@ -26,7 +26,7 @@ class Json
 
             foreach ($columns as $column)
             {
-                $colunName = $column->getLabel();
+                $colunName = strip_tags($column->getLabel());
                 $value = \DataSource\Grab::getUserValue($column, $item);
                 $result->$colunName = $value;
             }

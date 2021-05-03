@@ -88,7 +88,7 @@ class SearchGrid extends \Component\Grid\Grid
      */
     function removeFilter($filterName)
     {
-        $this->searchField->getRemoveFilter($filterName);
+        $this->searchField->removeExtraFilter($filterName);
 
         return $this;
     }

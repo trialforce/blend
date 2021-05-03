@@ -69,6 +69,7 @@ class GroupHelper
 
         $groupBy = [];
         $sqlColumns = [];
+        $dbColumns = [];
         $aggregators = [];
         $queryBuilder = $model::query();
         $queryBuilder instanceof \Db\QueryBuilder;
@@ -83,22 +84,24 @@ class GroupHelper
             $simpleColumnName = $explode[1];
             $dbColumn = null;
 
-            if ($groupName == $modelGroupName && issset($modelColumns[$simpleColumnName]))
-            {
-                $dbColumn = $modelColumns[$simpleColumnName];
-            }
-
             if (isset($groupColumns[$groupName][$simpleColumnName]))
             {
                 $gridColumn = $groupColumns[$groupName][$simpleColumnName];
             }
 
+            if ($groupName == $modelGroupName && isset($modelColumns[$simpleColumnName]))
+            {
+                $dbColumn = $modelColumns[$simpleColumnName];
+                //$columnName = $dbColumn->getTableName() . '.' . $dbColumn->getName();
+            }
+
             $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn, $dbColumn));
             $columnLabels[$gridColumn->getName()] = $gridColumn->getLabel();
+            $dbColumns[$gridColumn->getName()] = $dbColumn;
 
             self::addLeftJoin($queryBuilder, $relations, $groupName);
 
-            $groupBy[] = $columnName;
+            $groupBy[] = $gridColumn->getSql();
         }
 
         //groupments
@@ -132,6 +135,13 @@ class GroupHelper
             if ($dbColumn)
             {
                 $columnSql = $model::getTableName() . '.' . $simpleColumnName;
+                $dbColumns[$columnLabelSafe] = $dbColumn;
+
+                if ($dbColumn instanceof \Db\Column\Search)
+                {
+                    $sql = $dbColumn->getSql(FALSE);
+                    $columnSql = $sql[0];
+                }
             }
 
             $sqlColumns[] = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
@@ -154,6 +164,7 @@ class GroupHelper
         $page->addFiltersToDataSource($dataSource);
         $columns = $dataSource->getColumns();
 
+        ///correct labels
         foreach ($columnLabels as $columnLabelSafe => $columnLabel)
         {
             $column = $dataSource->getColumn($columnLabelSafe);
@@ -161,6 +172,17 @@ class GroupHelper
             if ($column)
             {
                 $column->setLabel($columnLabel);
+            }
+        }
+
+        //feed the grouped columns with the original db column, it make the constant values work
+        foreach ($dbColumns as $columnLabelSafe => $dbColumn)
+        {
+            $column = $dataSource->getColumn($columnLabelSafe);
+
+            if ($column)
+            {
+                $column->setDbColumn($dbColumn);
             }
         }
 
@@ -190,13 +212,9 @@ class GroupHelper
     public static function getGroupedDataColumn(\Component\Grid\Column $gridColumn, \Db\Column\Column $dbColumn = null)
     {
         $sqlColumns = [];
-        //a try
-        //$columnLabel = '<small>' . ucfirst($groupName) . '</small><br/>' . ucfirst($simpleColumnName);
         $columnLabel = '<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel();
         $gridColumn->setLabel($columnLabel);
         $columnLabelSafe = self::safeName($gridColumn->getGroupName() . '_' . $gridColumn->getName());
-        //store to use in the end
-        //$columnLabels[$columnLabelSafe] = $columnLabel;
 
         $modelName = $gridColumn->getModelName();
         $tableName = $modelName::getTableName();
@@ -218,6 +236,8 @@ class GroupHelper
     public static function parseData(\Page\Page $page, \DataSource\QueryBuilder $dataSource)
     {
         $model = $page->getModel();
+        //grouped grids don't need limit e offset
+        $dataSource->setLimit(null)->setOffset(null);
         $data = $dataSource->getData();
         $columns = $dataSource->getColumns();
 
@@ -226,7 +246,7 @@ class GroupHelper
             foreach ($columns as $column)
             {
                 $value = \DataSource\Grab::getDbValue($column->getName(), $obj);
-                $dbColumn = $model->getColumn($column->getName());
+                $dbColumn = $column->getDbColumn() ? $column->getDbColumn() : $model->getColumn($column->getName());
 
                 if ($dbColumn instanceof \Db\Column\Column)
                 {
@@ -242,6 +262,19 @@ class GroupHelper
                                 $obj->setValue($propertyDescription, 'Sem ' . lcfirst($dbColumn->getLabel()));
                             }
                         }
+                    }
+                    else if ($dbColumn->getConstantValues())
+                    {
+                        $propertyDescription = $dbColumn->getName() . 'Description';
+                        $cValues = $dbColumn->getConstantValuesArray();
+
+                        if (isset($cValues[$value]))
+                        {
+                            $value = $cValues[$value];
+                        }
+
+
+                        $obj->setValue($propertyDescription, $value);
                     }
                 }
             }
@@ -263,8 +296,8 @@ class GroupHelper
             $arrayColumns = array_values($columns);
             $firstColumn = $arrayColumns[0];
             $columnGroupLabel = $firstColumn->getGroupName();
-            $options = [];
 
+            $options = [];
             $optgroup[] = $opt = new \View\OptGroup($columnGroupLabelSafe, $columnGroupLabel);
 
             foreach ($columns as $column)
@@ -272,13 +305,22 @@ class GroupHelper
                 $column instanceof \Component\Grid\Column;
                 $columnName = $columnGroupLabelSafe . '.' . $column->getName();
                 $option = new \View\Option($columnName, $column->getLabel());
-                $options[$column->getLabel()] = $option;
+
+                //we have weird duplicated names in some models
+                $label = $column->getGroupName() . '_' . $column->getLabel();
+
+                if (isset($options[$label]))
+                {
+                    $label .= '_';
+                }
+
+                $options[$label] = $option;
             }
+
+            ksort($options);
 
             $opt->html($options);
         }
-
-        ksort($options);
 
         return $optgroup;
     }
@@ -404,7 +446,11 @@ class GroupHelper
                 $columnGroup = $explode[0];
                 $columnName = $explode[1];
                 $column = $groupColumns[$columnGroup][$columnName];
-                $elements[] = self::createFieldGroupBy($column);
+
+                if ($column)
+                {
+                    $elements[] = self::createFieldGroupBy($column);
+                }
             }
         }
 
@@ -421,7 +467,11 @@ class GroupHelper
                 $columnGroup = $columNameGrouped[0];
                 $columnName = $columNameGrouped[1];
                 $column = $groupColumns[$columnGroup][$columnName];
-                $elements[] = self::createFieldAggr($column, $method);
+
+                if ($column)
+                {
+                    $elements[] = self::createFieldAggr($column, $method);
+                }
             }
         }
 
@@ -637,6 +687,7 @@ class GroupHelper
     {
         $page = \View\View::getDom();
         $extraColumns = Request::get('grid-addcolumn-field');
+
         $groupColumns = self::getAllColumns($page);
         $model = $page->getModel();
         $modelGroupName = self::safeName($model->getLabel());
