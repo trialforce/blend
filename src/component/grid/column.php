@@ -168,6 +168,12 @@ class Column
     protected $userAdded = false;
 
     /**
+     * The db column reference, if it has
+     * @var \Db\Column\Column
+     */
+    protected $dbColumn = null;
+
+    /**
      * Construct the column
      *
      * @param string $name name
@@ -527,6 +533,27 @@ class Column
             $this->setFormatter(new \Type\Decimal());
         }
 
+        return $this;
+    }
+
+    /**
+     * Return the dbColumn
+     *
+     * @return \Db\Column\Column
+     */
+    public function getDbColumn()
+    {
+        return $this->dbColumn;
+    }
+
+    /**
+     * Define the Db column
+     * @param \Db\Column\Column $dbColumn
+     * @return $this
+     */
+    public function setDbColumn(\Db\Column\Column $dbColumn = null)
+    {
+        $this->dbColumn = $dbColumn;
         return $this;
     }
 

@@ -109,11 +109,11 @@ class Grab
      * @param \Db\Model $item
      * @return string
      */
-    public static function findInModelUser($column, \Db\Model $item)
+    public static function findInModelUser(\Component\Grid\Column $column, \Db\Model $item)
     {
         $columnName = self::getColumnName($column);
         $value = $item->getValue($columnName);
-        $dbColumn = $item->getColumn($columnName);
+        $dbColumn = $column->getDbColumn() ? $column->getDbColumn() : $item->getColumn($columnName);
 
         //custom complex/user added column
         if (!$dbColumn)
@@ -255,7 +255,6 @@ class Grab
      */
     public static function getUserValue($column, $item)
     {
-
         if (!$column)
         {
             return NULL;

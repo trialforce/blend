@@ -676,23 +676,30 @@ class GroupHelper
             self::addLeftJoin($queryBuilder, $relations, $groupName);
         }
 
-        \Log::debug($userDataSource);
-
         $queryBuilder->setColumns($sqlColumns);
         return $userDataSource;
     }
 
+    /**
+     * Create one column to DataDource
+     * @param \Component\Grid\Column $gridColumn grid column
+     * @param \Db\Column\Column $dbColumn db column
+     * @return array the result sql
+     */
     public static function getUserDefinedColumn(\Component\Grid\Column $gridColumn, \Db\Column\Column $dbColumn = null)
     {
         $sqlColumns = [];
+        //safe name / column alias
         $columnAlias = self::safeName($gridColumn->getGroupName()) . '_' . $gridColumn->getName();
         $modelName = $gridColumn->getModelName();
         $tableName = $modelName::getTableName();
 
+        //activated column, and mark as user addded
         $gridColumn->setUserAdded(true);
         $gridColumn->setRender(true);
         $gridColumn->setLabel('<small>' . $gridColumn->getGroupName() . '</small><br/>' . $gridColumn->getLabel());
 
+        //define the sql for column
         if ($dbColumn)
         {
             $columnSql = $tableName . '.' . $gridColumn->getSql();
