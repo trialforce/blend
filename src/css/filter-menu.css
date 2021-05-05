@@ -188,6 +188,7 @@ i.fa-layer-group.filter-menu {
 }
 
 .tab-filters-right .filterField {
+    background-color: #fff;
     border-bottom: solid 1px #ccc;
     width: 100%;
     padding: 0;
@@ -257,6 +258,7 @@ i.fa-layer-group.filter-menu {
 }
 
 .grid-addcolumn-field {
+    background-color: #fff;
     position: relative;
     border-bottom: solid 1px #ccc;
     font-size: 13px;
@@ -283,7 +285,6 @@ i.fa-layer-group.filter-menu {
 }
 
 .grid-savedlist-holder {
-    margin-top: 20px;
     border: solid 1px #ccc; 
     border-radius: 5px;
     overflow: hidden;
@@ -298,4 +299,21 @@ i.fa-layer-group.filter-menu {
 
 .exportColumns br {
     display: none;
+}
+
+#tab-holder-search-field {
+    margin-top: 10px;
+}
+
+#tab-holder-search-field .grid {
+    margin-top: 0;
+    width: 100%;
+}
+
+#tab-holder-search-fieldBody .tabBody {
+    padding-top: 0;
+}
+
+#tab-filters-left, #columns-definition, #left, #right,#bookmark-holder {
+    margin-top: 0;
 }

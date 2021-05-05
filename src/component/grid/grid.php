@@ -111,11 +111,11 @@ class Grid extends \Component\Component
      * Define the DataSource
      * @param type $dataSource
      */
-    public function setDataSource(\DataSource\DataSource $dataSource)
+    public function setDataSource($dataSource)
     {
         $this->dataSource = $dataSource;
 
-        if (!$this->dataSourceOriginal)
+        if (!$this->dataSourceOriginal && $this->dataSource)
         {
             //force the creating of columns
             $this->dataSource->getColumns();

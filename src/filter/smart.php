@@ -13,18 +13,18 @@ class Smart extends \Filter\Text
     public function getInput()
     {
 
-        $idQuestion = $this->getFilterName();
+        $idQuestion = $this->getFilterName() ? $this->getFilterName() : 'q';
         $idBtn = 'buscar';
         $search = new \View\Input($idQuestion, \View\Input::TYPE_SEARCH, Request::get($idQuestion));
 
-        $search->setAttribute('placeholder', 'Pesquisar...')
+        $search->setAttribute('placeholder', 'Pesquisa rápida...')
                 ->setClass('search fullWidth')
                 ->setValue(Request::get($idQuestion))
                 ->setTitle('Digite o conteúdo a buscar...')
                 ->onPressEnter('$("#' . $idBtn . '").click();');
 
         $fields = array();
-        $fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
+        //$fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
         $fields[] = $search;
 
         return new \View\Div('main-search', $fields, 'filterField');

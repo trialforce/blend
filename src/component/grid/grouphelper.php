@@ -92,7 +92,6 @@ class GroupHelper
             if ($groupName == $modelGroupName && isset($modelColumns[$simpleColumnName]))
             {
                 $dbColumn = $modelColumns[$simpleColumnName];
-                //$columnName = $dbColumn->getTableName() . '.' . $dbColumn->getName();
             }
 
             $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn, $dbColumn));
@@ -355,9 +354,9 @@ class GroupHelper
         $grid = $page->getGrid();
 
         $columns = self::getAllColumns($page);
-        $left[] = new \View\H3(null, 'Adicionar colunas');
+        $left[] = new \View\Label(null, null, 'Adicionar colunas', 'field-label');
         $left[] = $select = new \View\Div(null, new \View\Select('addColumn', self::createColumnOptions($columns), null, 'column-6'), 'column-12');
-        $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn', 'clean small');
+        $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn');
         $btn->css('border', 'none');
 
         $content[] = new \View\Div('columns-definition', $left, 'column-p-12');
@@ -396,6 +395,8 @@ class GroupHelper
             }
         }
 
+        $content[] = $grid->getSearchField()->getSearchButton();
+
         $page->byId('columns-holder')->append($elements);
 
         return $content;
@@ -404,25 +405,29 @@ class GroupHelper
     public static function createContent(\Page\Page $page = null)
     {
         $page = $page ? $page : \View\View::getDom();
+        $grid = $page->getGrid();
+
         $columns = self::getAllColumns($page);
-        $left[] = new \View\H3(null, 'Agrupar por');
+        $left[] = new \View\Label(null, null, 'Agrupar por', 'field-label');
         $left[] = $select = new \View\Select('gridGroupBy', self::createColumnOptions($columns), null, 'column-12');
         //$select->click('alert()');
 
-        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup', 'clean small');
+        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup');
         $btn->css('border', 'none');
         $left[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
 
-        $right[] = new \View\H3(null, 'Mostrar agregação');
+        $right[] = new \View\Label(null, null, 'Mostra agregação', 'field-label');
         $right[] = new \View\Select('gridAggrBy', self::createColumnOptions($columns), null, 'column-6');
         $right[] = new \View\Select('gridAggrMethods', \Component\Grid\GroupHelper::listAggrMethods(), null, 'column-6');
 
-        $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr', 'clean small');
+        $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr');
         $btn->css('border', 'none');
         $right[] = $rightHolder = new \View\Div('rightHolder', null, 'column-12 grid-group-by-right-holder');
 
         $content[] = new \View\Div('left', $left, 'column-p-6');
         $content[] = new \View\Div('right', $right, 'column-p-6');
+
+        $content[] = $grid->getSearchField()->getSearchButton();
 
         self::createLoadedInputs($page);
 
@@ -500,9 +505,16 @@ class GroupHelper
         $content = [];
         $content[] = new \View\Input('grid-addcolumn-field[' . $value . ']', 'hidden', $value);
 
+        if ($column instanceof \Component\Grid\CheckColumn)
+        {
+            $label = $column->getGroupName() . ' - Checagem';
+        }
+
         $content[] = $label;
 
-        if (!$column instanceof \Component\Grid\PkColumnEdit)
+        $isImutable = $column instanceof \Component\Grid\PkColumnEdit || $column instanceof \Component\Grid\CheckColumn;
+
+        if (!$isImutable)
         {
             $content[] = new \View\Ext\Icon('trash', null, "return gridAddColumnRemove(this)", 'grid-addcolumn-icon');
             $content[] = new \View\Ext\Icon('arrow-down', null, "return gridAddColumnDown(this)", 'grid-addcolumn-icon');

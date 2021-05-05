@@ -129,8 +129,8 @@ class SearchGrid extends \Component\Grid\Grid
         }
 
         $div = $this->createTable();
-        $searchField = $this->getSearchField();
-        $this->setContent(array($searchField, $div));
+        $this->setContent($this->getSearchField()->onCreate());
+        $this->byId('tab-list')->append($div);
 
         return $this->content;
     }

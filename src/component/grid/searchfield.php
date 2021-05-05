@@ -50,44 +50,30 @@ class SearchField extends \Component\Component
             return $this->getContent();
         }
 
-        $icon = new \View\Ext\Icon('filter filter-menu blend-floating-menu-holder', 'advanced-filter', "popup('show', '#popupSearchField');");
-        $icon->append(new \View\Span(null, 'Filtros', 'advanced-filter-span'));
-        $innerHtml[] = $icon;
-        $this->createPopup();
-        $innerHtml[] = new \View\Div('containerFiltros', $this->createFixedFilters(), 'clearfix');
-        $innerHtml[] = $this->getSearchButton();
+        $tab = $this->createTab();
+        //$views[] = new \View\Div('containerHead', null, 'input-append');
+        //$div = new \View\Div('searchHead', $views, 'hide-in-mobile');
 
-        $views[] = new \View\Div('containerHead', $innerHtml, 'input-append');
-
-        $div = new \View\Div('searchHead', $views, 'hide-in-mobile');
-
-        $this->setContent($div);
+        $this->setContent($tab);
 
         //update the filter js
         \App::addJs("$('.filterCondition').change();");
         \App::addJs("mountExtraFiltersLabel();");
 
-        return $div;
+        return $tab;
     }
 
-    function createPopup()
+    function createTab()
     {
         $hasExtraColumns = Request::get('grid-addcolumn-field');
+        $hasGroupments = Request::get('grid-groupby-field');
 
         $tab = new \View\Ext\Tab('tab-holder-search-field');
+        $tab->add('tab-list', 'Listagem', '');
         $tab->add('tab-filter', 'Filtros', $this->mountAdvancedFiltersMenu());
         $tab->add('tab-column', 'Colunas', $hasExtraColumns ? \Component\Grid\GroupHelper::createColumns() : null);
-        $tab->add('tab-group', 'Agrupamentos', \Component\Grid\GroupHelper::createContent());
+        $tab->add('tab-group', 'Agrupamentos', $hasGroupments ? \Component\Grid\GroupHelper::createContent() : null);
         $tab->add('tab-save', 'Salvar', $this->createBookmarkMenu());
-
-        $urlClear = 'popup(\'close\', \'#popupSearchField\');  g(\'' . $this->grid->getLink(NULL, NULL, NULL, false) . '\',\'\')';
-
-        $buttons[] = new \View\Ext\Button('btn-search-clear', 'undo', '', $urlClear, 'btn-search-clear icon-only', 'Clique para limpar a busca e iniciar uma nova');
-        $buttons[] = new \View\Ext\Button('okPopup', 'search', 'Buscar', "return gridClosePopupAndMakeSearch();", '', 'Clique para efetuar sua busca');
-
-        $popup = new \View\Blend\Popup('popupSearchField', 'Definições de pesquisa', $tab, $buttons, 'form');
-        $popup->setIcon('search');
-        $popup->generateTitle('close');
 
         $pageUrl = \View\View::getDom()->getPageUrl();
 
@@ -97,7 +83,16 @@ class SearchField extends \Component\Component
             $this->byId('tab-columnLabel')->click("return p('{$pageUrl}/gridGroupCreateColumns');");
         }
 
-        return $popup;
+        if (!$hasGroupments)
+        {
+            $this->byId('tab-groupLabel')->click("return p('{$pageUrl}/gridGroupGroupment');");
+        }
+
+        $filterSmart = new \Filter\Smart();
+
+        $this->byId('tab-holder-search-fieldHead')->append($filterSmart->getInput());
+
+        return $tab;
     }
 
     function getExtraFilters()
@@ -213,11 +208,10 @@ class SearchField extends \Component\Component
         $btnSearch = new \View\Ext\Button('buscar', 'search', 'Buscar', $url, '', 'Clique para pesquisa');
         $btnSearch->setTitle('Buscar');
 
-        $content[] = $btnSearch;
-        $content[] = $filtersTooltip = new \View\Div('filters-tooltip', null, 'filters-tooltip');
-        $filtersTooltip->click("popup('show', '#popupSearchField');");
-
-        $holder = new \View\Div('btn-search-holder', $content);
+        //$content[] = $btnSearch;
+        //$content[] = $filtersTooltip = new \View\Div('filters-tooltip', null, 'filters-tooltip');
+        //$filtersTooltip->click("popup('show', '#popupSearchField');");
+        $holder = new \View\Div(null, $btnSearch, 'column-p-12 btn-search-holder');
 
         return $holder;
     }
@@ -346,14 +340,15 @@ class SearchField extends \Component\Component
             }
         }
 
-        $content[] = new \View\H3(null, 'Filtrar por');
+        $content[] = new \View\Label(null, null, 'Filtrar por', 'field-label');
         $select = new \View\Select('advancedFiltersList', $optGroup, null, 'column-6');
         $content[] = new \View\Div(null, $select, 'column-12');
-        $content[] = $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Adicionar filtro', 'addAdvancedFilter', 'clean small');
+        $content[] = $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Adicionar filtro', 'addAdvancedFilter');
         $btn->css('border', 'none');
 
         $result[] = new \View\Div('tab-filters-left', $content, 'tab-filters-left column-p-12');
         $result[] = new \View\Div('tab-filters-right', $this->createFilterFieldsNeeded(), 'tab-filters-right column-p-12');
+        $result[] = $this->getSearchButton();
 
         return $result;
     }
@@ -374,11 +369,14 @@ class SearchField extends \Component\Component
                     continue;
                 }
 
+                $url = new \View\A('search-bookmark-' . $item->id, $item->title, $item->page . '/?' . $item->url);
+                $url->setAjax(false);
+
                 $removeUrl = "return p(\"$pageUrl/deleteListItem/?savedList=$id\");";
                 $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl, 'trashFilter');
 
-                $div = new \View\Div(null, [$item->title, $removeIcon], 'column-12 grid-addcolumn-field');
-                $div->click("window.location = (\"$item->page/?$item->url\");");
+                $div = new \View\Div(null, [$url, $removeIcon], 'column-12 grid-addcolumn-field');
+                //$div->click("window.location = (\"$item->page/?$item->url\");");
 
                 $inner[] = $div;
             }
@@ -390,39 +388,16 @@ class SearchField extends \Component\Component
             $inner[] = new \View\Div(null, 'Nenhuma pesquisa salva ainda', 'column-12 grid-addcolumn-field');
         }
 
-        $content[] = new \View\H3(null, 'Pesquisas salvas:');
+        $content[] = new \View\Label(null, null, 'Pesquisas salvas', 'field-label');
         $content[] = new \View\Div('searchSaveList', $inner, 'column-6 grid-savedlist-holder');
 
         $url = "p('{$pageUrl}/saveListItem',$('.content').serialize());";
-        $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Salvar os filtros da pesquisa atual', $url, 'clean small');
+        $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Salvar os filtros da pesquisa atual', $url);
         $btn->css('border', 'none');
 
         $content[] = new \View\Div(null, $btn, 'column-12');
 
-        return new \View\Div(null, $content, 'column-p-12');
-    }
-
-    /**
-     * Create the fielters neeed when update grid
-     * @param array $filters the array of filter
-     * @return array the array of fields
-     */
-    protected function createFixedFilters()
-    {
-        $filterContent = array();
-
-        if (is_array($this->filters))
-        {
-            foreach ($this->filters as $filter)
-            {
-                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
-                {
-                    $filterContent[] = $filter->getInput();
-                }
-            }
-        }
-
-        return $filterContent;
+        return new \View\Div('bookmark-holder', $content, 'column-p-12');
     }
 
     protected function createFilterFieldsNeeded()
@@ -431,7 +406,6 @@ class SearchField extends \Component\Component
 
         $header = [];
         $inner = [];
-
         $inner[] = new \View\Div(null, 'Condição', 'filterCondition');
         $inner[] = new \View\Div(null, 'Filtro', 'filterInput');
         $header[] = new \View\Div(null, 'Coluna', 'filterLabel');
@@ -443,6 +417,11 @@ class SearchField extends \Component\Component
         {
             foreach ($this->filters as $filter)
             {
+                if ($filter instanceof \Filter\Smart)
+                {
+                    continue;
+                }
+
                 $filterNameCondition = $filter->getFilterName() . 'Condition';
                 $filterNameValue = $filter->getFilterName() . 'Value';
 
@@ -455,6 +434,12 @@ class SearchField extends \Component\Component
 
                 //create the filter if not ajax (reload (F5))
                 if ($needCreation && $filter->getFilterType() . '' != \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
+                {
+                    $filterContent[] = $filter->getInput();
+                }
+
+                //fixed filters
+                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
                 {
                     $filterContent[] = $filter->getInput();
                 }

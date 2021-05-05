@@ -355,7 +355,6 @@ class Page extends \View\Layout
      */
     public function listar()
     {
-        \Log::setLogSql(true);
         $this->setFocusOnFirstField();
         $this->setDefaultGrid();
         $grid = $this->getGrid(Request::get('stateId'));
@@ -379,7 +378,6 @@ class Page extends \View\Layout
         $this->append($views);
 
         $this->byId('q')->focus();
-        \Log::setLogSql(false);
     }
 
     public function gridExportData()
@@ -457,6 +455,21 @@ class Page extends \View\Layout
         return \Component\Grid\Grid::addFiltersToDataSource($dataSource);
     }
 
+    /**
+     * Create a new grid
+     *
+     * @return \Component\Grid\SearchGrid
+     */
+    public function createGrid()
+    {
+        $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
+        $grid->setActions($this->setDefaultActions());
+        $this->setGrid($grid);
+        $this->setDefaultFilters($grid);
+
+        return $grid;
+    }
+
     public function setDefaultGrid()
     {
         //if grid allready exists don't create it again, make it to json serialization work
@@ -467,10 +480,7 @@ class Page extends \View\Layout
 
         if (method_exists($this, 'getModel'))
         {
-            $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
-            $grid->setActions($this->setDefaultActions());
-            $this->setGrid($grid);
-            $this->setDefaultFilters($grid);
+            $grid = $this->createGrid();
 
             $events = [];
             $events[] = 'listar';
@@ -1033,6 +1043,15 @@ class Page extends \View\Layout
         $this->byId('tab-column')->html($content);
         $this->byId('tab-columnLabel')->attr('onclick', "return selectTab('tab-column');");
         \App::addJs("return selectTab('tab-column');");
+    }
+
+    public function gridGroupGroupment()
+    {
+        \App::dontChangeUrl();
+        $content = \Component\Grid\GroupHelper::createContent($this);
+        $this->byId('tab-group')->html($content);
+        $this->byId('tab-groupLabel')->attr('onclick', "return selectTab('tab-group');");
+        \App::addJs("return selectTab('tab-group');");
     }
 
 }
