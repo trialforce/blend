@@ -1,6 +1,7 @@
 <?php
 
 namespace View\Ext;
+
 use View\Div;
 use View\A;
 
@@ -42,9 +43,22 @@ class Tab extends \View\View
      * @param string $label Label
      * @param mixed $innerHtml content
      */
-    public function add($id, $label, $innerHtml = NULL, $makeSelect = true)
+    public function add($id, $label, $innerHtml = NULL, $makeSelect = true, $icon = null)
     {
-        $link = new A($id . 'Label', $label, '#', 'item', NULL);
+        $title = [];
+
+        if ($icon)
+        {
+            $title[] = new \View\Ext\Icon($icon, null, null, 'tab-icon');
+            $title[] = new \View\Span($id . 'Title', $label, 'tab-title');
+        }
+        else
+        {
+            //background compatibilty
+            $title = $label;
+        }
+
+        $link = new A($id . 'Label', $title, '#', 'item', NULL);
         $link->setAjax(FALSE)->click("return selectTab('{$id}');");
 
         $this->head->append($link);
@@ -61,6 +75,16 @@ class Tab extends \View\View
         }
 
         $this->tabCount++;
+    }
+
+    /**
+     * Return current tab count
+     *
+     * @return int
+     */
+    public function getTabCount()
+    {
+        return $this->tabCount;
     }
 
     /**
