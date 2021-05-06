@@ -7,22 +7,27 @@
 function slide(selector)
 {
     var group = $($(selector).get(0));
+       
+    //don't proccess the same slide again
+    if ($(group).hasClass('loaded'))
+    {
+        return;
+    }
+    
     var items = group.find('.slider-items').get(0);
     var prev = group.find('.slider-prev').get(0);
     var next = group.find('.slider-next').get(0);
     var autoSlide = group.data('auto-slide');
     var fullScreen = group.data('full-screen');
     var dataStartIndex = group.data('start-index');
+    var dataChangeOnHover = group.data('change-on-hover');
+    var doneOnHover = false;
+    
+    console.log("dataChangeOnHover="+dataChangeOnHover);
    
     //copy outter width to inner
     var outterWidth = group.find('.slider-wrapper').width();
     var outterHeight = parseInt(group.height());
-    
-    //don't proccess the same slide again
-    if ($(group).hasClass('loaded'))
-    {
-        return;
-    }
 
     //if the height it not loaded yet, wait a little
     if (outterHeight == 0 || outterHeight == '0px')
@@ -33,6 +38,22 @@ function slide(selector)
         }, 100);
         
         return;
+    }
+    
+    if (dataChangeOnHover)
+    {
+        $(group).mouseover( function(element)
+        {
+            if (doneOnHover ==true)
+            {
+                return;
+            }
+            
+            console.log(element);
+            setSlide(1); 
+            doneOnHover = true;
+            //alert(element);
+        });
     }
     
     //if it don't has any slide, does nothing
@@ -128,7 +149,10 @@ function slide(selector)
     //start position/index
     if ( Number.isInteger(dataStartIndex))
     {
-        setSlide(dataStartIndex);
+        if (index == 0)
+        {
+            setSlide(dataStartIndex);
+        }
     }
 
     // Click events
