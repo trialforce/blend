@@ -23,8 +23,6 @@ function slide(selector)
     var dataChangeOnHover = group.data('change-on-hover');
     var doneOnHover = false;
     
-    console.log("dataChangeOnHover="+dataChangeOnHover);
-   
     //copy outter width to inner
     var outterWidth = group.find('.slider-wrapper').width();
     var outterHeight = parseInt(group.height());
@@ -49,7 +47,6 @@ function slide(selector)
                 return;
             }
             
-            console.log(element);
             setSlide(1); 
             doneOnHover = true;
             //alert(element);
