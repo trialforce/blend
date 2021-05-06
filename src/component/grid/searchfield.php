@@ -50,30 +50,15 @@ class SearchField extends \Component\Component
             return $this->getContent();
         }
 
-        $tab = $this->createTab();
-        //$views[] = new \View\Div('containerHead', null, 'input-append');
-        //$div = new \View\Div('searchHead', $views, 'hide-in-mobile');
-
-        $this->setContent($tab);
-
-        //update the filter js
-        \App::addJs("$('.filterCondition').change();");
-        \App::addJs("mountExtraFiltersLabel();");
-
-        return $tab;
-    }
-
-    function createTab()
-    {
         $hasExtraColumns = Request::get('grid-addcolumn-field');
         $hasGroupments = Request::get('grid-groupby-field');
 
         $tab = new \View\Ext\Tab('tab-holder-search-field');
-        $tab->add('tab-list', 'Listagem', '');
-        $tab->add('tab-filter', 'Filtros', $this->mountAdvancedFiltersMenu());
-        $tab->add('tab-column', 'Colunas', $hasExtraColumns ? \Component\Grid\GroupHelper::createColumns() : null);
-        $tab->add('tab-group', 'Agrupamentos', $hasGroupments ? \Component\Grid\GroupHelper::createContent() : null);
-        $tab->add('tab-save', 'Salvar', $this->createBookmarkMenu());
+        $tab->add('tab-list', 'Listagem', '', true, 'list');
+        $tab->add('tab-filter', 'Filtros', $this->mountAdvancedFiltersMenu(), true, 'filter');
+        $tab->add('tab-column', 'Colunas', $hasExtraColumns ? \Component\Grid\GroupHelper::createColumns() : null, null, 'columns');
+        $tab->add('tab-group', 'Agrupamentos', $hasGroupments ? \Component\Grid\GroupHelper::createContent() : null, true, 'layer-group');
+        $tab->add('tab-save', 'Salvar', $this->createBookmarkMenu(), null, 'save');
 
         $pageUrl = \View\View::getDom()->getPageUrl();
 
@@ -89,8 +74,12 @@ class SearchField extends \Component\Component
         }
 
         $filterSmart = new \Filter\Smart();
-
         $this->byId('tab-holder-search-fieldHead')->append($filterSmart->getInput());
+        $this->setContent($tab);
+
+        //update the filter js
+        \App::addJs("$('.filterCondition').change();");
+        \App::addJs("mountExtraFiltersLabel();");
 
         return $tab;
     }
@@ -360,8 +349,16 @@ class SearchField extends \Component\Component
         $json = $saveList->getObject();
         $inner = [];
 
-        if (isIterable($json))
+        $url = new \View\A('search-bookmark-reset', 'Voltar para pesquisa normal/padrão', $pageUrl);
+        $div = new \View\Div(null, $url, 'column-12 grid-addcolumn-field');
+        $inner[] = $div;
+        $buttons = null;
+
+        if (isIterable($json) && count($json) > 0)
         {
+            $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-reset', null, 'Padrão', $pageUrl, 'small btn-search-bookmark');
+            $btn->setAjax(false);
+
             foreach ($json as $id => $item)
             {
                 if ($item->page != $pageUrl)
@@ -369,17 +366,25 @@ class SearchField extends \Component\Component
                     continue;
                 }
 
-                $url = new \View\A('search-bookmark-' . $item->id, $item->title, $item->page . '/?' . $item->url);
+                $linkUrl = $item->page . '/?' . $item->url . '&search-title=' . $item->title;
+                $url = new \View\A('search-bookmark-' . $item->id, $item->title, $linkUrl);
                 $url->setAjax(false);
 
                 $removeUrl = "return p(\"$pageUrl/deleteListItem/?savedList=$id\");";
                 $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl, 'trashFilter');
 
                 $div = new \View\Div(null, [$url, $removeIcon], 'column-12 grid-addcolumn-field');
-                //$div->click("window.location = (\"$item->page/?$item->url\");");
 
                 $inner[] = $div;
+
+                $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $item->id, null, $item->title, $linkUrl, 'small btn-search-bookmark');
+                $btn->setAjax(false);
             }
+        }
+
+        if ($buttons)
+        {
+            $this->byId('tab-list')->html(new \View\Div('btn-search-bookmark-holder', $buttons));
         }
 
         //empty

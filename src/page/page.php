@@ -229,7 +229,8 @@ class Page extends \View\Layout
      */
     public function getFormTitle()
     {
-        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle()));
+        $searchTitle = Request::get('search-title');
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle() . ' ' . $searchTitle));
     }
 
     /**
@@ -465,7 +466,6 @@ class Page extends \View\Layout
         $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
         $grid->setActions($this->setDefaultActions());
         $this->setGrid($grid);
-        $this->setDefaultFilters($grid);
 
         return $grid;
     }
@@ -547,16 +547,6 @@ class Page extends \View\Layout
     public function getGroupedDataSource()
     {
         return \Component\Grid\GroupHelper::getGroupedDataSource();
-    }
-
-    /**
-     * A Simple method that is used to define the default filters of this page
-     *
-     * @param \Commponent\Grid\SearchGrid $grid the main grid of the page
-     */
-    public function setDefaultFilters(\Component\Grid\SearchGrid $grid)
-    {
-
     }
 
     /**
@@ -1021,26 +1011,26 @@ class Page extends \View\Layout
     public function gridGroupAddGroup()
     {
         \App::dontChangeUrl();
-        \Component\Grid\GroupHelper::popupAddGroup($this);
+        \Component\Grid\SearchGrid::popupAddGroup($this);
     }
 
     public function gridGroupAddColumn()
     {
         \App::dontChangeUrl();
-        \Component\Grid\GroupHelper::gridGroupAddColumn($this);
+        \Component\Grid\SearchGrid::gridGroupAddColumn($this);
     }
 
     public function gridGroupAddAggr()
     {
         \App::dontChangeUrl();
-        \Component\Grid\GroupHelper::popupAddAggr($this);
+        \Component\Grid\SearchGrid::popupAddAggr($this);
     }
 
     public function gridGroupCreateColumns()
     {
         \App::dontChangeUrl();
-        $content = \Component\Grid\GroupHelper::createColumns($this);
-        $this->byId('tab-column')->html($content);
+        $grid = $this->getGrid();
+        $this->byId('tab-column')->html($grid->createColumns());
         $this->byId('tab-columnLabel')->attr('onclick', "return selectTab('tab-column');");
         \App::addJs("return selectTab('tab-column');");
     }
@@ -1048,8 +1038,8 @@ class Page extends \View\Layout
     public function gridGroupGroupment()
     {
         \App::dontChangeUrl();
-        $content = \Component\Grid\GroupHelper::createContent($this);
-        $this->byId('tab-group')->html($content);
+        $grid = $this->getGrid();
+        $this->byId('tab-group')->html($grid->createGroupment());
         $this->byId('tab-groupLabel')->attr('onclick', "return selectTab('tab-group');");
         \App::addJs("return selectTab('tab-group');");
     }

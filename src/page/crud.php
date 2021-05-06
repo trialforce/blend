@@ -71,7 +71,9 @@ class Crud extends \Page\Page
             $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
         }
 
-        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle(), $btnSearch));
+        $searchTitle = Request::get('search-title') ? ' - ' . Request::get('search-title') : '';
+
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle() . $searchTitle, $btnSearch));
     }
 
     /**

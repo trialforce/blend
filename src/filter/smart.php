@@ -26,6 +26,7 @@ class Smart extends \Filter\Text
         $fields = array();
         //$fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
         $fields[] = $search;
+        $fields[] = new \View\Ext\Button('search-fast', 'search', null, '$("#' . $idBtn . '").click();', 'icon-only');
 
         return new \View\Div('main-search', $fields, 'filterField');
     }

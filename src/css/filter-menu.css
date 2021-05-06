@@ -246,7 +246,7 @@ i.fa-layer-group.filter-menu {
 }
 
 #tab-holder-search-field i.fa, #tab-holder-search-field i.fab {
-    margin-right: 0;
+    /*margin-right: 0;*/
 }
 
 .columns-holder {
@@ -302,7 +302,7 @@ i.fa-layer-group.filter-menu {
 }
 
 #tab-holder-search-field {
-    margin-top: 10px;
+    
 }
 
 #tab-holder-search-field .grid {
@@ -317,3 +317,21 @@ i.fa-layer-group.filter-menu {
 #tab-filters-left, #columns-definition, #left, #right,#bookmark-holder {
     margin-top: 0;
 }
+
+.btn.small.btn-search-bookmark {
+    color: #111;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+@media screen and (max-width: 800px) {
+    #main-search {
+        width: 30%;
+    }
+    
+    #tab-filters-left, .tab-filters-right, #columns-definition, #left, #right,#bookmark-holder,.columns-holder {
+        width: 98%;
+        margin-left: 1%;
+    }   
+}
+    
