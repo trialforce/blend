@@ -61,10 +61,7 @@ class SearchGrid extends \Component\Grid\Grid
             $this->setColumns($columns);
         }
 
-        $this->setCreateTabFilter(true);
-        $this->setCreateTabColumn(true);
-        $this->setCreateTabGroup(true);
-        $this->setCreateTabSave(true);
+        $this->setCreateAllTabs();
     }
 
     public function isGrouped()
@@ -80,6 +77,14 @@ class SearchGrid extends \Component\Grid\Grid
     public function isCustomized()
     {
         return $this->isGrouped() || $this->isUserAddedColumns();
+    }
+
+    public function setCreateAllTabs()
+    {
+        $this->setCreateTabFilter(true);
+        $this->setCreateTabColumn(true);
+        $this->setCreateTabGroup(true);
+        $this->setCreateTabSave(true);
     }
 
     public function setCreateTabFilter($create)
@@ -634,9 +639,6 @@ class SearchGrid extends \Component\Grid\Grid
 
         if (isIterable($json))
         {
-            $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-reset', null, 'Padrão', $pageUrl, 'small btn-search-bookmark');
-            $btn->setAjax(false);
-
             foreach ($json as $id => $item)
             {
                 if ($item->page != $pageUrl)
@@ -662,7 +664,10 @@ class SearchGrid extends \Component\Grid\Grid
 
         if ($buttons)
         {
-            $this->byId('tab-list')->html(new \View\Div('btn-search-bookmark-holder', $buttons));
+            $buttonsStart[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-reset', null, 'Padrão', $pageUrl, 'small btn-search-bookmark');
+            $btn->setAjax(false);
+
+            $this->byId('tab-list')->html(new \View\Div('btn-search-bookmark-holder', array_merge($buttonsStart, $buttons)));
         }
 
         //empty

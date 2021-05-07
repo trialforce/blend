@@ -750,7 +750,7 @@ class Grid extends \Component\Component
         $page = \View\View::getDom();
         $grid = method_exists($page, 'getGrid') ? $page->getGrid() : null;
 
-        if (method_exists($grid, 'getSearchField'))
+        if ($grid instanceof \Component\Grid\SearchGrid)
         {
             $filters = $grid->getFilters();
 

@@ -366,11 +366,7 @@ class Page extends \View\Layout
             return $this->onCreate();
         }
 
-        if (!$this->isGridGrouped())
-        {
-            $this->addFiltersToDataSource($grid->getDataSource());
-        }
-
+        $this->addFiltersToDataSource($grid->getDataSource());
         $div = $grid->onCreate();
 
         $views[] = $this->getHead();

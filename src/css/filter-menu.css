@@ -97,7 +97,7 @@ i.fa-layer-group.filter-menu {
     padding: 4px 0px;
     position: absolute;
     top: 4px;
-    right: 4px;
+    right: -5px;
     font-size: 13px;
 }
 

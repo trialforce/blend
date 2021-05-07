@@ -782,7 +782,7 @@ class Crud extends \Page\Page
 
         if (!$onlyFilter)
         {
-            $grid->getSearchField()->addExtraFilter($filter);
+            $grid->addFilter($filter);
         }
 
         $ds->addExtraFilter($filter->getDbCond());
@@ -831,7 +831,7 @@ class Crud extends \Page\Page
 
         if (!$onlyFilter)
         {
-            $grid->getSearchField()->addExtraFilter($filter);
+            $grid->addFilter($filter);
         }
 
         $ds->addExtraFilter($filter->getDbCond());

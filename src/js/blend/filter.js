@@ -192,7 +192,7 @@ function mountExtraFiltersLabel()
     $('#group-count').remove();
     $('#tab-groupLabel .tab-title').append(' <small class="search-tab-count" id="group-count">(' + groupCount + ')</small>');
     
-    var saveCount = $('.grid-savedlist-holder .grid-addcolumn-field').length;
+    var saveCount = $('.grid-savedlist-holder .grid-addcolumn-field').length-1;
     
     $('#save-count').remove();
     $('#tab-saveLabel .tab-title').append(' <small class="search-tab-count" id="save-count">(' + saveCount + ')</small>');
