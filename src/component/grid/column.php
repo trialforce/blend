@@ -486,7 +486,7 @@ class Column
      * @param \Type\Generic $formatter
      * @return $this
      */
-    public function setFormatter(\Type\Generic $formatter)
+    public function setFormatter(\Type\Generic $formatter = null)
     {
         $this->formatter = $formatter;
         return $this;
@@ -528,7 +528,7 @@ class Column
         {
             $this->setFormatter(new \Type\Time());
         }
-        else if ($this->getType() == \Db\Column\Column::TYPE_DATETIME)
+        else if ($this->getType() == \Db\Column\Column::TYPE_DECIMAL)
         {
             $this->setFormatter(new \Type\Decimal());
         }

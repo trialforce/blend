@@ -334,7 +334,7 @@ class Text
             $content[] = $this->getInputCondition($index + 1);
             $content[] = $this->getInputValue($index + 1);
             $content[] = self::getRemoveFilterButton();
-            $views[] = new \View\Div(null, $content, 'clearfix');
+            $views[] = new \View\Div(null, $content, 'clearfix filterBase-cloned');
         }
 
         $columnName = $column ? $column->getName() : $this->getFilterName();

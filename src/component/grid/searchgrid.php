@@ -38,6 +38,18 @@ class SearchGrid extends \Component\Grid\Grid
      */
     protected $autoFiltersCreated = false;
 
+    /**
+     * List of columsn for groupment
+     * @var array list of columsn for groupment
+     */
+    protected $columnsGroup;
+
+    /**
+     * List of columsn grid customization
+     * @var array list of columsn for grid customization
+     */
+    protected $columnsCustomize;
+
     public function __construct($id = NULL, $dataSource = NULL, $class = 'grid', $columns = NULL)
     {
         $myId = $id ? $id : get_class($this);
@@ -161,12 +173,8 @@ class SearchGrid extends \Component\Grid\Grid
             return $filters[$filterName];
         }
 
-        if (!$filter)
-        {
-            return new \Filter\Text();
-        }
-
-        return $filter;
+        //falback for method to work
+        return new \Filter\Text();
     }
 
     /**
@@ -206,7 +214,7 @@ class SearchGrid extends \Component\Grid\Grid
 
     /**
      * Define/overwrite all filter
-     * @param array $filters array of filter
+     * @param array $extraFilters array of filter
      * @return $this
      */
     function setFilters($extraFilters)
@@ -217,6 +225,19 @@ class SearchGrid extends \Component\Grid\Grid
         }
 
         $this->filters = $extraFilters;
+
+        return $this;
+    }
+
+    /**
+     * Disable an entery groups os filters
+     *
+     * @param array $array array of group names
+     * @return $this
+     */
+    public function disableFilterGroup($array)
+    {
+        $this->setFilters(\Component\Grid\MountFilter::disableGroup($this->getFilters(), $array));
 
         return $this;
     }
@@ -234,57 +255,19 @@ class SearchGrid extends \Component\Grid\Grid
             return $this->getContent();
         }
 
-        $div = $this->createTable();
-
-        $hasExtraColumns = Request::get('grid-addcolumn-field');
-        $hasGroupments = Request::get('grid-groupby-field');
-
         $tab = new \View\Ext\Tab('tab-holder-search-field');
         $tab->add('tab-list', 'Listagem', '', true, 'list');
 
-        if ($this->getCreateTab('filter'))
-        {
-            $tab->add('tab-filter', 'Filtros', $this->mountAdvancedFiltersMenu(), true, 'filter');
-        }
-
-        if ($this->getCreateTab('column'))
-        {
-            $tab->add('tab-column', 'Colunas', $hasExtraColumns ? $this->createColumns() : null, null, 'columns');
-        }
-
-        if ($this->getCreateTab('group'))
-        {
-            $tab->add('tab-group', 'Agrupamentos', $hasGroupments ? $this->createGroupment() : null, true, 'layer-group');
-        }
-
-        if ($this->getCreateTab('save'))
-        {
-            $tab->add('tab-save', 'Salvar', $this->createBookmarkMenu(), null, 'save');
-        }
-
-        $pageUrl = \View\View::getDom()->getPageUrl();
-
-        //put an ajax link, to only open this part if is needed
-        if (!$hasExtraColumns)
-        {
-            $this->byId('tab-columnLabel')->click("return p('{$pageUrl}/gridGroupCreateColumns');");
-        }
-
-        if (!$hasGroupments && $this->getCreateTab('group'))
-        {
-            $this->byId('tab-groupLabel')->click("return p('{$pageUrl}/gridGroupGroupment');");
-        }
+        $this->createTabFilter($tab);
+        $this->createTabColumn($tab);
+        $this->createTabGroup($tab);
+        $this->createTabSave($tab);
+        $this->setContent($tab);
 
         $filterSmart = new \Filter\Smart();
+
         $this->byId('tab-holder-search-fieldHead')->append($filterSmart->getInput());
-        $this->setContent($tab);
-
-        //update the filter js
-        \App::addJs("$('.filterCondition').change();");
-        \App::addJs("mountExtraFiltersLabel();");
-
-        $this->setContent($tab);
-        $this->byId('tab-list')->append($div);
+        $this->byId('tab-list')->append($this->createTable());
 
         //visualize hidden tab head if only has one tab
         if ($tab->getTabCount() == 1)
@@ -292,7 +275,77 @@ class SearchGrid extends \Component\Grid\Grid
             $this->byId('tab-listLabel')->css('visibility', 'hidden');
         }
 
+        \App::addJs("mountExtraFiltersLabel();");
+
         return $this->content;
+    }
+
+    protected function createTabFilter(\View\Ext\Tab $tab)
+    {
+        $tabItem = null;
+
+        if ($this->getCreateTab('filter'))
+        {
+            $fields = $this->mountAdvancedFiltersMenu();
+            $tabItem = $tab->add('tab-filter', 'Filtros', $fields, true, 'filter');
+            //update the filter js
+            \App::addJs("$('.filterCondition').change();");
+        }
+
+        return $tabItem;
+    }
+
+    protected function createTabColumn(\View\Ext\Tab $tab)
+    {
+        $pageUrl = \View\View::getDom()->getPageUrl();
+        $tabItem = null;
+        $hasExtraColumns = Request::get('grid-addcolumn-field');
+
+        if ($this->getCreateTab('column'))
+        {
+            $fields = $hasExtraColumns ? $this->createColumns() : null;
+            $tabItem = $tab->add('tab-column', 'Colunas', $fields, null, 'columns');
+
+            //put an ajax link, to only open this part if is needed
+            if (!$hasExtraColumns)
+            {
+                $this->byId('tab-columnLabel')->click("return p('{$pageUrl}/gridGroupCreateColumns');");
+            }
+        }
+
+        return $tabItem;
+    }
+
+    protected function createTabGroup(\View\Ext\Tab $tab)
+    {
+        $pageUrl = \View\View::getDom()->getPageUrl();
+        $tabItem = null;
+        $hasGroupments = Request::get('grid-groupby-field');
+
+        if ($this->getCreateTab('group'))
+        {
+            $fields = $hasGroupments ? $this->createGroupment() : null;
+            $tabItem = $tab->add('tab-group', 'Agrupamentos', $fields, true, 'layer-group');
+
+            if (!$hasGroupments && $this->getCreateTab('group'))
+            {
+                $this->byId('tab-groupLabel')->click("return p('{$pageUrl}/gridGroupGroupment');");
+            }
+        }
+
+        return $tabItem;
+    }
+
+    public function createTabSave(\View\Ext\Tab $tab)
+    {
+        $tabItem = null;
+
+        if ($this->getCreateTab('save'))
+        {
+            $tabItem = $tab->add('tab-save', 'Salvar', $this->createBookmarkMenu(), null, 'save');
+        }
+
+        return $tabItem;
     }
 
     public function getCallInterfaceFunctions()
@@ -364,7 +417,7 @@ class SearchGrid extends \Component\Grid\Grid
         return $tr;
     }
 
-    public function getSearchButton()
+    public function getSearchButton($id = 'buscar')
     {
         $params['orderBy'] = Request::get('orderBy');
         $params['orderWay'] = Request::get('orderWay');
@@ -372,7 +425,7 @@ class SearchGrid extends \Component\Grid\Grid
 
         $url = 'g(\'' . $this->getLink(NULL, NULL, NULL, false) . '\',\'' . $params . '\'+ \'&\' + $(\'.content\').serialize())';
 
-        $btnSearch = new \View\Ext\Button('buscar', 'search', 'Buscar', $url, '', 'Clique para pesquisa');
+        $btnSearch = new \View\Ext\Button($id, 'search', 'Buscar', $url, '', 'Clique para pesquisa');
         $btnSearch->setTitle('Buscar');
 
         $holder = new \View\Div(null, $btnSearch, 'column-p-12 btn-search-holder');
@@ -404,7 +457,7 @@ class SearchGrid extends \Component\Grid\Grid
         return new \View\Div('main-search', $fields, 'filterField');
     }
 
-    protected function getDbModel()
+    public function getDbModel()
     {
         $dom = \View\View::getDom();
         $dbModel = null;
@@ -469,8 +522,7 @@ class SearchGrid extends \Component\Grid\Grid
                     continue;
                 }
 
-                //don't add fixed filter to menu
-                if ($filter->getFilterType() . '' == \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS . '')
+                if ($filter instanceof \Filter\Smart)
                 {
                     continue;
                 }
@@ -519,9 +571,9 @@ class SearchGrid extends \Component\Grid\Grid
 
     public function createColumns()
     {
-        $columns = $this->getAllColumns();
+        $columns = $this->getColumnsCustomize();
         $left[] = new \View\Label(null, null, 'Adicionar colunas', 'field-label');
-        $left[] = $select = new \View\Div(null, new \View\Select('addColumn', self::createColumnOptions($columns), null, 'column-6'), 'column-12');
+        $left[] = $select = new \View\Div(null, new \View\Select('addColumn', $this->createColumnOptions($columns), null, 'column-6'), 'column-12');
         $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn');
         $btn->css('border', 'none');
 
@@ -580,7 +632,7 @@ class SearchGrid extends \Component\Grid\Grid
         $inner[] = $div;
         $buttons = null;
 
-        if (isIterable($json) && count($json) > 0)
+        if (isIterable($json))
         {
             $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-reset', null, 'Padrão', $pageUrl, 'small btn-search-bookmark');
             $btn->setAjax(false);
@@ -623,7 +675,7 @@ class SearchGrid extends \Component\Grid\Grid
         $content[] = new \View\Div('searchSaveList', $inner, 'column-6 grid-savedlist-holder');
 
         $url = "p('{$pageUrl}/saveListItem',$('.content').serialize());";
-        $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Salvar os filtros da pesquisa atual', $url);
+        $btn = new \View\Ext\Button('btnsaveListItem', 'plus', 'Salvar os filtros da pesquisa atual', $url);
         $btn->css('border', 'none');
 
         $content[] = new \View\Div(null, $btn, 'column-12');
@@ -686,7 +738,7 @@ class SearchGrid extends \Component\Grid\Grid
      * @param array $columnGroup \Component\Grid\Column column list list
      * @return array array of stdClass
      */
-    public static function createColumnOptions($columnGroup)
+    public function createColumnOptions($columnGroup)
     {
         foreach ($columnGroup as $columnGroupLabelSafe => $columns)
         {
@@ -740,28 +792,68 @@ class SearchGrid extends \Component\Grid\Grid
             $columnGroup[$title] = $columns;
         }
 
-        $page = \View\View::getDom();
-
-        if (method_exists($page, 'setDefaultGroups'))
-        {
-            $columnGroup = $page->setDefaultGroups($columnGroup);
-        }
+        /* foreach ($columnGroup as $groupName => $columns)
+          {
+          foreach ($columns as $column)
+          {
+          $column->setGrid($this);
+          }
+          } */
 
         return $columnGroup;
     }
 
-    public function createGroupment()
+    public function getColumnsGroup()
+    {
+        if (!$this->columnsGroup)
+        {
+            $this->columnsGroup = $this->getAllColumns();
+        }
+
+        return $this->columnsGroup;
+    }
+
+    public function setColumnsGroup($columnsGroup)
+    {
+        $this->columnsGroup = $columnsGroup;
+        return $this;
+    }
+
+    public function getColumnsCustomize()
+    {
+        if (!$this->columnsCustomize)
+        {
+            $this->columnsCustomize = $this->getAllColumns();
+        }
+
+        return $this->columnsCustomize;
+    }
+
+    public function setColumnsCustomize($columnsCustomize)
+    {
+        $this->columnsCustomize = $columnsCustomize;
+        return $this;
+    }
+
+    public function getAllColumnsForGroup()
     {
         $columns = $this->getAllColumns();
+
+        return $columns;
+    }
+
+    public function createGroupment()
+    {
+        $columns = $this->getColumnsGroup();
         $left[] = new \View\Label(null, null, 'Agrupar por', 'field-label');
-        $left[] = $select = new \View\Select('gridGroupBy', self::createColumnOptions($columns), null, 'column-12');
+        $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns), null, 'column-12');
 
         $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup');
         $btn->css('border', 'none');
         $left[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
 
         $right[] = new \View\Label(null, null, 'Mostra agregação', 'field-label');
-        $right[] = new \View\Select('gridAggrBy', self::createColumnOptions($columns), null, 'column-6');
+        $right[] = new \View\Select('gridAggrBy', $this->createColumnOptions($columns), null, 'column-6');
         $right[] = new \View\Select('gridAggrMethods', \Component\Grid\GroupHelper::listAggrMethods(), null, 'column-6');
 
         $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr');
@@ -771,7 +863,7 @@ class SearchGrid extends \Component\Grid\Grid
         $content[] = new \View\Div('left', $left, 'column-p-6');
         $content[] = new \View\Div('right', $right, 'column-p-6');
 
-        $content[] = $this->getSearchButton();
+        $content[] = $this->getSearchButton('buscarGroup');
 
         $this->createLoadedInputs();
 
@@ -797,7 +889,7 @@ class SearchGrid extends \Component\Grid\Grid
 
                 if ($column)
                 {
-                    $elements[] = self::createFieldGroupBy($column);
+                    $elements[] = $this->createFieldGroupBy($column);
                 }
             }
         }
@@ -832,9 +924,9 @@ class SearchGrid extends \Component\Grid\Grid
      * @param \Component\Grid\Column $column
      * @return \View\Div
      */
-    public static function createFieldGroupBy(\Component\Grid\Column $column)
+    public function createFieldGroupBy(\Component\Grid\Column $column)
     {
-        $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
+        $columName = \Component\Grid\GroupHelper::safeName($column->getGroupName()) . '.' . $column->getName();
         $idField = 'grid-groupby-field-' . $columName;
 
         $content = [];
@@ -858,7 +950,7 @@ class SearchGrid extends \Component\Grid\Grid
     public static function createFieldAggr(\Component\Grid\Column $column, $method)
     {
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
-        $columName = self::safeName($column->getGroupName()) . '.' . $column->getName();
+        $columName = \Component\Grid\GroupHelper::safeName($column->getGroupName()) . '.' . $column->getName();
         $label = $methods[$method] . ' - ' . $column->getLabel();
         $idField = 'grid-aggrby-field-' . $columName;
         $value = $method . '--' . $columName;
@@ -879,7 +971,7 @@ class SearchGrid extends \Component\Grid\Grid
      * @param \Page\Page $page
      * @throws \UserException
      */
-    public static function popupAddGroup(\Page\Page $page)
+    public function popupAddGroup()
     {
         $gridGroupBy = Request::get('gridGroupBy');
 
@@ -906,13 +998,13 @@ class SearchGrid extends \Component\Grid\Grid
             throw new \UserException('Campo \'' . $column->getGroupName() . ' - ' . $column->getLabel() . '\' já adicionado ao agrupamento.');
         }
 
-        $div = self::createFieldGroupBy($column);
+        $div = $this->createFieldGroupBy($column);
 
-        $page->byId('leftHolder')->append($div);
-        $page->byId('gridGroupBy')->val('');
+        $this->byId('leftHolder')->append($div);
+        $this->byId('gridGroupBy')->val('');
     }
 
-    public static function popupAddAggr(\Page\Page $page)
+    public function popupAddAggr()
     {
         $gridAggrBy = Request::get('gridAggrBy');
         $method = Request::get('gridAggrMethods');
@@ -922,6 +1014,7 @@ class SearchGrid extends \Component\Grid\Grid
             throw new \UserException('Selecione ambos parametros!');
         }
 
+        $page = \View\View::getDom();
         $grid = $page->getGrid();
         $columns = $grid->getDataSourceOriginal()->getColumns();
         $explode = explode('.', $gridAggrBy);
@@ -945,9 +1038,9 @@ class SearchGrid extends \Component\Grid\Grid
 
         $div = self::createFieldAggr($column, $method);
 
-        $page->byId('rightHolder')->append($div);
-        $page->byId('gridAggrBy')->val('');
-        $page->byId('gridAggrMethods')->val('');
+        $this->byId('rightHolder')->append($div);
+        $this->byId('gridAggrBy')->val('');
+        $this->byId('gridAggrMethods')->val('');
     }
 
     /**
@@ -956,7 +1049,7 @@ class SearchGrid extends \Component\Grid\Grid
      * @param \Page\Page $page
      * @throws \UserException
      */
-    public static function gridGroupAddColumn(\Page\Page $page)
+    public function gridGroupAddColumn()
     {
         $addColumn = Request::get('addColumn');
 
@@ -985,8 +1078,8 @@ class SearchGrid extends \Component\Grid\Grid
 
         $div = self::createFieldColumn($column);
 
-        $page->byId('columns-holder')->append($div);
-        $page->byId('addColumn')->val('');
+        $this->byId('columns-holder')->append($div);
+        $this->byId('addColumn')->val('');
     }
 
     /**

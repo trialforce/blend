@@ -4,15 +4,18 @@ function filterRemove(element)
 {
     var element = $(element);
     var parent = element.parent().parent();
-    parent.find('input, select').attr('disabled','disabled'); 
-    parent.hide('fast', function(){ parent.remove() } );
+    parent.find('input, select').attr('disabled', 'disabled');
+    parent.hide('fast', function ()
+    {
+        parent.remove()
+    });
 }
 
 function filterAdd(element)
 {
     var element = $(element);
     var parent = element.parent();
-    
+
     var filterBase = parent.find('.filterBase');
     var filterConditionValue = filterBase.find('.filterCondition').val();
     var clone = filterBase.clone().removeClass('filterBase');
@@ -24,15 +27,15 @@ function filterAdd(element)
     //restore condition value (clone is not filling it)
     clone.find('.filterCondition').val(filterConditionValue);
     clone.addClass('filterBase-cloned');
-    
+
     //show with animation
     clone.hide()
     parent.append(clone);
     clone.slideDown('fast');
-    
+
     //process ajax fields
     dataAjax();
-    
+
     return false;
 }
 
@@ -40,25 +43,27 @@ function filterTrash(element)
 {
     var element = $(element);
     var parent = element.parent();
-    parent.slideUp('fast',function(){$(this).remove()});
+    parent.slideUp('fast', function ()
+    {
+        $(this).remove()
+    });
 }
 
 function filterChangeText(element)
 {
     var val = $(element).val();
-    
+
     var input = $(element).parent().find('.filterInput');
-    
-    if ( val == 'nullorempty' || val == 'notnullorempty' || val == 'today' )
-    { 
+
+    if (val == 'nullorempty' || val == 'notnullorempty' || val == 'today')
+    {
         input.val('').hide();
         element.addClass('fullWidth');
-    } 
-    else 
-    { 
+    } else
+    {
         input.show();
         element.removeClass('fullWidth');
-    } 
+    }
 }
 
 function filterChangeInteger(element)
@@ -66,23 +71,21 @@ function filterChangeInteger(element)
     var val = $(element).val();
     var input = $(element).parent().find('.filterInput');
     var inputFinal = $(element).parent().find('.final');
-    
-    if ( val == 'between') 
-    {  
+
+    if (val == 'between')
+    {
         element.removeClass('fullWidth');
         input.show().addClass('filterInterval');
         inputFinal.removeAttr('disabled').add('filterInterval').show();
-    } 
-    else if (val == 'nullorempty'|| val == 'notnullorempty')
+    } else if (val == 'nullorempty' || val == 'notnullorempty')
     {
         input.hide();
         element.addClass('fullWidth');
-    }
-    else 
-    { 
+    } else
+    {
         element.removeClass('fullWidth');
         input.show().removeClass('filterInterval');
-        inputFinal.hide().attr('disabled','disabled');
+        inputFinal.hide().attr('disabled', 'disabled');
     }
 }
 
@@ -93,44 +96,41 @@ function filterChangeDate(element)
     var elValue = $(element).parent().find('.filter-date-date');
     var elValueFinal = $(element).parent().find('.final');
     var elValueMonth = $(element).parent().find('.filter-date-month');
-    
-    elValueMonth.attr('disabled','disabled').hide();
+
+    elValueMonth.attr('disabled', 'disabled').hide();
     elValue.removeAttr('disabled');
-    
-    if ( val == 'birthmonth')
+
+    if (val == 'birthmonth')
     {
         element.removeClass('fullWidth');
-        
+
         elValueMonth.show().removeAttr('disabled');
-        
-        elValue.hide().val('').attr('disabled','disabled').removeClass('filterInterval');
-        elValueFinal.hide().val('').attr('disabled','disabled').removeClass('filterInterval');
-    }
-    else if ( val== 'nullorempty' 
+
+        elValue.hide().val('').attr('disabled', 'disabled').removeClass('filterInterval');
+        elValueFinal.hide().val('').attr('disabled', 'disabled').removeClass('filterInterval');
+    } else if (val == 'nullorempty'
             || val == 'notnullorempty'
-            || val == 'today' 
-            || val == 'yesterday' 
-            || val == 'tomorrow' 
-            || val == 'currentmonth' 
-            || val =='pastmonth' 
-            || val == 'nextmonth' 
-            || val.indexOf('month-')==0)
-    { 
-         element.addClass('fullWidth');
+            || val == 'today'
+            || val == 'yesterday'
+            || val == 'tomorrow'
+            || val == 'currentmonth'
+            || val == 'pastmonth'
+            || val == 'nextmonth'
+            || val.indexOf('month-') == 0)
+    {
+        element.addClass('fullWidth');
         elValue.hide().val('');
         elValueFinal.hide().val('');
-    } 
-    else if ( val == 'between' ) 
-    { 
-         element.removeClass('fullWidth');
+    } else if (val == 'between')
+    {
+        element.removeClass('fullWidth');
         elValue.show().addClass('filterInterval');
         elValueFinal.removeAttr('disabled').addClass('filterInterval').show();
-    }
-    else 
-    { 
-         element.removeClass('fullWidth');
+    } else
+    {
+        element.removeClass('fullWidth');
         elValue.show().removeClass('filterInterval');
-        elValueFinal.hide().attr('disabled','disabled').removeClass('filterInterval');
+        elValueFinal.hide().attr('disabled', 'disabled').removeClass('filterInterval');
         elValue.value = '';
         elValueFinal.value = '';
     }
@@ -147,54 +147,105 @@ function filterChangeBoolean(element)
 
 function mountExtraFiltersLabel()
 {
-    var filters= $('#tab-filters-right .filterLabel');
-    
-    if (filters.length <= 1)
-    {
-        $('#filters-tooltip').html('');
-        return;
-    }
-    
-    var html = 'Existem filtros adicionais aplicados:';
+    var labels = $('#tab-filters-right .filterLabel');
+    var filterCount = 0;
 
-    filters.each( function(idx) 
+    for (var i = 1; i < labels.length; i++)
     {
-        //jump header
-        if(idx==0)
+        var label = $(labels[i]);
+        var parent = label.parent();
+        var inputs = parent.find('.filterInput');
+        var hasValue = false;
+
+        for (var x = 0; x < inputs.length; x++)
         {
-            return;
-        }
-        
-        var element = $(filters[idx]);
-        var values = element.parent().find('.filterInput');
-        var valuesTxt = '';
-        
-        /*values.each (function(idx2) 
-        {
-            var element2 = $(values[idx2]);
-            console.log(element2);
-            var value = element2.val();
-            var text = element2.find('option:selected').text();
-            console.log(text);
-            
-            if ( value )
+            var input = $(inputs[0]);
+            console.log(input);
+
+            if (input.val())
             {
-                valuesTxt += '['+value+']';
+                var condition = input.parent().find('.filterCondition');
+                
+                if (condition.val())
+                {
+                    hasValue = true;
+                }
             }
-        });*/
-        
-        html+= ' <i>'+element.text()+'</i> '+valuesTxt;
-    });
+        }
+
+        if (hasValue)
+        {
+            filterCount++;
+        }
+    }
+
+    $('#filter-count').remove();
+    $('#tab-filterLabel .tab-title').append(' <small class="search-tab-count" id="filter-count">(' + filterCount + ')</small>');
     
-    $('#filters-tooltip').html(html);
+    var columnCount = $('.columns-holder .grid-addcolumn-field').length;
+    
+    $('#column-count').remove();
+    $('#tab-columnLabel .tab-title').append(' <small class="search-tab-count" id="column-count">(' + columnCount + ')</small>');
+    
+    var groupCount = $('#tab-group .grid-addcolumn-field').length;
+    
+    $('#group-count').remove();
+    $('#tab-groupLabel .tab-title').append(' <small class="search-tab-count" id="group-count">(' + groupCount + ')</small>');
+    
+    var saveCount = $('.grid-savedlist-holder .grid-addcolumn-field').length;
+    
+    $('#save-count').remove();
+    $('#tab-saveLabel .tab-title').append(' <small class="search-tab-count" id="save-count">(' + saveCount + ')</small>');
+    
+    /*var filters= $('#tab-filters-right .filterLabel');
+     
+     if (filters.length <= 1)
+     {
+     $('#filters-tooltip').html('');
+     return;
+     }
+     
+     var html = 'Existem filtros adicionais aplicados:';
+     
+     filters.each( function(idx) 
+     {
+     //jump header
+     if(idx==0)
+     {
+     return;
+     }
+     
+     var element = $(filters[idx]);
+     var values = element.parent().find('.filterInput');
+     var valuesTxt = '';
+     
+     /*values.each (function(idx2) 
+     {
+     var element2 = $(values[idx2]);
+     console.log(element2);
+     var value = element2.val();
+     var text = element2.find('option:selected').text();
+     console.log(text);
+     
+     if ( value )
+     {
+     valuesTxt += '['+value+']';
+     }
+     });*/
+
+    /*html+= ' <i>'+element.text()+'</i> '+valuesTxt;
+     });
+     
+     $('#filters-tooltip').html(html);*/
 }
 
 function gridAddColumnRemove(element)
 {
     var parent = $(element).parent();
-    
-    parent.hide('fast', function(){ 
-        parent.remove() 
+
+    parent.hide('fast', function ()
+    {
+        parent.remove()
     });
 }
 
@@ -202,8 +253,8 @@ function gridAddColumnUp(element)
 {
     var element = $(element);
     var parent = element.parent();
-    
-    if (parent.not(':first-child') )
+
+    if (parent.not(':first-child'))
     {
         parent.prev().before(parent);
     }
@@ -213,8 +264,8 @@ function gridAddColumnDown(element)
 {
     var element = $(element);
     var parent = element.parent();
-    
-    if (parent.not(':first-child') )
+
+    if (parent.not(':first-child'))
     {
         parent.next().after(parent);
     }
@@ -222,7 +273,7 @@ function gridAddColumnDown(element)
 
 function gridClosePopupAndMakeSearch()
 {
-    popup('close', '#popupSearchField'); 
+    popup('close', '#popupSearchField');
     $('#buscar').click();
     return false;
 }

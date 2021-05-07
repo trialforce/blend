@@ -470,6 +470,11 @@ class Page extends \View\Layout
         return $grid;
     }
 
+    /**
+     * Create a the default grid for the page
+     *
+     * @return \Component\Grid\SearchGrid
+     */
     public function setDefaultGrid()
     {
         //if grid allready exists don't create it again, make it to json serialization work
@@ -1011,26 +1016,25 @@ class Page extends \View\Layout
     public function gridGroupAddGroup()
     {
         \App::dontChangeUrl();
-        \Component\Grid\SearchGrid::popupAddGroup($this);
+        $this->getGrid()->popupAddGroup();
     }
 
     public function gridGroupAddColumn()
     {
         \App::dontChangeUrl();
-        \Component\Grid\SearchGrid::gridGroupAddColumn($this);
+        $this->getGrid()->gridGroupAddColumn();
     }
 
     public function gridGroupAddAggr()
     {
         \App::dontChangeUrl();
-        \Component\Grid\SearchGrid::popupAddAggr($this);
+        $this->getGrid()->popupAddAggr();
     }
 
     public function gridGroupCreateColumns()
     {
         \App::dontChangeUrl();
-        $grid = $this->getGrid();
-        $this->byId('tab-column')->html($grid->createColumns());
+        $this->byId('tab-column')->html($this->getGrid()->createColumns());
         $this->byId('tab-columnLabel')->attr('onclick', "return selectTab('tab-column');");
         \App::addJs("return selectTab('tab-column');");
     }
@@ -1038,8 +1042,7 @@ class Page extends \View\Layout
     public function gridGroupGroupment()
     {
         \App::dontChangeUrl();
-        $grid = $this->getGrid();
-        $this->byId('tab-group')->html($grid->createGroupment());
+        $this->byId('tab-group')->html($this->getGrid()->createGroupment());
         $this->byId('tab-groupLabel')->attr('onclick', "return selectTab('tab-group');");
         \App::addJs("return selectTab('tab-group');");
     }

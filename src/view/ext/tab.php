@@ -75,6 +75,8 @@ class Tab extends \View\View
         }
 
         $this->tabCount++;
+
+        return $bodyItem;
     }
 
     /**
