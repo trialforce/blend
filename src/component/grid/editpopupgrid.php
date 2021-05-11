@@ -53,6 +53,11 @@ class EditPopupGrid extends \Component\Grid\Grid
         parent::__construct($id, $dataSource);
     }
 
+    public function getPaginator()
+    {
+        return new \Component\Grid\EditPopupPaginator('paginator', $this);
+    }
+
     public function setActions($actions)
     {
         $actions = is_array($actions) ? $actions : array();

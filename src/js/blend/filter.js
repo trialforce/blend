@@ -160,8 +160,7 @@ function mountExtraFiltersLabel()
         for (var x = 0; x < inputs.length; x++)
         {
             var input = $(inputs[0]);
-            console.log(input);
-
+            
             if (input.val())
             {
                 var condition = input.parent().find('.filterCondition');
@@ -222,10 +221,8 @@ function mountExtraFiltersLabel()
      /*values.each (function(idx2) 
      {
      var element2 = $(values[idx2]);
-     console.log(element2);
      var value = element2.val();
      var text = element2.find('option:selected').text();
-     console.log(text);
      
      if ( value )
      {

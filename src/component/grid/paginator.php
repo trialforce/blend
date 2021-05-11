@@ -33,7 +33,7 @@ class Paginator extends \View\Div
      */
     public function __construct($id, $grid)
     {
-        parent::__construct($id);
+        parent::__construct($id ? $id : 'paginator');
         $this->setGrid($grid);
     }
 
@@ -92,6 +92,28 @@ class Paginator extends \View\Div
         }
 
         return $currentPage;
+    }
+
+    protected function getPrevPage()
+    {
+        $currentPage = $this->getCurrentPage();
+        return $currentPage - 1 < 0 ? 0 : $currentPage - 1;
+    }
+
+    protected function getNextPage()
+    {
+        $currentPage = $this->getCurrentPage();
+        $lastPage = $this->getLastPage();
+        return $currentPage + 1 > $lastPage ? $lastPage : $currentPage + 1;
+    }
+
+    protected function getLastPage()
+    {
+        $count = $this->getCount();
+        $dataSource = $this->getDataSource();
+        $paginationLimit = $dataSource->getPaginationLimit();
+
+        return (int) ( ($count - 1) / $paginationLimit );
     }
 
     /**
@@ -208,16 +230,10 @@ class Paginator extends \View\Div
      */
     public function createPaginationLimitField()
     {
-        $options[10] = 10;
-        $options[15] = 15;
-        $options[20] = 20;
-        $options[30] = 30;
-        $options[50] = 50;
-
         $value = self::getCurrentPaginationLimitValue();
         Cookie::set('paginationLimitCookie', $value);
 
-        $paginationLimit = new \View\Select('paginationLimit', $options, $value, 'fr no-print-screen');
+        $paginationLimit = new \View\Select('paginationLimit', self::listPaginationLimitOptions(), $value, 'fr no-print-screen');
         $paginationLimit->setTitle('Limite de registros por página');
         $link = $this->getGrid()->getLink('listar');
         $paginationLimit->change("p('" . $link . "');");
@@ -225,25 +241,24 @@ class Paginator extends \View\Div
         return $paginationLimit;
     }
 
-    public function onCreate()
+    public function createPaginationFontSizeField()
     {
-        $dataSource = $this->getDataSource();
-        $makePaginator = $this->getMakePaginator();
-        $currentPage = $this->getCurrentPage();
+        return new \View\Button(null, 'Aa', 'grid.changeTextSize()', 'clean fr grid-change-text-size no-print-screen');
+    }
+
+    protected function createExportButton()
+    {
+        $url = $this->getGrid()->getLink('gridExportData');
+        $exportBtn = new \View\Ext\LinkButton('gridExport', 'download', '', $url, 'clean fl icon-only');
+        $exportBtn->setTitle('Exportar registros em forma de arquivos');
+        return $exportBtn;
+    }
+
+    protected function getCaptionMessage()
+    {
         $count = $this->getCount();
-        $last = $dataSource->getOffset() + $dataSource->getLimit() + 1;
-
-        if ($count < $last)
-        {
-            $last = $count;
-        }
-
-        $prevPage = $currentPage - 1 < 0 ? 0 : $currentPage - 1;
-        $lastPage = (int) ( ($count - 1) / $dataSource->getPaginationLimit() );
-        $nextPage = $currentPage + 1 > $lastPage ? $lastPage : $currentPage + 1;
-
-        $currentPageShow = $currentPage + 1;
-        $lastPageShow = $lastPage + 1;
+        $makePaginator = $this->getMakePaginator();
+        $lastPage = $this->getLastPage();
 
         $pageName = lcfirst(self::getModelName());
         $pageNamePlural = lcfirst(self::getModelNamePlural());
@@ -269,55 +284,113 @@ class Paginator extends \View\Div
             }
         }
 
+        return $captionMessage;
+    }
+
+    protected function getBtnFirt()
+    {
+        $urlExtra['orderBy'] = Request::get('orderBy');
+        $urlExtra['orderWay'] = Request::get('orderWay');
+
+        $urlExtra['page'] = 0;
+        $url = $this->grid->getLink('listar', '', $urlExtra);
+
+        $firts = new \View\A('first', '<i class="fa fa-angle-double-left">&nbsp;</i>', $url, 'btn clean first no-print-screen');
+
+        return $firts;
+    }
+
+    protected function getBtnPrev()
+    {
+        $urlExtra['orderBy'] = Request::get('orderBy');
+        $urlExtra['orderWay'] = Request::get('orderWay');
+        $urlExtra['page'] = $this->getPrevPage();
+        $url = $this->grid->getLink('listar', '', $urlExtra);
+
+        return new \View\A('prev', '<i class="fa fa-angle-left">&nbsp;</i>', $url, 'btn clean prev no-print-screen');
+    }
+
+    protected function getBtnCurrent()
+    {
+        $currentPage = $this->getCurrentPage();
+        $lastPage = $this->getLastPage();
+
+        $urlExtra['orderBy'] = Request::get('orderBy');
+        $urlExtra['orderWay'] = Request::get('orderWay');
+
+        $currentPageShow = $currentPage + 1;
+        $lastPageShow = $lastPage + 1;
+
+        $urlExtra['page'] = $currentPage;
+        $url = $this->grid->getLink('listar', '', $urlExtra);
+
+        return new \View\A('current', "{$currentPageShow}/{$lastPageShow}", $url, 'btn clean no-print-screen');
+    }
+
+    protected function getBtnNext()
+    {
+        $urlExtra['orderBy'] = Request::get('orderBy');
+        $urlExtra['orderWay'] = Request::get('orderWay');
+        $urlExtra['page'] = $this->getNextPage();
+
+        $url = $this->grid->getLink('listar', '', $urlExtra);
+
+        return new \View\A('next', '<i class="fa fa-angle-right">&nbsp;</i>', $url, 'btn clean next no-print-screen');
+    }
+
+    protected function getBtnLast()
+    {
+        $urlExtra['orderBy'] = Request::get('orderBy');
+        $urlExtra['orderWay'] = Request::get('orderWay');
+        $urlExtra['page'] = $this->getLastPage();
+
+        $url = $this->grid->getLink('listar', '', $urlExtra);
+
+        return new \View\A('last', '<i class="fa fa-angle-double-right">&nbsp;</i>', $url, 'btn clean last no-print-screen');
+    }
+
+    public function onCreate()
+    {
+        $content = [];
+        $content[] = $this->createPaginationLimitField();
+        $content[] = $this->createPaginationFontSizeField();
+
+        $count = $this->getCount();
+        $lastPage = $this->getLastPage();
+
         if ($count > 0)
         {
-            $url = $this->getGrid()->getLink('gridExportData');
-            $content[] = $exportar = new \View\Ext\LinkButton('gridExport', 'download', '', $url, 'clean fl icon-only');
-            $exportar->setTitle('Exportar registros em forma de arquivos');
+            $content[] = $this->createExportButton();
         }
 
-        $content[] = new \View\Span(null, $captionMessage, 'text');
+        $content[] = new \View\Span(null, $this->getCaptionMessage(), 'text');
 
-        if ($lastPage > 0 && $makePaginator)
+        if ($lastPage > 0 && $this->getMakePaginator())
         {
-            $linkMethod = 'listar';
-            $urlExtra['orderBy'] = Request::get('orderBy');
-            $urlExtra['orderWay'] = Request::get('orderWay');
-
-            $urlExtra['page'] = 0;
-            $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['first'] = new \View\A('first', '<i class="fa fa-angle-double-left">&nbsp;</i>', $url, 'btn clean first no-print-screen');
-
-            $urlExtra['page'] = $prevPage;
-            $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['prev'] = new \View\A('prev', '<i class="fa fa-angle-left">&nbsp;</i>', $url, 'btn clean prev no-print-screen');
-
-            $urlExtra['page'] = $currentPage;
-            $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['current'] = new \View\A('current', "{$currentPageShow}/{$lastPageShow}", $url, 'btn clean no-print-screen');
-
-            $urlExtra['page'] = $nextPage;
-            $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['next'] = new \View\A('next', '<i class="fa fa-angle-right">&nbsp;</i>', $url, 'btn clean next no-print-screen');
-
-            $urlExtra['page'] = $lastPage;
-            $url = $this->grid->getLink($linkMethod, '', $urlExtra);
-            $link['last'] = new \View\A('last', '<i class="fa fa-angle-double-right">&nbsp;</i>', $url, 'btn clean last no-print-screen');
+            $link['first'] = $this->getBtnFirt();
+            $link['prev'] = $this->getBtnPrev();
+            $link['current'] = $this->getBtnCurrent();
+            $link['next'] = $this->getBtnNext();
+            $link['last'] = $this->getBtnLast();
 
             $content[] = new \View\Span('', $link, 'paginator', 'clearfix');
         }
-
-        $this->append($this->createPaginationLimitField());
-        $this->append($this->createPaginationFontSizeField());
 
         $this->append($content);
 
         return $this;
     }
 
-    public function createPaginationFontSizeField()
+    public static function listPaginationLimitOptions()
     {
-        return new \View\Button(null, 'Aa', 'grid.changeTextSize()', 'clean fr grid-change-text-size no-print-screen');
+        $options = [];
+        $options[10] = 10;
+        $options[15] = 15;
+        $options[20] = 20;
+        $options[30] = 30;
+        $options[50] = 50;
+
+        return $options;
     }
 
 }
