@@ -159,8 +159,6 @@ class GroupHelper
         $queryBuilder->setColumns($sqlColumns);
         $queryBuilder->setGroupBy(implode(',', $groupBy));
 
-        \Log::debug($gridColumns);
-
         $dataSource = new \DataSource\QueryBuilder($queryBuilder);
         $dataSource->addAggregator($aggregators);
         $dataSource->setColumns($gridColumns);
