@@ -71,13 +71,9 @@ class GroupHelper
         $groupBy = [];
         $sqlColumns = [];
         $gridColumns = [];
-        //$dbColumns = [];
         $aggregators = [];
         $queryBuilder = $model::query();
         $queryBuilder instanceof \Db\QueryBuilder;
-
-        //store column labels to adjust in end
-        //$columnLabels = [];
 
         foreach ($gridGroupBy as $columnName)
         {
@@ -135,6 +131,7 @@ class GroupHelper
 
             $gridColumn->setLabel($columnLabel);
             $gridColumn->setName($columnLabelSafe);
+            $gridColumn->setUserAdded(true);
             $gridColumns[$gridColumn->getName()] = $gridColumn;
 
             $columnSql = $groupName . '.' . $simpleColumnName;
@@ -169,38 +166,6 @@ class GroupHelper
         $dataSource->setColumns($gridColumns);
         $grid->addFiltersToDataSource($dataSource);
         $grid->setDataSource($dataSource);
-
-        /* $columns = $dataSource->getColumns();
-
-          foreach ($columns as $column)
-          {
-          $column->setUserAdded(true);
-          }
-
-          ///correct labels
-          foreach ($columnLabels as $columnLabelSafe => $columnLabel)
-          {
-          $column = $dataSource->getColumn($columnLabelSafe);
-
-          if ($column)
-          {
-          $column->setLabel($columnLabel);
-          }
-          } */
-
-        //feed the grouped columns with the original db column, it make the constant values work
-        /* foreach ($dbColumns as $columnLabelSafe => $dbColumn)
-          {
-          $column = $dataSource->getColumn($columnLabelSafe);
-
-          if ($column)
-          {
-          $column->setDbColumn($dbColumn);
-          $column->setType($dbColumn->getType());
-          $column->setFormatterByDataType();
-          }
-          } */
-
 
         return $dataSource;
     }
