@@ -22,7 +22,11 @@ class Integer extends \Filter\Text
     public function __construct(\Component\Grid\Column $column = NULL, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
-        //$this->setDefaultCondition(self::COND_IGUAL);
+
+        if ($this->getFilterType() != \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS)
+        {
+            $this->setDefaultCondition(self::COND_IGUAL);
+        }
     }
 
     protected function getCondJs($select)

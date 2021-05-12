@@ -190,14 +190,14 @@ class SearchGrid extends \Component\Grid\Grid
      */
     function removeFilter($filterName)
     {
-        $filters = $this->getExtraFilters();
+        $filters = $this->getFilters();
 
         if (isset($filters[$filterName]))
         {
             unset($filters[$filterName]);
         }
 
-        $this->setExtraFilters($filters);
+        $this->setFilters($filters);
 
         return $this;
     }
