@@ -924,10 +924,10 @@ class SearchGrid extends \Component\Grid\Grid
                 $columNameGrouped = explode('.', $explode[1]);
                 $columnGroup = $columNameGrouped[0];
                 $columnName = $columNameGrouped[1];
-                $column = $groupColumns[$columnGroup][$columnName];
 
-                if ($column)
+                if (isset($groupColumns[$columnGroup][$columnName]))
                 {
+                    $column = $groupColumns[$columnGroup][$columnName];
                     $elements[] = self::createFieldAggr($column, $method);
                 }
             }

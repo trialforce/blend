@@ -62,6 +62,7 @@ function toNumber(number)
     {
         number = number + "";
 
+        //pt-br
         if (number.indexOf(",") > 0)
         {
             number = number.replace(".", "");

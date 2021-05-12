@@ -36,7 +36,15 @@ blend.lazyloading.parse = function()
     var elements = $('[data-lazyloading-background-image]');
     var imgs = $('[data-lazyloading-src]');
     var actives = $('[data-lazyloading-active]');
-    var heightVisible = body.scrollTop+screen.height;
+    
+    var scrollingElement = document.documentElement;
+    
+    if (document.scrollingElement)
+    {
+        scrollingElement = document.scrollingElement;
+    }
+    
+    var heightVisible = scrollingElement.scrollTop+screen.height;
     
     elements.each(function(idx)
     {
@@ -69,7 +77,8 @@ blend.lazyloading.parse = function()
     actives.each(function(idx)
     {
         var element = $(actives[idx]);
-        var offsetTop = element.offset().top + (150);
+        var adjust = 150;
+        var offsetTop = element.offset().top + (adjust);
           
         if ( heightVisible > offsetTop)
         {
