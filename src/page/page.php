@@ -351,6 +351,16 @@ class Page extends \View\Layout
         return Request::get('grid-groupby-field') ? true : false;
     }
 
+    public function isGridUserAddedColumns()
+    {
+        return \DataHandle\Request::get('grid-addcolumn-field') ? true : false;
+    }
+
+    public function isGridCustomized()
+    {
+        return $this->isGridGrouped() || $this->isGridUserAddedColumns();
+    }
+
     /**
      * Montagem de tela de adicionar
      */
@@ -971,7 +981,7 @@ class Page extends \View\Layout
         $input = $filter->getInput();
         //remove the filter if exists
         \App::addJs("$('#{$input->getId()}').remove();");
-        $this->byId('tab-filters-right')->append($input);
+        $this->byId('filters-holder')->append($input);
         \App::addJs("$('.filterCondition').change();"); //call js change
         //put focus on input field
         \App::addJs("$('#{$input->getId()}').find('.filterInput').focus();");

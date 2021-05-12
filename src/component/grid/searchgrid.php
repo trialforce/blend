@@ -133,7 +133,8 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $dbModel = $this->getDbModel();
         $smartFilter = new \Filter\Smart(null, 'q', \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
-        $filters = \Component\Grid\MountFilter::getFilters($this->getColumns(), $dbModel, $this->filters);
+        $columns = $this->getDataSourceOriginal()->getColumns();
+        $filters = \Component\Grid\MountFilter::getFilters($columns, $dbModel, $this->filters);
         $filters = array_merge(array($smartFilter), $filters);
 
         $this->autoFiltersCreated = true;
@@ -245,6 +246,66 @@ class SearchGrid extends \Component\Grid\Grid
         $this->setFilters(\Component\Grid\MountFilter::disableGroup($this->getFilters(), $array));
 
         return $this;
+    }
+
+    public function getAllColumns()
+    {
+        $dbModel = $this->getDbModel();
+
+        if ($dbModel)
+        {
+            $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
+        }
+        else
+        {
+            $page = \View\View::getDom();
+            $datasource = $page->getDatasource();
+            $columns = $datasource->getColumns();
+            $title = $page->getTitle() ? \Component\Grid\GroupHelper::safeName($page->getTitle()) : 'Colunas';
+
+            $columnGroup[$title] = $columns;
+        }
+
+        return $columnGroup;
+    }
+
+    public function getColumnsGroup()
+    {
+        if (!$this->columnsGroup)
+        {
+            $this->columnsGroup = $this->getAllColumns();
+        }
+
+        return $this->columnsGroup;
+    }
+
+    public function setColumnsGroup($columnsGroup)
+    {
+        $this->columnsGroup = $columnsGroup;
+        return $this;
+    }
+
+    public function getColumnsCustomize()
+    {
+        if (!$this->columnsCustomize)
+        {
+            $this->columnsCustomize = $this->getAllColumns();
+        }
+
+        return $this->columnsCustomize;
+    }
+
+    public function setColumnsCustomize($columnsCustomize)
+    {
+        $this->columnsCustomize = $columnsCustomize;
+        return $this;
+    }
+
+    public function getAllColumnsForGroup()
+    {
+        $columns = $this->getAllColumns();
+
+        return $columns;
     }
 
     /**
@@ -430,12 +491,12 @@ class SearchGrid extends \Component\Grid\Grid
 
         $url = 'g(\'' . $this->getLink(NULL, NULL, NULL, false) . '\',\'' . $params . '\'+ \'&\' + $(\'.content\').serialize())';
 
-        $btnSearch = new \View\Ext\Button($id, 'search', 'Buscar', $url, '', 'Clique para pesquisa');
+        $btnSearch = new \View\Ext\Button($id, 'search', 'Buscar', $url, 'primary', 'Clique para pesquisa');
         $btnSearch->setTitle('Buscar');
 
-        $holder = new \View\Div(null, $btnSearch, 'column-p-12 btn-search-holder');
+        //$holder = new \View\Div(null, $btnSearch, 'column-12 btn-search-holder');
 
-        return $holder;
+        return $btnSearch;
     }
 
     /**
@@ -562,14 +623,23 @@ class SearchGrid extends \Component\Grid\Grid
         }
 
         $content[] = new \View\Label(null, null, 'Filtrar por', 'field-label');
-        $select = new \View\Select('advancedFiltersList', $optGroup, null, 'column-6');
-        $content[] = new \View\Div(null, $select, 'column-12');
+        $select = new \View\Select('advancedFiltersList', $optGroup, null, 'column-12 column-list-holder');
+        $select->setAttribute('multiple', 'multiple');
+
+        $content[] = new \View\Div(null, $select, 'column-12 ');
         $content[] = $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Adicionar filtro', 'addAdvancedFilter');
         $btn->css('border', 'none');
+        $content[] = $this->getSearchButton();
 
-        $result[] = new \View\Div('tab-filters-left', $content, 'tab-filters-left column-p-12');
-        $result[] = new \View\Div('tab-filters-right', $this->createFilterFieldsNeeded(), 'tab-filters-right column-p-12');
-        $result[] = $this->getSearchButton();
+        $right = [];
+        $right[] = new \View\Label(null, null, 'Filtros aplicados', 'field-label');
+        $right[] = new \View\Div('filters-holder', $this->createFilterFieldsNeeded());
+
+        $result[] = new \View\Div('tab-filters-left', $content, 'tab-filters-left column-p-6');
+        $result[] = new \View\Div('tab-filters-right', $right, 'tab-filters-right column-p-6');
+
+        //remove empty option
+        \App::addJs("$('#advancedFiltersList #select-null-option').remove();");
 
         return $result;
     }
@@ -578,12 +648,21 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $columns = $this->getColumnsCustomize();
         $left[] = new \View\Label(null, null, 'Adicionar colunas', 'field-label');
-        $left[] = $select = new \View\Div(null, new \View\Select('addColumn', $this->createColumnOptions($columns), null, 'column-6'), 'column-12');
+
+        $select = new \View\Select('addColumn', $this->createColumnOptions($columns), null, 'column-12 column-list-holder');
+        $select->setAttribute('multiple', 'multiple');
+
+        $left[] = new \View\Div(null, $select, 'column-12');
+
         $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn');
         $btn->css('border', 'none');
+        $left[] = $this->getSearchButton();
 
-        $content[] = new \View\Div('columns-definition', $left, 'column-p-12');
-        $content[] = new \View\Div('columns-holder', null, 'columns-holder column-p-6');
+        $right = [];
+        $right[] = new \View\Label(null, null, 'Colunas aplicadas', 'field-label');
+
+        $content[] = new \View\Div('columns-definition', $left, 'column-p-6');
+        $content[] = new \View\Div('columns-holder', $right, 'columns-holder column-p-6');
 
         $extraColumns = Request::get('grid-addcolumn-field');
         $elements = [];
@@ -618,9 +697,9 @@ class SearchGrid extends \Component\Grid\Grid
             }
         }
 
-        $content[] = $this->getSearchButton();
-
         $this->byId('columns-holder')->append($elements);
+        //remove empty option
+        \App::addJs("setTimeout(function(){ $('.column-list-holder #select-null-option').remove(); }, 200);");
 
         return $content;
     }
@@ -633,6 +712,7 @@ class SearchGrid extends \Component\Grid\Grid
         $inner = [];
 
         $url = new \View\A('search-bookmark-reset', 'Voltar para pesquisa normal/padrão', $pageUrl);
+        $url->setAjax(false);
         $div = new \View\Div(null, $url, 'column-12 grid-addcolumn-field');
         $inner[] = $div;
         $buttons = null;
@@ -779,98 +859,31 @@ class SearchGrid extends \Component\Grid\Grid
         return $optgroup;
     }
 
-    public function getAllColumns()
-    {
-        $dbModel = $this->getDbModel();
-
-        if ($dbModel)
-        {
-            $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
-        }
-        else
-        {
-            $page = \View\View::getDom();
-            $datasource = $page->getDatasource();
-            $columns = $datasource->getColumns();
-            $title = $page->getTitle() ? \Component\Grid\GroupHelper::safeName($page->getTitle()) : 'Colunas';
-
-            $columnGroup[$title] = $columns;
-        }
-
-        /* foreach ($columnGroup as $groupName => $columns)
-          {
-          foreach ($columns as $column)
-          {
-          $column->setGrid($this);
-          }
-          } */
-
-        return $columnGroup;
-    }
-
-    public function getColumnsGroup()
-    {
-        if (!$this->columnsGroup)
-        {
-            $this->columnsGroup = $this->getAllColumns();
-        }
-
-        return $this->columnsGroup;
-    }
-
-    public function setColumnsGroup($columnsGroup)
-    {
-        $this->columnsGroup = $columnsGroup;
-        return $this;
-    }
-
-    public function getColumnsCustomize()
-    {
-        if (!$this->columnsCustomize)
-        {
-            $this->columnsCustomize = $this->getAllColumns();
-        }
-
-        return $this->columnsCustomize;
-    }
-
-    public function setColumnsCustomize($columnsCustomize)
-    {
-        $this->columnsCustomize = $columnsCustomize;
-        return $this;
-    }
-
-    public function getAllColumnsForGroup()
-    {
-        $columns = $this->getAllColumns();
-
-        return $columns;
-    }
-
     public function createGroupment()
     {
         $columns = $this->getColumnsGroup();
-        $left[] = new \View\Label(null, null, 'Agrupar por', 'field-label');
-        $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns), null, 'column-12');
+        $left[] = new \View\Label(null, null, 'Colunas do agrupamento', 'field-label');
+        $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns), null, 'column-12 column-list-holder');
+        $select->setAttribute('multiple', 'mulitple');
 
-        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar agrupamento', 'gridGroupAddGroup');
-        $btn->css('border', 'none');
-        $left[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
+        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Coluna agrupamento', 'gridGroupAddGroup');
+        $left[] = $this->getSearchButton('buscarGroup');
 
-        $right[] = new \View\Label(null, null, 'Mostra agregação', 'field-label');
+        $right[] = new \View\Label(null, null, 'Agrupamentos', 'field-label');
         $right[] = new \View\Select('gridAggrBy', $this->createColumnOptions($columns), null, 'column-6');
         $right[] = new \View\Select('gridAggrMethods', \Component\Grid\GroupHelper::listAggrMethods(), null, 'column-6');
 
-        $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agregação', 'gridGroupAddAggr');
-        $btn->css('border', 'none');
+        $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agrupamento', 'gridGroupAddAggr');
+        $right[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
         $right[] = $rightHolder = new \View\Div('rightHolder', null, 'column-12 grid-group-by-right-holder');
 
         $content[] = new \View\Div('left', $left, 'column-p-6');
         $content[] = new \View\Div('right', $right, 'column-p-6');
 
-        $content[] = $this->getSearchButton('buscarGroup');
+        $content[] = $this->createLoadedInputs();
 
-        $this->createLoadedInputs();
+        //remove empty option
+        \App::addJs("setTimeout(function(){ $('.column-list-holder #select-null-option').remove(); }, 200);");
 
         return $content;
     }
@@ -956,7 +969,7 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $methods = \Component\Grid\GroupHelper::listAggrMethods();
         $columName = \Component\Grid\GroupHelper::safeName($column->getGroupName()) . '.' . $column->getName();
-        $label = $methods[$method] . ' - ' . $column->getLabel();
+        $label = $column->getGroupName() . ' - ' . $column->getLabel() . ' - <strong>' . $methods[$method] . '</strong>';
         $idField = 'grid-aggrby-field-' . $columName;
         $value = $method . '--' . $columName;
 
@@ -966,7 +979,7 @@ class SearchGrid extends \Component\Grid\Grid
         $content[] = $label;
         $content[] = $btnRemove = new \View\Ext\Icon('trash', null, "$(this).parent().remove();", 'trashFilter');
 
-        $div = new \View\Div($idField, $content, 'column-12 grid-addcolumn-field');
+        $div = new \View\Div($idField, $content, 'column-12 grid-addcolumn-field grid-addcolumn-field-group');
 
         return $div;
     }
@@ -1067,12 +1080,13 @@ class SearchGrid extends \Component\Grid\Grid
         $columnGroup = $explode[0];
         $columnName = $explode[1];
         $groupColumns = $this->getAllColumns();
-        $column = $groupColumns[$columnGroup][$columnName];
 
-        if (!$column)
+        if (!isset($groupColumns[$columnGroup][$columnName]))
         {
             throw new \UserException('Impossível encontrar coluna ' . $addColumn);
         }
+
+        $column = $groupColumns[$columnGroup][$columnName];
 
         $selecionados = Request::get('grid-addcolumn-field');
 

@@ -166,10 +166,15 @@ i.fa-layer-group.filter-menu {
     font-size: 10px;
 }
 
+.column-list-holder {
+    height: 50vh !important;     
+}
+
 .tab-filters-right {
-    border: solid 1px #ccc;
     border-radius: 5px;
     width: 49%;
+    margin-right: 0;
+    margin-top: 0;
     overflow: hidden;
 }
 
@@ -254,7 +259,7 @@ i.fa-layer-group.filter-menu {
     width: 49%;
     border-radius: 5px;
     overflow: hidden;
-    border: solid 1px #ccc;
+    margin-top: 0;
 }
 
 .grid-addcolumn-field {
@@ -265,6 +270,10 @@ i.fa-layer-group.filter-menu {
     height: 30px;
     line-height: 30px;
     text-indent: 6px;
+}
+
+.grid-addcolumn-field-group {
+    font-style: italic;
 }
 
 .grid-addcolumn-field:hover {
@@ -279,7 +288,6 @@ i.fa-layer-group.filter-menu {
 
 .grid-group-by-left-holder {
     margin-top: 20px;
-    border: solid 1px #ccc; 
     border-radius: 5px;
     overflow: hidden;
 }
@@ -291,8 +299,6 @@ i.fa-layer-group.filter-menu {
 }
 
 .grid-group-by-right-holder{
-    margin-top: 20px;
-    border: solid 1px #ccc; 
     border-radius: 5px;
     overflow: hidden;
 }
