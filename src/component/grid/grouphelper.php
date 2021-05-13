@@ -75,85 +75,91 @@ class GroupHelper
         $queryBuilder = $model::query();
         $queryBuilder instanceof \Db\QueryBuilder;
 
-        foreach ($gridGroupBy as $columnName)
+        if (is_array($gridGroupBy))
         {
-            $explode = explode('.', $columnName);
-            $groupName = $explode[0];
-            $simpleColumnName = $explode[1];
-
-            if (!isset($groupColumns[$groupName][$simpleColumnName]))
+            foreach ($gridGroupBy as $columnName)
             {
-                continue;
+                $explode = explode('.', $columnName);
+                $groupName = $explode[0];
+                $simpleColumnName = $explode[1];
+
+                if (!isset($groupColumns[$groupName][$simpleColumnName]))
+                {
+                    continue;
+                }
+
+                $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+                $gridColumn instanceof \Component\Grid\Column;
+                $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn));
+                $gridColumns[$gridColumn->getName()] = $gridColumn;
+                self::addLeftJoin($queryBuilder, $relations, $groupName);
+
+                $groupBy[] = $gridColumn->getSql();
             }
-
-            $gridColumn = $groupColumns[$groupName][$simpleColumnName];
-            $gridColumn instanceof \Component\Grid\Column;
-            $sqlColumns = array_merge($sqlColumns, self::getUserDefinedColumn($gridColumn));
-            $gridColumns[$gridColumn->getName()] = $gridColumn;
-            self::addLeftJoin($queryBuilder, $relations, $groupName);
-
-            $groupBy[] = $gridColumn->getSql();
         }
 
-        //groupments
-        foreach ($gridAggrBy as $value)
+        if (is_array($gridAggrBy))
         {
-            $explode = explode('--', $value);
-            $method = $explode[0];
-            $columnName = $explode[1];
-            $explode2 = explode('.', $columnName);
-            $groupName = $explode2[0];
-            $simpleColumnName = $explode2[1];
-
-            //if columns does not exists, ignore it
-            if (!isset($groupColumns[$groupName][$simpleColumnName]))
+            //groupments
+            foreach ($gridAggrBy as $value)
             {
-                continue;
-            }
+                $explode = explode('--', $value);
+                $method = $explode[0];
+                $columnName = $explode[1];
+                $explode2 = explode('.', $columnName);
+                $groupName = $explode2[0];
+                $simpleColumnName = $explode2[1];
 
-            if ($groupName == $modelGroupName)
-            {
-                $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
-            }
-
-            $gridColumn = $groupColumns[$groupName][$simpleColumnName];
-            $gridColumn instanceof \Component\Grid\Column;
-
-            //grouped columns can't be pk edit column
-            if ($gridColumn instanceof \Component\Grid\PkColumnEdit)
-            {
-                $gridColumn = \DataSource\ColumnConvert::gridPkColumnToSimple($gridColumn);
-                $gridColumn->setAlign('alignRight');
-            }
-
-            $columnLabel = '<small>' . $methods[$method] . ' de </small><br/> <small>' . $gridColumn->getGroupName() . '</small> - ' . $gridColumn->getLabel();
-            $columnLabelSafe = self::safeName($columnLabel);
-
-            $gridColumn->setLabel($columnLabel);
-            $gridColumn->setName($columnLabelSafe);
-            $gridColumn->setUserAdded(true);
-            $gridColumns[$gridColumn->getName()] = $gridColumn;
-
-            $columnSql = $groupName . '.' . $simpleColumnName;
-
-            if ($dbColumn)
-            {
-                $columnSql = $model::getTableName() . '.' . $simpleColumnName;
-                //$dbColumns[$columnLabelSafe] = $dbColumn;
-
-                if ($dbColumn instanceof \Db\Column\Search)
+                //if columns does not exists, ignore it
+                if (!isset($groupColumns[$groupName][$simpleColumnName]))
                 {
-                    $sql = $dbColumn->getSql(FALSE);
-                    $columnSql = $sql[0];
+                    continue;
                 }
+
+                if ($groupName == $modelGroupName)
+                {
+                    $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
+                }
+
+                $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+                $gridColumn instanceof \Component\Grid\Column;
+
+                //grouped columns can't be pk edit column
+                if ($gridColumn instanceof \Component\Grid\PkColumnEdit)
+                {
+                    $gridColumn = \DataSource\ColumnConvert::gridPkColumnToSimple($gridColumn);
+                    $gridColumn->setAlign('alignRight');
+                }
+
+                $columnLabel = '<small>' . $methods[$method] . ' de </small><br/> <small>' . $gridColumn->getGroupName() . '</small> - ' . $gridColumn->getLabel();
+                $columnLabelSafe = self::safeName($columnLabel);
+
+                $gridColumn->setLabel($columnLabel);
+                $gridColumn->setName($columnLabelSafe);
+                $gridColumn->setUserAdded(true);
+                $gridColumns[$gridColumn->getName()] = $gridColumn;
+
+                $columnSql = $groupName . '.' . $simpleColumnName;
+
+                if ($dbColumn)
+                {
+                    $columnSql = $model::getTableName() . '.' . $simpleColumnName;
+                    //$dbColumns[$columnLabelSafe] = $dbColumn;
+
+                    if ($dbColumn instanceof \Db\Column\Search)
+                    {
+                        $sql = $dbColumn->getSql(FALSE);
+                        $columnSql = $sql[0];
+                    }
+                }
+
+                $sqlColumns[] = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
+                self::addLeftJoin($queryBuilder, $relations, $groupName);
+
+                //correct method to aggregation
+                $aggrMethod = $method == 'count' ? 'sum' : $method;
+                $aggregators[] = new \DataSource\Aggregator($columnLabelSafe, $aggrMethod);
             }
-
-            $sqlColumns[] = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
-            self::addLeftJoin($queryBuilder, $relations, $groupName);
-
-            //correct method to aggregation
-            $aggrMethod = $method == 'count' ? 'sum' : $method;
-            $aggregators[] = new \DataSource\Aggregator($columnLabelSafe, $aggrMethod);
         }
 
         $queryBuilder->setColumns($sqlColumns);
