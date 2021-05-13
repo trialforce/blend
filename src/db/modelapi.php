@@ -187,11 +187,6 @@ class ModelApi extends \Db\Model
             $ds = new \DataSource\Model($model);
             $gridColumns = $ds->getColumns();
 
-            foreach ($gridColumns as $gridColumn)
-            {
-                $gridColumn->setFilter(1);
-            }
-
             $filters = \Component\Grid\MountFilter::getFilters($gridColumns, $model);
 
             if (is_array($filters))

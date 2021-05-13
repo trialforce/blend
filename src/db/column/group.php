@@ -90,16 +90,6 @@ class Group extends \Db\Column\Column
     }
 
     /**
-     * Only to add compatibilty with normal column and \Component\Grid\MountFilter
-     *
-     * @return boolean
-     */
-    public function getFilter()
-    {
-        return false;
-    }
-
-    /**
      * List all group types
      *
      * @return array
