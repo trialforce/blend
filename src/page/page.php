@@ -267,12 +267,22 @@ class Page extends \View\Layout
     }
 
     /**
+     * Get search saved list
+     *
+     * @return \Filter\SavedList
+     */
+    public function getSavedList()
+    {
+        return new \Filter\SavedList();
+    }
+
+    /**
      * Save list item confirm
      */
     public function saveListItemConfirm()
     {
         \App::dontChangeUrl();
-        $saveList = new \Filter\SavedList();
+        $saveList = $this->getSavedList();
         $request = (Object) Request::get('saveList');
         $item = $saveList->save($this->getPageUrl(), $request->url, $request->title);
 
@@ -289,7 +299,7 @@ class Page extends \View\Layout
     public function deleteListItem()
     {
         \App::dontChangeUrl();
-        $saveList = new \Filter\SavedList();
+        $saveList = $this->getSavedList();
         $json = $saveList->getObject();
         $id = Request::get('savedList');
 
@@ -314,7 +324,7 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
 
-        $saveList = new \Filter\SavedList();
+        $saveList = $this->getSavedList();
         $ok = $saveList->delete(Request::get('savedList'));
 
         if ($ok)

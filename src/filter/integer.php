@@ -5,9 +5,8 @@ namespace Filter;
 use DataHandle\Request;
 
 /**
- * Description of int
+ * Integer filter
  *
- * @author eduardo
  */
 class Integer extends \Filter\Text
 {
@@ -22,11 +21,6 @@ class Integer extends \Filter\Text
     public function __construct(\Component\Grid\Column $column = NULL, $filterName = \NULL, $filterType = NULL)
     {
         parent::__construct($column, $filterName, $filterType);
-
-        if ($this->getFilterType() != \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS)
-        {
-            $this->setDefaultCondition(self::COND_IGUAL);
-        }
     }
 
     protected function getCondJs($select)
@@ -61,6 +55,16 @@ class Integer extends \Filter\Text
         $input[1]->onPressEnter("$('#buscar').click()");
 
         return $input;
+    }
+
+    public function getInputCondition($index = 0): \View\Select
+    {
+        if ($this->getFilterType() != \Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS)
+        {
+            $this->setDefaultCondition(self::COND_IGUAL);
+        }
+
+        return parent::getInputCondition($index);
     }
 
     public function createWhere($index = 0)

@@ -142,9 +142,8 @@ i.fa-layer-group.filter-menu {
 
 .filters-tooltip {
     font-size: 10px;
-    margin-top: 10px;
+    margin-bottom: 10px;
     display: inline-block;
-    text-indent: 10px;
 }
 
 .filters-tooltip i {
@@ -254,12 +253,12 @@ i.fa-layer-group.filter-menu {
     /*margin-right: 0;*/
 }
 
-.columns-holder {
+.columns-holder-outter {
     margin-right: 0;
     width: 49%;
     border-radius: 5px;
     overflow: hidden;
-    margin-top: 0;
+    margin-top: 0;  
 }
 
 .grid-addcolumn-field {
@@ -335,7 +334,7 @@ i.fa-layer-group.filter-menu {
         width: 30%;
     }
     
-    #tab-filters-left, .tab-filters-right, #columns-definition, #left, #right,#bookmark-holder,.columns-holder {
+    #tab-filters-left, .tab-filters-right, #columns-definition, #left, #right,#bookmark-holder,.columns-holder-outter {
         width: 98%;
         margin-left: 1%;
     }   

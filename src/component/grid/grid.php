@@ -217,7 +217,7 @@ class Grid extends \Component\Component
     }
 
     /**
-     * @deprecated since version 2019-10-18 use getDatasource()->setColumns();
+     * Set the current grid columns
      *
      * @param array $columns
      * @return $this
@@ -234,6 +234,36 @@ class Grid extends \Component\Component
 
         $this->dataSource->setColumns($columns);
         return $this;
+    }
+
+    /**
+     * Set the original (not grouped or customized) columns
+     *
+     * @param array $columns
+     * @return $this
+     */
+    public function setOriginalColumns($columns)
+    {
+        if (is_array($columns))
+        {
+            foreach ($columns as $column)
+            {
+                $column->setGrid($this);
+            }
+        }
+
+        $this->dataSourceOriginal->setColumns($columns);
+        return $this;
+    }
+
+    /**
+     * Array of the original columsn of grid
+     *
+     * @return array
+     */
+    public function getOriginalColumns()
+    {
+        return $this->dataSourceOriginal->getColumns();
     }
 
     /**
@@ -860,6 +890,17 @@ class Grid extends \Component\Component
         return $fileReportColumns;
     }
 
+    public function getExportFormats()
+    {
+        $formats = [];
+        $formats['csv'] = 'CSV (Excel)';
+        $formats['html'] = 'HTML (Tela)';
+        $formats['pdf'] = 'PDF (Impressão)';
+        $formats['json'] = 'JSON (Exportação)';
+
+        return $formats;
+    }
+
     /**
      * Grid export data, used in component grid
      * @return type
@@ -917,13 +958,8 @@ class Grid extends \Component\Component
 
         $right[] = new \View\Div( );
 
-        $formats['csv'] = 'CSV (Excel)';
-        $formats['html'] = 'HTML (Tela)';
-        $formats['pdf'] = 'PDF (Impressão)';
-        $formats['json'] = 'JSON (Exportação)';
-
         $formatos[] = new \View\Label(NULL, 'format', 'Formato', 'field-label');
-        $formatos[] = $abc = new \View\Select('format', $formats, 'csv');
+        $formatos[] = $abc = new \View\Select('format', $this->getExportFormats(), 'csv');
         $abc->change("if ( $(this).val() == 'pdf' ) { $('#reportPageSize_contain').show(); } else { $('#reportPageSize_contain').hide(); }");
 
         $right[] = new \View\Div(NULL, $formatos, 'field-contain');

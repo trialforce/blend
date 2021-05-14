@@ -98,9 +98,9 @@ class GroupHelper
             }
         }
 
+        //groupments
         if (is_array($gridAggrBy))
         {
-            //groupments
             foreach ($gridAggrBy as $value)
             {
                 $explode = explode('--', $value);
@@ -121,7 +121,7 @@ class GroupHelper
                     $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
                 }
 
-                $gridColumn = $groupColumns[$groupName][$simpleColumnName];
+                $gridColumn = clone($groupColumns[$groupName][$simpleColumnName]);
                 $gridColumn instanceof \Component\Grid\Column;
 
                 //grouped columns can't be pk edit column
@@ -132,12 +132,12 @@ class GroupHelper
                 }
 
                 $columnLabel = '<small>' . $methods[$method] . ' de </small><br/> <small>' . $gridColumn->getGroupName() . '</small> - ' . $gridColumn->getLabel();
-                $columnLabelSafe = self::safeName($columnLabel);
+                $columnLabelSafe = self::safeName($methods[$method] . '_' . $gridColumn->getGroupName() . '_' . $gridColumn->getName());
 
                 $gridColumn->setLabel($columnLabel);
                 $gridColumn->setName($columnLabelSafe);
                 $gridColumn->setUserAdded(true);
-                $gridColumns[$gridColumn->getName()] = $gridColumn;
+                $gridColumns[$columnLabelSafe] = $gridColumn;
 
                 $columnSql = $groupName . '.' . $simpleColumnName;
 

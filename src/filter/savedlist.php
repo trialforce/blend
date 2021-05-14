@@ -2,6 +2,10 @@
 
 namespace Filter;
 
+/**
+ * Class that manage the search SAVE list
+ * Can be extend to save to database
+ */
 class SavedList
 {
 

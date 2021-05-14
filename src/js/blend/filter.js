@@ -196,44 +196,73 @@ function mountExtraFiltersLabel()
     $('#save-count').remove();
     $('#tab-saveLabel .tab-title').append(' <small class="search-tab-count" id="save-count">(' + saveCount + ')</small>');
     
-    /*var filters= $('#tab-filters-right .filterLabel');
+    //update filters
+    $('.filterCondition').change();
+    //remmove empty option
+    $('#advancedFiltersList #select-null-option').remove();
+    $('.column-list-holder #select-null-option').remove();
+    $('.column-list-holder #select-null-option').remove();
+    
+    var filters= $('#tab-filters-right .filterLabel');
      
-     if (filters.length <= 1)
-     {
-     $('#filters-tooltip').html('');
-     return;
-     }
+    if (filters.length <= 1)
+    {
+         $('#filters-tooltip').html('');
+        return;
+    }
      
-     var html = 'Existem filtros adicionais aplicados:';
+    var html = '';
      
-     filters.each( function(idx) 
-     {
-     //jump header
-     if(idx==0)
-     {
-     return;
-     }
-     
-     var element = $(filters[idx]);
-     var values = element.parent().find('.filterInput');
-     var valuesTxt = '';
-     
-     /*values.each (function(idx2) 
-     {
-     var element2 = $(values[idx2]);
-     var value = element2.val();
-     var text = element2.find('option:selected').text();
-     
-     if ( value )
-     {
-     valuesTxt += '['+value+']';
-     }
-     });*/
+    filters.each( function(idx) 
+    {
+         //jump header
+        if(idx==0)
+        {
+            return;
+        }
+    
+        var element = $(filters[idx]);
+        var values = element.parent().find('.filterInput');
+        var valuesTxt = '';
+        
+        values.each (function(idx2) 
+        {
+            var element2 = $(values[idx2]);
+            console.log(element2);
+            var value = element2.val();
+            var condition = element2.parent().find('.filterCondition');
+            var conditionVal = condition.val();
+            var conditionText = condition.find('option:selected').text();
+            console.log(condition);
+            
+            var text = element2.find('option:selected').text();
+            
+            value = text ? text:  value;
+            
+            //without condition it's not a applyed filter
+            if (!conditionVal)
+            {
+                value = null;
+            }
 
-    /*html+= ' <i>'+element.text()+'</i> '+valuesTxt;
-     });
-     
-     $('#filters-tooltip').html(html);*/
+            if ( value && conditionText)
+            {
+                //valuesTxt += '['+value+']';
+                valuesTxt += ' <i>['+conditionText +' - ' + value+']</i>';
+            }
+         });
+         
+         if (valuesTxt)
+         {
+             html += ' <strong>['+element.text()+']</strong> ';
+         }
+    });
+    
+    if (html)
+    {
+        html = 'Filtros aplicados: '+html;
+        $('#filters-tooltip').html(html);
+    }
 }
 
 function gridAddColumnRemove(element)

@@ -254,7 +254,7 @@ class SearchGrid extends \Component\Grid\Grid
 
         if ($dbModel)
         {
-            $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel);
+            $columnGroup = \DataSource\ColumnConvert::dbToGridAllGrouped($dbModel, $this->getOriginalColumns());
         }
         else
         {
@@ -333,7 +333,11 @@ class SearchGrid extends \Component\Grid\Grid
         $filterSmart = new \Filter\Smart();
 
         $this->byId('tab-holder-search-fieldHead')->append($filterSmart->getInput());
-        $this->byId('tab-list')->append($this->createTable());
+
+        $content = [];
+        $content[] = new \View\Div('filters-tooltip', null, 'filters-tooltip');
+        $content[] = $this->createTable();
+        $this->byId('tab-list')->append($content);
 
         //visualize hidden tab head if only has one tab
         if ($tab->getTabCount() == 1)
@@ -354,8 +358,6 @@ class SearchGrid extends \Component\Grid\Grid
         {
             $fields = $this->mountAdvancedFiltersMenu();
             $tabItem = $tab->add('tab-filter', 'Filtros', $fields, true, 'filter');
-            //update the filter js
-            \App::addJs("$('.filterCondition').change();");
         }
 
         return $tabItem;
@@ -493,8 +495,6 @@ class SearchGrid extends \Component\Grid\Grid
 
         $btnSearch = new \View\Ext\Button($id, 'search', 'Buscar', $url, 'primary', 'Clique para pesquisa');
         $btnSearch->setTitle('Buscar');
-
-        //$holder = new \View\Div(null, $btnSearch, 'column-12 btn-search-holder');
 
         return $btnSearch;
     }
@@ -638,9 +638,6 @@ class SearchGrid extends \Component\Grid\Grid
         $result[] = new \View\Div('tab-filters-left', $content, 'tab-filters-left column-p-6');
         $result[] = new \View\Div('tab-filters-right', $right, 'tab-filters-right column-p-6');
 
-        //remove empty option
-        \App::addJs("$('#advancedFiltersList #select-null-option').remove();");
-
         return $result;
     }
 
@@ -660,9 +657,10 @@ class SearchGrid extends \Component\Grid\Grid
 
         $right = [];
         $right[] = new \View\Label(null, null, 'Colunas aplicadas', 'field-label');
+        $right[] = new \View\Div('columns-holder', null, 'columns-holder');
 
         $content[] = new \View\Div('columns-definition', $left, 'column-p-6');
-        $content[] = new \View\Div('columns-holder', $right, 'columns-holder column-p-6');
+        $content[] = new \View\Div('columns-holder-outter', $right, 'columns-holder-outter column-p-6');
 
         $extraColumns = Request::get('grid-addcolumn-field');
         $elements = [];
@@ -706,8 +704,9 @@ class SearchGrid extends \Component\Grid\Grid
 
     protected function createBookmarkMenu()
     {
-        $pageUrl = \View\View::getDom()->getPageUrl();
-        $saveList = new \Filter\SavedList();
+        $page = \View\View::getDom();
+        $pageUrl = $page->getPageUrl();
+        $saveList = $page->getSavedList();
         $json = $saveList->getObject();
         $inner = [];
 
@@ -726,7 +725,7 @@ class SearchGrid extends \Component\Grid\Grid
                     continue;
                 }
 
-                $linkUrl = $item->page . '/?' . $item->url . '&search-title=' . $item->title;
+                $linkUrl = $item->page . '/?' . $item->url . '&search-title=' . urlencode($item->title);
                 $url = new \View\A('search-bookmark-' . $item->id, $item->title, $linkUrl);
                 $url->setAjax(false);
 
@@ -866,7 +865,7 @@ class SearchGrid extends \Component\Grid\Grid
         $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns), null, 'column-12 column-list-holder');
         $select->setAttribute('multiple', 'mulitple');
 
-        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Coluna agrupamento', 'gridGroupAddGroup');
+        $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar coluna', 'gridGroupAddGroup');
         $left[] = $this->getSearchButton('buscarGroup');
 
         $right[] = new \View\Label(null, null, 'Agrupamentos', 'field-label');
@@ -874,8 +873,13 @@ class SearchGrid extends \Component\Grid\Grid
         $right[] = new \View\Select('gridAggrMethods', \Component\Grid\GroupHelper::listAggrMethods(), null, 'column-6');
 
         $right[] = $btn = new \View\Ext\Button('btnAddAggr', 'plus', 'Adicionar agrupamento', 'gridGroupAddAggr');
-        $right[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
-        $right[] = $rightHolder = new \View\Div('rightHolder', null, 'column-12 grid-group-by-right-holder');
+
+        $groupItems = [];
+
+        $groupItems[] = $leftHolder = new \View\Div('leftHolder', null, 'column-12 grid-group-by-left-holder');
+        $groupItems[] = $rightHolder = new \View\Div('rightHolder', null, 'column-12 grid-group-by-right-holder');
+
+        $right[] = new \View\Div('group-holder', $groupItems, 'group-holder');
 
         $content[] = new \View\Div('left', $left, 'column-p-6');
         $content[] = new \View\Div('right', $right, 'column-p-6');
@@ -1032,9 +1036,6 @@ class SearchGrid extends \Component\Grid\Grid
             throw new \UserException('Selecione ambos parametros!');
         }
 
-        $page = \View\View::getDom();
-        $grid = $page->getGrid();
-        $columns = $grid->getDataSourceOriginal()->getColumns();
         $explode = explode('.', $gridAggrBy);
         $columnGroup = $explode[0];
         $columnName = $explode[1];
@@ -1059,6 +1060,9 @@ class SearchGrid extends \Component\Grid\Grid
         $this->byId('rightHolder')->append($div);
         $this->byId('gridAggrBy')->val('');
         $this->byId('gridAggrMethods')->val('');
+
+        //clear default customizaded columns, can't have both at same time
+        \App::addJs("$('.columns-holder .grid-addcolumn-field').remove();");
     }
 
     /**
@@ -1099,6 +1103,9 @@ class SearchGrid extends \Component\Grid\Grid
 
         $this->byId('columns-holder')->append($div);
         $this->byId('addColumn')->val('');
+
+        //clear default customizaded columns, can't have both at same time
+        \App::addJs("$('.columns-holder .grid-addcolumn-field').remove();");
     }
 
     /**

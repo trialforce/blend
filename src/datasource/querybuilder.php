@@ -101,7 +101,17 @@ class QueryBuilder extends DataSource
         //we can execut aggregation trough php
         if ($this->getCount() == count($data) && $data instanceof \Db\Collection)
         {
-            return $aggregator->getLabelledValue($data->aggr($aggregator->getMethod(), $aggregator->getColumnName()));
+            $result = $data->aggr($aggregator->getMethod(), $aggregator->getColumnName());
+
+            $gridColumn = $this->getColumn($aggregator->getColumnName());
+
+            if ($gridColumn && $gridColumn->getFormatter())
+            {
+                $formater = $gridColumn->getFormatter();
+                $result = $formater->setValue($result)->toHuman();
+            }
+
+            return $aggregator->getLabelledValue($result);
         }
 
         $qBuilder = $this->getQueryBuilderFeeded();
@@ -127,6 +137,14 @@ class QueryBuilder extends DataSource
             $query = $method . '( ' . $sqlColumn . ' )';
 
             $result = $qBuilder->aggregation($query);
+        }
+
+        $gridColumn = $this->getColumn($aggregator->getColumnName());
+
+        if ($gridColumn && $gridColumn->getFormatter())
+        {
+            $formater = $gridColumn->getFormatter();
+            $result = $formater->setValue($result)->toHuman();
         }
 
         return $aggregator->getLabelledValue($result);
