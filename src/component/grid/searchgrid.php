@@ -799,8 +799,10 @@ class SearchGrid extends \Component\Grid\Grid
                     continue;
                 }
 
+                $itemId = isset($item->id) ? $item->id : 'id';
+
                 $linkUrl = $item->page . '/?' . $item->url . '&search-title=' . urlencode($item->title);
-                $url = new \View\A('search-bookmark-' . $item->id, $item->title, $linkUrl);
+                $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
                 $url->setAjax(false);
 
                 $removeUrl = "return p(\"$pageUrl/deleteListItem/?savedList=$id\");";
@@ -810,7 +812,8 @@ class SearchGrid extends \Component\Grid\Grid
 
                 $inner[] = $div;
 
-                $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $item->id, null, $item->title, $linkUrl, 'small btn-search-bookmark');
+
+                $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $itemId, null, $item->title, $linkUrl, 'small btn-search-bookmark');
                 $btn->setAjax(false);
             }
         }

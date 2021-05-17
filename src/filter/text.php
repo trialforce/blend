@@ -197,6 +197,8 @@ class Text
         $this->defaultValue = null;
         $this->defaultValueFinal = null;
         $this->defaultCondition = null;
+
+        return $this;
     }
 
     /**

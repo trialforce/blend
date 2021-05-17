@@ -109,14 +109,32 @@ class MountFilter
         if (!$filter)
         {
             $filterClass = \Component\Grid\MountFilter::getFilterClass($column);
-
             $filter = new $filterClass($column, NULL);
         }
 
         $filter instanceof \Filter\Text;
-        //active filter
-        $filter->setFilterType(1);
+        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE);
         $filter->setFilterLabel($column->getLabel());
+
+        $columnSql = $column->getSql();
+
+        if ($dbColumn instanceof \Db\Column\Search)
+        {
+            $sql = $column->getSql(FALSE);
+            $columnSql = $sql[0];
+        }
+        else
+        {
+            $modelName = $column->getModelName();
+            $tableName = $modelName::getTableName();
+
+            if ($tableName)
+            {
+                $columnSql = $tableName . '.' . $column->getSql();
+            }
+        }
+
+        $filter->setFilterSql($columnSql);
 
         return $filter;
     }
