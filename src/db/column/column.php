@@ -842,14 +842,19 @@ class Column
     /**
      * Return the sql to use in query
      */
-    public function getSql()
+    public function getSql($withAlias = true)
     {
         $result = NULL;
         $columnName = $this->getName();
 
         if ($this->getProperty() != $this->getName())
         {
-            $columnName = $columnName . ' AS ' . $this->getProperty();
+            $columnName = $columnName;
+
+            if ($withAlias)
+            {
+                $columnName .= ' AS ' . $this->getProperty();
+            }
         }
 
         $result[] = $columnName;

@@ -248,6 +248,80 @@ class SearchGrid extends \Component\Grid\Grid
         return $this;
     }
 
+    public function disableColumnGroup($array)
+    {
+        $columnGroup = $this->getColumnsGroup();
+
+        foreach ($array as $groupName)
+        {
+            if (isset($columnGroup[$groupName]))
+            {
+                unset($columnGroup[$groupName]);
+            }
+        }
+
+        $this->setColumnsGroup($columnGroup);
+        return $this;
+    }
+
+    public function disableColumnInAllGroups($array)
+    {
+        $columnGroup = $this->getColumnsGroup();
+
+        foreach ($columnGroup as $groupName => $group)
+        {
+            foreach ($group as $columnname => $column)
+            {
+                foreach ($array as $passdedColumnName)
+                {
+                    if ($columnname == $passdedColumnName)
+                    {
+                        unset($columnGroup[$groupName][$columnname]);
+                    }
+                }
+            }
+        }
+
+        $this->setColumnsGroup($columnGroup);
+    }
+
+    public function disableColumnInAllCustomized($array)
+    {
+        $columnGroup = $this->getColumnsCustomize();
+
+        foreach ($columnGroup as $groupName => $group)
+        {
+            foreach ($group as $columnname => $column)
+            {
+                foreach ($array as $passdedColumnName)
+                {
+                    if ($columnname == $passdedColumnName)
+                    {
+                        unset($columnGroup[$groupName][$columnname]);
+                    }
+                }
+            }
+        }
+
+        $this->setColumnsCustomize($columnGroup);
+    }
+
+    public function disableCustomizeGroup($array)
+    {
+        $columnGroup = $this->getColumnsCustomize();
+
+        foreach ($array as $groupName)
+        {
+            if (isset($columnGroup[$groupName]))
+            {
+                unset($columnGroup[$groupName]);
+            }
+        }
+
+        $this->setColumnsCustomize($columnGroup);
+        return $this;
+    }
+
     public function getAllColumns()
     {
         $dbModel = $this->getDbModel();

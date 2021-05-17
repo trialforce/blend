@@ -78,8 +78,7 @@ class MountFilter
         $filter = NULL;
         $dbModel = $this->dbModel;
         $dataType = $column->getType();
-        //$filterType = $column->getFilterType();
-        $dbColumn = null;
+        $dbColumn = $column->getDbColumn();
 
         //don't mount filter if column don't has data type, or if don't have to be filtered
         if (!$dataType)
@@ -87,8 +86,8 @@ class MountFilter
             return NULL;
         }
 
-        //try to get column from database/model
-        if ($dbModel instanceof \Db\Model)
+        //try to get column from database/model, old fallbck to get dbcolumn, can be removed?
+        if (!$dbColumn && $dbModel instanceof \Db\Model)
         {
             $realColumnName = \Db\Column\Column::getRealColumnName($column->getName());
             $dbColumn = $dbModel::getColumn($realColumnName);
@@ -255,8 +254,15 @@ class MountFilter
             $column instanceof \Db\Column\Column;
             $filterClassName = $column->getFilterClassName();
             $filterName = $labelAscii . '-' . $tableName . '-' . $column->getName();
-            $filterSql = '(SELECT ' . $column->getName() . ' FROM ' . $tableName . ' WHERE ' . $relation->getSql() . ')';
+            $columnSql = $column->getName();
 
+            if ($column instanceof \Db\Column\Search)
+            {
+                $sql = $column->getSql(FALSE);
+                $columnSql = $sql[0];
+            }
+
+            $filterSql = '(SELECT ' . $columnSql . ' FROM ' . $tableName . ' WHERE ' . $relation->getSql() . ')';
             $filter = new $filterClassName();
             $filter instanceof \Filter\Text;
 
