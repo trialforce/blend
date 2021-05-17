@@ -22,22 +22,57 @@ abstract class Task
         $this->data = $data;
     }
 
+    /**
+     * Return the related data of the task
+     *
+     * @return array
+     */
     public function getData()
     {
         return $this->data;
     }
 
+    /**
+     * Determine the related data of the task
+     *
+     * @param array $data
+     * @return $this
+     */
     public function setData($data)
     {
         $this->data = $data;
         return $this;
     }
 
+    /**
+     * Add a result message
+     *
+     * @param string $message message
+     * @return $this
+     */
+    public function addResult($message = null)
+    {
+        $this->result[] = $message;
+
+        return $this;
+    }
+
+    /**
+     * Return the result message
+     *
+     * @return array the result message
+     */
     public function getResult()
     {
         return $this->result;
     }
 
+    /**
+     * Define the reult message
+     *
+     * @param array $result result message array
+     * @return $this
+     */
     public function setResult($result)
     {
         $this->result = $result;
@@ -71,7 +106,7 @@ abstract class Task
      */
     public function getResultText()
     {
-        return $this->getResult();
+        return implode("\r\n", $this->getResult());
     }
 
 }
