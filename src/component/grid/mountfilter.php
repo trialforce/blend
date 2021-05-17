@@ -118,12 +118,7 @@ class MountFilter
 
         $columnSql = $column->getSql();
 
-        if ($dbColumn instanceof \Db\Column\Search)
-        {
-            $sql = $column->getSql(FALSE);
-            $columnSql = $sql[0];
-        }
-        else
+        if (!$dbColumn instanceof \Db\Column\Search)
         {
             $modelName = $column->getModelName();
             $tableName = $modelName::getTableName();
