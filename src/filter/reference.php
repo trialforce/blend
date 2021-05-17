@@ -10,12 +10,20 @@ class Reference extends \Filter\Collection
 
     const COND_TEXT = 'text';
     const COND_TEXT_EQUALS = 'textEquals';
+    const TYPE_FIXED_VALUES = 1;
+    const TYPE_SEARCH_VALUES = 2;
 
     /**
      *
      * @var \Db\Column\Column
      */
     protected $dbColumn;
+
+    /**
+     * Type of the combo
+     * @var int
+     */
+    protected $type;
 
     public function __construct(\Component\Grid\Column $column = NULL, $filterType = NULL, $dbColumn = null)
     {
@@ -35,7 +43,7 @@ class Reference extends \Filter\Collection
             $this->setDbColumn($dbColumn);
         }
 
-        if (is_object($this->dbColumn) && $this->dbColumn->getClass())
+        if ($this->getType() == self::TYPE_SEARCH_VALUES)
         {
             $this->setDefaultCondition(self::COND_TEXT);
         }
@@ -43,6 +51,34 @@ class Reference extends \Filter\Collection
         {
             $this->setDefaultCondition(self::COND_EQUALS);
         }
+    }
+
+    protected function defineType()
+    {
+        if (is_object($this->dbColumn) && $this->dbColumn->getClass())
+        {
+            return self::TYPE_SEARCH_VALUES;
+        }
+        else
+        {
+            return self::TYPE_FIXED_VALUES;
+        }
+    }
+
+    public function getType()
+    {
+        if (!$this->type)
+        {
+            $this->type = $this->defineType();
+        }
+
+        return $this->type;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
     }
 
     public function getDbColumn()
@@ -60,7 +96,7 @@ class Reference extends \Filter\Collection
     {
         $options = array();
 
-        if ($this->dbColumn && $this->dbColumn->getClass())
+        if ($this->getType() == self::TYPE_SEARCH_VALUES)
         {
             $options[self::COND_TEXT] = 'Texto';
             $options[self::COND_TEXT_EQUALS] = 'Texto - Igual';
@@ -94,7 +130,7 @@ class Reference extends \Filter\Collection
         }
         else if ($this->dbColumn->getReferenceField())
         {
-            if ($this->dbColumn->getClass())
+            if ($this->getType() == self::TYPE_SEARCH_VALUES)
             {
                 $field = new \View\Input($this->getValueName() . '[]', 'text', $value, 'filterInput');
             }
@@ -151,7 +187,6 @@ class Reference extends \Filter\Collection
 
         $dbColumn = $this->dbColumn;
         $columnName = $column ? $column->getSql() : $this->getFilterName();
-
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
