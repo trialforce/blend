@@ -1178,8 +1178,11 @@ class SearchGrid extends \Component\Grid\Grid
         $this->byId('columns-holder')->append($div);
         $this->byId('addColumn')->val('');
 
-        //clear default customizaded columns, can't have both at same time
-        \App::addJs("$('.columns-holder .grid-addcolumn-field').remove();");
+        //remove null option
+        \App::addJs("$('.column-list-holder #select-null-option').remove();");
+        //remove groupments
+        \App::addJs("$('.grid-group-by-left-holder *').remove();");
+        \App::addJs("$('.grid-group-by-right-holder *').remove();");
     }
 
     /**

@@ -246,7 +246,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $idx => $item)
         {
-            $total += \Type\Money::get(self::getPropertyFromItem($item, $property))->toDb();
+            $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toDb();
         }
 
         return $total;
@@ -264,7 +264,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $idx => $item)
         {
-            $total += \Type\Money::get(self::getPropertyFromItem($item, $property))->toDb();
+            $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toDb();
         }
 
         return $total / $this->count();
@@ -282,7 +282,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $idx => $item)
         {
-            $value = self::getPropertyFromItem($item, $property)->toDb();
+            $value = self::getPropertyFromItem($item, $property);
 
             if ($value < $min)
             {
@@ -305,7 +305,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $idx => $item)
         {
-            $value = self::getPropertyFromItem($item, $property)->toDb();
+            $value = self::getPropertyFromItem($item, $property);
 
             if ($value > $min)
             {

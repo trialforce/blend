@@ -1029,16 +1029,16 @@ class Page extends \View\Layout
         \App::addJs("toolTip('{$selector}', '{$message}');");
     }
 
-    public function gridGroupAddGroup()
-    {
-        \App::dontChangeUrl();
-        $this->getGrid()->popupAddGroup();
-    }
-
     public function gridGroupAddColumn()
     {
         \App::dontChangeUrl();
         $this->getGrid()->gridGroupAddColumn();
+    }
+
+    public function gridGroupAddGroup()
+    {
+        \App::dontChangeUrl();
+        $this->getGrid()->popupAddGroup();
     }
 
     public function gridGroupAddAggr()

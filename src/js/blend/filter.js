@@ -201,7 +201,6 @@ function mountExtraFiltersLabel()
     //remmove empty option
     $('#advancedFiltersList #select-null-option').remove();
     $('.column-list-holder #select-null-option').remove();
-    $('.column-list-holder #select-null-option').remove();
     
     var filters= $('#tab-filters-right .filterLabel');
      
@@ -228,13 +227,10 @@ function mountExtraFiltersLabel()
         values.each (function(idx2) 
         {
             var element2 = $(values[idx2]);
-            console.log(element2);
             var value = element2.val();
             var condition = element2.parent().find('.filterCondition');
             var conditionVal = condition.val();
             var conditionText = condition.find('option:selected').text();
-            console.log(condition);
-            
             var text = element2.find('option:selected').text();
             
             value = text ? text:  value;

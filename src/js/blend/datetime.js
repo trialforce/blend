@@ -19,12 +19,10 @@ function dateTimeInputMobile()
 
 function dateTimeInputDesktopOnChange(dp,input)
 {
-    //console.log(dp, input);
 }
 
 function dateTimeInputDesktopOnShow(currentTime, input)
 {
-    //console.log(currentTime, input);
 }
 
 //https://xdsoft.net/jqplugins/datetimepicker/
