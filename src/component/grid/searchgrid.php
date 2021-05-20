@@ -442,16 +442,25 @@ class SearchGrid extends \Component\Grid\Grid
         $pageUrl = \View\View::getDom()->getPageUrl();
         $tabItem = null;
         $hasExtraColumns = Request::get('grid-addcolumn-field');
+        $isGrouped = $this->isGrouped();
 
         if ($this->getCreateTab('column'))
         {
-            $fields = $hasExtraColumns ? $this->createColumns() : null;
-            $tabItem = $tab->add('tab-column', 'Colunas', $fields, null, 'columns');
-
-            //put an ajax link, to only open this part if is needed
-            if (!$hasExtraColumns)
+            if ($isGrouped)
             {
-                $this->byId('tab-columnLabel')->click("return p('{$pageUrl}/gridGroupCreateColumns');");
+                $label = new \View\Label(null, null, 'Você está numa pesquisa de <strong>Agrupamentos</strong>. Essa pesquisa tem colunas definidas na aba <strong>Agrupamentos</strong>.', 'field-label');
+                $tabItem = $tab->add('tab-column', 'Colunas', $label, null, 'columns');
+            }
+            else
+            {
+                $fields = $hasExtraColumns ? $this->createColumns() : null;
+                $tabItem = $tab->add('tab-column', 'Colunas', $fields, null, 'columns');
+
+                //put an ajax link, to only open this part if is needed
+                if (!$hasExtraColumns)
+                {
+                    $this->byId('tab-columnLabel')->click("return p('{$pageUrl}/gridGroupCreateColumns');");
+                }
             }
         }
 
@@ -667,7 +676,8 @@ class SearchGrid extends \Component\Grid\Grid
                     continue;
                 }
 
-                $options[] = new \View\Option($filter->getFilterName(), $filter->getFilterLabel());
+                $options[] = $myOption = new \View\Option($filter->getFilterName(), $filter->getFilterLabel());
+                $myOption->attr('ondblclick', "$('#btnAddAvdFilter').click();");
             }
 
             $groupNameFile = null;
@@ -720,7 +730,7 @@ class SearchGrid extends \Component\Grid\Grid
         $columns = $this->getColumnsCustomize();
         $left[] = new \View\Label(null, null, 'Adicionar colunas', 'field-label');
 
-        $select = new \View\Select('addColumn', $this->createColumnOptions($columns), null, 'column-12 column-list-holder');
+        $select = new \View\Select('addColumn', $this->createColumnOptions($columns, "$('#btnAddColumn').click();"), null, 'column-12 column-list-holder');
         $select->setAttribute('multiple', 'multiple');
 
         $left[] = new \View\Div(null, $select, 'column-12');
@@ -897,9 +907,10 @@ class SearchGrid extends \Component\Grid\Grid
      * Mount collumn list options for group
      *
      * @param array $columnGroup \Component\Grid\Column column list list
+     * @param string $dbClickAction action to put in dblckick of options
      * @return array array of stdClass
      */
-    public function createColumnOptions($columnGroup)
+    public function createColumnOptions($columnGroup, $dbClickAction = null)
     {
         foreach ($columnGroup as $columnGroupLabelSafe => $columns)
         {
@@ -915,6 +926,7 @@ class SearchGrid extends \Component\Grid\Grid
                 $column instanceof \Component\Grid\Column;
                 $columnName = $columnGroupLabelSafe . '.' . $column->getName();
                 $option = new \View\Option($columnName, $column->getLabel());
+                $option->attr('ondblclick', $dbClickAction);
 
                 //we have weird duplicated names in some models
                 $label = $column->getGroupName() . '_' . $column->getLabel();
@@ -939,7 +951,7 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $columns = $this->getColumnsGroup();
         $left[] = new \View\Label(null, null, 'Colunas do agrupamento', 'field-label');
-        $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns), null, 'column-12 column-list-holder');
+        $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns, "$('#btnAddGroup').click();"), null, 'column-12 column-list-holder');
         $select->setAttribute('multiple', 'mulitple');
 
         $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar coluna', 'gridGroupAddGroup');

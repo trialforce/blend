@@ -68,7 +68,7 @@ class Folder
      */
     public function exists()
     {
-        return $this->isDir();
+        return $this->isDir() || file_exists($this->path);
     }
 
     public function getBasename()

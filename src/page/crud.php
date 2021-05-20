@@ -484,7 +484,7 @@ class Crud extends \Page\Page
 
         $footer[1] = new \View\Button('cancelar', array(new \View\Ext\Icon('arrow-left'), 'Não'), \View\Blend\Popup::getJs('destroy'), 'btn');
 
-        $footer[0] = new \View\Button('confirmaRemocao', array(new \View\Ext\Icon('trash-o'), 'Sim'), 'confirmaExclusao', 'btn danger');
+        $footer[0] = new \View\Button('confirmaRemocao', array(new \View\Ext\Icon('trash'), 'Sim'), 'confirmaExclusao', 'btn danger');
         $footer[0]->setAutoFocus();
         $footer[0]->focus();
 

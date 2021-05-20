@@ -42,34 +42,37 @@ class Reference extends \Filter\Collection
             $dbColumn = $model::getColumn($column->getName());
             $this->setDbColumn($dbColumn);
         }
-
-        if ($this->getType() == self::TYPE_SEARCH_VALUES)
-        {
-            $this->setDefaultCondition(self::COND_TEXT);
-        }
-        else
-        {
-            $this->setDefaultCondition(self::COND_EQUALS);
-        }
     }
 
     protected function defineType()
     {
+        $type = null;
+
         if (is_object($this->dbColumn) && $this->dbColumn->getClass())
         {
-            return self::TYPE_SEARCH_VALUES;
+            //"temporary" workaround maroto
+            if (stripos(mb_strtolower($this->dbColumn->getClass()), '\component\select\\') === 0)
+            {
+                $type = self::TYPE_FIXED_VALUES;
+            }
+            else
+            {
+                $type = self::TYPE_SEARCH_VALUES;
+            }
         }
         else
         {
-            return self::TYPE_FIXED_VALUES;
+            $type = self::TYPE_FIXED_VALUES;
         }
+
+        return $type;
     }
 
     public function getType()
     {
         if (!$this->type)
         {
-            $this->type = $this->defineType();
+            return $this->defineType();
         }
 
         return $this->type;
@@ -104,6 +107,8 @@ class Reference extends \Filter\Collection
             $options[self::COND_NOT_EQUALS] = 'Cód - Diferente';
             $options[self::COND_NULL_OR_EMPTY] = 'Cód - Vazio';
             $options[self::COND_NOT_NULL_OR_EMPTY] = 'Cód - Não vazio';
+
+            $this->setDefaultCondition(self::COND_TEXT);
         }
         else
         {
@@ -111,6 +116,8 @@ class Reference extends \Filter\Collection
             $options[self::COND_NOT_EQUALS] = 'Diferente';
             $options[self::COND_NULL_OR_EMPTY] = 'Vazio';
             $options[self::COND_NOT_NULL_OR_EMPTY] = 'Não vazio';
+
+            $this->setDefaultCondition(self::COND_EQUALS);
         }
 
         return $options;

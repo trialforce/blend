@@ -43,6 +43,13 @@ class Vector
      */
     protected $createQuestion = true;
 
+    /**
+     * Default tab name, can be changed if you need two fieldlayout with tabs in same page
+     *
+     * @var string
+     */
+    protected $defaultTabName = 'fieldLayoutTab';
+
     public function __construct($array, $model = null)
     {
         $this->setArray($array);
@@ -95,6 +102,16 @@ class Vector
         $this->array = $array;
     }
 
+    function getDefaultTabName()
+    {
+        return $this->defaultTabName;
+    }
+
+    function setDefaultTabName($defaultTabName)
+    {
+        $this->defaultTabName = $defaultTabName;
+    }
+
     public function getArray()
     {
         $model = $this->getModel();
@@ -133,7 +150,7 @@ class Vector
 
         if ($makeTab)
         {
-            return $this->createTab($this->array, 'fieldLayoutTab');
+            return $this->createTab($this->array, $this->getDefaultTabName());
         }
         else
         {

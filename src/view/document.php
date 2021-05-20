@@ -120,19 +120,7 @@ class Document extends \DomDocument implements \Countable
         //caso não seja instancia de DomElement, cria um elemento de texto
         if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
         {
-            /* if (\View\View::isHtml($content))
-              {
-              $layout = new \View\Layout();
-              $layout->loadHTML('<html><body><div id="importedContent">' . $content . '</div<</body></html>');
-              $node = $layout->byId('importedContent')->childNodes[0];
-
-              $this->importNode($node, true);
-              $this->appendChild($node);
-              }
-              else
-              { */
             $content = $this->createTextNode($content);
-            //}
         }
 
         if ($content)
@@ -241,6 +229,12 @@ class Document extends \DomDocument implements \Countable
         //compatibility with jquery
         $elementId = str_replace('#', '', $elementId);
 
+        //add support for formName
+        if (stripos($elementId, '[') > 0)
+        {
+            $elementId = str_replace(array('[', ']'), '', $elementId);
+        }
+
         //tenta o atalho pelo elemento registrado
         if (isset($this->elementList[$elementId]))
         {
@@ -347,9 +341,9 @@ class Document extends \DomDocument implements \Countable
      * @param string $selector
      * @return \View\Selector
      */
-    public function jquery($selector)
+    public function jquery($selector = null)
     {
-        return \View\Selector::get($selector);
+        return \View\Selector::get($selector = null);
     }
 
     /**

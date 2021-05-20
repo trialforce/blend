@@ -6,12 +6,12 @@ function selectTab(tabItemId)
     var tabId = tab.attr('id') ;
 
     //body
-    $('#' + tabId+'>.tabBody>.item').hide();
-    $('#' + tabId+'>.tabBody #' + tabItemId).show();
+    $(tab).find('>.tabBody>.item').hide();
+    $(tab).find('>.tabBody #' + tabItemId).show();
 
     //head
-    $('#' + tabId+'>.tabHead>.item').removeClass('selected');
-    $('#' + tabId+'>.tabHead #' + tabItemId + 'Label').addClass('selected');
+    $(tab).find('>.tabHead>.item').removeClass('selected');
+    $(tab).find('>.tabHead #' + tabItemId + 'Label').addClass('selected');
     
     //show actions as tab-group needed
     $('.action-list li').hide();

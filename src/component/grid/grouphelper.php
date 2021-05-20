@@ -168,7 +168,8 @@ class GroupHelper
         $dataSource = new \DataSource\QueryBuilder($queryBuilder);
         $dataSource->addAggregator($aggregators);
         $dataSource->setColumns($gridColumns);
-        $grid->addFiltersToDataSource($dataSource);
+        //important to keep page filtred values
+        $page->addFiltersToDataSource($dataSource);
         $grid->setDataSource($dataSource);
 
         return $dataSource;
@@ -254,7 +255,6 @@ class GroupHelper
                             $value = $cValues[$value];
                         }
 
-
                         $obj->setValue($propertyDescription, $value);
                     }
                 }
@@ -284,6 +284,7 @@ class GroupHelper
         $queryBuilder = $model::query();
         $queryBuilder instanceof \Db\QueryBuilder;
         $userDataSource = new \DataSource\QueryBuilder($queryBuilder);
+        $page->addFiltersToDataSource($userDataSource);
 
         if (!is_array($extraColumns))
         {

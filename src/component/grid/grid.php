@@ -386,7 +386,7 @@ class Grid extends \Component\Component
      * Create table
      * @return
      */
-    protected function createTableInner()
+    public function createTableInner()
     {
         //only force the getData, to make any changes in data that is needed
         //the data is not used here (but getData is cached, so it's okay)

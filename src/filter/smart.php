@@ -13,6 +13,7 @@ class Smart extends \Filter\Text
     public function getInput()
     {
 
+        $pageUrl = \View\View::getDom()->getPageUrl();
         $idQuestion = $this->getFilterName() ? $this->getFilterName() : 'q';
         $idBtn = 'buscar';
         $search = new \View\Input($idQuestion, \View\Input::TYPE_SEARCH, Request::get($idQuestion), '');
@@ -24,7 +25,8 @@ class Smart extends \Filter\Text
                 ->onPressEnter('$("#' . $idBtn . '").click();');
 
         $fields = array();
-        //$fields[] = new \View\Label(null, 'q', 'Pesquisar', 'filterLabel');
+        $fields[] = $reset = new \View\Ext\LinkButton('search-reset', 'undo', null, $pageUrl, 'cleann icon-only');
+        $reset->setAjax(false);
         $fields[] = $search;
         $fields[] = new \View\Ext\Button('search-fast', 'search', null, '$("#' . $idBtn . '").click();', 'primary icon-only');
 
