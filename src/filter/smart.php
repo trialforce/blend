@@ -26,9 +26,10 @@ class Smart extends \Filter\Text
 
         $fields = array();
         $fields[] = $reset = new \View\Ext\LinkButton('search-reset', 'undo', null, $pageUrl, 'cleann icon-only');
-        $reset->setAjax(false);
+        $reset->setAjax(false)->setTitle('Clicar para limpar/resetar a busca');
         $fields[] = $search;
-        $fields[] = new \View\Ext\Button('search-fast', 'search', null, '$("#' . $idBtn . '").click();', 'primary icon-only');
+        $fields[] = $btn = new \View\Ext\Button('search-fast', 'search', null, '$("#' . $idBtn . '").click();', 'primary icon-only');
+        $btn->setTitle('Clicar para executar a busca');
 
         return new \View\Div('main-search', $fields, 'filterField');
     }
