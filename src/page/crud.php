@@ -62,18 +62,9 @@ class Crud extends \Page\Page
      */
     public function getFormTitle()
     {
-        $btnSearch = null;
-
-        if ($this->getEvent() == 'listar')
-        {
-            $btnSearch = new \View\Ext\Icon('search');
-            $btnSearch->addClass('hide-in-desktop search-icon');
-            $btnSearch->click('$("#searchHead").toggleClass("hide-in-mobile");');
-        }
-
         $searchTitle = Request::get('search-title') ? ' - ' . Request::get('search-title') : '';
 
-        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle() . $searchTitle, $btnSearch));
+        return new \View\Span('extraTitle', array($this->getIcon(), $this->getTitle() . $searchTitle));
     }
 
     /**

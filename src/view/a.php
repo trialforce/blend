@@ -103,11 +103,22 @@ class A extends \View\View
      */
     public function setTarget($target)
     {
+        if (!$target)
+        {
+            return $this;
+        }
+
         $this->setAttribute('target', $target);
 
         if ($target != \View\A::TARGET_SELF)
         {
             $this->setAjax(FALSE);
+        }
+
+        //target blank always need rel="noopener" font: Google LightHouse
+        if (strtolower($target) == \View\A::TARGET_BLANK)
+        {
+            $this->attr('rel', 'noopener');
         }
 
         return $this;

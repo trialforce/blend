@@ -17,7 +17,7 @@ blend.plugins.push(blend.lazyloading);
 
 blend.lazyloading.register = function()
 {
-    window.addEventListener("scroll", blend.lazyloading.onScroll);
+    window.addEventListener("scroll", blend.lazyloading.onScroll,{passive:true});
     blend.lazyloading.parse();
 };
 
