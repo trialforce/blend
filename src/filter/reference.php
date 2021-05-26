@@ -199,15 +199,15 @@ class Reference extends \Filter\Collection
         $filterValue = $this->getFilterValue($index);
         $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
-        $sql = $this->getFilterSql() ? $this->getFilterSql() : $dbColumn->getReferenceSql(FALSE);
+        $sql = $dbColumn && $dbColumn->getReferenceSql(FALSE) ? $dbColumn->getReferenceSql(FALSE) : $this->getFilterSql();
 
-        if ($conditionValue && $wasFiltered)
+        if ($conditionValue && $wasFiltered && $sql)
         {
-            if ($sql && $conditionValue == self::COND_TEXT)
+            if ($conditionValue == self::COND_TEXT)
             {
                 return new \Db\Where($sql, 'like', \Db\Where::contains($filterValue), $conditionType);
             }
-            else if ($sql && $conditionValue == self::COND_TEXT_EQUALS)
+            else if ($conditionValue == self::COND_TEXT_EQUALS)
             {
                 return new \Db\Where($sql, '=', $filterValue, $conditionType);
             }
