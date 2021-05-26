@@ -308,7 +308,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
 
         if (!$ok)
         {
-            throw new Exception($this->ErrorInfo);
+            throw new \Exception($this->ErrorInfo);
         }
 
         return $ok;
