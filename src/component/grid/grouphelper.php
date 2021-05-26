@@ -116,6 +116,8 @@ class GroupHelper
                     continue;
                 }
 
+                $dbColumn = null;
+
                 if ($groupName == $modelGroupName)
                 {
                     $dbColumn = isset($modelColumns[$simpleColumnName]) ? $modelColumns[$simpleColumnName] : null;
