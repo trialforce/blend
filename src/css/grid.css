@@ -34,6 +34,11 @@
 }
 
 @media screen and ( max-width: 1000px ) {
+    
+    .grid {
+        font-size: 80%;
+    }
+    
     .grid-tr-detail-column-info {
         width: 50%;
     }
@@ -49,6 +54,12 @@
     .grid-tr-detail-column-value {
         padding: 2px;
     }
+    
+    .grid button.grid-change-text-size {
+        display: none;
+    }
+    
+    
 }
 
 #containerHead {

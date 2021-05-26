@@ -337,6 +337,16 @@ i.fa-layer-group.filter-menu {
     #tab-filters-left, .tab-filters-right, #columns-definition, #left, #right,#bookmark-holder,.columns-holder-outter {
         width: 98%;
         margin-left: 1%;
-    }   
+    }
+    
+    #tab-holder-search-field .tabHead .item {
+        width: 20%;
+        margin: 0;
+    }
+    
+    #btn-search-bookmark-holder {
+        text-align: center;
+    }
+    
 }
     
