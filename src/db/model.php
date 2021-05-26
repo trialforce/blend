@@ -1226,6 +1226,11 @@ class Model implements \JsonSerializable
         return $relations;
     }
 
+    /**
+     * Mount the default relation list
+     *
+     * @return array of \Db\Relation
+     */
     public static function mountForeignRelations()
     {
         $name = self::getName();
@@ -1237,15 +1242,23 @@ class Model implements \JsonSerializable
             $column instanceof \Db\Column\Column;
             $referenceModel = $column->getReferenceTable();
 
-            if ($referenceModel)
+            //don't do relation if the colum ins a search column
+            if ($column instanceof \Db\Column\Search)
             {
-                $referenceModelClass = '\Model\\' . str_ireplace('\Model\\', '', $referenceModel);
-
-                $referenceField = $column->getReferenceField();
-                $referenceTable = $referenceModelClass::getTableName();
-                $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
-                $relations[] = new \Db\Relation($column->getLabel(), $referenceModelClass, $sql);
+                continue;
             }
+
+            //only do auto relations wirh columns that has referenceTable
+            if (!$referenceModel)
+            {
+                continue;
+            }
+
+            $referenceModelClass = '\Model\\' . str_ireplace('\Model\\', '', $referenceModel);
+            $referenceField = $column->getReferenceField();
+            $referenceTable = $referenceModelClass::getTableName();
+            $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
+            $relations[] = new \Db\Relation($column->getLabel(), $referenceModelClass, $sql);
         }
 
         return $relations;
