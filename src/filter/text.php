@@ -675,6 +675,7 @@ class Text
     {
         $icon = new \View\Ext\Icon('plus');
         $icon->click('filterAdd(this)')->addClass('addFilter');
+        $icon->setTitle('Adicionar filtro');
 
         return $icon;
     }
@@ -683,6 +684,7 @@ class Text
     {
         $icon = new \View\Ext\Icon('trash');
         $icon->click('filterTrash(this)')->addClass('trashFilter');
+        $icon->setTitle('Remover filtro');
 
         return $icon;
     }
