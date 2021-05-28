@@ -260,6 +260,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function avg($property)
     {
+        if ($this->count() == 0)
+        {
+            return 0;
+        }
+
         $total = 0;
 
         foreach ($this->data as $idx => $item)
@@ -331,6 +336,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             $value = self::getPropertyFromItem($item, $property);
             $count[$value] = 1;
         }
+
         return count($count);
     }
 

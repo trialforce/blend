@@ -981,7 +981,7 @@ class Page extends \View\Layout
 
         $this->byId('advancedFiltersList')->val('');
 
-        //filter is allready on pae
+        //filter is allready on page
         if ($filter->getFilterValue(0))
         {
             \App::addJs("setTimeout(function(){ $('#{$filter->getFilterName()}Filter .addFilter').click() }, 300);");

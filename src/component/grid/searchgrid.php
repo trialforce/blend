@@ -27,6 +27,12 @@ class SearchGrid extends \Component\Grid\Grid
     protected $filters = array();
 
     /**
+     * Extra bookmarks
+     * @var array
+     */
+    protected $bookmarks = array();
+
+    /**
      * Tabs to create
      * @var array
      */
@@ -383,6 +389,35 @@ class SearchGrid extends \Component\Grid\Grid
     }
 
     /**
+     *
+     * @param type $title
+     * @param type $page
+     * @param type $parameters
+     */
+    public function addBookmark($title, $parameters = null)
+    {
+        $url = is_array($parameters) ? http_build_query($parameters) : $parameters;
+
+        $bookmark = new \stdClass();
+        $bookmark->title = $title;
+        $bookmark->page = \View\View::getDom()->getPageUrl();
+        $bookmark->url = $url;
+
+        $this->bookmarks [] = $bookmark;
+    }
+
+    public function getBookmarks()
+    {
+        return $this->bookmarks;
+    }
+
+    public function setBookmarks(array $bookmarks)
+    {
+        $this->bookmarks = $bookmarks;
+        return $this;
+    }
+
+    /**
      * Make the creation of the grid
      *
      * @return \Component\Grid
@@ -712,7 +747,6 @@ class SearchGrid extends \Component\Grid\Grid
 
         $content[] = new \View\Div(null, $select, 'column-12 ');
         $content[] = $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Adicionar filtro', 'addAdvancedFilter');
-        $btn->css('border', 'none');
         $content[] = $this->getSearchButton();
 
         $right = [];
@@ -736,7 +770,6 @@ class SearchGrid extends \Component\Grid\Grid
         $left[] = new \View\Div(null, $select, 'column-12');
 
         $left[] = $btn = new \View\Ext\Button('btnAddColumn', 'plus', 'Adicionar coluna', 'gridGroupAddColumn');
-        $btn->css('border', 'none');
         $left[] = $this->getSearchButton();
 
         $right = [];
@@ -798,7 +831,14 @@ class SearchGrid extends \Component\Grid\Grid
         $url->setAjax(false);
         $div = new \View\Div(null, $url, 'column-12 grid-addcolumn-field');
         $inner[] = $div;
-        $buttons = null;
+        $buttons = [];
+
+        $bookmarks = $this->getBookmarks();
+
+        foreach ($bookmarks as $bookmark)
+        {
+            $buttons[] = $this->createBookMarkButton($bookmark, 'btn-search-bookmark-fixed');
+        }
 
         if (isIterable($json))
         {
@@ -809,26 +849,12 @@ class SearchGrid extends \Component\Grid\Grid
                     continue;
                 }
 
-                $itemId = isset($item->id) ? $item->id : 'id';
-
-                $linkUrl = $item->page . '/?' . $item->url . '&search-title=' . urlencode($item->title);
-                $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
-                $url->setAjax(false);
-
-                $removeUrl = "return p(\"$pageUrl/deleteListItem/?savedList=$id\");";
-                $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl, 'trashFilter');
-
-                $div = new \View\Div(null, [$url, $removeIcon], 'column-12 grid-addcolumn-field');
-
-                $inner[] = $div;
-
-
-                $buttons[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $itemId, null, $item->title, $linkUrl, 'small btn-search-bookmark');
-                $btn->setAjax(false);
+                $inner[] = $this->createSavedBookmarkButton($item);
+                $buttons[] = $this->createBookMarkButton($item);
             }
         }
 
-        if ($buttons)
+        if (count($buttons) > 0)
         {
             $buttonsStart[] = $btn = new \View\Ext\LinkButton('btn-search-bookmak-reset', null, 'Padrão', $pageUrl, 'small btn-search-bookmark');
             $btn->setAjax(false);
@@ -847,11 +873,39 @@ class SearchGrid extends \Component\Grid\Grid
 
         $url = "p('{$pageUrl}/saveListItem',$('.content').serialize());";
         $btn = new \View\Ext\Button('btnsaveListItem', 'plus', 'Salvar os filtros da pesquisa atual', $url);
-        $btn->css('border', 'none');
 
         $content[] = new \View\Div(null, $btn, 'column-12');
 
         return new \View\Div('bookmark-holder', $content, 'column-p-12');
+    }
+
+    protected function createSavedBookmarkButton($item)
+    {
+        $itemId = isset($item->id) ? $item->id : 'id';
+        $myUrl = htmlentities($item->url);
+        $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
+        $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
+        $url->setAjax(false);
+
+        $removeUrl = "return p(\"{$item->page}/deleteListItem/?savedList=$id\");";
+        $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl, 'trashFilter');
+
+        $div = new \View\Div(null, [$url, $removeIcon], 'column-12 grid-addcolumn-field');
+
+        return $div;
+    }
+
+    protected function createBookMarkButton($item, $extraClass = null)
+    {
+        $itemId = isset($item->id) ? $item->id : 'id';
+
+        $myUrl = htmlentities($item->url);
+        $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
+
+        $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $itemId, null, $item->title, $linkUrl, 'small btn-search-bookmark ' . $extraClass);
+        $btn->setAjax(false);
+
+        return $btn;
     }
 
     protected function createFilterFieldsNeeded()

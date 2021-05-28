@@ -45,7 +45,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         {
             foreach ($address as $ad)
             {
-                $this->addOrEnqueueAnAddress('to', $ad, $ad);
+                $this->AddAnAddress('to', $ad, $ad);
             }
 
             return TRUE;

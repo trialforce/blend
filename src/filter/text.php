@@ -674,11 +674,9 @@ class Text
     public static function getAddFilterButton()
     {
         $icon = new \View\Ext\Icon('plus');
+        $icon->click('filterAdd(this)')->addClass('addFilter');
 
-        $div = new \View\Div(null, array($icon, 'Adicionar filtro'));
-        $div->addClass('addFilter')->click('return filterAdd(this)');
-
-        return $div;
+        return $icon;
     }
 
     public static function getRemoveFilterButton()
