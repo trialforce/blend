@@ -242,15 +242,8 @@ p {
 
         if ($dom instanceof \Page\Crud)
         {
-            $titleExtra = '';
-            $savedList = \DataHandle\Request::get('savedList');
-            $saveList = new \Filter\SavedList();
-            $list = $saveList->getObject();
-
-            if (isset($list->$savedList))
-            {
-                $titleExtra = ' - ' . $list->$savedList->title;
-            }
+            $searchTitle = \DataHandle\Request::get('search-title');
+            $titleExtra = $searchTitle ? ' - ' . $searchTitle : '';
 
             $title = 'Listar ' . lcfirst($dom->getModel()->getLabel()) . $titleExtra;
         }
