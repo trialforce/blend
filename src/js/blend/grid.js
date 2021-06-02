@@ -51,27 +51,6 @@ grid.openTrDetail = function(element)
     return false;
 }
 
-function setTableFontSize()
-{
-    var value = localStorage.getItem('tablegridfontsize');
-    if (!value)
-    {
-        value = 10;
-    }
-
-    $('.table-grid').css("font-size", value / 10 + "em");
-    $('#tableGridFontSize').val(value);
-}
-
-function changeTableFontSize()
-{
-    var value = $('#tableGridFontSize').val();
-    value = value ? value : 10;
-
-    $('.table-grid').css("font-size", value / 10 + "em");
-    localStorage.setItem('tablegridfontsize', value);
-}
-
 //used in grid checkcolumn, need refactor
 function selecteChecks(gridName)
 {

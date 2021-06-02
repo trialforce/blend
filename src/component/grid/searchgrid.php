@@ -887,8 +887,8 @@ class SearchGrid extends \Component\Grid\Grid
         $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
         $url->setAjax(false);
 
-        $removeUrl = "return p(\"{$item->page}/deleteListItem/?savedList=$id\");";
-        $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $id, $removeUrl, 'trashFilter');
+        $removeUrl = "return p(\"{$item->page}/deleteListItem/?savedList=$itemId\");";
+        $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $itemId, $removeUrl, 'trashFilter');
 
         $div = new \View\Div(null, [$url, $removeIcon], 'column-12 grid-addcolumn-field');
 

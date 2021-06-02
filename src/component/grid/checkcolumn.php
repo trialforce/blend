@@ -36,35 +36,6 @@ class CheckColumn extends \Component\Grid\Column
     public function getHeadContent(\View\View $tr, \View\View $th)
     {
         $gridId = $this->getIdJs();
-        $name = $this->getName();
-
-        $js = "
-            function selecteChecks(gridName)
-            {
-                $('#'+gridName+'Table .checkBoxcheck').each( function()
-                {
-                    if ( $(this).prop('checked') === true )
-                    {
-                        $(this).parent().parent().addClass('select');
-                    }
-                    else
-                    {
-                        $(this).parent().parent().removeClass('select');
-                    }
-                });
-            }
-
-            function selecteCheck(elementId)
-            {
-                var element = $('#' + elementId);
-                var selecionado = !element.prop('checked');
-                element.prop('checked', selecionado);
-
-                $('#checkAllcheck').prop('checked', false);
-            }";
-
-        \App::addJs($js);
-
         $check = new \View\Ext\CheckboxDb('checkAll' . $this->getName());
         $th->addClass(Column::ALIGN_LEFT);
         $this->getJs();
