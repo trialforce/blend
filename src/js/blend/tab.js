@@ -1,6 +1,7 @@
 
-function selectTab(tabItemId)
+function selectTab(tabItemId, callback )
 {
+    
     tabItemId = tabItemId.replace('#', '');
     var tab = $('#' + tabItemId).parents('.tab').eq(0);
     var tabId = tab.attr('id') ;
@@ -17,6 +18,13 @@ function selectTab(tabItemId)
     $('.action-list li').hide();
     $('.action-list li[data-group=""]').show();
     $('.action-list li[data-group="'+tabItemId+'"]').show();
+    
+    var hasContent = $('#tab-visita *').length > 0
+   
+    if ( !hasContent && typeof callback == 'function')
+    {
+        callback();
+    }
 
     return false;
 }
