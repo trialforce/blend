@@ -739,7 +739,8 @@ function r(type, page, formData, callBack)
             catch (e) 
             {
                 alert('Erro ao executar javascript vindo do servidor!');
-                console.error(e);
+                console.log(e);
+                console.log(data.script);
             }
             
             //treat js especials
