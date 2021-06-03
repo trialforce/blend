@@ -64,6 +64,23 @@ class App
     }
 
     /**
+     * Get page/url extension
+     * @return string or null
+     */
+    public function getCurrentPageExtension()
+    {
+        $requestUri = Server::getInstance()->getRequestUri(false);
+        $explode = explode('.', $requestUri);
+
+        if (count($explode) > 1 && isset($explode[count($explode) - 1]))
+        {
+            return mb_strtolower($explode[count($explode) - 1]);
+        }
+
+        return null;
+    }
+
+    /**
      * Return the current page name based on current URL
      *
      * @return string
