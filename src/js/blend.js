@@ -185,6 +185,12 @@ function dataAjax()
         var href = element.attr('href');
         var disabled = element.attr('disabled');
         element.removeAttr('data-ajax');
+        
+        //if is an outside link do not use ajax system
+        if (href.indexOf(getBaseUrl()) === -1 )
+        {
+            href = null;
+        }
 
         if (href && dataAjax)
         {
