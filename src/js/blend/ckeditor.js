@@ -49,7 +49,7 @@ function useImageCkEditor(a)
 
 function createCkEditor(id)
 {
-    if (typeof CKEDITOR == 'undefined')
+    if (typeof CKEDITOR == 'undefined' || $('#'+id).length == 0 )
     {
         setTimeout(function(){createCkEditor(id)},300);
         return;
