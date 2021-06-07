@@ -36,6 +36,7 @@ blend.lazyloading.parse = function()
     var elements = $('[data-lazyloading-background-image]');
     var imgs = $('[data-lazyloading-src]');
     var actives = $('[data-lazyloading-active]');
+    var functions = $('[data-lazyloading-function]');
     
     var scrollingElement = document.documentElement;
     
@@ -46,6 +47,7 @@ blend.lazyloading.parse = function()
     
     var heightVisible = scrollingElement.scrollTop+screen.height;
     
+    //background image
     elements.each(function(idx)
     {
         var element = $(elements[idx]);
@@ -60,6 +62,7 @@ blend.lazyloading.parse = function()
         }
     });
     
+    //images with href
     imgs.each(function(idx)
     {
         var element = $(imgs[idx]);
@@ -74,7 +77,8 @@ blend.lazyloading.parse = function()
         }
     });
     
-    actives.each(function(idx)
+    //element to active (add class lazyloading-active)
+    actives.each(function(idx) 
     {
         var element = $(actives[idx]);
         var adjust = 150;
@@ -85,6 +89,32 @@ blend.lazyloading.parse = function()
             element.addClass('lazyloading-active');
             element.removeData('lazyloading-active');
             element.removeAttr('data-lazyloading-active');
+        }
+    });
+    
+    //elements to call function
+    functions.each(function(idx)
+    {
+        var element = $(functions[idx]);
+        var adjust = 150;
+        var offsetTop = element.offset().top + (adjust);
+          
+        if ( heightVisible > offsetTop)
+        {
+            var method = element.data('lazyloading-function');
+            
+            if (typeof method == 'function')
+            {
+                method();
+            }
+            else
+            {
+                eval(method);
+            }
+            
+            element.addClass('lazyloading-function');
+            element.removeData('lazyloading-function');
+            element.removeAttr('data-lazyloading-function');
         }
     });
 };
