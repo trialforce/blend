@@ -29,8 +29,16 @@ class ImageUpload extends \View\Div
         $pageUrl = \View\View::getDom()->getPageUrl();
 
         $upload = new \View\Input('label_' . $id, \View\Input::TYPE_FILE);
-        $urlChangeUpload = "fileUpload('{$pageUrl}/{$phpFunction}/?idUpload={$id}');";
-        $upload->change($urlChangeUpload);
+
+        if ($phpFunction)
+        {
+            $urlChangeUpload = "fileUpload('{$pageUrl}/{$phpFunction}/?idUpload={$id}');";
+            $upload->change($urlChangeUpload);
+        }
+        else
+        {
+            $upload->change("$('#labelImg_{$id}').css('background-image','none').html('Imagem adicionada, clique em salvar para enviar.');");
+        }
 
         $accept = $accept ? $accept : 'image/*';
         $upload->setAttribute('accept', $accept);
@@ -56,14 +64,17 @@ class ImageUpload extends \View\Div
 
         $img = self::getImg($href, $id);
 
-        $this->imgResult = new \View\Div('imgResult_' . $id, $img);
-        $labelImg = new \View\Label('label_' . $id, null, $this->imgResult);
+        $this->imgResult = new \View\Div('imgResult_' . $id, $img, 'imgResult');
+        $labelImg = new \View\Label('labelImg_' . $id, null, $this->imgResult);
         //support various navigators
         $labelImg->click("$(this).parent().find('input').click()");
 
         $this->append($labelImg);
 
-        $this->addJs($urlChangeUpload);
+        if ($phpFunction)
+        {
+            $this->addJs($urlChangeUpload);
+        }
     }
 
     private function addJs($urlChangeUpload)
