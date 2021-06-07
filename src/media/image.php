@@ -395,14 +395,7 @@ class Image extends \Disk\File
      */
     public function allocateColor(Color $color)
     {
-        if ($color->getAlpha() == NULL)
-        {
-            return imagecolorallocate($this->content, $color->getRed(), $color->getGreen(), $color->getBlue());
-        }
-        else
-        {
-            return imagecolorallocatealpha($this->content, $color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlphaGd());
-        }
+        return imagecolorallocatealpha($this->content, $color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlphaGd());
     }
 
     /**
