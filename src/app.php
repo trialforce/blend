@@ -184,7 +184,7 @@ class App
             }
         }
 
-        if ($content)
+        if ($content instanceof \View\Document)
         {
             return $this->handleResult($content);
         }
