@@ -208,6 +208,7 @@ class UserAgent
      */
     public static $serviceList = array(
         'Google_Analytics_Snippet_Validator', //Google analycts
+        'Google-Ads-Creatives-Assistant', //Google Ads
         'Google Page Speed Insights', //Google pagespeed
         'Google-Site-Verification', //google site verification, developer tools
         'Google-AdWords-Express', //googe adworss
@@ -392,6 +393,9 @@ class UserAgent
         'Cloud mapping experiment',
         'BDCbot',
         'applebot',
+        'petalbot',
+        'CensysInspect',
+        'expanseinc.com',
         'Baiduspider');
 
     /**
@@ -507,6 +511,10 @@ class UserAgent
         }
         //free BSD
         else if (preg_match('/FreeBSD/i', $this->userAgent))
+        {
+            $this->platform = self::PLATFORM_LINUX;
+        }
+        else if (preg_match('/OpenBSD/i', $this->userAgent))
         {
             $this->platform = self::PLATFORM_LINUX;
         }
@@ -811,7 +819,7 @@ class UserAgent
 
     /**
      * Return true if is bot or service
-     * 
+     *
      * @return bool
      */
     public function isBotOrService()
