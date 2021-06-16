@@ -573,7 +573,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             foreach ($content as $obj)
             {
-                if (is_object($obj))
+                if ($obj instanceof \Component\Component)
+                {
+                    $html = $obj->onCreate();
+                    $html->remove();
+                }
+                else if (is_object($obj))
                 {
                     $html .= $obj->__toString();
                     //remove from dom
@@ -591,6 +596,11 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
                     }
                 }
             }
+        }
+        else if ($content instanceof \Component\Component)
+        {
+            $html = $content->onCreate();
+            $html->remove();
         }
         else if (is_object($content))
         {
