@@ -254,7 +254,6 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
 
-        $question[] = new \View\Input('saveList[url]', \View\Input::TYPE_HIDDEN, \Filter\SavedList::mountUrl());
         $question[] = 'Utilize algo que tenha significado!';
         $question[] = new \View\Br();
         $question[] = new \View\Br();
@@ -284,7 +283,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         $saveList = $this->getSavedList();
         $request = (Object) Request::get('saveList');
-        $item = $saveList->save($this->getPageUrl(), $request->url, $request->title);
+        $item = $saveList->save($this->getPageUrl(), \Filter\SavedList::mountUrl(), $request->title);
 
         if ($item)
         {
