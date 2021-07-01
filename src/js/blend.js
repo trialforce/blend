@@ -731,7 +731,14 @@ function r(type, page, formData, callBack)
             //if is GET get page from url+ formdata
             if (type === 'GET')
             {
-                page = url + '?' + formData;
+                var append = '?';
+                
+                if (url.includes(append))
+                {
+                    append = '&';
+                }
+                
+                page = url + append + formData;
             }
             
             updateUrl(page);
