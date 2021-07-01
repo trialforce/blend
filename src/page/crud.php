@@ -391,7 +391,7 @@ class Crud extends \Page\Page
             $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
             $btnVoltar->setTitle('Volta para a listagem!');
 
-            if ($this->isUpdate())
+            if ($this->isUpdate() && $this->floatingMenu)
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
 
@@ -943,6 +943,15 @@ class Crud extends \Page\Page
         \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
     }
 
+    public function listarPopup()
+    {
+        \App::dontChangeUrl();
+        $url = $this->getPageUrl() . '/listar/?iframe=true';
+        $title = ucfirst($this->model->getLabel());
+
+        $this->crudEditPopup($url, $title);
+    }
+
     /**
      * Open a popup of this crud.
      * It uses a internal iframe soluction to avoind mixing the forms post and values.
@@ -958,7 +967,7 @@ class Crud extends \Page\Page
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
-        $this->createEditPopup($id, $idInput, $url, $title);
+        $this->crudEditPopup($url, $title, $idInput);
     }
 
     /**
@@ -969,7 +978,6 @@ class Crud extends \Page\Page
     {
         \App::dontChangeUrl();
         $idInput = Request::get('idInput');
-
         $idParent = Request::get('v');
 
         // add referencing parent
@@ -978,10 +986,10 @@ class Crud extends \Page\Page
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
 
-        $this->createEditPopup($idParent, $idInput, $url, $title);
+        $this->crudEditPopup($url, $title, $idInput);
     }
 
-    public function createEditPopup($id, $idInput, $url, $title)
+    public function crudEditPopup($url, $title, $idInput = null)
     {
         $body = new \View\IFrame('edit-popup-iframe', $url);
         $body->setWidth('100', '%')->setHeight('70', 'vh');
