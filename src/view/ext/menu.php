@@ -56,6 +56,15 @@ class Menu extends \View\View
                     $views[$value] = new Li('li_' . $value, $link);
                     $views[$value]->click("return openSubMenu(this);");
                 }
+                else if (stripos($value, 'p(') === 0 || stripos($value, 'g(') === 0)
+                {
+                    $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, '#');
+                    $link->setAjax(false);
+                    $link->click('menuClose(); return ' . $value);
+
+                    $views[$value] = new Li('li_' . $value, $link);
+                    $views[$value]->click("return openSubMenu(this);");
+                }
                 else
                 {
                     $link = new A(self::parseMenuItemId('menuItem_' . $value), $view, $value);
