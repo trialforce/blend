@@ -13,7 +13,7 @@ class Option extends \View\View
     {
         parent::__construct('option', NULL, NULL, NULL, $father);
         $this->setValue($value);
-        $this->append($label ? $label : $value);
+        $this->append(($label || $label == 0) ? $label : $value);
 
         if ($selected)
         {
