@@ -20,7 +20,6 @@ class CheckColumn extends \Component\Grid\Column
 
         parent::__construct($name, '', Column::ALIGN_LEFT, NULL);
         $this->setExport(FALSE);
-        $this->setWidth('3%');
     }
 
     function getNameType()

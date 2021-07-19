@@ -146,7 +146,7 @@ class SavedList
      *
      * @return string
      */
-    public static function mountUrl()
+    public static function filtertPost()
     {
         $parts = $_REQUEST;
         unset($parts['p']);
@@ -157,21 +157,16 @@ class SavedList
         unset($parts['_']);
         unset($parts['paginationLimit']);
         unset($parts['savedList']);
+        unset($parts['saveList']);
         unset($parts['total_notificacoes']);
+        unset($parts['formChanged']);
 
         if (strlen($parts['q']) == 0)
         {
             unset($parts['q']);
         }
 
-        if (isset($parts['makeGraph']) && strlen($parts['makeGraph']) == 0)
-        {
-            unset($parts['makeGraph']);
-        }
-
-        $url = http_build_query($parts);
-
-        return $url;
+        return $parts;
     }
 
 }

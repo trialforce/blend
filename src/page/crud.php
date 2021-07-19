@@ -391,7 +391,7 @@ class Crud extends \Page\Page
             $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
             $btnVoltar->setTitle('Volta para a listagem!');
 
-            if ($this->isUpdate() && $this->floatingMenu)
+            if ($this->isUpdate())
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
 

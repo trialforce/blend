@@ -882,7 +882,7 @@ class SearchGrid extends \Component\Grid\Grid
     protected function createSavedBookmarkButton($item)
     {
         $itemId = isset($item->id) ? $item->id : 'id';
-        $myUrl = htmlentities($item->url);
+        $myUrl = http_build_query($item->url);
         $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
         $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
         $url->setAjax(false);
@@ -899,7 +899,7 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $itemId = isset($item->id) ? $item->id : 'id';
 
-        $myUrl = htmlentities($item->url);
+        $myUrl = http_build_query($item->url);
         $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
 
         $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $itemId, null, $item->title, $linkUrl, 'small btn-search-bookmark ' . $extraClass);
