@@ -23,6 +23,7 @@ class LinkColumn extends \Component\Grid\Column
     protected $icon;
     protected $hint;
     protected $target;
+    protected $ajax = FALSE;
 
     public function __construct($name, $label = \NULL, $align = Column::ALIGN_LEFT, $dataType = \Db\Column\Column::TYPE_VARCHAR)
     {
@@ -73,6 +74,17 @@ class LinkColumn extends \Component\Grid\Column
         return $this;
     }
 
+    public function getAjax()
+    {
+        return $this->ajax;
+    }
+
+    public function setAjax($ajax)
+    {
+        $this->ajax = $ajax;
+        return $this;
+    }
+
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
         $line = \NULL;
@@ -94,6 +106,11 @@ class LinkColumn extends \Component\Grid\Column
 
         $url = $this->replaceDataInString($this->getUrl(), $item);
         $link = new \View\A('edit', $value, $url, null, $this->getTarget());
+
+        if ($this->getAjax())
+        {
+            $link->setAjax(TRUE);
+        }
 
         if ($this->getHint())
         {

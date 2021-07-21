@@ -882,10 +882,14 @@ class SearchGrid extends \Component\Grid\Grid
     protected function createSavedBookmarkButton($item)
     {
         $itemId = isset($item->id) ? $item->id : 'id';
-        $myUrl = http_build_query($item->url);
+        $myUrl = htmlentities($item->url);
         $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
         $url = new \View\A('search-bookmark-' . $itemId, $item->title, $linkUrl);
         $url->setAjax(false);
+
+        //make post without the default form
+        $linkUrl = "return p('" . $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title) . "',{})";
+        $url->click($linkUrl);
 
         $removeUrl = "return p(\"{$item->page}/deleteListItem/?savedList=$itemId\");";
         $removeIcon = new \View\Ext\Icon('trash', 'remove-item-' . $itemId, $removeUrl, 'trashFilter');
@@ -899,11 +903,15 @@ class SearchGrid extends \Component\Grid\Grid
     {
         $itemId = isset($item->id) ? $item->id : 'id';
 
-        $myUrl = http_build_query($item->url);
+        $myUrl = htmlentities($item->url);
         $linkUrl = $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title);
 
         $btn = new \View\Ext\LinkButton('btn-search-bookmak-' . $itemId, null, $item->title, $linkUrl, 'small btn-search-bookmark ' . $extraClass);
         $btn->setAjax(false);
+
+        //make post without the default form
+        $linkUrl = "return p('" . $item->page . '/?' . $myUrl . '&search-title=' . urlencode($item->title) . "',{})";
+        $btn->click($linkUrl);
 
         return $btn;
     }
