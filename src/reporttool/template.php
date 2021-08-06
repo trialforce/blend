@@ -628,7 +628,7 @@ class Template
      *
      * @param \Db\Model $model the current model
      * @param stirng $modelName model name
-     * @return void
+     * @return \ReportTool\Template
      */
     public function setModelParams($model, $modelName, $setModel = false)
     {
