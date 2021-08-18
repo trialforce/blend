@@ -335,6 +335,13 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a collum to query
+     *
+     * @param string $columnName column name
+     * @param string $alias column alias
+     * @return $this
+     */
     public function column($columnName, $alias = NULL)
     {
         $catalog = $this->catalogClass;
@@ -357,6 +364,11 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a raw collumn to query
+     * @param string $columnName column name/sql
+     * @return $this
+     */
     public function columnRaw($columnName)
     {
         $this->columns[] = $columnName;

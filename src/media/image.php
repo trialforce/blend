@@ -47,6 +47,11 @@ class Image extends \Disk\File
     const EXT_PSD = 'psd';
 
     /**
+     * ICO image extension
+     */
+    const EXT_ICO = 'ico';
+
+    /**
      * Google WebP
      */
     const EXT_WEBP = 'webp';
@@ -261,7 +266,12 @@ class Image extends \Disk\File
 
         if (!$this->content)
         {
-            throw new \UserException('Image without content!');
+            $this->load();
+
+            if (!$this->content)
+            {
+                throw new \UserException('Image ' . $this->getPath() . ' without content!');
+            }
         }
 
         $extension = $filename->getExtension();
@@ -272,7 +282,13 @@ class Image extends \Disk\File
         }
         else
         {
-            if ($extension == Image::EXT_PNG)
+            if ($extension == Image::EXT_ICO)
+            {
+                $pngQuality = round(abs(($quality - 100) / 11.111111));
+
+                imageico($this->content, $filename . '', $pngQuality);
+            }
+            else if ($extension == Image::EXT_PNG)
             {
                 $pngQuality = round(abs(($quality - 100) / 11.111111));
 
@@ -695,7 +711,11 @@ class Image extends \Disk\File
             return null;
         }
 
-        if ($extension == Image::EXT_PNG)
+        if ($extension == Image::EXT_ICO)
+        {
+            imageico($this->content);
+        }
+        else if ($extension == Image::EXT_PNG)
         {
             imagepng($this->content);
         }
@@ -714,6 +734,10 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_WEBP)
         {
             imagewebp($this->content);
+        }
+        else
+        {
+            readfile($this->path);
         }
     }
 
@@ -780,4 +804,49 @@ class Image extends \Disk\File
         return imagesetpixel($this->getContent(), $x, $y, $allocate);
     }
 
+}
+
+/**
+ * Output an ICO image to either the standard output or a file.
+ *
+ * It takes the same arguments as 'imagepng' from the GD library. Works by
+ * creating a ICO container with a single PNG image.
+ * This type of ICO image is supported since Windows Vista and by all major
+ * browsers.
+ *
+ * https://en.wikipedia.org/wiki/ICO_(file_format)#PNG_format
+ *
+ * Take from
+ */
+function imageico($image, $filename = null, $quality = 9, $filters = PNG_NO_FILTER)
+{
+    $x = imagesx($image);
+    $y = imagesy($image);
+
+    if ($x > 256 || $y > 256)
+    {
+        trigger_error('ICO images cannot be larger than 256 pixels wide/tall', E_USER_WARNING);
+        return;
+    }
+
+    // Collect PNG data.
+    ob_start();
+    imagesavealpha($image, true);
+    imagepng($image, null, $quality, $filters);
+    $png_data = ob_get_clean();
+
+    // Write ICO header, image entry and PNG data.
+    $content = pack('v3', 0, 1, 1);
+    $content .= pack('C4v2V2', $x, $y, 0, 0, 1, 32, strlen($png_data), 22);
+    $content .= $png_data;
+
+    // Output to file.
+    if ($filename)
+    {
+        file_put_contents($filename, $content);
+    }
+    else
+    {
+        echo $content;
+    }
 }

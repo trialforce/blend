@@ -25,7 +25,7 @@ class ImageUpload extends \View\Div
         parent::__construct($id, NULL, $class);
         $removeImageFunction = $removeImageFunction ? $removeImageFunction : 'removeImage';
 
-        $this->href = $href;
+        $this->setHref($href);
         $pageUrl = \View\View::getDom()->getPageUrl();
 
         $upload = new \View\Input('label_' . $id, \View\Input::TYPE_FILE);
@@ -46,7 +46,7 @@ class ImageUpload extends \View\Div
         $upload->hide();
         $this->appendChild($upload);
 
-        if ($href)
+        if ($this->href)
         {
             $dom = \View\View::getDom();
             $url = '';
@@ -62,7 +62,7 @@ class ImageUpload extends \View\Div
             $this->append($icon);
         }
 
-        $img = self::getImg($href, $id);
+        $img = self::getImg($this->href, $id);
 
         $this->imgResult = new \View\Div('imgResult_' . $id, $img, 'imgResult');
         $labelImg = new \View\Label('labelImg_' . $id, null, $this->imgResult);
@@ -75,6 +75,27 @@ class ImageUpload extends \View\Div
         {
             $this->addJs($urlChangeUpload);
         }
+    }
+
+    public function setHref($href)
+    {
+        if ($href instanceof \Disk\File)
+        {
+            if ($href->exists())
+            {
+                $this->href = $href->getUrl();
+            }
+            else
+            {
+                $this->href = null;
+            }
+        }
+        else
+        {
+            $this->href = $href;
+        }
+
+        return $this;
     }
 
     private function addJs($urlChangeUpload)
@@ -176,6 +197,14 @@ class ImageUpload extends \View\Div
      */
     public static function getImg($href, $id = NULL)
     {
+        if ($href instanceof \Disk\File)
+        {
+            if ($href->exists())
+            {
+                $href = $href->getUrl();
+            }
+        }
+
         $result[] = new \View\Img('image', $href);
 
         return $result;

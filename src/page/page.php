@@ -749,7 +749,7 @@ class Page extends \View\Layout
     {
         \App::dontChangeUrl();
         $files = \DataHandle\Files::getInstance();
-        $return = NULL;
+        $return = [];
 
         foreach ($files as $key => $file)
         {
