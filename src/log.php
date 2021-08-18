@@ -66,6 +66,11 @@ function blend_shutdown()
             echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe! Mensagem do erro: ' . $error['message'] . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'] . '</body></html>';
         }
     }
+
+    if (\Log::getLogSql() || \Log::getLogSqlConsole())
+    {
+        \Log::sql('TOTAL SQL TIME ' . \Db\Conn::$totalSqlTime . ' seg');
+    }
 }
 
 function FriendlyErrorType($type)
@@ -134,6 +139,12 @@ class Log
     public static function setLogSql($logSql)
     {
         Log::$logSql = $logSql;
+
+        if ($logSql)
+        {
+            $requestUri = \DataHandle\Server::getInstance()->getRequestUri(true);
+            \Log::sql('---------------------------------- ' . $requestUri);
+        }
     }
 
     /**
@@ -153,6 +164,12 @@ class Log
     public static function setLogSqlConsole($logSqlConsole)
     {
         Log::$logSqlConsole = $logSqlConsole;
+
+        if ($logSqlConsole)
+        {
+            $requestUri = \DataHandle\Server::getInstance()->getRequestUri(true);
+            \Log::sql('---------------------------------- ' . $requestUri);
+        }
     }
 
     /**

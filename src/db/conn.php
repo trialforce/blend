@@ -104,7 +104,7 @@ class Conn extends \PDO
         $log->idConn = $idConn;
 
         self::$sqlLog[] = $log;
-        \Log::sql($idConn . ' - ' . $sql . ' #' . $time);
+        \Log::sql($idConn . ' - ' . str_pad($time, 20, '0', STR_PAD_RIGHT) . ' seg' . ' - ' . $sql);
     }
 
     public static function getSqlLog()

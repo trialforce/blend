@@ -39,6 +39,9 @@ class App
      */
     protected static $js = array();
 
+    /**
+     * Construct the webapp
+     */
     public function __construct()
     {
         self::$instance = $this;
@@ -135,14 +138,12 @@ class App
     {
         ob_start();
         $page = $this->getCurrentPage();
-        //create the theme, so we can use it's object in inner layout
-        //it's okay, it's cached
-        $this->getTheme();
 
         //single page
         //FIXME resolve this crappy situation, is used to login
         if ($page === NULL)
         {
+            $this->getTheme();
             return $this->handleSinglePage();
         }
 
@@ -151,6 +152,9 @@ class App
         //case page exists, avoid throw error
         if (class_exists($page))
         {
+            //create the theme, so we can use it's object in inner layout
+            //it's okay, it's cached
+            $this->getTheme();
             //create page
             $content = new $page();
         }

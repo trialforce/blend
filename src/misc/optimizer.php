@@ -71,10 +71,19 @@ class Optimizer
         return $this;
     }
 
+    /**
+     * Return the output file
+     *
+     * @return \Disk\File
+     */
+    public function getOutputFile()
+    {
+        return new \Disk\File($this->getOutFile());
+    }
+
     public function execute()
     {
-        $objOut = new \Disk\File($this->getOutFile());
-
+        $objOut = $this->getOutputFile();
         $mTime = 0;
 
         if ($objOut->exists())
