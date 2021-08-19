@@ -172,11 +172,32 @@ class Color
         return $this;
     }
 
+    /**
+     * Add "light" to the color generating a brighter color
+     * @param int $light the light amount to add to the color
+     * @return $this
+     */
     public function lighter($light = 0)
     {
         $this->setRed($this->getRed() + $light);
         $this->setGreen($this->getGreen() + $light);
         $this->setBlue($this->getBlue() + $light);
+
+        return $this;
+    }
+
+    /**
+     * Add "shadow" to the color generating a darker color
+     * @param int  $shadow the shadow amount to add to the color
+     * @return $this
+     */
+    public function darker($shadow = 0)
+    {
+        $this->setRed($this->getRed() - $shadow);
+        $this->setGreen($this->getGreen() - $shadow);
+        $this->setBlue($this->getBlue() - $shadow);
+
+        return $this;
     }
 
     /**
