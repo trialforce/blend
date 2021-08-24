@@ -187,7 +187,7 @@ function dataAjax()
         element.removeAttr('data-ajax');
         
         //if is an outside link do not use ajax system
-        if (href.indexOf('http://') === 0 || href.indexOf('https://') === 0)
+        if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0) )
         {
             href = null;
         }

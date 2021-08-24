@@ -876,7 +876,12 @@ class Crud extends \Page\Page
 
     public function openTrDetail()
     {
-        return $this->getGrid()->openTrDetail();
+        $grid = $this->getGrid();
+
+        if ($grid)
+        {
+            return $grid->openTrDetail();
+        }
     }
 
     /**

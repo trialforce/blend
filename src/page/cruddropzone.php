@@ -82,9 +82,10 @@ class CrudDropZone extends \Page\Crud
 
                 if ($file->isImage())
                 {
+                    $url = urlencode($thumbFile->getUrl());
                     $img->addClass('swipebox');
-                    $img->css('background-image', "url('{$thumbFile->getUrl() }')");
-                    $img->attr('data-href', $thumbFile->getUrl());
+                    $img->css('background-image', "url('{$url}')");
+                    $img->attr('data-href', $url);
                     $img->attr('title', $thumbFile->getBasename(FALSE));
                 }
                 else
