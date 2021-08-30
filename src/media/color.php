@@ -201,6 +201,20 @@ class Color
     }
 
     /**
+     * Convert this color to nearest gray
+     *
+     * @return $this
+     */
+    public function toGray()
+    {
+        $gray = ($this->getRed() + $this->getGreen() + $this->getBlue()) / 3;
+        $this->setRed($gray);
+        $this->setGreen($gray);
+        $this->getBlue($gray);
+        return $this;
+    }
+
+    /**
      * Based on  http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
      * @param type $hex
      * @return type
@@ -353,7 +367,7 @@ class Color
      */
     public static function fromHex($hex)
     {
-        $color = new Color();
+        $color = new \Media\Color();
         return $color->setHex($hex);
     }
 
