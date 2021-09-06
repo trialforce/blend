@@ -46,6 +46,12 @@ class Json
             $json = utf8_encode($json);
         }
 
+        //avoid error in null strings
+        if (!$json)
+        {
+            return null;
+        }
+
         $result = json_decode($json, $assoc);
 
         if ($result)
