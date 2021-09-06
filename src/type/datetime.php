@@ -25,6 +25,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     const MASK_HOUR = 'H:i';
     const MASK_TIMESTAMP_USER = 'd/m/Y H:i:s';
     const MASK_TIMESTAMP_USER_WITHOUT_SECOND = 'd/m/Y H:i';
+    const MASK_TIMESTAMP_UTC = 'Y-d-m\TG:i\-\0\0\0\0';
     const MASK_DATE_DB = 'Y-m-d';
     const MASK_DATE_FILE = 'Y_m_d';
     const MASK_TIMESTAMP_DB = 'Y-m-d H:i:s';
