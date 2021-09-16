@@ -228,7 +228,7 @@ class Manager
         $sqlCreateTable = "
 CREATE TABLE `migration` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`version` VARCHAR(50) NOT NULL,
+	`version` VARCHAR(150) NOT NULL,
 	`folder` VARCHAR(50) NOT NULL,
 	`executedOn` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`)
