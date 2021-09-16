@@ -12,6 +12,12 @@ class Popup extends Div
 {
 
     /**
+     * Background div
+     * @var \View\Div
+     */
+    protected $background;
+
+    /**
      * Outer div
      * @var \View\Div
      */
@@ -68,7 +74,10 @@ class Popup extends Div
     {
         parent::__construct($id, NULL, "popup container hide");
         $this->addClass($class);
-        $this->append(new Div(NULL, NULL, 'background full'));
+
+        $this->background = new Div(NULL, NULL, 'background full');
+
+        $this->append($this->background);
 
         $this->header = new Div(NULL, NULL, 'header');
         $this->body = new Div(NULL, $body, 'body clearfix');
@@ -147,6 +156,13 @@ class Popup extends Div
     public static function delete($id = NULL)
     {
         \App::addJs(self::getJs('destroy', $id));
+    }
+
+    public function backgroundClickClose($closeEvent = "destroy")
+    {
+        $this->background->click(self::getJs($closeEvent ? $closeEvent : 'destroy', $this->getId()));
+
+        return $this;
     }
 
     /**
