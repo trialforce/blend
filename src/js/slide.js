@@ -356,11 +356,13 @@ function slide(selector)
 
         var slides = newSlider.find('.slide');
         
+        //reset slides to open full screen
         slides .each(function(index)
         {
             var slide = $(slides[index]);
-            slide.css('height',"");
+            slide.css('height',""); //reset widget and weight
             slide.css('width',"");
+            slide.css('transform',''); //reset zoom
         });
         
         newSlider.find('[data-slider-delete-on-full-screen=true]').remove();

@@ -126,7 +126,6 @@ function escape()
     {
         //try to call the close action of the popup
         var jsText= $('#btbClosePopup:visible').attr('onclick');
-        console.log(jsText);
         
         if (jsText)
         {
