@@ -134,7 +134,7 @@ class Model implements \JsonSerializable
     /**
      * Return the columns indexed by name
      *
-     * @return array of \Db\Column\Column
+     * @return \Db\Column\Collection
      */
     public static function getColumns()
     {
