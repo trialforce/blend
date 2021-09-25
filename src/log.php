@@ -228,7 +228,7 @@ class Log
         }
 
         //don't make any log if it is an UserException
-        if ($exception instanceof UserException)
+        if ($exception instanceof \UserException)
         {
             return false;
         }
@@ -241,7 +241,7 @@ class Log
         $file = new \Disk\File(APP_PATH . '/error.log');
         $file->append($errorMessage);
 
-        return \Log::sendDevelEmailIfNeeded($errorMessage);
+        return \Log::sendDevelEmailIfNeeded('Exceção', $exception->getMessage(), $errorMessage);
     }
 
     /**
@@ -302,7 +302,7 @@ class Log
      * @param string $errorMessage the formatted message
      * @return bool
      */
-    protected static function sendDevelEmailIfNeeded($errorMessage)
+    protected static function sendDevelEmailIfNeeded($type, $message, $backTrace)
     {
         $develEmail = \DataHandle\Config::get('develEmail');
 
@@ -311,12 +311,38 @@ class Log
             return null;
         }
 
-        $errorEmail = str_replace("###############################################" . PHP_EOL, '', $errorMessage);
-        $serverUrl = \DataHandle\Server::getInstance()->getHost();
-        $mail = new Mailer();
-        $mail->defineHtmlUft8("Exceção em " . $serverUrl, nl2br($errorEmail), $develEmail);
+        $file = \Disk\File::getFromStorage('erorr-email.log');
 
-        return $mail->send();
+        try
+        {
+            $vector = \Disk\Json::decodeFromFile($file);
+        }
+        catch (\Exception $exc)
+        {
+            //create a simple vector if file not exists or is empty
+            $vector = [];
+        }
+
+        //if email was in one of 5 last emails, don't send the message again
+        if (in_array($message, $vector))
+        {
+            return false;
+        }
+
+        $serverUrl = \DataHandle\Server::getInstance()->getHost();
+        $errorEmail = str_replace("###############################################" . PHP_EOL, '', $backTrace);
+
+        $mail = new Mailer();
+        $mail->defineHtmlUft8($type . ' ' . $message . ' em ' . $serverUrl, nl2br($errorEmail), $develEmail);
+        $okay = $mail->send();
+
+        //add message to list and limit to 5
+        array_unshift($vector, $message);
+        $vector = array_slice($vector, 0, 5);
+
+        $file->save(\Disk\Json::encode($vector));
+
+        return $okay;
     }
 
     /**
@@ -372,12 +398,12 @@ class Log
     }
 
     /**
-     * Register a error um file
+     * Register an error in file (an email is sended if needed)
      *
-     * @param string $type
-     * @param string $message
-     * @param int $line
-     * @param string $file
+     * @param string $type tipo (warning, notice, error, etc)
+     * @param string $message error message
+     * @param int $line line of the error
+     * @param string $file file of the error
      */
     public static function error($type, $message, $line, $file, $errorFile = Log::ERROR_FILE)
     {
@@ -405,16 +431,8 @@ class Log
         $error .= '$_SERVER' . "\n" . print_r($_SERVER, 1) . PHP_EOL;
         $error .= '$_SESSION' . "\n" . print_r($_SESSION, 1) . PHP_EOL;
 
-        Log::put($errorFile, $error);
-        $develEmail = \DataHandle\Config::get('develEmail');
-
-        if ($develEmail)
-        {
-            $serverUrl = \DataHandle\Server::getInstance()->getHost();
-            $mail = new Mailer();
-            $mail->defineHtmlUft8($type . " in " . $serverUrl, nl2br($error), $develEmail);
-            return $mail->send();
-        }
+        \Log::put($errorFile, $error);
+        \Log::sendDevelEmailIfNeeded($type, $message, $error);
     }
 
     /**
