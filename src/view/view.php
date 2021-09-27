@@ -1159,6 +1159,15 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         return $this->getAttribute('onkeypress');
     }
 
+    public function addEventListener($type, $method)
+    {
+        $listener = $this->verifyAjaxEvent($method);
+
+        $js = $this->getSelector() . '[0].addEventListener("' . $type . '", function(){' . $listener . '}, false);';
+
+        \App::addJs($js);
+    }
+
     /**
      * Retorna o objeto Dom/Layout do elemento
      * @return \View\Layout
