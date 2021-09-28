@@ -53,6 +53,13 @@ class App
      */
     public static function getInstance()
     {
+        if (!self::$instance)
+        {
+            //can instance extended classes
+            $class = get_called_class();
+            self::$instance = new $class;
+        }
+
         return self::$instance;
     }
 

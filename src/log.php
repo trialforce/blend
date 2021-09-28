@@ -311,7 +311,7 @@ class Log
             return null;
         }
 
-        $file = \Disk\File::getFromStorage('erorr-email.log');
+        $file = \Disk\File::getFromStorage('error-email.log');
 
         try
         {
