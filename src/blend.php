@@ -60,6 +60,12 @@ if (!function_exists('toast'))
      */
     function toast($message = NULL, $type = NULL, $duration = 4000)
     {
+        //little control to improved debug using toast
+        if (is_object($message))
+        {
+            $message = \Disk\Json::encode($message);
+        }
+
         $messageParsed = \View\Script::treatStringToJs($message);
         \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
     }
