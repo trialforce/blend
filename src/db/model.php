@@ -156,9 +156,9 @@ class Model implements \JsonSerializable
      *
      * @param \Db\Column\Column $column
      */
-    public static function setColumn(\Db\Column\Column $column)
+    public static function setColumn(\Db\Column\Column $column, $position = null)
     {
-        \Db\Column\Collection::getForModel(self::getName())->setColumn($column);
+        \Db\Column\Collection::getForModel(self::getName())->setColumn($column, $position);
     }
 
     /**
@@ -280,6 +280,16 @@ class Model implements \JsonSerializable
         }
 
         return $filters;
+    }
+
+    /**
+     * Create a respository for query
+     * @return type
+     */
+    public static function repository($fill = null)
+    {
+        $name = self::getName();
+        return \Db\Repository::getInstance($name, $fill);
     }
 
     /**

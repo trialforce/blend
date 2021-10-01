@@ -115,9 +115,23 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this;
     }
 
-    public function setColumn(\Db\Column\Column $column)
+    public function setColumn(\Db\Column\Column $column, $position = null)
     {
-        $this->columns[$column->getName()] = $column;
+        if (is_int($position))
+        {
+            $new = [];
+            $new[$column->getName()] = $column;
+
+            $columns = $this->getColumns();
+
+            array_splice($columns, $position, 0, $new);
+
+            $this->setColumns($columns);
+        }
+        else
+        {
+            $this->columns[$column->getName()] = $column;
+        }
     }
 
     function getColumn($columnName = null)
