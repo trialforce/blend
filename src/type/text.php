@@ -285,6 +285,31 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
+     * Like method similar to Sql but, in php
+     *
+     * FROM https://stackoverflow.com/questions/11434305/simulating-like-in-php
+     *
+     * @param string $needle needle
+     * @return bool if matches
+     */
+    public function like($needle)
+    {
+        $delimiter = '~';
+        // Escape meta-characters from the string so that they don't gain special significance in the regex
+        $needle = preg_quote($needle, $delimiter);
+
+        // Replace SQL wildcards with regex wildcards
+        $needle = str_replace('%', '.*?', $needle);
+        $needle = str_replace('_', '.', $needle);
+
+        // Add delimiters, beginning + end of line and modifiers
+        $needle = $delimiter . '^' . $needle . '$' . $delimiter . 'isu';
+
+        // Matches are not useful in this case; we just need to know whether or not the needle was found.
+        return (bool) preg_match($needle, $this->string);
+    }
+
+    /**
      * Remove new lines
      *
      * @return \Type\Text
@@ -346,6 +371,32 @@ class Text implements \Type\Generic, \JsonSerializable
         return false;
     }
 
+    /**
+     * Get a simple text and convert it to html
+     *
+     * @param string $string
+     * @return \Type\Text
+     */
+    public function toHtml()
+    {
+        if (self::isHtml($this->string))
+        {
+            return $this;
+        }
+
+        $this->padronizeLineEnding();
+
+        //make links clicable
+        $this->string = preg_replace(
+                "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"blank\">\\0</a>", $this->string
+        );
+
+        //new line to br
+        $this->string = nl2br($this->string);
+
+        return $this;
+    }
+
     public function __toString()
     {
         return $this->string . '';
@@ -378,32 +429,6 @@ class Text implements \Type\Generic, \JsonSerializable
     public static function get($string = NULL)
     {
         return new Text($string);
-    }
-
-    /**
-     * Get a simple text and convert it to html
-     *
-     * @param string $string
-     * @return \Type\Text
-     */
-    public function toHtml()
-    {
-        if (self::isHtml($this->string))
-        {
-            return $this;
-        }
-
-        $this->padronizeLineEnding();
-
-        //make links clicable
-        $this->string = preg_replace(
-                "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"blank\">\\0</a>", $this->string
-        );
-
-        //new line to br
-        $this->string = nl2br($this->string);
-
-        return $this;
     }
 
     /**

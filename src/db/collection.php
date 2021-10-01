@@ -651,6 +651,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             {
                 $result[] = $item;
             }
+            else if ($param == 'like' && $myValue)
+            {
+                //simulate like in database
+                if (\Type\Text::get($myValue)->like($value))
+                {
+                    $result[] = $item;
+                }
+            }
         }
 
         $this->setData($result);
@@ -663,6 +671,16 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             return $this->where($columnName, $param, $value);
         }
+    }
+
+    public function and($columnName, $param = NULL, $value = NULL)
+    {
+        return $this->where($columnName, $param, $value);
+    }
+
+    public function andIf($columnName, $param = NULL, $value = NULL)
+    {
+        return $this->whereIf($columnName, $param, $value);
     }
 
     /**
