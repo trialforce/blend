@@ -2,6 +2,11 @@
 
 namespace Db;
 
+/**
+ * Extends a Model adding funcionality to be acessed trough API
+ *
+ * @deprecated since version 04/10/2021
+ */
 class ModelApi extends \Db\Model
 {
 

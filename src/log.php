@@ -429,7 +429,12 @@ class Log
         }
 
         $error .= '$_SERVER' . "\n" . print_r($_SERVER, 1) . PHP_EOL;
-        $error .= '$_SESSION' . "\n" . print_r($_SESSION, 1) . PHP_EOL;
+
+        //avoid error when session is not started
+        if (isset($_SESSION))
+        {
+            $error .= '$_SESSION' . "\n" . print_r($_SESSION, 1) . PHP_EOL;
+        }
 
         \Log::put($errorFile, $error);
         \Log::sendDevelEmailIfNeeded($type, $message, $error);

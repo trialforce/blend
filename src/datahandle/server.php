@@ -131,6 +131,26 @@ class Server extends DataHandle
     }
 
     /**
+     * Get php auth user
+     *
+     * @return string
+     */
+    public function getAuthUser()
+    {
+        return $this->getVar('PHP_AUTH_USER');
+    }
+
+    /**
+     * Get php auth password
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->getVar('PHP_AUTH_PW');
+    }
+
+    /**
      * Define if php is running from SHELL
      *
      * @return bool

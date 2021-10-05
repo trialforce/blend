@@ -3,7 +3,7 @@
 namespace DataHandle;
 
 //verify if session allready start
-if (session_id() == '')
+if (session_status() == PHP_SESSION_NONE && !headers_sent())
 {
     session_start();
 }
