@@ -751,7 +751,7 @@ class SearchGrid extends \Component\Grid\Grid
 
         $right = [];
         $right[] = new \View\Label(null, null, 'Filtros aplicados', 'field-label');
-        $right[] = new \View\Div('filters-holder', $this->createFilterFieldsNeeded());
+        $right[] = new \View\Div('filters-holder', $this->createFilterFieldsNeeded(), 'clearfix');
 
         $result[] = new \View\Div('tab-filters-left', $content, 'tab-filters-left column-p-6');
         $result[] = new \View\Div('tab-filters-right', $right, 'tab-filters-right column-p-6');
