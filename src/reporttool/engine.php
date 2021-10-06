@@ -358,7 +358,7 @@ class Engine extends Template
             return new \ReportTool\WkPdf('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
         }
         //mpdf 6
-        else if (class_exists('mpdf'))
+        else if (class_exists('mPDF'))
         {
             return new \mPDF('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
         }
