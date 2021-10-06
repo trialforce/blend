@@ -357,10 +357,29 @@ class Engine extends Template
         {
             return new \ReportTool\WkPdf('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
         }
-        else
+        //mpdf 6
+        else if (class_exists('mpdf'))
         {
             return new \mPDF('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
         }
+        //mpdf 8
+        else if (class_exists('Mpdf\Mpdf'))
+        {
+            $mpdfConfig = [];
+            $mpdfConfig['mode'] = 'utf-8';
+            $mpdfConfig['format'] = $this->getPageSize();
+            $mpdfConfig['orientation'] = 'P';
+            $mpdfConfig['margin_left'] = $this->margin['left'];
+            $mpdfConfig['margin_right'] = $this->margin['right'];
+            $mpdfConfig['margin_top'] = $this->margin['top'];
+            $mpdfConfig['margin_bottom'] = $this->margin['bottom'];
+            $mpdfConfig['default_font_size'] = 9;
+            $mpdfConfig['default_font'] = '';
+
+            return new \Mpdf\Mpdf($mpdfConfig);
+        }
+
+        throw new \UserException('Impossível encontrar biblioteca de geração de PDF');
     }
 
     /**
