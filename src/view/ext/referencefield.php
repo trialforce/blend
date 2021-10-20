@@ -15,7 +15,7 @@ class ReferenceField extends \View\Select
         $this->createOptions($selectList);
         $this->setClass($class);
 
-        if ($value)
+        if (!is_null($value))
         {
             $this->setValue($value);
         }
