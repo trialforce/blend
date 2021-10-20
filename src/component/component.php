@@ -93,7 +93,7 @@ class Component
 
         if ($putUrl)
         {
-            $params = $this->getCurrentUrl($params);
+            $params = static::getCurrentUrl($params);
         }
 
         if (is_array($params))
@@ -128,7 +128,7 @@ class Component
      * @param array $params the fixed param array
      * @return array the resultant array
      */
-    private function getCurrentUrl($params = null)
+    private static function getCurrentUrl($params = null)
     {
         $queryString = null;
         parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING'), $queryString);
