@@ -148,7 +148,7 @@ class Session extends DataHandle
     public static function setId($sessionId)
     {
         session_id($sessionId);
-        return $this;
+        return;
     }
 
     /**
