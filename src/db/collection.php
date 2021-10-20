@@ -635,6 +635,14 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             {
                 $result[] = $item;
             }
+            else if ($param == '!=' && $value != $myValue)
+            {
+                $result[] = $item;
+            }
+            else if ($param == '<>' && $value != $myValue)
+            {
+                $result[] = $item;
+            }
             else if ($param == '<=' && $myValue <= $value)
             {
                 $result[] = $item;
