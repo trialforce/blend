@@ -42,8 +42,12 @@ var maskDateTime = function (input, e, currentField, options)
 var maskSimpleFone = function (e, r, n, t)
 {
     var str = e.replace(/[\.\-]/g, "");
-
-    return str.length > 12 ? "(99)99999-9999" : "(99)9999-99999";
+    var ss = str.replace(/\D/g, '');
+    
+    var mask = str.length > 12 ? "(99)99999-9999" : "(99)9999-99999";
+    mask = (ss[0] == 0) ? '9999-999-9999' : mask;
+    
+    return mask;
 };
 
 

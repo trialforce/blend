@@ -135,11 +135,23 @@ class Phone extends \Validator\Validator
         $prefixosPaises = array(55);
         //prefixo que identifica se eh numero de celular
         $prefixosCelular = array(8, 9);
+        $number800 = preg_replace('/\s/', '', $number);
         $number = (int) trim(str_replace(array('(', ')', '-', '#', 'EX'), array('', '', '', '', ''), $number));
 
         if (strlen($number) < 3)
         {
             return '';
+        }
+
+        if (substr($number800, 0, 1) == '0')
+        {
+            if ($format)
+            {
+                $mask = str_ireplace('9', '%s', '9999-999-9999');
+                $number800 = vsprintf($mask, str_split($number800));
+            }
+
+            return $number800;
         }
 
         // caso onde o numero possui o prefixo do pais
