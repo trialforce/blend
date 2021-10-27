@@ -72,26 +72,26 @@ class Password extends \Validator\Validator
 
     public function returnValidate()
     {
-        $return = ' É necessário ter  ' . $this->characters . ' letras ';
+        $return = ' É necessário ter ' . $this->characters . ' caracteres<br/>';
 
         if ($this->capitalLetter)
         {
-            $return .= ' é necessário ter uma  letra maiúscula ';
+            $return .= ' é necessário ter uma letra maiúscula<br/>';
         }
 
         if ($this->lowerCase)
         {
-            $return .= ' é necessário ter uma  letra minúsculas ';
+            $return .= ' é necessário ter uma letra minúscula<br/>';
         }
 
         if ($this->alphanumeric)
         {
-            $return .= ' é necessário ter um número ';
+            $return .= ' é necessário ter um número<br/>';
         }
 
         if ($this->specialCharacter)
         {
-            $return .= ' é necessário ter um caracteres especiais ';
+            $return .= ' é necessário ter caracteres especiais<br/>';
         }
 
         return $return;

@@ -66,7 +66,7 @@ class Phone extends \Validator\Validator
 
         if (!$this->validaCaracteres($value))
         {
-            $error[] = 'Telefone inválido só pode conter números, parenteses e traço!';
+            $error[] = 'Telefone inválido, só pode conter números, parênteses e traço!';
 
             return $error;
         }
@@ -86,6 +86,11 @@ class Phone extends \Validator\Validator
         }
         else
         {
+            if (substr($this->value, 0, 1) == '0')
+            {
+                return $error;
+            }
+
             //If number isnt in DDD list.
             if (!in_array($this->value[0] . $this->value[1], $this->listaDD))
             {
