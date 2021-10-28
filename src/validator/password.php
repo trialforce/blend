@@ -3,7 +3,8 @@
 namespace Validator;
 
 /**
- * Valida a quantidade de palavras
+ * Validate strong password
+ * 
  * https://www.ti-enxame.com/pt/php/como-verificar-se-string-tem-pelo-menos-uma-letra-numero-e-caractere-especial-em-php/942194795/
  */
 class Password extends \Validator\Validator
@@ -72,29 +73,31 @@ class Password extends \Validator\Validator
 
     public function returnValidate()
     {
-        $return = ' É necessário ter ' . $this->characters . ' caracteres<br/>';
+        $result = ' É necessário ter  ao menos ' . $this->characters . ' caracteres';
 
         if ($this->capitalLetter)
         {
-            $return .= ' é necessário ter uma letra maiúscula<br/>';
+            $result .= ', letra maiúscula';
         }
 
         if ($this->lowerCase)
         {
-            $return .= ' é necessário ter uma letra minúscula<br/>';
+            $result .= ', letra minúscula';
         }
 
         if ($this->alphanumeric)
         {
-            $return .= ' é necessário ter um número<br/>';
+            $result .= ', um número';
         }
 
         if ($this->specialCharacter)
         {
-            $return .= ' é necessário ter caracteres especiais<br/>';
+            $result .= ', caracteres especiais';
         }
 
-        return $return;
+        $result .= '.';
+
+        return $result;
     }
 
     public function validate($value = null)

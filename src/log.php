@@ -362,8 +362,13 @@ class Log
         $error .= '$_REQUEST:' . PHP_EOL;
         $error .= print_r($_REQUEST, TRUE) . PHP_EOL;
         $error .= PHP_EOL;
-        $error .= '$_SESSION:' . PHP_EOL;
-        $error .= print_r($_SESSION, TRUE) . PHP_EOL;
+
+        if (isset($_SESSION))
+        {
+            $error .= '$_SESSION:' . PHP_EOL;
+            $error .= print_r($_SESSION, TRUE) . PHP_EOL;
+        }
+
         $error .= '$_SERVER:' . PHP_EOL;
         $error .= print_r($_SERVER, TRUE) . PHP_EOL . "\r\n";
 
