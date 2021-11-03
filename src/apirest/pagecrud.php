@@ -223,7 +223,7 @@ class PageCrud extends \ApiRest\Page
 
     public static function getBrigdeIn($json, $model = null)
     {
-        $model = $model ? $model : new self::$className();
+        $model = $model ? $model : new static::$modelClass();
 
         foreach ($json as $name => $variable)
         {
