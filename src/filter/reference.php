@@ -170,7 +170,7 @@ class Reference extends \Filter\Collection
         {
             if ($this->dbColumn)
             {
-                if ($this->dbColumn->getClass())
+                if ($this->getType() == self::TYPE_SEARCH_VALUES)
                 {
                     $this->filterSql = $this->dbColumn->getReferenceSql(FALSE);
                 }
