@@ -161,13 +161,16 @@ class Text implements \Type\Generic, \JsonSerializable
         $content = mb_ereg_replace("[ç]", "c", $content);
         $content = mb_ereg_replace("[´`^~¨]", "", $content);
         $content = str_replace('º', 'o', $content);
+        $content = str_replace('•', 'o', $content);
+        $content = str_replace('°', 'o', $content);
         $content = str_replace('ª', 'a', $content);
         $content = str_replace('&', 'e', $content);
         $content = str_replace('\'', '', $content);
         $content = str_replace('®', '', $content);
         $content = str_replace('<', '', $content);
         $content = str_replace('>', '', $content);
-        $content = str_replace('•', '', $content);
+
+        //$content = preg_replace("/[^a-zA-Z0-9\s]/", "", $content);
 
         $this->string = $content;
 
