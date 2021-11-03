@@ -4,6 +4,10 @@ namespace DataSource\Export;
 
 use DataHandle\Session;
 
+//big data explode default time
+set_time_limit(0);
+ini_set('memory_limit', '-1');
+
 /**
  * Bridge from datasource to html
  */
