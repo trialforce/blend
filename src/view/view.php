@@ -606,7 +606,10 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             $html = $content->__toString();
 
-            $content->remove();
+            if (method_exists($content, 'remove'))
+            {
+                $content->remove();
+            }
         }
         else
         {
