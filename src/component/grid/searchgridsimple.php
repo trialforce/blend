@@ -13,17 +13,13 @@ class SearchGridSimple extends \Component\Grid\SearchGrid
             return $this->getContent();
         }
 
-        //$this->createTabColumn($tab);
-        //$this->createTabGroup($tab);
-        //$this->createTabSave($tab);
-        //$this->setContent($tab);
-        //$filterSmart = new \Filter\Smart();
-        //$this->byId('tab-holder-search-fieldHead')->append($filterSmart->getInput());
-        //$content[] = $filters;
         $content[] = $this->content = $this->createTable();
-        ;
 
         \App::addJs("mountExtraFiltersLabel();");
+        $buscar = $this->byId('buscar');
+        $this->byId('tab-filter')->append($buscar);
+
+        $this->byId('advancedFiltersList')->removeAttr('multiple');
 
         return $this->content;
     }
