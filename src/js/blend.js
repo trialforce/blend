@@ -153,29 +153,8 @@ function escape()
     return false;
 }
 
-/**
- * Parse data-ajax attribute, to make a link ajax
- *
- * @returns boolean always false
- */
-function dataAjax()
+function convertAjaxLinks()
 {
-    try 
-    {
-        blendJs();
-    }
-    catch (e) 
-    {
-        alert('Erro ao executar javascript da página!');
-        console.error(e);
-        hideLoading();
-    }
-    
-    pluginsStart();
-    
-    //clear the function to avoid calling more times
-    blendJs = function(){};
-	
     //links
     $("[data-ajax]").each(function ()
     {
@@ -216,8 +195,10 @@ function dataAjax()
         }
     }
     );
+}
 
-    //on press enter
+function convertOnPressEnter()
+{
     $("[data-on-press-enter]").each(function ()
     {
         var element = $(this);
@@ -246,81 +227,40 @@ function dataAjax()
         );
     }
     );
+}
+
+/**
+ * Parse data-ajax attribute, to make a link ajax
+ *
+ * @returns boolean always false
+ */
+function dataAjax()
+{
+    try 
+    {
+        blendJs();
+    }
+    catch (e) 
+    {
+        alert('Erro ao executar javascript da página!');
+        console.error(e);
+        hideLoading();
+    }
+    
+    pluginsStart();
+    
+    //clear the function to avoid calling more times
+    blendJs = function(){};
+	
+    convertAjaxLinks();
+    convertOnPressEnter();
 
     //remove invalid on change
-    $('[data-invalid=1]').change(function () 
+    if ( typeof validatorRemoveInvalid == 'function' )
     {
-        //remove data-invalid for element
-        $(this).removeAttr('data-invalid');
-        
-        //remove hint
-        $(this).parent().find('.hint.danger').fadeOut(500, function () 
-        {
-            $(this).remove();
-        });
-        
-        var tab = $(this).parents('.tabBody .item');
-        
-        //if is inside tab and tab don't has any element with data-invalid
-        //remove data-invalid from tab
-        if ( tab.length > 0)
-        {
-            tab = tab.eq(0);
-            var hasInvalidInside = tab.find('[data-invalid="1"]').length > 0 ;
-
-            if ( !hasInvalidInside)
-            {
-                $('#'+tab.attr('id')+'Label').removeAttr('data-invalid');
-            }
-        }
-    });
-
-    //make invalid
-    $('[data-invalid=1]').each(function () 
-    {
-        var element = $(this);
-        var title = element.attr('title');
-        var tab = element.parents('.tabBody .item');
-        
-        //inside tab
-        if ( tab[0])
-        {
-            $('#'+$(tab[0]).attr('id')+'Label').attr('data-invalid',1);
-        }
-        
-        //don't create hint for hidden elements
-        if (!element.is(':visible'))
-        {
-            return;
-        }
-        
-        if (invalidHover == true)
-        {
-            if (title !== undefined)
-            {
-                element.hover(function ()
-                {
-                    var position = element.position().left + element.width()
-                    var myDiv = $('<div class="hint danger">' + element.attr('title') + '</div>');
-                    myDiv.css('left', position);
-
-                    element.parent().append(myDiv);
-                },
-                function ()
-                {
-                    $(element).parent().find(".hint").remove();
-                });
-            }
-        } 
-        else
-        {
-            var position = element.position().left + element.width()
-            var myDiv = $('<div class="hint danger">' + element.attr('title') + '</div>');
-            myDiv.css('left', position);
-
-            element.parent().append(myDiv);
-        }
-    });
+        validatorRemoveInvalid();
+        validatorApplyInvalid();
+    }
 
     //make masks work
     if (typeof jQuery().mask == 'function')

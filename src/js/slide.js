@@ -7,6 +7,12 @@
 function slide(selector)
 {
     var group = $($(selector).get(0));
+    
+    //don't process invisible elements
+    if (!group.is(":visible"))
+    {
+        return;
+    }
        
     //don't proccess the same slide again
     if ($(group).hasClass('loaded'))
