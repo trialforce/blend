@@ -1,0 +1,46 @@
+.accordion {
+    background: #fff;
+    border-radius: 3px;
+    border-bottom: solid 1px #cfcfcf;
+}
+
+.accordion-head {
+    position: relative;
+    font-size: 11px;
+    font-weight: bold;
+    min-height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+    border-bottom: solid 1px #cfcfcf;
+}
+
+.accordion-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    float: right;
+    font-size: 200%;
+    line-height: 40px !important;
+}
+
+.accordion-icon:before {
+    content: "\f107";
+}
+
+.accordion-body {
+    padding: 0 10px;
+    height: 0;
+    overflow: hidden;
+    transition: 0.1s ease-in-out;
+}
+
+.accordion-open .accordion-body {
+    padding: 10px;
+    height: auto;
+    overflow: auto;
+    transition: 0.1s ease-in-out;
+}
+
+.accordion-open .accordion-icon:before {
+    content: "\f106";
+}

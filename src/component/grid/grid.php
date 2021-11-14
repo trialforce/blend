@@ -489,6 +489,12 @@ class Grid extends \Component\Component
      */
     public function makeAggregation()
     {
+        //without body there is nothing to do
+        if (!$this->body)
+        {
+            return null;
+        }
+
         $dataSource = $this->getDataSource();
         $aggregators = $dataSource->getAggregator();
 
@@ -1026,6 +1032,8 @@ class Grid extends \Component\Component
 
     /**
      * Listar, used in component grid
+     *
+     * @return \View\Table the generated table
      */
     public function listar()
     {
@@ -1036,6 +1044,8 @@ class Grid extends \Component\Component
 
         $table = $this->createTableInner();
         $div->html($table);
+
+        return $table;
     }
 
     public function openTrDetail()

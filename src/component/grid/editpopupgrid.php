@@ -130,6 +130,12 @@ class EditPopupGrid extends \Component\Grid\Grid
 
     protected function addFilterToDataSource()
     {
+        //don't add filter again
+        if (isset($this->filterAdd))
+        {
+            return;
+        }
+
         $dataSource = $this->getDataSource();
         $idValue = $this->getIdValue();
 
@@ -140,6 +146,8 @@ class EditPopupGrid extends \Component\Grid\Grid
         }
 
         \Component\Grid\Grid::addPaginationToDataSource($dataSource);
+
+        $this->filterAdd = true;
     }
 
     public function createTableInner()

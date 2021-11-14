@@ -944,6 +944,12 @@ class Page extends \View\Layout
         $grid = new $gridClass;
         $table = $grid->createTableInner();
 
+        //add support for open accordion
+        if ($table instanceof \View\Ext\Accordion)
+        {
+            $table->open();
+        }
+
         $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);
         //remove do dom para não reaparecer

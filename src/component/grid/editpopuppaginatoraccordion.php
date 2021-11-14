@@ -6,7 +6,7 @@ namespace Component\Grid;
  * Simple edit popup grid paginator
  *
  */
-class EditPopupPaginator extends \Component\Grid\Paginator
+class EditPopupPaginatorAccordion extends \Component\Grid\Paginator
 {
 
     public function createPaginationLimitField()
@@ -17,6 +17,16 @@ class EditPopupPaginator extends \Component\Grid\Paginator
     public static function getCurrentPaginationLimitValue()
     {
         return \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
+    }
+
+    protected function createExportButton()
+    {
+        return null;
+    }
+
+    public function createPaginationFontSizeField()
+    {
+        return null;
     }
 
 }
