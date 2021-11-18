@@ -513,7 +513,7 @@ function getFormDataToPost(formData)
         return formData;
     } 
     //2 - simple js object, make a "serialize"
-    else if (typeof formData == 'object')
+    else if (!isEmpty && typeof formData == 'object')
     {
         formData = $.param(formData);
         return formData;
