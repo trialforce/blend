@@ -217,7 +217,7 @@ class Model extends DataSource
 
             if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
             {
-                $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
+                $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $referenceSql[0] . ') )))';
             }
 
             $querys[$sqlColumn] = $subquery;
