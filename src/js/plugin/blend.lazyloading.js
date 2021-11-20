@@ -51,9 +51,13 @@ blend.lazyloading.parseBackImages = function ()
         if (blend.lazyloading.heightVisible > offsetTop)
         {
             var image = element.data('lazyloading-background-image');
-            element.css('background-image', 'url(' + image + ')');
-            element.removeData('lazyloading-background-image');
-            element.removeAttr('data-lazyloading-background-image');
+            
+            if (image)
+            {
+                element.css('background-image', 'url(' + image + ')');
+                element.removeData('lazyloading-background-image');
+                element.removeAttr('data-lazyloading-background-image');
+            }
         }
     });
 }
@@ -71,9 +75,13 @@ blend.lazyloading.parseSrcImages = function ()
         if (blend.lazyloading.heightVisible > offsetTop)
         {
             var image = element.data('lazyloading-src');
-            element.attr('src', image);
-            element.removeData('lazyloading-src');
-            element.removeAttr('data-lazyloading-src');
+            
+            if (image)
+            {
+                element.attr('src', image);
+                element.removeData('lazyloading-src');
+                element.removeAttr('data-lazyloading-src');
+            }
         }
     });
 }
