@@ -530,4 +530,55 @@ class Text implements \Type\Generic, \JsonSerializable
         }
     }
 
+    /**
+     * Tryng to convert a word do singular
+     *
+     * Only works with portuguese
+     *
+     * @param sting $str the plural word
+     * @return string the singular version of this word
+     */
+    public static function toSingular($str)
+    {
+        if (substr($str, (strlen($str) - 3)) == 'oes')
+        {
+            $str = substr($str, 0, (strlen($str) - 3)) . 'ao';
+        }
+
+        if (substr($str, (strlen($str) - 3)) == 'aes')
+        {
+            $str = substr($str, 0, (strlen($str) - 3)) . 'ao';
+        }
+
+        if (substr($str, (strlen($str) - 3)) == 'eis')
+        {
+            $str = substr($str, 0, (strlen($str) - 3)) . 'el';
+        }
+
+        if (substr($str, (strlen($str) - 1)) == 's')
+        {
+            $str = substr($str, 0, (strlen($str) - 1));
+        }
+
+        return $str;
+    }
+
+    /**
+     * Return a list of stop/exception words, that can be ignorated in searchs
+     * and replace
+     *
+     * Only works with portuguese
+     *
+     * @return array of string
+     */
+    public static function listExceptionWords()
+    {
+        $exception = ["\r\n", "\n", "\r", ' - ', ' " ', " ' ", " / ", ' • ', ' : ', '::', ' % ', ' ª ', ' º ', ' de ', ' da ', ' do ', ' ne ', ' na ', ' no ', ' des ', ' das ', ' dos ', ' nes ', ' nas ',
+            ' nos ', ' es ', ' mais ', ' menos ', ' com ', ' como ', ' Os ', ' online ', ' uma ', ' seus ', ' que ', ' não ', ' tem ', ' tm ', ' ser ', ' estão ', ' to ', ' já ', ' a ', ' e ', ' i ',
+            ' x ', ' o ', ' u ', ' ou ', ' as ', ' para ', ' como ', ' À ', ' Á ', ' Ã ', ' Â ', ' à ', ' á ', ' ã ', ' â ', ' Ê ', ' É ', ' Í ', ' í ', ' Ó ', ' Õ ', ' Ô ', ' ó ', ' õ ', ' ô ', ' Ú ', ' Ü ', ' Ç ',
+            ' ao ', ' aos ', ' ç ', ' é ', ' ê ', ' ú ', ' ü ', ' os ', ' sem ', ' em ', ' sua ', ' deve ', ' as ', ' um ', ' n&atilde;o '];
+
+        return $exception;
+    }
+
 }

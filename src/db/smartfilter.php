@@ -315,7 +315,48 @@ class SmartFilter
         }
         else
         {
-            $this->conds[] = new \Db\Cond($columnQuery . ' like ?', str_replace(' ', '%', '%' . $filter . '%'), \Db\Cond::COND_OR);
+            $excecoes = \Type\Text::listExceptionWords();
+
+            foreach ($excecoes as $excecao)
+            {
+                $filter = str_ireplace($excecao, ' ', $filter);
+            }
+
+            //calculate singular words
+            $filtersingular = '';
+            $words = explode(' ', $filter);
+
+            foreach ($words as $word)
+            {
+                $singular = \Type\Text::toSingular($word);
+                $filtersingular .= ' ' . $singular;
+            }
+
+            $where = '';
+
+            //pass trough words creating the filter
+            foreach ($words as $word)
+            {
+                $where .= (!$where) ? '' : ' and ';
+                $where .= $columnQuery . " like '%" . trim($word) . "%' ";
+            }
+
+            $this->conds[] = new \Db\Where("($where)", NULL, NULL, \Db\Cond::COND_OR);
+
+            //if singular filter is diferent from plural ones
+            if ($filter != $filtersingular)
+            {
+                $whereSingular = '';
+                $wordsSingular = explode(' ', trim($filtersingular));
+
+                foreach ($wordsSingular as $word)
+                {
+                    $whereSingular .= (!$whereSingular) ? '' : ' and ';
+                    $whereSingular .= $columnQuery . " like '%" . trim($word) . "%' ";
+                }
+
+                $this->conds[] = new \Db\Where("($whereSingular)", NULL, NULL, \Db\Cond::COND_OR);
+            }
         }
     }
 
