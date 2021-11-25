@@ -76,7 +76,14 @@ class Request extends DataHandle
             {
                 if ($line != 'PHPSESSID')
                 {
-                    $uri[] = $line . '=' . $info;
+                    $value = $info;
+
+                    if (is_array($info))
+                    {
+                        $value = $info[0];
+                    }
+
+                    $uri[] = $line . '=' . $value;
                 }
             }
         }
