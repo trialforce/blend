@@ -570,9 +570,10 @@ class Crud extends \Page\Page
     {
         \App::dontChangeUrl();
 
+        $pkValue = $this->getPkValue();
         $view[] = new \View\Label('label', null, 'Tem certeza que deseja duplicar o registro?');
 
-        \View\Blend\Popup::prompt('Duplicação', $view, 'duplicarConfirmado', null, 'small')->show();
+        \View\Blend\Popup::prompt('Duplicação', $view, "p('{$this->getPageUrl()}/duplicarConfirmado/$pkValue')", null, 'small')->show();
     }
 
     /**

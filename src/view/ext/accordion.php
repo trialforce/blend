@@ -66,4 +66,14 @@ class Accordion extends \View\Div
         return $this;
     }
 
+    /**
+     * Open/close/toggle any accordion without having php object
+     *
+     * @param string $id
+     */
+    public static function visibility($id, $action = 'open')
+    {
+        \App::addJs("blend.accordion.{$action}('{$id}');");
+    }
+
 }

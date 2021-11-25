@@ -64,7 +64,7 @@ class EditPopupGrid extends \Component\Grid\Grid
         $columns = $this->getColumns();
 
         //create default editr action, if needed
-        if (isset($columns['id']) && !isset($actions['id']))
+        if (isset($columns['id']) && !isset($actions['id']) && $this->getEditMethod())
         {
             $editar = new \Component\Action\Page($this->getPageName(), $this->getEditMethod(), $this->getModel()->getId(), 'edit', 'Editar');
             $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
