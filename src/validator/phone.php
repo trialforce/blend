@@ -150,7 +150,7 @@ class Phone extends \Validator\Validator
 
         if (substr($number800, 0, 1) == '0')
         {
-            if ($format)
+            if ($format && strlen($number800) == 11)
             {
                 $mask = str_ireplace('9', '%s', '9999-999-9999');
                 $number800 = vsprintf($mask, str_split($number800));
