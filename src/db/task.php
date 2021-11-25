@@ -98,7 +98,7 @@ abstract class Task
     }
 
     /**
-     * After execute, you can get a formated result as text.
+     * After execute, you can get a formatted result as text.
      *
      * Used to show in shell
      *
@@ -106,7 +106,14 @@ abstract class Task
      */
     public function getResultText()
     {
-        return implode("\r\n", $this->getResult());
+        $result = [];
+
+        if ($this->getResult() && is_array($this->getResult()))
+        {
+            $result = $this->getResult();
+        }
+
+        return implode("\r\n", $result);
     }
 
 }
