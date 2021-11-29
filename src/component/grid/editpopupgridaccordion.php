@@ -52,7 +52,7 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $captions[] = '(' . count($data) . ') ' . $model::getLabelPlural();
 
         //$accordionId = strtolower(str_replace('\\', '_', $this->getId()));
-        $accordion = new \View\Ext\Accordion($this->getId() . '-holder', $captions, $this->table, ' grid grid-accordion col-12 ');
+        $accordion = new \View\Ext\Accordion($this->getId() . '-holder', $captions, $this->table, 'col-12 ');
 
         $urlAdd = "return p('{$this->getPageName()}/{$this->getAddMethod()}')";
 
