@@ -176,6 +176,13 @@ class Time implements \Type\Generic, \JsonSerializable
                 $this->second = intval($explode[2]);
             }
         }
+        else if (is_numeric($value))
+        {
+            $hours = intval($value / 60);
+            $minutes = $value % 60;
+            $this->hour = $hours;
+            $this->minute = $minutes;
+        }
 
         return $this;
     }

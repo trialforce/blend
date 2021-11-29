@@ -186,16 +186,41 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         if ($hour && !$minute && !$second)
         {
             $explode = explode(':', $hour);
-            $this->setHour($explode[0]);
-            $this->setMinute(isset($explode[1]) ? $explode[1] : 0);
-            $this->setSecond(isset($explode[2]) ? $explode[2] : 0);
+            $hour = $explode[0];
+            $minute = isset($explode[1]) ? $explode[1] : 0;
+            $second = isset($explode[2]) ? $explode[2] : 0;
         }
-        else
+
+        $this->setHour($hour);
+        $this->setMinute($minute);
+        $this->setSecond($second);
+
+        return $this;
+    }
+
+    /**
+     * Add Time/hour/second
+     *
+     * You can pass 99:99:99 in hour parameter when avoid minute and second
+     *
+     * @param int $hour hour from 0 to 24
+     * @param int $minute minute from 0 to 60
+     * @param int $second second to 0 to 60
+     * @return \Type\DateTime;
+     */
+    public function addTime($hour, $minute = NULL, $second = NULL)
+    {
+        if ($hour && !$minute && !$second)
         {
-            $this->setHour($hour);
-            $this->setMinute($minute);
-            $this->setSecond($second);
+            $explode = explode(':', $hour);
+            $hour = $explode[0];
+            $minute = isset($explode[1]) ? $explode[1] : 0;
+            $second = isset($explode[2]) ? $explode[2] : 0;
         }
+
+        $this->addHour($hour);
+        $this->addMinute($minute);
+        $this->addSecond($second);
 
         return $this;
     }
@@ -390,11 +415,12 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     {
         $timesTamp2 = 0;
 
-        if ($date instanceof \Type\DateTime)
+        if (!$date instanceof \Type\DateTime)
         {
-            $timesTamp2 = $date->getTimestampUnix();
+            $date = new \Type\DateTime($date);
         }
 
+        $timesTamp2 = $date->getTimestampUnix();
         $timesTamp1 = $this->getTimestampUnix();
         $diff = $timesTamp1 - $timesTamp2;
 
