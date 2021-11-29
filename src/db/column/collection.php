@@ -115,12 +115,28 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this;
     }
 
+    public function removeColumn($columnName)
+    {
+        if (isset($this->$columnName))
+        {
+            unset($columnName);
+        }
+
+        return $this;
+    }
+
     public function setColumn(\Db\Column\Column $column, $position = null)
     {
         if (is_int($position))
         {
             $new = [];
-            $new[$column->getName()] = $column;
+            $columnName = $column->getName() . '';
+            $new[$columnName] = $column;
+
+            if ($this->columnExist($columnName))
+            {
+                $this->removeColumn($columnName);
+            }
 
             $columns = $this->getColumns();
 
@@ -132,6 +148,21 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             $this->columns[$column->getName()] = $column;
         }
+
+        return $this;
+    }
+
+    public function addColumns(array $columns)
+    {
+        foreach ($columns as $column)
+        {
+            if ($column instanceof \Db\Column\Column)
+            {
+                $this->setColumn($column);
+            }
+        }
+
+        return $this;
     }
 
     function getColumn($columnName = null)
