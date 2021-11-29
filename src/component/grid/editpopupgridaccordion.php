@@ -2,8 +2,6 @@
 
 namespace Component\Grid;
 
-use DataHandle\Request;
-
 /**
  * Grid for edit data in popoup
  */
@@ -19,8 +17,7 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
 
         $this->addFilterToDataSource();
         $data = $this->getDataSource()->getData();
-        $model = $this->getModel();
-        $label = $model::getLabel();
+        $label = $this->getModelLabel();
         $view = array();
 
         //$caption = new \View\Div($captionName, $captions);
@@ -49,7 +46,7 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $semAcento = \Type\Text::get($label)->toFile();
 
         $captions = [];
-        $captions[] = '(' . count($data) . ') ' . $model::getLabelPlural();
+        $captions[] = '(' . count($data) . ') ' . $this->getModelLabelPlural();
 
         //$accordionId = strtolower(str_replace('\\', '_', $this->getId()));
         $accordion = new \View\Ext\Accordion($this->getId() . '-holder', $captions, $this->table, 'col-12 ');
@@ -63,6 +60,18 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $accordion->getHead()->append($btnHolder);
 
         return $accordion;
+    }
+
+    public function getModelLabelPlural()
+    {
+        $model = $this->getModel();
+        return $model::getLabelPlural();
+    }
+
+    public function getModelLabel()
+    {
+        $model = $this->getModel();
+        return $model::getLabel();
     }
 
     public function createTable()
