@@ -804,6 +804,61 @@ class Image extends \Disk\File
         return imagesetpixel($this->getContent(), $x, $y, $allocate);
     }
 
+    private function resizeWatermark($watermark, $type = "width")
+    {
+        list($wWidth, $wHeight) = $watermark->getSizes();
+
+        list($pWidth, $pHeight) = $this->getSizes();
+        $pWidth = ($pWidth * 0.9);
+        $pHeight = ($pHeight * 0.9);
+
+        $media = ($pWidth / $wWidth);
+
+        if ($type != 'width')
+        {
+            $media = ($pHeight / $wHeight);
+        }
+
+        $width = $wWidth * $media;
+        $height = $wHeight * $media;
+
+        if ($pHeight < $height)
+        {
+            return $this->resizeWatermark($watermark, 'height');
+        }
+        else
+        {
+            $thumb = imagecreatetruecolor($width, $height);
+            imagecolortransparent($thumb, imagecolorallocate($thumb, 255, 255, 255));
+            imagecolortransparent($thumb, imagecolorallocate($thumb, 0, 0, 0));
+
+            imagecopyresized($thumb, $watermark->getContent(), 0, 0, 0, 0, $width, $height, $watermark->getWidth(), $watermark->getHeight());
+
+            $watermark->setContent($thumb);
+
+            return $watermark;
+        }
+    }
+
+    public function addWatermark($urlWatermark, $opacity = 30)
+    {
+        if (!$this->content)
+        {
+            $this->load();
+        }
+
+        $watermark = new \Media\Image($urlWatermark, true);
+        imagefilter($watermark->getContent(), IMG_FILTER_BRIGHTNESS, 30);
+        imagefilter($watermark->getContent(), IMG_FILTER_GRAYSCALE);
+
+        $watermark = $this->resizeWatermark($watermark);
+
+        $top = ($this->getHeight() - $watermark->getHeight()) / 2;
+        $left = ($this->getWidth() - $watermark->getWidth()) / 2;
+
+        ImageCopyMerge($this->getContent(), $watermark->getContent(), $left, $top, 0, 0, $watermark->getWidth(), $watermark->getHeight(), $opacity);
+    }
+
 }
 
 /**
