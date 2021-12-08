@@ -333,29 +333,32 @@ class SmartFilter
             }
 
             $where = '';
-
+            $args = [];
             //pass trough words creating the filter
             foreach ($words as $word)
             {
                 $where .= (!$where) ? '' : ' and ';
-                $where .= $columnQuery . " like '%" . trim($word) . "%' ";
+                $where .= $columnQuery . " like ? ";
+                $args[] = '%' . trim($word) . '%';
             }
 
-            $this->conds[] = new \Db\Where("($where)", NULL, NULL, \Db\Cond::COND_OR);
+            $this->conds[] = new \Db\Cond("($where)", $args, \Db\Cond::COND_OR);
 
             //if singular filter is diferent from plural ones
             if ($filter != $filtersingular)
             {
                 $whereSingular = '';
                 $wordsSingular = explode(' ', trim($filtersingular));
+                $argsSingular = [];
 
                 foreach ($wordsSingular as $word)
                 {
                     $whereSingular .= (!$whereSingular) ? '' : ' and ';
-                    $whereSingular .= $columnQuery . " like '%" . trim($word) . "%' ";
+                    $whereSingular .= $columnQuery . " like ? ";
+                    $argsSingular[] = "%" . trim($word) . "%";
                 }
 
-                $this->conds[] = new \Db\Where("($whereSingular)", NULL, NULL, \Db\Cond::COND_OR);
+                $this->conds[] = new \Db\Cond("($whereSingular)", $argsSingular, \Db\Cond::COND_OR);
             }
         }
     }
