@@ -857,6 +857,8 @@ class Image extends \Disk\File
         $left = ($this->getWidth() - $watermark->getWidth()) / 2;
 
         ImageCopyMerge($this->getContent(), $watermark->getContent(), $left, $top, 0, 0, $watermark->getWidth(), $watermark->getHeight(), $opacity);
+
+        $this->export($this->getPath());
     }
 
 }
