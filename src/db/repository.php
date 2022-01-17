@@ -75,7 +75,7 @@ class Repository extends \Db\Collection
 
     public function findOneByPk($pk)
     {
-        if (!$this->data[$pk])
+        if (!isset($this->data[$pk]))
         {
             $modelName = $this->modelName;
             $model = $modelName::findOneByPk($pk);
