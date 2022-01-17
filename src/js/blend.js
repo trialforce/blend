@@ -523,9 +523,7 @@ function getFormDataToPost(formData)
     {
         return formData;   
     }
-    
-    console.log('b');
-    
+       
     //4 - this is the the defafult case, blend will post the entire form
     var hasFiles = $('input[type=file]').length > 0;
 
