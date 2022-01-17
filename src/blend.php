@@ -185,3 +185,33 @@ if (!function_exists('loadFile'))
 
     spl_autoload_register('loadFile');
 }
+
+//PHP 8.0 function
+if (!function_exists('str_starts_with'))
+{
+
+    function str_starts_with($haystack, $needle)
+    {
+        $length = strlen($needle);
+        return substr($haystack, 0, $length) === $needle;
+    }
+
+}
+
+//PHP 8.0 function
+if (!function_exists('str_ends_with'))
+{
+
+    function str_ends_with($haystack, $needle)
+    {
+        $length = strlen($needle);
+
+        if (!$length)
+        {
+            return true;
+        }
+
+        return substr($haystack, -$length) === $needle;
+    }
+
+}

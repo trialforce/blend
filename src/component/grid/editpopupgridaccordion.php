@@ -20,16 +20,11 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $label = $this->getModelLabel();
         $view = array();
 
-        //$caption = new \View\Div($captionName, $captions);
-        //$caption->setAttribute('style', 'height: 40px;    line-height: 40px;    font-weight: bold;');
-
         if (count($data) == 0)
         {
             $th[] = new \View\Td(null, 'Nenhum ' . lcfirst($label . ' encontrado.'));
             $tr = new \View\Tr(null, $th);
             $view[] = $this->head = new \View\THead(NULL, $tr);
-            //$view[] = $this->body = new \View\TBody(NULL, null);
-            //$view[] = $this->foot = null;
         }
         else
         {

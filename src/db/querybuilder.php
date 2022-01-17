@@ -715,7 +715,7 @@ class QueryBuilder
         $where = $whereStd->getSqlParam();
 
         $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
-        return new \Type\Text($select);
+        return $select;
     }
 
     /**
@@ -888,9 +888,9 @@ class QueryBuilder
      *
      * @return int
      */
-    public function count()
+    public function count($column = '*')
     {
-        return $this->aggregation('count(*)');
+        return $this->aggregation('count(' . $column . ')');
     }
 
     /**

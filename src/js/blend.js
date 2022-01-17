@@ -524,6 +524,8 @@ function getFormDataToPost(formData)
         return formData;   
     }
     
+    console.log('b');
+    
     //4 - this is the the defafult case, blend will post the entire form
     var hasFiles = $('input[type=file]').length > 0;
 
@@ -531,9 +533,11 @@ function getFormDataToPost(formData)
     if ( !hasFiles )
     {
         formData = $(blend.defaultFormPost).serialize();
+        //put the current url in post, usefull to get real url, when you are inside a component
+        formData+='&page-url='+$('body').data('page-url');
         return formData;
     }
-
+    
     //4.2 - has files, so we need to make js magic in formData
     return mountHtml5FormData();
 }
@@ -560,6 +564,9 @@ function mountHtml5FormData()
     {
         formData.append(this.name, '0');
     });
+    
+    //put the current url in post, usefull to get real url, when you are inside a component
+    formData.append('page-url',$('body').data('page-url'));
 
     //minnor support for multiple values
     $("select[multiple]").each(function () 

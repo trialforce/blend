@@ -186,6 +186,15 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             return $columns[$columnName];
         }
 
+        //find the collumn by property in the end
+        foreach ($columns as $column)
+        {
+            if ($column->getProperty() == $columnName)
+            {
+                return $column;
+            }
+        }
+
         return null;
     }
 

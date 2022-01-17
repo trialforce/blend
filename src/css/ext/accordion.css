@@ -38,7 +38,7 @@
 .accordion-open .accordion-body {
     padding: 10px;
     height: auto;
-    overflow: auto;
+    overflow: initial;
     transition: 0.1s ease-in-out;
 }
 
