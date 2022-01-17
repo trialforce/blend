@@ -19,7 +19,7 @@ function selectTab(tabItemId, callback )
     $('.action-list li[data-group=""]').show();
     $('.action-list li[data-group="'+tabItemId+'"]').show();
     
-    var hasContent = $('#tab-visita *').length > 0
+    var hasContent = $( tabItemId + '*').length > 0
    
     if ( !hasContent && typeof callback == 'function')
     {
