@@ -503,7 +503,7 @@ function hideLoading()
     $(".loading").fadeOut('fast');
 }
 
-function getFormDataToPost(formData)
+function getFormDataToPost(formData,type)
 {
     var isEmpty = typeof formData === 'undefined' || formData == null;
     
@@ -531,8 +531,14 @@ function getFormDataToPost(formData)
     if ( !hasFiles )
     {
         formData = $(blend.defaultFormPost).serialize();
+        
         //put the current url in post, usefull to get real url, when you are inside a component
-        formData+='&page-url='+$('body').data('page-url');
+        //only in post, so we not "fill" wrong data inside get
+        if (type =='POST')
+        {
+            formData+='&page-url='+$('body').data('page-url');
+        }
+        
         return formData;
     }
     
@@ -621,7 +627,7 @@ function r(type, page, formData, callBack)
 
     //default jquery value https://api.jquery.com/jQuery.ajax/
     var contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
-    formData = getFormDataToPost(formData);
+    formData = getFormDataToPost(formData,type);
    
     if (formData instanceof FormData)
     {
