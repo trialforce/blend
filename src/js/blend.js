@@ -591,6 +591,22 @@ function mountHtml5FormData()
     return formData;
 }
 
+function disableFocused()
+{
+    var focused = $(':focus');
+
+    //disable focused element, perhaps a button or link
+    if (typeof focused.get(0) != 'undefined')
+    {
+        if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
+        {
+            focused.attr('disabled', true);
+        }
+    }
+    
+    return focused;
+}
+
 /**
  *
  * Make a ajax to a page
@@ -603,16 +619,7 @@ function mountHtml5FormData()
 function r(type, page, formData, callBack)
 {
     isAjax = true;
-    var focused = $(':focus');
-
-    //disable focused element, perhaps a button or link
-    if (typeof focused.get(0) != 'undefined')
-    {
-        if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
-        {
-            focused.attr('disabled', true);
-        }
-    }
+    var focused = disableFocused();
 
     showLoading();
     

@@ -51,13 +51,18 @@ trait History
                     $right = $cValues[$value];
                 }
 
-                if ($column->getReferenceTable())
+                if ($column->getReferenceTable() && $column->getReferenceDescription())
                 {
                     $table = '\Model\\' . $column->getReferenceTable();
                     $repository = $table::repository();
                     $repository instanceof \Db\Repository;
 
                     $model = $repository->findOneByPk($value);
+
+                    if (!$model)
+                    {
+                        continue;
+                    }
 
                     $right = $model->getValue($column->getReferenceDescription());
 

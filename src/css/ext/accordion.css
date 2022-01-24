@@ -12,6 +12,9 @@
     min-height: 40px;
     line-height: 40px;
     padding: 0 10px;
+}
+
+.accordion-open .accordion-head {
     border-bottom: solid 1px #cfcfcf;
 }
 
