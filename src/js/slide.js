@@ -27,7 +27,6 @@ function slide(selector)
     var fullScreen = group.data('full-screen');
     var dataStartIndex = group.data('start-index');
     var dataChangeOnHover = group.data('change-on-hover');
-    var doneOnHover = false;
     
     //copy outter width to inner
     var outterWidth = group.find('.slider-wrapper').width();
@@ -48,14 +47,18 @@ function slide(selector)
     {
         $(group).mouseover( function(element)
         {
-            if (doneOnHover ==true)
+            if (slidesLength > 1)
             {
-                return;
+                setSlide(1);
             }
-            
-            setSlide(1); 
-            doneOnHover = true;
-            //alert(element);
+        });
+        
+        $(group).mouseleave( function(element)
+        {
+            if (slidesLength > 1)
+            {
+                setSlide(0);
+            }
         });
     }
     
