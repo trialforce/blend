@@ -69,6 +69,8 @@ class SqlTable extends \View\Div
         $tr[] = new \View\Tr(null, $td);
 
         $table->html($tr);
+
+        parent::__construct('sqlTableOut', $table);
     }
 
     public function getSlowQueryTime()
