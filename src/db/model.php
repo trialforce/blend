@@ -486,10 +486,10 @@ class Model implements \JsonSerializable
         return isset($result) ? $result : 0;
     }
 
-    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL)
+    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL, $logId = null)
     {
         $name = self::getName();
-        $result = $name::aggregations($filters, ['aggregation' => $aggregation], $forceExternalSelect, $columns);
+        $result = $name::aggregations($filters, ['aggregation' => $aggregation], $forceExternalSelect, $columns, $logId);
 
         return isset($result) ? $result->aggregationaggregation : 0;
     }
