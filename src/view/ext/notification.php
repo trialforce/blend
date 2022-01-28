@@ -26,8 +26,8 @@ Class Notification
     public function __toString()
     {
         $this->body = strip_tags($this->body);
-        $js = "<script>blend.notification.new('{$this->title}', '$this->body', '{$this->link}','{$this->icon}');</script>";
-        return $js;
+        \App::addJs("blend.notification.new('{$this->title}', '$this->body', '{$this->link}','{$this->icon}');");
+        return '';
     }
 
 }
