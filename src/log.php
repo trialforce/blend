@@ -494,13 +494,22 @@ class Log
      *
      * @param string $sql
      */
-    public static function sql($sql)
+    public static function sql($sql, $time = null, $idConn = null, $logId = null)
     {
         $sql = str_replace(array("\r\n", "\r", "\n"), ' ', $sql);
 
+        if ($time && $idConn && $logId)
+        {
+            $string = $idConn . ' - ' . $time . ' - ' . $logId . ' - ' . $sql;
+        }
+        else
+        {
+            $string = $sql;
+        }
+
         if (Log::getLogSql())
         {
-            Log::logInFile(LOG::SQL_FILE, $sql);
+            Log::logInFile(LOG::SQL_FILE, $string);
         }
 
         if (Log::getLogSqlConsole())
@@ -511,7 +520,7 @@ class Log
             }
             else
             {
-                \Console::log($sql);
+                \Console::log($string);
             }
         }
     }

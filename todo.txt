@@ -1,6 +1,0 @@
------------------------------
-            TODO
------------------------------
-- Remove PHP Mailer (will need some refator in applications)
-- Traduzir comntários do validator
-- Unir validadores com tipos

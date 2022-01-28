@@ -3,7 +3,7 @@
 namespace Db;
 
 /**
- * Gerencia uma conexão com banco
+ * One conection with one database
  */
 class Conn extends \PDO
 {
@@ -64,7 +64,6 @@ class Conn extends \PDO
     public function __construct(\Db\ConnInfo $info)
     {
         $this->id = $info->getId();
-        //temporiamente só aceita conexão mysql em utf8
 
         if ($info->getType() == \Db\ConnInfo::TYPE_MYSQL)
         {
@@ -78,9 +77,9 @@ class Conn extends \PDO
         parent::__construct($info->getDsn(), $info->getUsername(), $info->getPassword(), $driverOptions);
         //make pdo throws execption
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        //timeout grandão pra não dar trabalho na sincronização
+        //big timeout to avoid problems
         $this->setAttribute(\PDO::ATTR_TIMEOUT, 600);
-        //diseram por ai que isso otimiza
+        //persistent conection to
         $this->setAttribute(\PDO::ATTR_PERSISTENT, TRUE);
     }
 
@@ -95,25 +94,8 @@ class Conn extends \PDO
         return $this;
     }
 
-    protected static function addSqlLog($sql, $result, $time, $idConn = NULL)
-    {
-        $log = new \stdClass();
-        $log->sql = $sql;
-        $log->result = $result;
-        $log->time = $time;
-        $log->idConn = $idConn;
-
-        self::$sqlLog[] = $log;
-        \Log::sql($idConn . ' - ' . str_pad($time, 20, '0', STR_PAD_RIGHT) . ' seg' . ' - ' . $sql);
-    }
-
-    public static function getSqlLog()
-    {
-        return self::$sqlLog;
-    }
-
     /**
-     * Retornar algumas informações do servidor.
+     * Return some server info
      *
      * @return string
      */
@@ -123,13 +105,70 @@ class Conn extends \PDO
     }
 
     /**
-     * Execute one sql
+     * Add to sql log list
      *
      * @param string $sql
-     * @param array $args
+     * @param mixed $result
+     * @param int $time
+     * @param string $idConn
+     */
+    protected static function addSqlLog($sql, $result, $time, $idConn = NULL, $logId = NULL)
+    {
+        //if not loggind does nothing
+        if (!(\Log::getLogSql() || \Log::getLogSqlConsole()))
+        {
+            return;
+        }
+
+        //format time
+        $time = str_pad($time * 10, 20, '0', STR_PAD_RIGHT);
+
+        $log = new \stdClass();
+        $log->create = \Type\DateTime::now()->toDb();
+        $log->sql = $sql;
+        $log->result = $result;
+        $log->time = $time;
+        $log->idConn = $idConn;
+        $log->logId = $logId;
+
+        self::$sqlLog[] = $log;
+
+        \Log::sql($sql, $time, $idConn, $logId);
+    }
+
+    public static function getSqlLog()
+    {
+        return self::$sqlLog;
+    }
+
+    /**
+     * Retorna o última prepareStatament a ser utilizado
+     *
+     * @return type
+     */
+    public static function getLastRet()
+    {
+        return self::$lastRet;
+    }
+
+    /**
+     * Retorna a última sql executada
+     * @return string
+     */
+    public static function getLastSql()
+    {
+        return self::$lastSql;
+    }
+
+    /**
+     * Execute one sql
+     *
+     * @param string $sql the sql string
+     * @param array $args arguments
+     * @param string $logId any text you want to add to log to identificate the query
      * @return int
      */
-    public function execute($sql, $args = NULL)
+    public function execute($sql, $args = NULL, $logId = null)
     {
         $timer = new \Misc\Timer();
         self::$lastSql = \Db\Conn::interpolateQuery($sql, $args);
@@ -173,40 +212,22 @@ class Conn extends \PDO
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
-        self::addSqlLog(self::$lastSql, $ok, $diffTime, $this->id);
+        self::addSqlLog(self::$lastSql, $ok, $diffTime, $this->id, $logId);
         self::$totalSqlTime += $diffTime;
 
         return $ok;
     }
 
     /**
-     * Retorna o última prepareStatament a ser utilizado
-     *
-     * @return type
-     */
-    public static function getLastRet()
-    {
-        return self::$lastRet;
-    }
-
-    /**
-     * Retorna a última sql executada
-     * @return string
-     */
-    public static function getLastSql()
-    {
-        return self::$lastSql;
-    }
-
-    /**
-     * Faz uma query no banco de dados
+     * Make one query on database
      *
      * @param string $sql
      * @param array $args
      * @param string $class
-     * @return array de objetos da classe informada
+     * @param string $logId any text you want to add to log to identificate the query
+     * @return array of object from desired class
      */
-    public function query($sql, $args = array(), $class = NULL)
+    public function query($sql, $args = array(), $class = NULL, $logId = null)
     {
         $timer = new \Misc\Timer();
         self::$lastSql = \Db\Conn::interpolateQuery($sql, $args);
@@ -292,6 +313,7 @@ class Conn extends \PDO
         }
 
         $result = array();
+
         //passes trough all data
         while ($obj = $ret->fetch())
         {
@@ -302,26 +324,27 @@ class Conn extends \PDO
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
-        self::addSqlLog(self::$lastSql, count($result), $diffTime, $this->id);
+        self::addSqlLog(self::$lastSql, count($result), $diffTime, $this->id, $logId);
         self::$totalSqlTime += $diffTime;
 
         return $result;
     }
 
     /**
-     * Faz a busca retorna somente um registro.
+     * Make an query and return only the first registry
      *
-     * Atenção: mesmo que a consulta retorna mais resultados só o primeiro será retornado.
-     * Atenção: a função não adiciona LIMIT, é necessário fazer a mão.
+     * Atttention: even if query return more items, this funcon will only return ONE
+     * Attention: the method does not add LIMIT to query, you need to do that by hand
      *
      * @param string $sql
      * @param array $args
      * @param string $class
+     * @param string $logId any text you want to add to log to identificate the query
      * @return mixed
      */
-    public function findOne($sql, $args = array(), $class = NULL)
+    public function findOne($sql, $args = array(), $class = NULL, $logId = null)
     {
-        $result = $this->query($sql, $args, $class);
+        $result = $this->query($sql, $args, $class, $logId);
 
         if (isset($result[0]))
         {

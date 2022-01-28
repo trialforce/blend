@@ -20,6 +20,7 @@ class QueryBuilder
     protected $offset = null;
     protected $groupBy = null;
     protected $orderBy = null;
+    protected $logId = null;
 
     /**
      * Construct the query builder
@@ -429,6 +430,17 @@ class QueryBuilder
         return $this;
     }
 
+    public function getLogId()
+    {
+        return $this->logId;
+    }
+
+    public function setLogId($logId)
+    {
+        $this->logId = $logId;
+        return $this;
+    }
+
     public function clearOrderBy()
     {
         $this->orderBy = null;
@@ -731,7 +743,7 @@ class QueryBuilder
         $where = $whereStd->getSql();
         $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, TRUE);
 
-        return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs);
+        return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs, $this->logId);
     }
 
     /**
