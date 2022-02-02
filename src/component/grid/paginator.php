@@ -356,6 +356,7 @@ class Paginator extends \View\Div
         $content[] = $this->createPaginationFontSizeField();
 
         $count = $this->getCount();
+
         $lastPage = $this->getLastPage();
 
         if ($count > 0)
@@ -367,6 +368,7 @@ class Paginator extends \View\Div
 
         if ($lastPage > 0 && $this->getMakePaginator())
         {
+
             $link['first'] = $this->getBtnFirt();
             $link['prev'] = $this->getBtnPrev();
             $link['current'] = $this->getBtnCurrent();

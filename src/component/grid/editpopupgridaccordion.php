@@ -16,11 +16,11 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         }
 
         $this->addFilterToDataSource();
-        $data = $this->getDataSource()->getData();
+        $count = $this->getDataSource()->getCount();
         $label = $this->getModelLabel();
         $view = array();
 
-        if (count($data) == 0)
+        if ($count == 0)
         {
             $th[] = new \View\Td(null, 'Nenhum ' . lcfirst($label . ' encontrado.'));
             $tr = new \View\Tr(null, $th);
@@ -41,7 +41,7 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $semAcento = \Type\Text::get($label)->toFile();
 
         $captions = [];
-        $captions[] = '(' . count($data) . ') ' . $this->getModelLabelPlural();
+        $captions[] = '(' . $count . ') ' . $this->getModelLabelPlural();
 
         //$accordionId = strtolower(str_replace('\\', '_', $this->getId()));
         $accordion = new \View\Ext\Accordion($this->getId() . '-holder', $captions, $this->table, 'col-12 ');

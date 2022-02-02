@@ -10,6 +10,12 @@ class SqlTable extends \View\Div
     public function __construct()
     {
         $logs = \Db\Conn::getSqlLog();
+        parent::__construct('sqlTableOut');
+
+        if (!is_array($logs))
+        {
+            return;
+        }
 
         $table = new \View\Table('sqlTable');
         $tr = [];
@@ -70,7 +76,7 @@ class SqlTable extends \View\Div
 
         $table->html($tr);
 
-        parent::__construct('sqlTableOut', $table);
+        $this->html($table);
     }
 
     public function getSlowQueryTime()

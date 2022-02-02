@@ -121,7 +121,7 @@ class Conn extends \PDO
         }
 
         //format time
-        $time = str_pad($time * 10, 20, '0', STR_PAD_RIGHT);
+        $time = str_pad($time, 20, '0', STR_PAD_RIGHT);
 
         $log = new \stdClass();
         $log->create = \Type\DateTime::now()->toDb();
