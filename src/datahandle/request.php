@@ -112,7 +112,7 @@ class Request extends DataHandle
 
     public static function getArray($param1, $param2)
     {
-        if (isset($_REQUEST[$param1]) && $_REQUEST[$param1][$param2])
+        if (isset($_REQUEST[$param1]) && isset($_REQUEST[$param1][$param2]) && $_REQUEST[$param1][$param2])
         {
             return $_REQUEST[$param1][$param2];
         }
