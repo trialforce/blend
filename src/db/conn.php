@@ -117,6 +117,7 @@ class Conn extends \PDO
         //if not loggind does nothing
         if (!(\Log::getLogSql() || \Log::getLogSqlConsole()))
         {
+            \Log::debug('deu ruim');
             return;
         }
 
