@@ -175,6 +175,25 @@ class Conn extends \PDO
 
         $ret = $this->prepare($sql);
         self::$lastRet = $ret;
+        $this->makeArgs($args, $ret);
+
+        $ok = $ret->execute();
+        unset($ret);
+
+        $diffTime = $timer->stop()->diff();
+        self::addSqlLog(self::$lastSql, $ok, $diffTime, $this->id, $logId);
+        self::$totalSqlTime += $diffTime;
+
+        return $ok;
+    }
+
+    protected static function makeArgs($args, $ret)
+    {
+        //compatibility
+        if (!is_array($args))
+        {
+            $args = array($args);
+        }
 
         if (is_array($args))
         {
@@ -208,14 +227,7 @@ class Conn extends \PDO
             }
         }
 
-        $ok = $ret->execute();
-        unset($ret);
-
-        $diffTime = $timer->stop()->diff();
-        self::addSqlLog(self::$lastSql, $ok, $diffTime, $this->id, $logId);
-        self::$totalSqlTime += $diffTime;
-
-        return $ok;
+        return $ret;
     }
 
     /**
@@ -257,45 +269,8 @@ class Conn extends \PDO
             unset($args['offset']);
         }
 
-        //compatibility
-        if (!is_array($args))
-        {
-            $args = array($args);
-        }
-
         $ret = $this->prepare($sql);
-
-        if (is_array($args))
-        {
-            foreach ($args as $arg => $value)
-            {
-                //if is numeric add one, base 1
-                if (is_numeric($arg))
-                {
-                    $arg = $arg + 1;
-                }
-
-                if (is_null($value) || strlen($value) == 0) //empty
-                {
-                    if (\DataHandle\Config::get('forceEmptyString'))
-                    {
-                        $ret->bindValue($arg, $value . '', \PDO::PARAM_STR);
-                    }
-                    else
-                    {
-                        $ret->bindValue($arg, NULL, \PDO::PARAM_NULL);
-                    }
-                }
-                else if (is_int($value) || is_float($value))
-                {
-                    $ret->bindValue($arg, $value, \PDO::PARAM_INT);
-                }
-                else
-                {
-                    $ret->bindValue($arg, $value, \PDO::PARAM_STR);
-                }
-            }
-        }
+        $this->makeArgs($args, $ret);
 
         $ret->execute();
 
