@@ -81,8 +81,15 @@ class Optimizer
         return new \Disk\File($this->getOutFile());
     }
 
-    public function execute()
+    /**
+     * Verify if optimized file need redoing
+     *
+     * @return boolean
+     * @throws \Exception
+     */
+    public function verifyNeedRedo()
     {
+        $needRedo = false;
         $objOut = $this->getOutputFile();
         $mTime = 0;
 
@@ -91,10 +98,7 @@ class Optimizer
             $mTime = intval($objOut->getMTime());
         }
 
-        $outputFile = \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $mTime . '.' . $objOut->getExtension());
-
         $files = $this->getFiles();
-        $needRedo = false;
 
         //pass trough files detecting if need redo
         foreach ($files as $file)
@@ -115,9 +119,16 @@ class Optimizer
             }
         }
 
-        if ($needRedo)
+        return $needRedo;
+    }
+
+    public function execute()
+    {
+        $outputFile = $this->getTimestampedFile();
+
+        if ($this->verifyNeedRedo())
         {
-            $outputFile = $this->reallyExecute($objOut);
+            $outputFile = $this->reallyExecute();
         }
 
         return $outputFile;
@@ -129,15 +140,33 @@ class Optimizer
      * @param \Disk\File $objOut file
      * @return \Disk\File the output file
      */
-    protected function reallyExecute(\Disk\File $objOut)
+    public function reallyExecute()
     {
+        $objOut = $this->getOutputFile();
         $this->deleteOld();
 
         $objOut->save(\Type\DateTime::now()->getTimestampUnix());
-        $outputFile = \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $objOut->getMTime() . '.' . $objOut->getExtension());
+        $outputFile = $this->getTimestampedFile();
         $outputFile->save($this->optimize());
 
         return $outputFile;
+    }
+
+    /**
+     * Return the timestamped file
+     * @return \Disk\File
+     */
+    public function getTimestampedFile()
+    {
+        $objOut = $this->getOutputFile();
+        $mTime = 0;
+
+        if ($objOut->exists())
+        {
+            $mTime = intval($objOut->getMTime());
+        }
+
+        return \Disk\File::getFromStorage($objOut->getBasename(FALSE) . '_' . $mTime . '.' . $objOut->getExtension());
     }
 
     /**
@@ -145,7 +174,7 @@ class Optimizer
      *
      * @return $this
      */
-    protected function deleteOld()
+    public function deleteOld()
     {
         $file = new \Disk\File($this->getOutFile());
 
