@@ -976,6 +976,16 @@ class Crud extends \Page\Page
         $this->crudEditPopup($url, $title, $idInput);
     }
 
+    public function verPopup()
+    {
+        \App::dontChangeUrl();
+        $idInput = Request::get('idInput');
+        $id = Request::get('v');
+        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true';
+        $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
+        $this->crudEditPopup($url, $title, $idInput);
+    }
+
     /**
      * Open a popup of this crud, to add while referencing parent.
      * It uses a internal iframe soluction to avoid mixing the forms post and values.

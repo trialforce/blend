@@ -417,6 +417,11 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function setTitle($title)
     {
+        if (!$title)
+        {
+            return;
+        }
+
         //title html don't suppor html
         if (is_string($title))
         {

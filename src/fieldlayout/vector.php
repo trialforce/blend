@@ -1,6 +1,6 @@
 <?php
 
-namespace Fieldlayout;
+namespace FieldLayout;
 
 /**
  * Field Generator bases on a pre-defined array layout

@@ -936,7 +936,7 @@ class Model implements \JsonSerializable
      * Method used to auto mount selects (label)
      * when using foreign key
      *
-     * @return string
+     * @return string|null
      */
     public function getOptionLabel()
     {
