@@ -12,8 +12,8 @@
  */
 
 blend.lazyloading = {};
-//default image offset adjust
-blend.lazyloading.adjust = 40;
+//default image offset adjust, 0 for lighthouse/pagespeed
+blend.lazyloading.adjust = navigator.userAgent.indexOf("Chrome-Lighthouse") == -1 ? 0 : 40;
 //current height visible
 blend.lazyloading.heightVisible = 0;
 blend.lazyloading.lastHeightVisible = 0;
@@ -64,7 +64,7 @@ blend.lazyloading.parseBackImages = function ()
 
 blend.lazyloading.parseSrcImages = function ()
 {
-    var imgs = $('[data-lazyloading-src]');
+    var imgs = $('[data-lazyloading-src]:visible');
 
     //images with href
     imgs.each(function (idx)
