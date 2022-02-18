@@ -64,6 +64,13 @@ td.hide-in-mobile {
     margin: 0 auto;
 }
 
+.var-dump {
+    position: absolute;
+    background: #fff8d2;
+    z-index: 99999;
+    top: 0;
+    padding: 10px;
+}
 
 @media screen and ( max-width: 1250px ) {
 
