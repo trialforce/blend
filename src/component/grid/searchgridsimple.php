@@ -13,7 +13,18 @@ class SearchGridSimple extends \Component\Grid\SearchGrid
             return $this->getContent();
         }
 
+        $content = [];
         $content[] = $this->content = $this->createTable();
+
+        $filterSmart = new \Filter\Smart();
+
+        $fields = [];
+        $fields[] = new \View\Label(null, 'q', 'Pesquisa esperta', 'filterLabel');
+        $fields[] = $filterSmart->getInput();
+
+        $smartSearch = new \View\Div(null, $fields, 'filterField');
+
+        $this->byId('filters-holder')->append($smartSearch);
 
         \App::addJs("mountExtraFiltersLabel();");
         $buscar = $this->byId('buscar');
