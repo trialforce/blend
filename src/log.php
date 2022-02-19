@@ -63,7 +63,7 @@ function blend_shutdown()
         //ou via html no navegador
         else
         {
-            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe! Mensagem do erro: ' . $error['message'] . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'] . '</body></html>';
+            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe!</body></html>';
         }
     }
 
