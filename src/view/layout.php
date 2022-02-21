@@ -131,6 +131,13 @@ class Layout extends \View\Document
 
         if (method_exists($this, $event))
         {
+            $reflection = new \ReflectionMethod($this, $event);
+
+            if (!$reflection->isPublic())
+            {
+                throw new \UserException("Acesso negado! Método " . $event . ' não é publico.');
+            }
+
             return $this->$event();
         }
     }
