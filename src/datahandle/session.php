@@ -7,11 +7,6 @@ if (session_status() == PHP_SESSION_NONE && !headers_sent())
 {
     $sessionId = session_id();
 
-    if (strlen($sessionId) < 20 || strlen($sessionId) > 40)
-    {
-        session_regenerate_id();
-    }
-
     try
     {
         session_start();
