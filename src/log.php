@@ -123,9 +123,9 @@ class Log
     static $debug = true;
 
     const FOLDER = 'log/';
-    const ERROR_FILE = 'error.txt';
-    const DEBUG_FILE = 'debug.txt';
-    const SQL_FILE = 'sql.txt';
+    const ERROR_FILE = 'error_php.log';
+    const DEBUG_FILE = 'debug.log';
+    const SQL_FILE = 'sql.log';
 
     protected static $logSql = false;
     protected static $logSqlConsole = false;
