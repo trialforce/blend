@@ -70,9 +70,5 @@ function selecteChecks(gridName)
 //used in grid checkcolumn, need refactor
 function selecteCheck(elementId)
 {
-    var element = $('#' + elementId);
-    var checked = !element.prop('checked');
-    element.prop('checked', checked);
-    
     $('#checkAllcheck').prop('checked', false);
 }
