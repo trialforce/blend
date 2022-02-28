@@ -3,7 +3,7 @@ function setCookie(variable, value)
     var d = new Date();
     d.setTime(d.getTime() + (1 * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
-    document.cookie = variable + "=" + value + ";" + expires + ";path=/";
+    document.cookie = variable + "=" + value + ";" + expires + ";path=/;SameSite=Strict;secure";
 }
 
 function getCookie(variable)
@@ -26,5 +26,6 @@ function getCookie(variable)
             return c.substring(name.length, c.length);
         }
     }
+    
     return "";
 }

@@ -649,9 +649,6 @@ function r(type, page, formData, callBack)
         dataType: "json",
         contentType: contentType,
         processData: false,
-        xhrFields: {
-            withCredentials: true //make cookie work on ajax
-        },
         success: function (data)
         {
             //enable the focused element

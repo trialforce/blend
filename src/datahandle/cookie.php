@@ -14,7 +14,15 @@ class Cookie extends DataHandle
      */
     public function __construct()
     {
-        parent::__construct($_COOKIE);
+        parent::__construct();
+
+        //avoid setData and setVar to not messing with cookies
+        $cookies = $_COOKIE;
+
+        foreach ($cookies as $key => $value)
+        {
+            $this->key = $value;
+        }
     }
 
     /**
@@ -31,7 +39,15 @@ class Cookie extends DataHandle
         }
 
         parent::setVar($var, $value);
-        setcookie($var, $value, time() + 3600, "/", '', false, false);
+
+        setcookie($var, $value, [
+            'expires' => time() + 3600,
+            'path' => '/',
+            'domain' => null,
+            'samesite' => 'strict',
+            'secure' => true,
+            'httponly' => false,
+        ]);
 
         return true;
     }

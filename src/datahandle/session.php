@@ -5,17 +5,7 @@ namespace DataHandle;
 //verify if session allready start
 if (session_status() == PHP_SESSION_NONE && !headers_sent())
 {
-    $sessionId = session_id();
-
-    try
-    {
-        session_start();
-    }
-    catch (\ErrorExpression $e)
-    {
-        session_regenerate_id();
-        session_start();
-    }
+    session_start();
 }
 
 class Session extends DataHandle
