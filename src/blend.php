@@ -1,5 +1,7 @@
 <?php
 
+require 'autoload.php';
+
 /* Active php gzip */
 ini_set('zlib.output_compression', 'On');
 
@@ -12,8 +14,12 @@ if (session_status() == PHP_SESSION_NONE && !headers_sent())
     ini_set('session.use_only_cookies', 1);
     ini_set('session.use_strict_mode', 1);
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', 1);
     ini_set('session.cookie_samesite', 'Strict');
+
+    if (\DataHandle\Server::getInstance()->isHttps())
+    {
+        ini_set('session.cookie_secure', 1);
+    }
 }
 
 /**
@@ -26,8 +32,6 @@ define('DS', '/');
  * @deprecated since version 28/07/2018
  */
 define('NOW', date('d/m/Y H:i:s'));
-
-require 'autoload.php';
 
 /**
  * Adjust path to system bar
