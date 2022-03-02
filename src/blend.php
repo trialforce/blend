@@ -2,15 +2,19 @@
 
 /* Active php gzip */
 ini_set('zlib.output_compression', 'On');
-//session security
-ini_set('session.cookie_lifetime', 0);
-ini_set('session.sid_length', 48);
-ini_set('session.use_cookies', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.use_strict_mode', 1);
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 1);
-ini_set('session.cookie_samesite', 'Strict');
+
+//grow session security
+if (session_status() == PHP_SESSION_NONE && !headers_sent())
+{
+    ini_set('session.cookie_lifetime', 0);
+    ini_set('session.sid_length', 48);
+    ini_set('session.use_cookies', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', 1);
+    ini_set('session.cookie_samesite', 'Strict');
+}
 
 /**
  * Directory separaror
