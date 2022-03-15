@@ -90,6 +90,11 @@ class Request extends DataHandle
                     if (isset($info[0]))
                     {
                         $value = $info[0];
+
+                        if (is_array($value))
+                        {
+                            $valid = false;
+                        }
                     }
                     else
                     {
