@@ -749,7 +749,7 @@ function getJson(page, formData, loadingShow, callBack)
         showLoading();
     }
 
-    $.ajax({
+    return $.ajax({
         dataType: "json",
         method: "POST",
         url: url,
@@ -846,6 +846,14 @@ function toast(msg, type, duration)
  */
 function setFocusOnFirstField()
 {
+    //if inside iFrame, don't change focus
+    var referer = document.referrer;
+    
+    if (referer.length > 0)
+    {
+        return;
+    }
+
     //support popup
     if ($('.popup').length)
     {
