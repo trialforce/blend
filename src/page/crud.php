@@ -190,21 +190,7 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Montagem da tela de adicionar
-     */
-    public function adicionar()
-    {
-        \App::dontChangeUrl();
-        $this->setFocusOnFirstField();
-
-        $this->append($this->getHead());
-        $this->append($this->getBodyDiv($this->mountFieldLayout()));
-
-        $this->adjustFields();
-    }
-
-    /**
-     * Monta um ou mais FieldLayout
+     * Mount one or more FieldLayout
      *
      * @return array de campos
      */
@@ -225,6 +211,20 @@ class Crud extends \Page\Page
         return $fields;
     }
 
+    /**
+     * Montagem da tela de adicionar
+     */
+    public function adicionar()
+    {
+        \App::dontChangeUrl();
+        $this->setFocusOnFirstField();
+
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
+
+        $this->adjustFields();
+    }
+
     public function editar()
     {
         $this->setFocusOnFirstField();
@@ -235,6 +235,13 @@ class Crud extends \Page\Page
         $this->createFloatingMenu();
 
         $this->adjustFields();
+    }
+
+    public function ver()
+    {
+        $campos = $this->editar();
+        \App::addJs("preparaVer();");
+        return $campos;
     }
 
     public function createFloatingMenu()
@@ -297,13 +304,6 @@ class Crud extends \Page\Page
         }
 
         return $result;
-    }
-
-    public function ver()
-    {
-        $campos = $this->editar();
-        \App::addJs("preparaVer();");
-        return $campos;
     }
 
     /**
@@ -588,11 +588,6 @@ class Crud extends \Page\Page
         \App::redirect($this->getPageUrl() . '/editar/' . $model->getId(), true);
 
         toast('Registro duplicado com sucesso !');
-    }
-
-    public function editarDialog()
-    {
-        throw new \Exception('Not working anymore!');
     }
 
     public function parseEvent($event)
@@ -919,6 +914,158 @@ class Crud extends \Page\Page
         {
             $this->byId('btbClosePopup')->click("comboModelClose('{$idInput}')");
         }
+    }
+
+    /**
+     * Is multiple update allowed
+     *
+     * @return boolean
+     */
+    public function isMultipleUpdateAllowed()
+    {
+        return false;
+    }
+
+    public function listar()
+    {
+        $fields = parent::listar();
+
+        $button = new \View\Ext\Button('multipleEdit', 'edit', 'Edição multipla', 'multipleEdit', 'clean', 'Edição múltipla');
+
+        $this->addButton($button);
+
+        return $fields;
+    }
+
+    public function multipleEdit()
+    {
+        \App::dontChangeUrl();
+
+        $model = $this->getModel();
+        $columns = $model->getColumns();
+        $options = [];
+
+        foreach ($columns as $column)
+        {
+            if ($column instanceof \Db\Column\Search)
+            {
+                continue;
+            }
+
+            $options[$column->getName()] = $column->getLabel();
+        }
+
+        $content = [];
+        $content[] = new \View\P(null, 'Selecione os campos a atualizar');
+
+        $select = new \View\Select('seletedColumn', $options, null, '');
+        $content[] = $this->getContainer('Adicionar campo', $select, 'col-12');
+        $content[] = new \View\Div('', new \View\Button('addColumn', 'Adicionar', 'multipleEditAddField', 'success'), 'col-12');
+        $content[] = new \View\Div('result');
+
+        \View\Blend\Popup::confirm('Atualização em massa', $content, 'multipleEditConfirm', null, 'small')->show();
+    }
+
+    public function multipleEditAddField()
+    {
+        \App::dontChangeUrl();
+
+        //toast('multipleEditAddField=' . $seletedColumn);
+        $selectedColumn = \DataHandle\Request::get('seletedColumn');
+        $selectedValue = \DataHandle\Request::exists($selectedColumn);
+
+        if ($selectedValue)
+        {
+            throw new \UserException('Campo já adicionado!');
+        }
+
+        $model = $this->getModel();
+        $column = $model->getColumn($selectedColumn);
+
+        $fieldLayout = $this->getFieldLayout();
+
+        $label = $fieldLayout->getLabel($column);
+        $input = $fieldLayout->getInputField($column, 'col-12');
+        $div = $fieldLayout->getContain($input, $label, 'notnull');
+        $div->addClass('col-12');
+
+        $removeCode = '$(this).parent(\'.field-contain\').remove();';
+        $remove = new \View\Ext\Icon('trash multiple-edit-remove', null, $removeCode);
+
+        $div->append($remove);
+        $this->byId('seletedColumn')->val('');
+        $this->byId('result')->append($div);
+    }
+
+    public function multipleEditConfirm()
+    {
+        \App::dontChangeUrl();
+        //\View\Blend\Popup::delete();
+
+        $dataSource = $this->getDataSource();
+        $this->addFiltersToDataSource($dataSource);
+        $count = $dataSource->getCount();
+
+        $content[] = 'Essa ação é irreversível. Execute com atenção!';
+
+        \View\Blend\Popup::prompt('Confirma atualização em massa de ' . $count . ' registros', $content, 'multipleEditExecute')->show();
+    }
+
+    public function multipleEditExecute()
+    {
+        \App::dontChangeUrl();
+        $dataSource = $this->getDataSource();
+        $this->addFiltersToDataSource($dataSource);
+        $data = $dataSource->getData();
+
+        $model = $this->getModel();
+        $columns = $model->getColumns();
+
+        $posted = [];
+
+        foreach ($columns as $column)
+        {
+            if ($column instanceof \Db\Column\Search)
+            {
+                continue;
+            }
+
+            if (\DataHandle\Request::exists($column->getName()))
+            {
+                $posted[$column->getName()] = \DataHandle\Request::get($column->getName());
+            }
+        }
+
+        $executed = 0;
+
+        foreach ($data as $model)
+        {
+            foreach ($posted as $property => $value)
+            {
+                $model->setValue($property, $value);
+            }
+
+            $errors = $model->validate();
+
+            if (is_array($errors) && count($errors) > 0)
+            {
+                continue;
+            }
+
+            try
+            {
+                $model->save();
+            }
+            catch (\Exception $exception)
+            {
+                continue;
+            }
+
+            $executed++;
+        }
+
+        \View\Blend\Popup::delete();
+        toast('Atualização em massa executada com sucesso! Executados: ' . $executed . '/' . count($data));
     }
 
 }
