@@ -930,9 +930,11 @@ class Crud extends \Page\Page
     {
         $fields = parent::listar();
 
-        $button = new \View\Ext\Button('multipleEdit', 'edit', 'Edição multipla', 'multipleEdit', 'clean', 'Edição múltipla');
-
-        $this->addButton($button);
+        if ($this->isMultipleUpdateAllowed())
+        {
+            $button = new \View\Ext\Button('multipleEdit', 'edit', 'Edição multipla', 'multipleEdit', 'clean', 'Edição múltipla');
+            $this->addButton($button);
+        }
 
         return $fields;
     }
