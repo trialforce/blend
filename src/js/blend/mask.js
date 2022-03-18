@@ -1,3 +1,15 @@
+/* global blend */
+blend.mask = {};
+blend.plugins.push(blend.mask);
+
+blend.mask.register = function ()
+{
+};
+
+blend.mask.start = function ()
+{
+    applyAllMasks(); 
+};
 
 /**
  * Máscara de CPF/CNPJ

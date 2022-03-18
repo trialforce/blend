@@ -1,3 +1,15 @@
+/* global blend */
+blend.datetime = {};
+blend.plugins.push(blend.datetime);
+
+blend.datetime.register = function ()
+{
+};
+
+blend.datetime.start = function ()
+{
+    dateTimeInput();
+};
 
 function dateTimeInputMobile()
 {

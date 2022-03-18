@@ -1,4 +1,15 @@
+/* global blend */
+blend.menu = {};
+blend.plugins.push(blend.menu);
 
+blend.menu.register = function ()
+{
+};
+
+blend.menu.start = function ()
+{
+    seletMenuItem();
+};
 
 function seletMenuItem()
 {
