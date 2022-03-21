@@ -193,8 +193,7 @@ class Text implements \Type\Generic, \JsonSerializable
         //avoid ugly file name with -_-
         $this->replace(array('-', '_'), $space);
         //remove double space
-        $this->replace($space . $space, $space);
-        $this->replace($space . $space, $space);
+        $this->string = preg_replace('/' . $space . '+/', $space, $this->string);
 
         $this->string = rtrim($this->string, $space);
 
