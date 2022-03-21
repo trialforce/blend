@@ -589,6 +589,13 @@ function disableFocused()
  */
 function r(type, page, formData, callBack)
 {
+    //in the case is a hash
+    if (page.indexOf('#') == 0)
+    {
+        window.scrollTo( { top: document.querySelector(page).offsetTop, behavior: 'smooth'} );
+        return false;
+    }
+    
     isAjax = true;
     var focused = disableFocused();
 
