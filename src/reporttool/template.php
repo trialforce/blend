@@ -610,8 +610,7 @@ class Template
             foreach ($matches[0] as $idx => $item)
             {
                 $original = $item;
-                $expression = html_entity_decode($matches[1][$idx]);
-
+                $expression = htmlspecialchars_decode(html_entity_decode($matches[1][$idx]), ENT_QUOTES);
                 ob_start();
                 eval('echo (' . $expression . ');');
                 $result = ob_get_contents();

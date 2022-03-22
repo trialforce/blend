@@ -247,26 +247,12 @@ function dataAjax()
         hideLoading();
     }
     
-    pluginsStart();
-    
     //clear the function to avoid calling more times
     blendJs = function(){};
-	
+    
+    pluginsStart();
     convertAjaxLinks();
     convertOnPressEnter();
-
-    //remove invalid on change
-    if ( typeof validatorRemoveInvalid == 'function' )
-    {
-        validatorRemoveInvalid();
-        validatorApplyInvalid();
-    }
-
-    //make masks work
-    if (typeof jQuery().mask == 'function')
-    {
-        applyAllMasks(); 
-    }
 
     //input float and integer
     if (typeof ($('input.float').autoNumeric) === "function")
@@ -278,18 +264,7 @@ function dataAjax()
     {
         $('.swipebox').swipebox();
     }
-
-    //multipleSelect();
-    if (typeof seletMenuItem == 'function') 
-    {
-        seletMenuItem();
-    }
-    
-    if (typeof dateTimeInput == "function")
-    {
-        dateTimeInput();
-    }
-    
+        
     //add system class
     if ( typeof isIos =="function" && isIos())
     {
@@ -299,13 +274,7 @@ function dataAjax()
     {
         $('body').removeClass('os-android').addClass('os-android');
     }
-    
-    //blend slider
-    $('.slider').each(function ()
-    {
-        slide('#' + $(this).attr('id'))
-    });
-    
+        
     if (typeof actionList == 'function')
     {
         actionList.restore();
@@ -326,7 +295,8 @@ function applyAutonumeric()
     $('input.float').autoNumeric('init');
     
     //limpa campo quando entrar nele e for zerado
-    $('input.float').focus(function () {
+    $('input.float').focus(function () 
+    {
         if ($(this).val() == '0,00')
         {
             $(this).val('');
@@ -334,7 +304,8 @@ function applyAutonumeric()
     });
 
     //limpa campo quando entrar nele e for zerado
-    $('input.float').blur(function () {
+    $('input.float').blur(function () 
+    {
         if ($(this).val() == '')
         {
             $(this).val('0,00');
@@ -618,6 +589,13 @@ function disableFocused()
  */
 function r(type, page, formData, callBack)
 {
+    //in the case is a hash
+    if (page.indexOf('#') == 0)
+    {
+        window.scrollTo( { top: document.querySelector(page).offsetTop, behavior: 'smooth'} );
+        return false;
+    }
+    
     isAjax = true;
     var focused = disableFocused();
 

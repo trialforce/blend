@@ -1,3 +1,17 @@
+/* global blend */
+blend.validator = {};
+blend.plugins.push(blend.validator);
+
+blend.validator.register = function ()
+{
+};
+
+blend.validator.start = function ()
+{
+    validatorRemoveInvalid();
+    validatorApplyInvalid();
+};
+
 /**
  * Remove all invalid information, and make it if necessary.
  * @returns boolean false

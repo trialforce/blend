@@ -1,25 +1,27 @@
 /* global blend */
 
 /**
- * Lazy loading of images src and background images
- * Use data-lazyloading-background-image
- * Or data-lazyloading-src
+ * Lazy loading of images src and background images and functions
+ * Use data-lazyloading-background-image, data-lazyloading-src or other metohods
  *
  * It can parse data-lazyloading-active to, you can use it
  * if you want to add 'lazyloading-active' when scrooll reaches this
  * element, very usefull if you want to add on scroll animations
  *
  */
-
 blend.lazyloading = {};
 //default image offset adjust, 0 for lighthouse/pagespeed
 blend.lazyloading.adjust = navigator.userAgent.indexOf("Chrome-Lighthouse") == -1 ? 0 : 40;
 //current height visible
 blend.lazyloading.heightVisible = 0;
+//last height visible
 blend.lazyloading.lastHeightVisible = 0;
 //scroll events/methods
 blend.lazyloading.onScrollUp = null;
 blend.lazyloading.onScrollDown = null;
+//if you need to "translate" the image to arbitrary change the url
+blend.lazyloading.srcTranslate = null;
+//add to plugin list
 blend.plugins.push(blend.lazyloading);
 
 blend.lazyloading.register = function ()
@@ -54,6 +56,11 @@ blend.lazyloading.parseBackImages = function ()
             
             if (image)
             {
+                if (typeof blend.lazyloading.srcTranslate == 'function' )
+                {
+                    image = blend.lazyloading.srcTranslate(image);
+                }
+        
                 element.css('background-image', 'url(' + image + ')');
                 element.removeData('lazyloading-background-image');
                 element.removeAttr('data-lazyloading-background-image');
@@ -78,6 +85,11 @@ blend.lazyloading.parseSrcImages = function ()
             
             if (image)
             {
+                if (typeof blend.lazyloading.srcTranslate == 'function' )
+                {
+                    image = blend.lazyloading.srcTranslate(image);
+                }
+                
                 element.attr('src', image);
                 element.removeData('lazyloading-src');
                 element.removeAttr('data-lazyloading-src');

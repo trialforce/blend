@@ -1,3 +1,19 @@
+/* global blend */
+blend.slide = {};
+blend.plugins.push(blend.slide);
+
+blend.slide.register = function ()
+{
+};
+
+blend.slide.start = function ()
+{
+    //blend slider
+    $('.slider').each(function ()
+    {
+        slide('#' + $(this).attr('id'));
+    });
+};
 
 /**
  * Create a simple slider, with mobile support
