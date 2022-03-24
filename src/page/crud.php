@@ -1002,8 +1002,6 @@ class Crud extends \Page\Page
     public function multipleEditConfirm()
     {
         \App::dontChangeUrl();
-        //\View\Blend\Popup::delete();
-
         $dataSource = $this->getDataSource();
         $this->addFiltersToDataSource($dataSource);
         $count = $dataSource->getCount();
@@ -1018,6 +1016,8 @@ class Crud extends \Page\Page
         \App::dontChangeUrl();
         $dataSource = $this->getDataSource();
         $this->addFiltersToDataSource($dataSource);
+        $dataSource->setPaginationLimit(null);
+        $dataSource->setPage(0);
         $data = $dataSource->getData();
 
         $model = $this->getModel();
