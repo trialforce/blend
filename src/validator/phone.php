@@ -64,6 +64,12 @@ class Phone extends \Validator\Validator
             return;
         }
 
+        //caso for um número internacional a gente nem mexe com ele
+        if (substr($this->value, 0, 1) == '+')
+        {
+            return;
+        }
+
         if (!$this->validaCaracteres($value))
         {
             $error[] = 'Telefone inválido, só pode conter números, parênteses e traço!';
