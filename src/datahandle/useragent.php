@@ -585,6 +585,13 @@ class UserAgent
             $this->ubname = "OPR";
             $this->name = 'opera';
         }
+        elseif ($this->detectedBrowser('edg'))
+        {
+            $this->developer = UserAgent::DEVELOPER_MICROSOFT;
+            $this->ubname = 'edge';
+            $this->name = 'edge';
+            $this->completeName = 'Edge';
+        }
         elseif ($this->detectedBrowser(UserAgent::BROWSER_CHROME))
         {
             $this->developer = UserAgent::DEVELOPER_GOOGLE;

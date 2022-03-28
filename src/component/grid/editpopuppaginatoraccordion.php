@@ -8,16 +8,10 @@ namespace Component\Grid;
  */
 class EditPopupPaginatorAccordion extends \Component\Grid\Paginator
 {
-
-    public function createPaginationLimitField()
-    {
-        return null;
-    }
-
-    public static function getCurrentPaginationLimitValue()
-    {
-        return \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
-    }
+    /* public static function getCurrentPaginationLimitValue()
+      {
+      return \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
+      } */
 
     protected function createExportButton()
     {

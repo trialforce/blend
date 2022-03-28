@@ -55,7 +55,7 @@ class EditPopupGrid extends \Component\Grid\Grid
 
     public function getPaginator()
     {
-        return new \Component\Grid\EditPopupPaginator('paginator', $this);
+        return new \Component\Grid\EditPopupPaginator('paginator-' . $this->getGridName(), $this);
     }
 
     public function setActions($actions)

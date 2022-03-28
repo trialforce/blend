@@ -6,7 +6,7 @@ require 'autoload.php';
 ini_set('zlib.output_compression', 'On');
 
 //grow session security
-if (session_status() == PHP_SESSION_NONE && !headers_sent())
+if (session_status() == PHP_SESSION_NONE)
 {
     ini_set('session.cookie_lifetime', 0);
     ini_set('session.sid_length', 48);

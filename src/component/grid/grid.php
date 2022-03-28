@@ -96,6 +96,15 @@ class Grid extends \Component\Component
         $this->setDataSource($dataSource);
     }
 
+    public function getGridName()
+    {
+        $id = strtolower($this->getId());
+        $id = str_replace('component\grid\\', '', $id);
+        $id = str_replace('\\', '-', $id);
+
+        return $id;
+    }
+
     /**
      * Retorna o datasource selecionado.
      * Já com as colunas definidas
@@ -821,7 +830,12 @@ class Grid extends \Component\Component
         }
         else
         {
-            $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
+            $paginator = $this->getPaginator();
+
+            if ($paginator)
+            {
+                $dataSource->setPaginationLimit($paginator->getCurrentPaginationLimitValue());
+            }
         }
 
         if (Request::get('orderBy'))

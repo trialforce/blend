@@ -422,8 +422,7 @@ class Log
 
         $error = '';
         $error .= "###############################################" . PHP_EOL;
-        $error .= 'Error in ' . date('d/m/y G:i:s:u') . ' = ' . $file . ' on line ' . $line . "\n";
-        $error .= $type . ' - ' . $message . PHP_EOL;
+        $error .= 'Error ' . $type . ' - ' . $message . 'in ' . $file . ' on line ' . $line . PHP_EOL;
 
         //controls especial js erro type, used in API
         if (strtolower($type) != 'js')

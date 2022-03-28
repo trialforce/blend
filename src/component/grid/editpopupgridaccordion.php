@@ -17,6 +17,13 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
 
         $this->addFilterToDataSource();
         $count = $this->getDataSource()->getCount();
+        $this->dataSource->setPaginationLimit(15);
+
+        if (!$this->dataSource->getPage())
+        {
+            $this->dataSource->setPage(0);
+        }
+
         $label = $this->getModelLabel();
         $view = array();
 
