@@ -1,3 +1,25 @@
+/* global blend */
+
+blend.baseFunctions = {};
+blend.plugins.push(blend.baseFunctions);
+
+blend.baseFunctions.register = function ()
+{
+};
+
+blend.baseFunctions.start = function ()
+{
+    //add system class
+    if ( typeof isIos =="function" && isIos())
+    {
+        $('body').removeClass('os-ios').addClass('os-ios');
+    }
+    else if ( typeof isAndroid =="function" && isAndroid())
+    {
+        $('body').removeClass('os-android').addClass('os-android');
+    }
+};
+
 function isAndroid()
 {
     return navigator.userAgent.toLowerCase().indexOf("android") > -1;

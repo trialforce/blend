@@ -1,5 +1,16 @@
-
+/* global blend */
 var actionList = {};
+blend.actionList = {};
+blend.plugins.push(blend.actionList);
+
+blend.actionList.register = function ()
+{
+};
+
+blend.actionList.start = function ()
+{
+    actionList.restore();
+};
 
 actionList.toggle = function()
 {

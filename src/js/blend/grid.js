@@ -1,5 +1,17 @@
+/* global blend */
 
 var grid = {};
+blend.grid = {};
+blend.plugins.push(blend.grid);
+
+blend.grid.register = function ()
+{
+};
+
+blend.grid.start = function ()
+{
+    grid.restoreTextSize();
+};
 
 grid.changeTextSize = function(element)
 {

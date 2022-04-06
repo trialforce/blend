@@ -1,3 +1,23 @@
+/* global blend, CKEDITOR */
+
+blend.ckeditor = {};
+blend.plugins.push(blend.ckeditor);
+
+blend.ckeditor.register = function ()
+{
+};
+
+blend.ckeditor.start = function ()
+{
+    dateTimeInput();
+};
+
+blend.ckeditor.beforeSubmit = function ()
+{
+    updateEditors();
+};
+
+
 /**
  * Update the content of html editor nicEditor and CkEditor
  *

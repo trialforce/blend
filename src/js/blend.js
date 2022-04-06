@@ -10,28 +10,16 @@ var blend = {};
 blend.defaultFormPost = 'form';
 blend.plugins = [];
  
-function pluginsRegister()
+function pluginsCallMethod(method)
 {
     for (var i = 0; i < blend.plugins.length; i++)
     {
         var plugin = blend.plugins[i];
+        var pluginMethod = plugin[method];
         
-        if ( typeof plugin.register == 'function')
+        if ( typeof pluginMethod == 'function')
         {
-            plugin.register();
-        }
-    }
-}
-
-function pluginsStart()
-{
-    for (var i = 0; i < blend.plugins.length; i++)
-    {
-        var plugin = blend.plugins[i];
-        
-        if ( typeof plugin.start == 'function')
-        {
-            plugin.start();
+            pluginMethod();
         }
     }
 }
@@ -67,7 +55,7 @@ if (typeof $ == 'function')
 //Loading without ajax
 window.onload =  function ()
 {
-    pluginsRegister();
+    pluginsCallMethod('register');
     dataAjax();
         
     /**
@@ -153,84 +141,9 @@ function escape()
     return false;
 }
 
-function convertAjaxLinks()
-{
-    //links
-    $("[data-ajax]").each(function ()
-    {
-        var element = $(this);
-        var dataAjax = element.attr('data-ajax');
-        var href = element.attr('href');
-        var disabled = element.attr('disabled');
-        element.removeAttr('data-ajax');
-        
-        //if is an outside link do not use ajax system
-        if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0) )
-        {
-            href = null;
-        }
-
-        if (href && dataAjax)
-        {
-            if (disabled == 'disabled')
-            {
-                element.click(function ()
-                {
-                    toast('Ação desabilitada!');
-                    return false;
-                });
-            }
-            else if (dataAjax === 'noFormData')
-            {
-                element.click(function () {
-                    return g(href, '');
-                });
-            } 
-            else
-            {
-                element.click(function () {
-                    return p(href);
-                });
-            }
-        }
-    }
-    );
-}
-
-function convertOnPressEnter()
-{
-    $("[data-on-press-enter]").each(function ()
-    {
-        var element = $(this);
-        var myEvent = element.attr('data-on-press-enter');
-
-        //get out if converted
-        if (element.attr('data-on-press-enter-converted') == "1")
-        {
-            return;
-        }
-
-        //mark as converted
-        element.attr('data-on-press-enter-converted', "1");
-        element.keydown(
-                function (e)
-                {
-                    if (e.keyCode == "13" && !e.shiftKey)
-                    {
-                        eval(myEvent);
-                        e.preventDefault();
-                    } else
-                    {
-                        return true;
-                    }
-                }
-        );
-    }
-    );
-}
 
 /**
- * Parse data-ajax attribute, to make a link ajax
+ * Make all actions that is need after some post/ajax post
  *
  * @returns boolean always false
  */
@@ -244,75 +157,14 @@ function dataAjax()
     {
         alert('Erro ao executar javascript da página!');
         console.error(e);
-        hideLoading();
+        return hideLoading();
     }
     
     //clear the function to avoid calling more times
     blendJs = function(){};
-    
-    pluginsStart();
-    convertAjaxLinks();
-    convertOnPressEnter();
-
-    //input float and integer
-    if (typeof ($('input.float').autoNumeric) === "function")
-    {
-        applyAutonumeric();
-    }
-
-    if (typeof ($('.swipebox').swipebox) === "function")
-    {
-        $('.swipebox').swipebox();
-    }
-        
-    //add system class
-    if ( typeof isIos =="function" && isIos())
-    {
-        $('body').removeClass('os-ios').addClass('os-ios');
-    }
-    else if ( typeof isAndroid =="function" && isAndroid())
-    {
-        $('body').removeClass('os-android').addClass('os-android');
-    }
-        
-    if (typeof actionList == 'function')
-    {
-        actionList.restore();
-    }
-    
-    if ( typeof grid =='function')
-    {
-        grid.restoreTextSize();    
-    }
-    
-    hideLoading();
-
-    return false;
-}
-
-function applyAutonumeric()
-{
-    $('input.float').autoNumeric('init');
-    
-    //limpa campo quando entrar nele e for zerado
-    $('input.float').focus(function () 
-    {
-        if ($(this).val() == '0,00')
-        {
-            $(this).val('');
-        }
-    });
-
-    //limpa campo quando entrar nele e for zerado
-    $('input.float').blur(function () 
-    {
-        if ($(this).val() == '')
-        {
-            $(this).val('0,00');
-        }
-    });
-
-    $('input.integer').autoNumeric('init');
+    pluginsCallMethod('start');
+  
+    return hideLoading();
 }
 
 /**
@@ -466,12 +318,14 @@ function showLoading()
 {
     $("body").bind("keydown", avoidTab);
     $(".loading").fadeIn('fast');
+    return false;
 }
 
 function hideLoading()
 {
     $("body").unbind("keydown", avoidTab);
     $(".loading").fadeOut('fast');
+    return false;
 }
 
 function getFormDataToPost(formData,type)
@@ -598,15 +452,9 @@ function r(type, page, formData, callBack)
     
     isAjax = true;
     var focused = disableFocused();
-
     showLoading();
+    pluginsCallMethod('beforeSubmit');
     
-    //TODO refactor to plugin
-    if (typeof updateEditors == 'function')
-    {
-        updateEditors();
-    }
-
     var host = $('base').attr('href');
     var url = host + page.replace(host, '');
 
@@ -635,8 +483,7 @@ function r(type, page, formData, callBack)
             if (!data)
             {
                 toast('Sem retorno do servidor!', 'danger');
-                hideLoading();
-                return;
+                return hideLoading();
             }
 
             //only make response if content exists, to avoid clean
@@ -717,7 +564,7 @@ function r(type, page, formData, callBack)
     return false;
 }
 
-function getJson(page, formData, loadingShow, callBack)
+async function getJson(page, formData, loadingShow, callBack)
 {
     var host = $('base').attr('href');
     var url = host + page.replace(host, '');

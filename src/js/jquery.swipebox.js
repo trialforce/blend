@@ -1,4 +1,20 @@
 /*! Swipebox v1.4.1 | Constantin Saguin csag.co | MIT License | github.com/brutaldesign/swipebox */
+/* global blend */
+
+blend.swipebox = {};
+blend.plugins.push(blend.swipebox);
+
+blend.swipebox.register = function ()
+{
+};
+
+blend.swipebox.start = function ()
+{
+    if (typeof ($('.swipebox').swipebox) === "function")
+    {
+        $('.swipebox').swipebox();
+    }
+};
 
 ;( function ( window, document, $, undefined ) {
 
