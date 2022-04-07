@@ -397,9 +397,20 @@ class Grid extends \Component\Component
      */
     public function createTableInner()
     {
+        $dataSource = $this->getDataSource();
+        $paginator = $this->getPaginator();
+
+        if (is_object($paginator))
+        {
+            $limit = $paginator->getCurrentPaginationLimitValue();
+            $dataSource->setPaginationLimit($limit);
+            $dataSource->setLimit($limit);
+        }
+
         //only force the getData, to make any changes in data that is needed
         //the data is not used here (but getData is cached, so it's okay)
-        $this->getDataSource()->getData();
+        $dataSource->getData();
+
         $view = array();
 
         if ($this->getTitle())
@@ -828,15 +839,6 @@ class Grid extends \Component\Component
         {
             $dataSource->setPaginationLimit(999999);
         }
-        else
-        {
-            $paginator = $this->getPaginator();
-
-            if ($paginator)
-            {
-                $dataSource->setPaginationLimit($paginator->getCurrentPaginationLimitValue());
-            }
-        }
 
         if (Request::get('orderBy'))
         {
@@ -1152,6 +1154,11 @@ class Grid extends \Component\Component
         {
             return new \View\Div(null, 'Impossível encontrar registro.');
         }
+    }
+
+    public function getCallInterfaceFunctions()
+    {
+        return false;
     }
 
 }
