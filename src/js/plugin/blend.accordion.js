@@ -4,7 +4,6 @@
  * Animated number from zero to the real number
  * 
  */
-
 blend.accordion = {};
 blend.plugins.push(blend.accordion); 
 

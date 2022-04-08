@@ -1,10 +1,6 @@
 blend.autoNumeric = {};
 blend.plugins.push(blend.autoNumeric);
 
-blend.autoNumeric.register = function ()
-{
-};
-
 blend.autoNumeric.start = function ()
 {
     applyAutonumeric();

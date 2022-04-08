@@ -2,10 +2,6 @@
 blend.convertAjaxLinks = {};
 blend.plugins.push(blend.convertAjaxLinks);
 
-blend.convertAjaxLinks.register = function ()
-{
-};
-
 blend.convertAjaxLinks.start = function ()
 {
     //links

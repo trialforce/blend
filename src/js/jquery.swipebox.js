@@ -4,10 +4,6 @@
 blend.swipebox = {};
 blend.plugins.push(blend.swipebox);
 
-blend.swipebox.register = function ()
-{
-};
-
 blend.swipebox.start = function ()
 {
     if (typeof ($('.swipebox').swipebox) === "function")

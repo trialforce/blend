@@ -22,8 +22,6 @@ class ContentEditable extends \View\Div
     {
         $this->div = new \View\Div($id . '-content', $innerHtml, 'input');
         $this->div->attr('contenteditable', 'true');
-        $this->div->blur("$('#$id').val($('#$id-content').html());");
-
 
         $this->input = new \View\Input($id, \View\Input::TYPE_HIDDEN, $innerHtml);
 

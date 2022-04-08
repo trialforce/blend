@@ -2,11 +2,6 @@
 blend.onpressenter = {};
 blend.plugins.push(blend.onpressenter);
 
-blend.onpressenter.register = function ()
-{
-};
-
-
 blend.onpressenter.parse = function(element)
 {
     //mark as converted
