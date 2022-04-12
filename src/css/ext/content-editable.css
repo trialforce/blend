@@ -1,0 +1,15 @@
+.content-editable .input {
+    height: 100%;
+    width: 100%;
+    float: left;
+    min-height: 100px;
+    line-height: 1.4;
+    text-indent: 0;
+}
+
+.content-editable-menu {
+    display: flex;
+    position: absolute;
+    top: 0;
+    right:0;
+}
