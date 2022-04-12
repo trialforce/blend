@@ -13,14 +13,6 @@ class SearchGrid extends \Component\Grid\Grid
 {
 
     /**
-     * Call interface functions.
-     * Used for optimizations
-     *
-     * @var boolean
-     */
-    protected $callInterfaceFunctions = TRUE;
-
-    /**
      * Extra filters
      * @var array
      */
@@ -532,16 +524,6 @@ class SearchGrid extends \Component\Grid\Grid
         }
 
         return $tabItem;
-    }
-
-    public function getCallInterfaceFunctions()
-    {
-        return $this->callInterfaceFunctions;
-    }
-
-    public function setCallInterfaceFunctions($callInterfaceFunctions)
-    {
-        $this->callInterfaceFunctions = $callInterfaceFunctions;
     }
 
     protected function createTd(\Component\Grid\Column $column, $index, $item, $tr)
