@@ -89,7 +89,24 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Make the validation
+     * Verify if current value is valid
+     *
+     * @return boolean
+     */
+    public function isValid()
+    {
+        $error = $this->validate($this->value);
+
+        if (is_array($error) && count($error) > 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Make the validation of a passed value
      *
      * @return array
      */
