@@ -59,6 +59,8 @@ class SearchGrid extends \Component\Grid\Grid
             $this->setColumns($columns);
         }
 
+        $this->setCallInterfaceFunctions(true);
+
         $this->setCreateAllTabs();
     }
 

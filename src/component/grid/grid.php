@@ -90,7 +90,7 @@ class Grid extends \Component\Component
      *
      * @var boolean
      */
-    protected $callInterfaceFunctions = TRUE;
+    protected $callInterfaceFunctions = FALSE;
 
     /**
      * Construct a grid
