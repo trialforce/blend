@@ -400,7 +400,7 @@ class Grid extends \Component\Component
         $dataSource = $this->getDataSource();
         $paginator = $this->getPaginator();
 
-        if (is_object($paginator))
+        if ($paginator instanceof \Component\Grid\Paginator)
         {
             $limit = $paginator->getCurrentPaginationLimitValue();
             $dataSource->setPaginationLimit($limit);
