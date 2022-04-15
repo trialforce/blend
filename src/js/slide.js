@@ -36,9 +36,15 @@ function slide(selector)
         return;
     }
     
+    //cached elements
     var items = group.find('.slider-items').get(0);
-    var prev = group.find('.slider-prev').get(0);
-    var next = group.find('.slider-next').get(0);
+    var prev = group.find('>.slider-prev').get(0);
+    var next = group.find('>.slider-next').get(0);
+    var slides = items.querySelectorAll(':scope >.slide'); //only first level child
+    var slidesLength = slides.length;
+    console.log(selector+'='+slidesLength);
+
+    //data
     var autoSlide = group.data('auto-slide');
     var fullScreen = group.data('full-screen');
     var dataStartIndex = group.data('start-index');
@@ -78,20 +84,17 @@ function slide(selector)
         });
     }
     
-    //if it don't has any slide, does nothing
-    var slideCount = group.find('.slide').length;
-    
     //remove slide prev/next if not neeed
-    if (slideCount <= 1 )
+    if (slidesLength <= 1 )
     {
         group.find('.slider-prev').remove();
         group.find('.slider-next').remove();
     }
 
     //ajdust width e height
+    $(items).css('left', '-' + outterWidth+'px');
     group.find('.slide').css('width', outterWidth+'px');
     group.find('.slide').css('height', outterHeight+'px');
-    group.find('.slider-items').css('left', '-' + outterWidth+'px');
     group.find('.slider-wrapper').css('height', outterHeight+'px');
     
     var slicker = group.find('.slider-slick');
@@ -125,10 +128,7 @@ function slide(selector)
         return;
     }
 
-    var slides = items.getElementsByClassName('slide');
-    var slidesLength = slides.length;
-    var slideSize = items.getElementsByClassName('slide')[0].offsetWidth;
-
+    var slideSize = slides[0].offsetWidth;
     var firstSlide = slides[0];
     var lastSlide = slides[slidesLength - 1];
 
@@ -149,18 +149,18 @@ function slide(selector)
     
     cloneLast.classList.add('cloned');
 
-    // Clone first and last slide
+    //clone first and last slide
     items.appendChild(cloneFirst);
     items.insertBefore(cloneLast, firstSlide);
     group.addClass('loaded');
 
-    // Mouse and Touch events
+    //mouse and touch events
     items.onmousedown = dragStart;
-
-    // Touch events
     items.addEventListener('touchstart', dragStart, {passive: true});
     items.addEventListener('touchend', dragEnd, {passive: true});
     items.addEventListener('touchmove', dragAction, {passive: true});
+    //transition events
+    items.addEventListener('transitionend', checkIndex, true);
     
     //auto slide
     if (Number.isInteger(autoSlide) && slidesLength > 1) 
@@ -182,7 +182,6 @@ function slide(selector)
     {
         prev.addEventListener('click', function (event)
         {
-            //event.preventDefault();
             shiftSlide(-1); 
         }, {passive: true});
     }
@@ -191,13 +190,9 @@ function slide(selector)
     {
         next.addEventListener('click', function (event)
         {
-            //event.preventDefault();
             shiftSlide(1);
         }, {passive: true});
     }
-
-    // Transition events
-    items.addEventListener('transitionend', checkIndex, true);
 
     function dragStart(e)
     {
@@ -265,6 +260,7 @@ function slide(selector)
         if( diffX === 0 && diffY == 0 )
         {
             var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
+            console.log(selector+'='+onclickCode);
             
             if ( onclickCode)
             {
