@@ -85,6 +85,14 @@ class Grid extends \Component\Component
     protected $actions;
 
     /**
+     * Call interface functions.
+     * Used for optimizations
+     *
+     * @var boolean
+     */
+    protected $callInterfaceFunctions = FALSE;
+
+    /**
      * Construct a grid
      *
      * @param string $id
@@ -182,6 +190,16 @@ class Grid extends \Component\Component
         $this->title = $title;
 
         return $this;
+    }
+
+    public function getCallInterfaceFunctions()
+    {
+        return $this->callInterfaceFunctions;
+    }
+
+    public function setCallInterfaceFunctions($callInterfaceFunctions)
+    {
+        $this->callInterfaceFunctions = $callInterfaceFunctions;
     }
 
     /**
@@ -400,7 +418,7 @@ class Grid extends \Component\Component
         $dataSource = $this->getDataSource();
         $paginator = $this->getPaginator();
 
-        if (is_object($paginator))
+        if ($paginator instanceof \Component\Grid\Paginator)
         {
             $limit = $paginator->getCurrentPaginationLimitValue();
             $dataSource->setPaginationLimit($limit);
@@ -1154,11 +1172,6 @@ class Grid extends \Component\Component
         {
             return new \View\Div(null, 'Impossível encontrar registro.');
         }
-    }
-
-    public function getCallInterfaceFunctions()
-    {
-        return false;
     }
 
 }
