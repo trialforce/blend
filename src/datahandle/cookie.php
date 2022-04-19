@@ -21,7 +21,7 @@ class Cookie extends DataHandle
 
         foreach ($cookies as $key => $value)
         {
-            $this->key = $value;
+            $this->$key = $value;
         }
     }
 
