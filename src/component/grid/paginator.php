@@ -219,7 +219,7 @@ class Paginator extends \View\Div
     {
         $id = $this->grid->getGridName();
 
-        $value = Cookie::get('paginationLimitCookie') ? Cookie::get('paginationLimitCookie') : \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
+        $value = Cookie::getDefault('paginationLimitCookie', \DataSource\DataSource::DEFAULT_PAGE_LIMIT);
         $value = Request::getDefault('paginationLimit-' . $id, $value);
 
         return $value;
