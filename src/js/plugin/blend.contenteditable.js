@@ -13,6 +13,19 @@ blend.contentEditable.getNodeList = function()
     return document.querySelectorAll('.'+blend.contentEditable.cssClass);
 }
 
+blend.contentEditable.beforeSubmit = function()
+{
+    var nodeList = blend.contentEditable.getNodeList();
+    
+    for (var i= 0 ; i<nodeList.length; i++)
+    {
+        var element = nodeList[i];
+        var input = element.querySelector('input');
+        var editable = element.querySelector('[contenteditable]');
+        input.value = editable.innerHTML;
+    }
+};
+
 blend.contentEditable.start = function()
 {
     var nodeList = blend.contentEditable.getNodeList();
@@ -28,10 +41,9 @@ blend.contentEditable.start = function()
             continue;
         }
         
-        var menu = blend.contentEditable.createMenu(element);
-        parent.appendChild(menu);
-        
-        console.log(parent);
+        //var menu = blend.contentEditable.createMenu(element);
+        //parent.appendChild(menu);
+        //console.log(parent);
     }
 };
 
@@ -61,18 +73,6 @@ blend.contentEditable.createButton = function(element, icon, action, title)
     return button;
 };
 
-blend.contentEditable.beforeSubmit = function()
-{
-    var nodeList = blend.contentEditable.getNodeList();
-    
-    for (var i= 0 ; i<nodeList.length; i++)
-    {
-        var element = nodeList[i];
-        var input = element.querySelector('input');
-        var editable = element.querySelector('[contenteditable]');
-        input.value = editable.innerHTML;
-    }
-};
 
 blend.contentEditable.actions.clear = function(selector)
 {
