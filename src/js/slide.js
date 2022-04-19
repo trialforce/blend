@@ -8,7 +8,13 @@ blend.slide.register = function ()
 
 blend.slide.start = function ()
 {
-    //blend slider
+    //first inner slider
+    $('.slider').not('.slider-outter').each(function ()
+    {
+        slide('#' + $(this).attr('id'));
+    });
+    
+    //after that the rest
     $('.slider').each(function ()
     {
         slide('#' + $(this).attr('id'));
@@ -37,12 +43,23 @@ function slide(selector)
     }
     
     //cached elements
-    var items = group.find('.slider-items').get(0);
+    var wrapper = group.find('>.slider-wrapper');
+    var items = wrapper.find('>.slider-items').get(0);
+    
+    //remove width for outter slider
     var prev = group.find('>.slider-prev').get(0);
     var next = group.find('>.slider-next').get(0);
     var slides = items.querySelectorAll(':scope >.slide'); //only first level child
     var slidesLength = slides.length;
-    console.log(selector+'='+slidesLength);
+    var hasSubSlider = group.find('.slider').length>0;
+    
+    if (!items)
+    {
+        return;
+    }
+    
+    //remove outter class, is not needed after parse
+    group.get(0).classList.remove('slider-outter');
 
     //data
     var autoSlide = group.data('auto-slide');
@@ -51,7 +68,7 @@ function slide(selector)
     var dataChangeOnHover = group.data('change-on-hover');
     
     //copy outter width to inner
-    var outterWidth = group.find('.slider-wrapper').width();
+    var outterWidth = wrapper.width();
     var outterHeight = parseInt(group.height());
 
     //if the height it not loaded yet, wait a little
@@ -64,6 +81,18 @@ function slide(selector)
         
         return;
     }
+    
+    //ajdust width e height
+    items.style.left = '-' + outterWidth+'px';
+    
+    for (var i=0; i<slides.length; i++)
+    {
+        var curSlide = slides[i];
+        curSlide.style.width = outterWidth+'px';
+        curSlide.style.height = outterHeight+'px';
+    }
+    
+    wrapper.css('height', outterHeight+'px');
     
     if (dataChangeOnHover)
     {
@@ -87,16 +116,29 @@ function slide(selector)
     //remove slide prev/next if not neeed
     if (slidesLength <= 1 )
     {
-        group.find('.slider-prev').remove();
-        group.find('.slider-next').remove();
+        prev.remove();
+        next.remove();
+    }
+    else
+    {
+        // Click events
+        if (prev)
+        {
+            prev.addEventListener('click', function (event)
+            {
+                shiftSlide(-1); 
+            }, {passive: true});
+        }
+
+        if (next)
+        {
+            next.addEventListener('click', function (event)
+            {
+                shiftSlide(1);
+            }, {passive: true});
+        }
     }
 
-    //ajdust width e height
-    $(items).css('left', '-' + outterWidth+'px');
-    group.find('.slide').css('width', outterWidth+'px');
-    group.find('.slide').css('height', outterHeight+'px');
-    group.find('.slider-wrapper').css('height', outterHeight+'px');
-    
     var slicker = group.find('.slider-slick');
     
     slicker.each( function(index)
@@ -122,11 +164,6 @@ function slide(selector)
     var threshold = 50;
     var thresholdMove = 5;
     var allowShift = true;
-    
-    if (!items)
-    {
-        return;
-    }
 
     var slideSize = slides[0].offsetWidth;
     var firstSlide = slides[0];
@@ -154,12 +191,11 @@ function slide(selector)
     items.insertBefore(cloneLast, firstSlide);
     group.addClass('loaded');
 
-    //mouse and touch events
+    //mouse, touch and transition events
     items.onmousedown = dragStart;
     items.addEventListener('touchstart', dragStart, {passive: true});
     items.addEventListener('touchend', dragEnd, {passive: true});
     items.addEventListener('touchmove', dragAction, {passive: true});
-    //transition events
     items.addEventListener('transitionend', checkIndex, true);
     
     //auto slide
@@ -177,22 +213,6 @@ function slide(selector)
         }
     }
 
-    // Click events
-    if (prev)
-    {
-        prev.addEventListener('click', function (event)
-        {
-            shiftSlide(-1); 
-        }, {passive: true});
-    }
-
-    if (next)
-    {
-        next.addEventListener('click', function (event)
-        {
-            shiftSlide(1);
-        }, {passive: true});
-    }
 
     function dragStart(e)
     {
@@ -260,7 +280,6 @@ function slide(selector)
         if( diffX === 0 && diffY == 0 )
         {
             var onclickCode = $(items).parents('*[data-onclick]').data('onclick');
-            console.log(selector+'='+onclickCode);
             
             if ( onclickCode)
             {
