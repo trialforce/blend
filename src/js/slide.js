@@ -116,8 +116,15 @@ function slide(selector)
     //remove slide prev/next if not neeed
     if (slidesLength <= 1 )
     {
-        prev.remove();
-        next.remove();
+        if (prev)
+        {
+            prev.remove();
+        }
+        
+        if (next)
+        {
+            next.remove();
+        }   
     }
     else
     {
