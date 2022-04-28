@@ -117,7 +117,7 @@ class Grid extends \Component\Component
      * Retorna o datasource selecionado.
      * Já com as colunas definidas
      *
-     * @return \DataSource\Model
+     * @return \DataSource\DataSource
      */
     public function getDataSource()
     {
@@ -126,7 +126,7 @@ class Grid extends \Component\Component
 
     /**
      * Define the DataSource
-     * @param type $dataSource
+     * @param \DataSource\DataSource $dataSource
      */
     public function setDataSource($dataSource)
     {
@@ -602,7 +602,7 @@ class Grid extends \Component\Component
      * Define paginator
      *
      * @param \View\View $paginator
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function setPaginator($paginator)
     {
