@@ -622,6 +622,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
 
         $html = json_encode($html);
+        //add support for "
+        $html = str_replace('&quot;', '\"', $html);
 
         \App::addJs($this->getSelector() . ".{$method}({$html});");
 
