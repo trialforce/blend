@@ -682,11 +682,11 @@ function setFocusOnFirstField()
     //support popup
     if ($('.popup').length)
     {
-        $('.popup').find('input:not([readonly]):not([disabled]):first').focus();
+        $('.popup').find('input:not([readonly]):not([disabled]):visible:first').focus();
     } 
     else
     {
-        $('.content input:not([readonly]):not([disabled]):first').focus();
+        $('.content input:not([readonly]):not([disabled]):visible:first').focus();
     }
 
     return false;

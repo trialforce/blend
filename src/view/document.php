@@ -43,6 +43,7 @@ class Document extends \DomDocument implements \Countable
         $content = file_get_contents($layout);
 
         //desabilita erros chatos da libxml na leitura de layouts
+        libxml_clear_errors();
         libxml_use_internal_errors(true);
         $this->strictErrorChecking = FALSE;
         $options = LIBXML_VERSION >= 20900 ? LIBXML_PARSEHUGE : null;
