@@ -63,7 +63,14 @@ function blend_shutdown()
         //ou via html no navegador
         else
         {
-            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe!</body></html>';
+            $msg = '';
+
+            if (\DataHandle\Config::get('emailTest'))
+            {
+                $msg = '<br/>Erro:<br/>' . nl2br($error['message']) . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'];
+            }
+
+            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe!' . $msg . '</body></html>';
         }
     }
 
