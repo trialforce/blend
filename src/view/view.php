@@ -622,6 +622,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
 
         $html = json_encode($html);
+        //add support for "
+        //$html = str_replace('&quot;', '\"', $html);
 
         \App::addJs($this->getSelector() . ".{$method}({$html});");
 
@@ -1424,8 +1426,24 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
                 $htmlText = \tidy_repair_string($htmlText, $config, 'utf8');
             }
 
-            $layout = new \View\Layout();
+            $layout = new \View\Layout(null, false);
             $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
+
+            /* libxml_clear_errors();
+              libxml_use_internal_errors(true);
+              $layout->strictErrorChecking = FALSE;
+              $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
+
+              $errors = libxml_get_errors();
+
+              if (count($errors) > 0)
+              {
+              $error = $errors[0];
+              libxml_clear_errors();
+              throw new \Exception('Erro adicionando HTML: ' . $error->message);
+              } */
+
+            libxml_clear_errors();
 
             \View\View::getDom()->appendLayout($element->getAttribute('id'), $layout);
         }

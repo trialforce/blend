@@ -141,8 +141,7 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         if ($idValue)
         {
-            $where = new \Db\Where($this->getIdParent(), '=', $idValue);
-            $dataSource->addExtraFilter($where);
+            $dataSource->where($this->getIdParent(), '=', $idValue);
         }
 
         \Component\Grid\Grid::addPaginationToDataSource($dataSource);
