@@ -10,11 +10,11 @@ blend.baseFunctions.register = function ()
 blend.baseFunctions.start = function ()
 {
     //add system class
-    if ( typeof isIos =="function" && isIos())
+    if (typeof isIos == "function" && isIos())
     {
         $('body').removeClass('os-ios').addClass('os-ios');
     }
-    else if ( typeof isAndroid =="function" && isAndroid())
+    else if (typeof isAndroid == "function" && isAndroid())
     {
         $('body').removeClass('os-android').addClass('os-android');
     }

@@ -309,11 +309,11 @@ class Crud extends \Page\Page
     /**
      * Retorna o FieldLayout utilizado para montagem dos campos
      *
-     * @return \Fieldlayout\Vector
+     * @return \FieldLayout\Vector
      */
     public function getFieldLayout()
     {
-        return new \Fieldlayout\Vector(null, $this->model);
+        return new \FieldLayout\Vector(null, $this->model);
     }
 
     /**
@@ -985,6 +985,12 @@ class Crud extends \Page\Page
         $column = $model->getColumn($selectedColumn);
 
         $fieldLayout = $this->getFieldLayout();
+
+        //add support for multiple fieldlayout
+        if (is_array($fieldLayout))
+        {
+            $fieldLayout = $fieldLayout[0];
+        }
 
         $label = $fieldLayout->getLabel($column);
         $input = $fieldLayout->getInputField($column, 'col-12');

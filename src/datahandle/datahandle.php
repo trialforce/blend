@@ -99,7 +99,7 @@ class DataHandle
 
     /**
      * Verify is some variable exists in datahandle
-     * 
+     *
      * @param string $var
      * @return boolean
      */

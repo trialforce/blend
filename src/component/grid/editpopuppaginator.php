@@ -8,13 +8,5 @@ namespace Component\Grid;
  */
 class EditPopupPaginator extends \Component\Grid\Paginator
 {
-    /* public function createPaginationLimitField()
-      {
-      return null;
-      } */
 
-    /* public static function getCurrentPaginationLimitValue()
-      {
-      return \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
-      } */
 }

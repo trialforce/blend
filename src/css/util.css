@@ -87,7 +87,7 @@ td.hide-in-mobile {
     }
 
     td.hide-in-desktop, .grid td.hide-in-desktop {
-        display: table-cell !important;;
+        display: table-cell !important;
     }
 
     .hide-in-mobile, td.hide-in-mobile , .grid td.hide-in-mobile {

@@ -170,8 +170,6 @@ class Text implements \Type\Generic, \JsonSerializable
         $content = str_replace('<', '', $content);
         $content = str_replace('>', '', $content);
 
-        //$content = preg_replace("/[^a-zA-Z0-9\s]/", "", $content);
-
         $this->string = $content;
 
         return $this;
