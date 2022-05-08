@@ -162,4 +162,20 @@ class DataHandle
         return null;
     }
 
+    /**
+     * Remove passed variable
+     *
+     * @param string $var
+     * @return $this
+     */
+    public function remove($var)
+    {
+        if (isset($this->$var))
+        {
+            unset($this->$var);
+        }
+
+        return $this;
+    }
+
 }
