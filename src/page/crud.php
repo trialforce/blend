@@ -866,6 +866,17 @@ class Crud extends \Page\Page
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
+
         $this->crudEditPopup($url, $title, $idInput);
     }
 
@@ -894,6 +905,17 @@ class Crud extends \Page\Page
         $url .= '?iframe=true';
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
+
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
