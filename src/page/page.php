@@ -772,8 +772,11 @@ class Page extends \View\Layout
         $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);
         //remove do dom para não reaparecer
+        //$element->remove();
         $element->parentNode->removeChild($element);
         $element->html($table);
+
+        \App::setResponse('other-content-to-avoid-problem', null);
     }
 
     /**
