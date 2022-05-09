@@ -47,8 +47,19 @@ function slide(selector)
     var items = wrapper.find('>.slider-items').get(0);
     
     //remove width for outter slider
-    var prev = group.find('>.slider-prev').get(0);
-    var next = group.find('>.slider-next').get(0);
+    var prev = wrapper.find('>.slider-prev').get(0);
+    var next = wrapper.find('>.slider-next').get(0);
+    
+    if ( !prev )
+    {
+        prev = group.find('>.slider-prev').get(0);
+    }
+    
+    if (!next)
+    {
+        next = group.find('>.slider-next').get(0);
+    }
+    
     var slides = items.querySelectorAll(':scope >.slide'); //only first level child
     var slidesLength = slides.length;
     var hasSubSlider = group.find('.slider').length>0;
