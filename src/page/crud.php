@@ -862,7 +862,8 @@ class Crud extends \Page\Page
         $id = Request::get('v');
         //edit or add
         $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
-        $url .= '?iframe=true';
+        //iframe and rand (to avoid browser cache)
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
@@ -885,7 +886,7 @@ class Crud extends \Page\Page
         \App::dontChangeUrl();
         $idInput = Request::get('idInput');
         $id = Request::get('v');
-        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true';
+        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true&rand=' . rand();
         $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -902,7 +903,7 @@ class Crud extends \Page\Page
 
         // add referencing parent
         $url = $this->getPageUrl() . '/adicionar/' . $idParent;
-        $url .= '?iframe=true';
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
 
