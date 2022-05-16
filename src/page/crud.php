@@ -498,7 +498,7 @@ class Crud extends \Page\Page
 
         if (!$pk)
         {
-            throw new \UserException('Imposível encontrar chave primária do modelo!');
+            throw new \UserException('Impossível encontrar chave primária do modelo!');
         }
 
         $pkValue = $this->getFormValue($pk);
