@@ -117,9 +117,9 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
     public function removeColumn($columnName)
     {
-        if (isset($this->$columnName))
+        if (isset($this->columns[$columnName]))
         {
-            unset($columnName);
+            unset($this->columns[$columnName]);
         }
 
         return $this;
