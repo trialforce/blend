@@ -375,9 +375,8 @@ class Page extends \View\Layout
      */
     public function listar()
     {
-        $this->setFocusOnFirstField();
         $this->setDefaultGrid();
-        $grid = $this->getGrid(Request::get('stateId'));
+        $grid = $this->getGrid();
 
         //to avoid problemns when grid does not exists, really need a remake
         if (!$grid)
@@ -386,13 +385,10 @@ class Page extends \View\Layout
         }
 
         $this->addFiltersToDataSource($grid->getDataSource());
-        $div = $grid->onCreate();
-
         $views[] = $this->getHead();
-        $views[] = $this->getBodyDiv($div);
+        $views[] = $this->getBodyDiv([new \View\Div('content-pre'), $grid]);
 
         $this->append($views);
-
         $this->byId('q')->focus();
     }
 
@@ -697,8 +693,13 @@ class Page extends \View\Layout
         return $return;
     }
 
-    public function upload($file, $uploadFile = NULL)
+    public function upload($file = NULL, $uploadFile = NULL)
     {
+        if (!$file)
+        {
+            return;
+        }
+
         $fileUpload = new \Disk\FileUpload($file);
         $fileUpload->verifyExtension(array('php', 'html', 'js'), TRUE);
 

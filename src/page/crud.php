@@ -927,7 +927,10 @@ class Crud extends \Page\Page
         $body->setWidth('100', '%')->setHeight('70', 'vh');
         $buttons = null;
 
-        $popup = new \View\Blend\Popup('edit-popup', $title, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $titleLink = new \View\A('popup-title', $title, $this->getPageUrl(), null, null);
+        $titleLink->setTitle($title);
+
+        $popup = new \View\Blend\Popup('edit-popup', $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
         $popup->setIcon($this->icon);
         $popup->footer->remove();
         $popup->show();
