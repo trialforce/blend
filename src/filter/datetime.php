@@ -115,14 +115,14 @@ class DateTime extends \Filter\Text
         }
         else if ($conditionValue == self::COND_PAST_MONTH)
         {
-            $begin = \Type\Date::now()->addMonth(-1)->setDay(1);
-            $end = \Type\Date::now()->addMonth(-1)->setLastDayOfMonth();
+            $begin = \Type\Date::now()->setDay(1)->addMonth(-1);
+            $end = \Type\Date::now()->setDay(1)->addMonth(-1)->setLastDayOfMonth();
             return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_NEXT_MONTH)
         {
-            $begin = \Type\Date::now()->addMonth(1)->setDay(1);
-            $end = \Type\Date::now()->addMonth(1)->setLastDayOfMonth();
+            $begin = \Type\Date::now()->setDay(1)->addMonth(1)->setDay(1);
+            $end = \Type\Date::now()->setDay(1)->addMonth(1)->setLastDayOfMonth();
             return new \Db\Cond('DATE(' . $columnName . ') BETWEEN ? AND ? ', array($begin->toDb(), $end->toDb()), $conditionType, $this->getFilterType());
         }
         else if ($conditionValue == self::COND_INTERVALO)
