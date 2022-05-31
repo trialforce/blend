@@ -31,8 +31,8 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
 
     public function __construct($value = NULL, $column = NULL)
     {
-        $this->setColumn($column);
         $this->setValue($value);
+        $this->setColumn($column);
     }
 
     public function getColumn()
@@ -195,7 +195,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
             $empty = $value === '';
         }
 
-        if ($this->column)
+        if ($this->column instanceof \Db\Column\Column)
         {
             if ($this->column->isAutoPrimaryKey() || $this->column->getType() == \Db\Column\Column::TYPE_BOOL)
             {
@@ -356,14 +356,14 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     /**
      * Get some Validator, used to avoid by php limitation "new Class()->function()"
      *
-     * @param \Db\Column\Column $column
      * @param string $value
+     * @param \Db\Column\Column $column
      * @return \Validator\Validator
      */
     public static function get($value = NULL, $column = NULL)
     {
         $class = get_called_class();
-        return new $class($column, $value);
+        return new $class($value, $column);
     }
 
     /**

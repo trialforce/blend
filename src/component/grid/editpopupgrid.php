@@ -53,17 +53,12 @@ class EditPopupGrid extends \Component\Grid\Grid
         parent::__construct($id, $dataSource);
     }
 
-    /* public function getPaginator()
-      {
-      return new \Component\Grid\EditPopupPaginator('paginator-' . $this->getGridName(), $this);
-      } */
-
     public function setActions($actions)
     {
         $actions = is_array($actions) ? $actions : array();
         $columns = $this->getColumns();
 
-        //create default editr action, if needed
+        //create default editor action, if needed
         if (isset($columns['id']) && !isset($actions['id']) && $this->getEditMethod())
         {
             $editar = new \Component\Action\Page($this->getPageName(), $this->getEditMethod(), $this->getModel()->getId(), 'edit', 'Editar');

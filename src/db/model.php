@@ -563,7 +563,7 @@ class Model implements \JsonSerializable
      *
      * If not find create anotger
      *
-     * @param type $id
+     * @param int|string $id
      * @return \Db\Model
      */
     public static function findOneByPkOrCreate($id = null, $logId = null)

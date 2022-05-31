@@ -146,7 +146,6 @@ class GroupHelper
                 if ($dbColumn)
                 {
                     $columnSql = $model::getTableName() . '.' . $simpleColumnName;
-                    //$dbColumns[$columnLabelSafe] = $dbColumn;
 
                     if ($dbColumn instanceof \Db\Column\Search)
                     {
@@ -287,7 +286,7 @@ class GroupHelper
         $queryBuilder instanceof \Db\QueryBuilder;
         $userDataSource = new \DataSource\QueryBuilder($queryBuilder);
         $page->addFiltersToDataSource($userDataSource);
-        //clena the columns of the datasource, so we can use only defined columns
+        //clean the columns of the datasource, so we can use only defined columns
         $userDataSource->setColumns(null);
 
         if (!is_array($extraColumns))

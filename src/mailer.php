@@ -16,12 +16,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         $emailFrom = Config::get('emailFrom');
         $emailProtocol = Config::get('emailProtocol');
 
-        $this->configSmtp($emailHost, $emailPort, $emailUser, $emailPass, $emailProtocol);
-
-        if ($emailFrom)
-        {
-            $this->SetFrom($emailUser, $emailFrom);
-        }
+        $this->configSmtp($emailHost, $emailPort, $emailUser, $emailPass, $emailProtocol, true, $emailFrom);
     }
 
     /**
@@ -258,8 +253,13 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
      * @param string $pass
      * @return \PHPMailer
      */
-    public function configSmtp($smtp, $port, $user, $pass, $protocol = NULL, $auth = TRUE)
+    public function configSmtp($smtp, $port, $user, $pass, $protocol = NULL, $auth = TRUE, $from = NULL)
     {
+        $from = $from ? $from : $user;
+
+        $this->SetFrom($from);
+        $this->AddReplyTo($from);
+
         $this->SMTPDebug = FALSE;
         $this->Mailer = 'smtp';
         $this->SMTPAuth = $auth;
@@ -270,9 +270,6 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         $this->Port = $port;
         $this->Username = $user;
         $this->Password = $pass;
-
-        $this->SetFrom($user);
-        $this->AddReplyTo($user);
 
         return $this;
     }

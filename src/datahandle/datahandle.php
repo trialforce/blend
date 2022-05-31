@@ -99,7 +99,7 @@ class DataHandle
 
     /**
      * Verify is some variable exists in datahandle
-     * 
+     *
      * @param string $var
      * @return boolean
      */
@@ -160,6 +160,22 @@ class DataHandle
         }
 
         return null;
+    }
+
+    /**
+     * Remove passed variable
+     *
+     * @param string $var
+     * @return $this
+     */
+    public function remove($var)
+    {
+        if (isset($this->$var))
+        {
+            unset($this->$var);
+        }
+
+        return $this;
     }
 
 }

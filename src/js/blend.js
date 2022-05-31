@@ -38,22 +38,22 @@ if (typeof $ == 'function')
     window.onpopstate = function(event) 
     {
         var okay = escape();
-        
-        if ( !okay )
+
+        if (!okay)
         {
             avoidUrlRegister = true;
             p(window.location.href, true);
         }
-        else
+	else
         {
             //não mudar a url
             return false;
-        }       
+        }
     };
 }
 
 //Loading without ajax
-window.onload =  function ()
+window.onload = function ()
 {
     pluginsCallMethod('register');
     dataAjax();
@@ -576,14 +576,12 @@ async function getJson(page, formData, loadingShow, callBack)
 
     return $.ajax({
         dataType: "json",
+        cache: false,
         method: "POST",
         url: url,
         async: true,
         timeout: 20000,
         data: formData,
-        xhrFields: {
-            withCredentials: true //make cookie work on ajax
-        },
         success: function (response)
         {
             if (response && typeof response.script == 'string')
@@ -671,14 +669,6 @@ function toast(msg, type, duration)
  */
 function setFocusOnFirstField()
 {
-    //if inside iFrame, don't change focus
-    var referer = document.referrer;
-    
-    if (referer.length > 0)
-    {
-        return;
-    }
-
     //support popup
     if ($('.popup').length)
     {
@@ -765,7 +755,7 @@ function slug(str)
 
     // remove accents, swap ñ for n, etc
     var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
-    var to   = "aaaaaeeeeeiiiiooooouuuunc--_---";
+    var to = "aaaaaeeeeeiiiiooooouuuunc--_---";
 
     for (var i=0, l=from.length ; i<l ; i++) 
     {

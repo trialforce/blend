@@ -406,7 +406,7 @@ class Conn extends \PDO
             {
                 self::$conn[$id] = new \Db\Conn($connInfo, $id);
             }
-            catch (Exception $e)
+            catch (\Exception $e)
             {
                 \Log::exception($e);
                 throw new \Exception('O sistema não está conseguindo se conectar ao servidor de banco de dados. Por favor tente novamente mais tarde.');

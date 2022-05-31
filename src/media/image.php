@@ -330,6 +330,10 @@ class Image extends \Disk\File
             }
             else if ($extension == Image::EXT_WEBP)
             {
+                // Before creating an image in .webp format, needs to convert file to RGB
+                // webp does not support palletes
+                imagepalettetotruecolor($this->content);
+
                 imagewebp($this->content, $filename . '', $quality);
             }
         }

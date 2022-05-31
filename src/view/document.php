@@ -50,15 +50,13 @@ class Document extends \DomDocument implements \Countable
         $this->loadXML($content, $options);
 
         $errors = libxml_get_errors();
+	libxml_clear_errors();
 
         if (count($errors) > 0)
         {
             $error = $errors[0];
-            libxml_clear_errors();
             throw new \Exception('Erro lendo XML: ' . $layout . ' - Erro: ' . $error->message);
         }
-
-        libxml_clear_errors();
     }
 
     /**
