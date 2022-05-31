@@ -328,8 +328,11 @@ class SmartFilter
 
             foreach ($words as $word)
             {
-                $singular = \Type\Text::toSingular($word);
-                $filtersingular .= ' ' . $singular;
+                if (strlen($word) > 3)
+                {
+                    $singular = \Type\Text::toSingular($word);
+                    $filtersingular .= ' ' . $singular;
+                }
             }
 
             $where = '';
@@ -345,7 +348,7 @@ class SmartFilter
             $this->conds[] = new \Db\Cond("($where)", $args, \Db\Cond::COND_OR);
 
             //if singular filter is diferent from plural ones
-            if ($filter != $filtersingular)
+            if ($filtersingular && $filter != $filtersingular)
             {
                 $whereSingular = '';
                 $wordsSingular = explode(' ', trim($filtersingular));

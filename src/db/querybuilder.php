@@ -337,7 +337,7 @@ class QueryBuilder
     }
 
     /**
-     * Add a collum to query
+     * Add a column to query
      *
      * @param string $columnName column name
      * @param string $alias column alias
@@ -366,7 +366,7 @@ class QueryBuilder
     }
 
     /**
-     * Add a raw collumn to query
+     * Add a raw column to query
      * @param string $columnName column name/sql
      * @return $this
      */

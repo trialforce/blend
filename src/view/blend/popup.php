@@ -310,12 +310,12 @@ class Popup extends Div
     /**
      * Create a fiedlayout dialog
      *
-     * @param \Fieldlayout\Vector $layout
+     * @param \FieldLayout\Vector $layout
      * @param string $okAction
      * @param string $closeAction
      * @return \View\Blend\Popup
      */
-    public static function fieldLayoutDialog(\Fieldlayout\Vector $layout, $okAction, $closeAction = NULL)
+    public static function fieldLayoutDialog(\FieldLayout\Vector $layout, $okAction, $closeAction = NULL)
     {
         //call onCreate
         $fields = $layout->onCreate();

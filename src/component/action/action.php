@@ -84,6 +84,9 @@ class Action extends \Component\Component
         return $this;
     }
 
+    /**
+     * @return \Db\Model
+     */
     public function getModel()
     {
         return $this->model;

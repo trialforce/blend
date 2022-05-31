@@ -309,11 +309,11 @@ class Crud extends \Page\Page
     /**
      * Retorna o FieldLayout utilizado para montagem dos campos
      *
-     * @return \Fieldlayout\Vector
+     * @return \FieldLayout\Vector
      */
     public function getFieldLayout()
     {
-        return new \Fieldlayout\Vector(null, $this->model);
+        return new \FieldLayout\Vector(null, $this->model);
     }
 
     /**
@@ -498,7 +498,7 @@ class Crud extends \Page\Page
 
         if (!$pk)
         {
-            throw new \UserException('Imposível encontrar chave primária do modelo!');
+            throw new \UserException('Impossível encontrar chave primária do modelo!');
         }
 
         $pkValue = $this->getFormValue($pk);
@@ -862,9 +862,21 @@ class Crud extends \Page\Page
         $id = Request::get('v');
         //edit or add
         $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
-        $url .= '?iframe=true';
+        //iframe and rand (to avoid browser cache)
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
+
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -874,7 +886,7 @@ class Crud extends \Page\Page
         \App::dontChangeUrl();
         $idInput = Request::get('idInput');
         $id = Request::get('v');
-        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true';
+        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true&rand=' . rand();
         $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -891,9 +903,20 @@ class Crud extends \Page\Page
 
         // add referencing parent
         $url = $this->getPageUrl() . '/adicionar/' . $idParent;
-        $url .= '?iframe=true';
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
+
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -904,7 +927,10 @@ class Crud extends \Page\Page
         $body->setWidth('100', '%')->setHeight('70', 'vh');
         $buttons = null;
 
-        $popup = new \View\Blend\Popup('edit-popup', $title, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $titleLink = new \View\A('popup-title', $title, $this->getPageUrl(), null, null);
+        $titleLink->setTitle($title);
+
+        $popup = new \View\Blend\Popup('edit-popup', $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
         $popup->setIcon($this->icon);
         $popup->footer->remove();
         $popup->show();
@@ -985,6 +1011,12 @@ class Crud extends \Page\Page
         $column = $model->getColumn($selectedColumn);
 
         $fieldLayout = $this->getFieldLayout();
+
+        //add support for multiple fieldlayout
+        if (is_array($fieldLayout))
+        {
+            $fieldLayout = $fieldLayout[0];
+        }
 
         $label = $fieldLayout->getLabel($column);
         $input = $fieldLayout->getInputField($column, 'col-12');

@@ -56,8 +56,11 @@ class Vector extends DataSource
 
     public function compareToOrder($first, $second)
     {
-        $columnName = $this->getOrderBy();
-        $orderWay = $this->getOrderWay();
+        $orderByParsed = $this->getOrderByParsed($this->getOrderBy());
+        $firstOrderBy = reset($orderByParsed);
+
+        $columnName = $firstOrderBy->orderBy;
+        $orderWay = $firstOrderBy->orderWay;
         $firstl = '';
         $secondl = '';
 
