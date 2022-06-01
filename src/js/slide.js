@@ -145,6 +145,7 @@ function slide(selector)
             prev.addEventListener('click', function (event)
             {
                 shiftSlide(-1); 
+                clearInterval(timerInterval);
             }, {passive: true});
         }
 
@@ -153,6 +154,7 @@ function slide(selector)
             next.addEventListener('click', function (event)
             {
                 shiftSlide(1);
+                clearInterval(timerInterval);
             }, {passive: true});
         }
     }
@@ -216,10 +218,12 @@ function slide(selector)
     items.addEventListener('touchmove', dragAction, {passive: true});
     items.addEventListener('transitionend', checkIndex, true);
     
+    var timerInterval;
+    
     //auto slide
     if (Number.isInteger(autoSlide) && slidesLength > 1) 
     {
-        setInterval(function(){shiftSlide(1)}, autoSlide);
+        timerInterval = setInterval(function(){shiftSlide(1)}, autoSlide);
     }
     
     //start position/index
@@ -230,7 +234,6 @@ function slide(selector)
             setSlide(dataStartIndex);
         }
     }
-
 
     function dragStart(e)
     {
@@ -361,6 +364,7 @@ function slide(selector)
         items.classList.add('shifting');
         items.style.left = (slideSize * (position + 1) * -1) + "px";
         index = position;
+        clearInterval(timerInterval);
 
         return false;
     }
