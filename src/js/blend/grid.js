@@ -50,9 +50,10 @@ grid.openTrDetail = function(element)
     }
     else
     {
-        var newTr = $.create('tr');
+        var newTr = $(document.createElement('tr'));
         newTr.addClass('grid-tr-detail-column-group');
-        var newTd = $.create('td',detailId);
+        var newTd = $(document.createElement('r'));
+        newTd.attr('id',detailId);
         newTd.attr('colspan', grid.find('th').length);
         newTr.append(newTd);
         newTr.insertAfter(tr);

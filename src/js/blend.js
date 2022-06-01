@@ -9,6 +9,69 @@ var blendJs = function(){};
 var blend = {};
 blend.defaultFormPost = 'form';
 blend.plugins = [];
+
+var b = function(selector)
+{
+    var nodeList = document.querySelectorAll(selector);
+    
+    nodeList.each = nodeList.forEach;
+    
+    nodeList.attr = function(attribute, value)
+    {
+        if (typeof value == 'undefined')
+        {
+            return this[0].getAttribute(attribute);
+        }
+        else
+        {
+            this[0].settAttribute(attribute,value);
+        }
+    };
+    
+    nodeList.hasClass = function(cssClass)
+    {
+        return this[0].classList.contains(cssClass);
+    };
+    
+    nodeList.addClass = function(cssClass)
+    {
+        this.forEach(function(element)
+        {
+            element.classList.add(cssClass);
+        });
+    };
+    
+    nodeList.removeClass = function(cssClass)
+    {
+        this.forEach(function(element)
+        {
+            element.classList.remove(cssClass);
+        });
+    };
+    
+    nodeList.hide = function()
+    {
+        this.forEach(function(element)
+        {
+            element.style.display = 'none';
+        });
+    };
+    
+    nodeList.css = function(rule, value)
+    {
+        if (typeof value == 'undefined')
+        {
+            return this[0].style[rule];
+        }
+        
+        this.forEach(function(element)
+        {
+            element.style[rule] = value;
+        });
+    };
+    
+    return nodeList;
+}
  
 function pluginsCallMethod(method)
 {
@@ -33,78 +96,43 @@ if (!window.console)
     };
 }
 
-if (typeof $ == 'function')
+window.onpopstate = function(event) 
 {
-    window.onpopstate = function(event) 
-    {
-        var okay = escape();
+    var okay = escape();
 
-        if (!okay)
-        {
-            avoidUrlRegister = true;
-            p(window.location.href, true);
-        }
-	else
-        {
-            //não mudar a url
-            return false;
-        }
-    };
-}
+    if (!okay)
+    {
+        avoidUrlRegister = true;
+        p(window.location.href, true);
+    }
+    else
+    {
+        //não mudar a url
+        return false;
+    }
+};
 
 //Loading without ajax
 window.onload = function ()
 {
     pluginsCallMethod('register');
     dataAjax();
-        
-    /**
-     * Add support to play method in jquery
-     *
-     * @returns {jQuery.fn@call;each}
-     */
-    jQuery.fn.play = function () 
-    {
-        return this.each(function () 
-        {
-            if (typeof this.play === 'function')
-            {
-                this.play();
-            }
-        });
-    };
-    
-    //jquery plugin to create element
-    //https://github.com/ern0/jquery.create/blob/ster/jquery.create.js
-    (function($) 
-    {
-        $.create = function(tag,id) 
-        {
-            let elm = document.createElement(tag.toUpperCase());
-
-            if (typeof(id) != "undefined") 
-            {
-                elm.id = id;
-            }
-
-            return $(elm);
-        }; // $.create()
-    }(jQuery));
     
     //destroy popup on esc
-    $(document).keyup(function(e) 
+    document.addEventListener('keydown', function(e)
     {
-        if (e.key === "Escape") 
+        if(e.key=='Escape'||e.key=='Esc'||e.keyCode==27)
         {
-           return escape();
+            return escape();
         }
-    });
+    }, true)
+    
 };
 
 function escape()
 {
     //main menu
-    if ( $('body').hasClass('menu-open') )
+    if ( b('body').hasClass('menu-open') )
     {
         menuClose();
         return true;
@@ -129,11 +157,11 @@ function escape()
     //calendar
     else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
     {
-        $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
+        b('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
     }
     //slider full screen
-    else if ( $('slider-full-screen').length > 0)
+    else if ( b('slider-full-screen').length > 0)
     {
         removeSlideFullScreen();
     }
@@ -199,22 +227,9 @@ function updateUrl(page)
     return true;
 }
 
-function getBaseUrl()
-{
-    var bases = document.getElementsByTagName('base');
-    var base = '';
-    
-    if ( bases && bases[0])
-    {
-        base = bases[0].href;
-    }
-    
-    return base;
-}
-
 function correctUrl(url)
 {
-    var base = getBaseUrl();
+    var base = b('base').attr('href');
     
     var startsWith = url.substr(0, base.length) === base;
 
@@ -455,7 +470,7 @@ function r(type, page, formData, callBack)
     showLoading();
     pluginsCallMethod('beforeSubmit');
     
-    var host = $('base').attr('href');
+    var host = b('base').attr('href');
     var url = host + page.replace(host, '');
 
     //default jquery value https://api.jquery.com/jQuery.ajax/
@@ -566,7 +581,7 @@ function r(type, page, formData, callBack)
 
 async function getJson(page, formData, loadingShow, callBack)
 {
-    var host = $('base').attr('href');
+    var host = b('base').attr('href');
     var url = host + page.replace(host, '');
 
     if (loadingShow)
@@ -623,7 +638,7 @@ function getSelected(selector)
  */
 function getCurrentPage()
 {
-    var relativeUrl = window.location.pathname.replace($('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
+    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
     return relativeUrl.split('/')[0];
 }
 
@@ -633,7 +648,7 @@ function getCurrentPage()
  */
 function getCurrentEvent()
 {
-    var relativeUrl = window.location.pathname.replace($('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
+    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
     return relativeUrl.split('/')[1];
 }
 
@@ -700,15 +715,16 @@ function focusNextElement()
 
 function addScriptOnce(src, callBack)
 {
+    var baseUrl = b('base').attr('href');;
     var list = document.getElementsByTagName('script');
     var i = list.length;
     var findedOnDoc = false;
-    var compare = src.replace(getBaseUrl(),'');
+    var compare = src.replace(baseUrl,'');
 
     //verify if is already loaded
     while (i--)
     {
-        var myCompare = list[i].src.replace(getBaseUrl(),'');
+        var myCompare = list[i].src.replace(baseUrl,'');
         if ( myCompare == compare)
         {
             findedOnDoc = true;
