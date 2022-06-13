@@ -70,7 +70,15 @@ class App
      */
     public function getCurrentPageRaw()
     {
-        return Request::get('p');
+        $page = Request::get('p');
+
+        //page is not an array, avoid hack attempts
+        if (is_array($page))
+        {
+            return null;
+        }
+
+        return $page;
     }
 
     /**

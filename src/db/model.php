@@ -303,6 +303,7 @@ class Model implements \JsonSerializable
 
         $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getConnId());
         $queryBuilder->setCatalogClass($name::getCatalogClass());
+        $queryBuilder->setLogId($name);
 
         $columns = \Db\Column\Collection::getForModel($name);
         $result = array();
@@ -354,10 +355,10 @@ class Model implements \JsonSerializable
      *
      * @return array
      */
-    public static function find($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL)
+    public static function find($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL, $logId = NULL)
     {
         $name = self::getName();
-        return $name::search(NULL, $filters, $limit, $offset, $orderBy, $orderWay, $returnType);
+        return $name::search(NULL, $filters, $limit, $offset, $orderBy, $orderWay, $returnType, $logId);
     }
 
     /**
@@ -372,7 +373,7 @@ class Model implements \JsonSerializable
      *
      * @return array
      */
-    public static function search($columns = NULL, $filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL)
+    public static function search($columns = NULL, $filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL, $logId = null)
     {
         if (is_string($filters))
         {
@@ -415,7 +416,7 @@ class Model implements \JsonSerializable
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, NULL, $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
-        $result = $name::getConn()->query($sql, $where->getArgs(), $returnType);
+        $result = $name::getConn()->query($sql, $where->getArgs(), $returnType, $logId ? $logId : $name);
 
         return $result;
     }
@@ -433,13 +434,13 @@ class Model implements \JsonSerializable
      *
      * @return array
      */
-    public static function findForReference($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL)
+    public static function findForReference($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $logId = NULL)
     {
         $name = self::getName();
         $orderBy = $orderBy ? $orderBy : \Db\Column\Collection::getForModel($name)->getColumnAtPosition(0);
         $orderWay = $orderWay ? $orderWay : 'ASC';
 
-        return $name::find($filters, $limit, $offset, $orderBy, $orderWay);
+        return $name::find($filters, $limit, $offset, $orderBy, $orderWay, $logId);
     }
 
     /**
@@ -456,7 +457,7 @@ class Model implements \JsonSerializable
         return $name::aggregation($filters, 'count(' . $value . ')');
     }
 
-    public static function aggregations($filters = array(), $aggregations, $forceExternalSelect = FALSE, $columns = NULL)
+    public static function aggregations($filters = array(), $aggregations, $forceExternalSelect = FALSE, $columns = NULL, $logId = NULL)
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
@@ -480,15 +481,15 @@ class Model implements \JsonSerializable
             $sql = 'SELECT ' . implode(',', $columnsAggregation) . ' FROM ( ' . $sql . ') AS ag';
         }
 
-        $result = $name::getConn()->findOne($sql, $where->getArgs());
+        $result = $name::getConn()->findOne($sql, $where->getArgs(), null, $logId ? $logId : $name);
 
         return isset($result) ? $result : 0;
     }
 
-    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL)
+    public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL, $logId = null)
     {
         $name = self::getName();
-        $result = $name::aggregations($filters, ['aggregation' => $aggregation], $forceExternalSelect, $columns);
+        $result = $name::aggregations($filters, ['aggregation' => $aggregation], $forceExternalSelect, $columns, $logId);
 
         return isset($result) ? $result->aggregationaggregation : 0;
     }
@@ -500,7 +501,7 @@ class Model implements \JsonSerializable
      * @param bool $useCache
      * @return \Db\Model
      */
-    public static function findOneByPk($id, $useCache = FALSE)
+    public static function findOneByPk($id, $useCache = FALSE, $logId = NULL)
     {
         static $findOneCache;
         $cacheKey = null;
@@ -546,7 +547,7 @@ class Model implements \JsonSerializable
         }
 
         //find one register
-        $result = $name::findOne($filters);
+        $result = $name::findOne($filters, $logId);
 
         //put on cache
         if ($useCache && $cacheKey)
@@ -562,10 +563,10 @@ class Model implements \JsonSerializable
      *
      * If not find create anotger
      *
-     * @param type $id
-     * @return \Db\name
+     * @param int|string $id
+     * @return \Db\Model
      */
-    public static function findOneByPkOrCreate($id = null)
+    public static function findOneByPkOrCreate($id = null, $logId = null)
     {
         $name = self::getName();
 
@@ -575,7 +576,7 @@ class Model implements \JsonSerializable
         }
         else
         {
-            $obj = $name::findOneByPk($id);
+            $obj = $name::findOneByPk($id, $logId);
 
             if (!$obj)
             {
@@ -594,10 +595,10 @@ class Model implements \JsonSerializable
      * @param array $filters
      * @return null
      */
-    public static function findOne($filters = array())
+    public static function findOne($filters = array(), $logId = null)
     {
         $name = self::getName();
-        $result = $name::find($filters, 1);
+        $result = $name::find($filters, 1, null, null, null, null, $logId);
 
         if (isset($result[0]))
         {
@@ -615,10 +616,10 @@ class Model implements \JsonSerializable
      * @param array $filters
      * @return null
      */
-    public static function findOneOrCreate($filters = array())
+    public static function findOneOrCreate($filters = array(), $logId = null)
     {
         $name = self::getName();
-        $result = $name::find($filters, 1);
+        $result = $name::find($filters, 1, null, null, null, null, $logId);
 
         if (isset($result[0]))
         {
@@ -681,7 +682,7 @@ class Model implements \JsonSerializable
         $catalog = $name::getCatalogClass();
         $sql = $catalog::mountDelete($name::getTableName(), $where->getSql());
 
-        return $name::getConn()->execute($sql, $where->getArgs());
+        return $name::getConn()->execute($sql, $where->getArgs(), $name);
     }
 
     /**
@@ -719,7 +720,7 @@ class Model implements \JsonSerializable
         //postgres faz query e já retorna id
         if (self::getConnInfo()->getType() == \Db\ConnInfo::TYPE_POSTGRES)
         {
-            $ok = $name::getConn()->query($sql, $columnValues);
+            $ok = $name::getConn()->query($sql, $columnValues, null, $name);
 
             if ($pk && $pk->isAutoPrimaryKey())
             {
@@ -729,7 +730,7 @@ class Model implements \JsonSerializable
         else //mysql is necessary to call a method
         {
             $conn = $name::getConn();
-            $ok = $conn->execute($sql, $columnValues);
+            $ok = $conn->execute($sql, $columnValues, $name);
 
             //somente suporta popular com chave única
             if ($pk && $pk->isAutoPrimaryKey())
@@ -770,7 +771,7 @@ class Model implements \JsonSerializable
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountUpdate($tableName, implode(', ', $sqlColumns), implode(' AND ', $sqlWhere));
 
-        return $name::getConn()->execute($sql, $columnValues);
+        return $name::getConn()->execute($sql, $columnValues, $name);
     }
 
     /**
@@ -917,7 +918,7 @@ class Model implements \JsonSerializable
         $tableName = $catalog::parseTableNameForQuery($name::getTableName());
         $sql = $catalog::mountDelete($tableName, implode(' AND ', $where));
 
-        return $name::getConn()->execute($sql, $args);
+        return $name::getConn()->execute($sql, $args, $name);
     }
 
     /**
@@ -935,7 +936,7 @@ class Model implements \JsonSerializable
      * Method used to auto mount selects (label)
      * when using foreign key
      *
-     * @return string
+     * @return string|null
      */
     public function getOptionLabel()
     {

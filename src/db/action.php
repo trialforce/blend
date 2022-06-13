@@ -108,7 +108,10 @@ abstract class Action
      */
     public static function executeBackGround($model, $action, $id)
     {
-        $url = \DataHandle\Server::getInstance()->getHost() . "/action/{$model}/{$action}/{$id}";
+        $host = defined('ADM_URL') ? ADM_URL : \DataHandle\Server::getInstance()->getHost();
+
+        $url = $host . "/action/{$model}/{$action}/{$id}";
+
         return self::postAsync($url);
     }
 

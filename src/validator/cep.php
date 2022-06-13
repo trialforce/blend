@@ -52,4 +52,15 @@ class Cep extends \Validator\Validator
         }
     }
 
+    public static function mask($value)
+    {
+        if ($value)
+        {
+            $value = \Validator\Validator::unmask($value);
+            $cep = substr($value, 0, 5) . '-' . substr($value, 5, 3);
+        }
+
+        return $cep;
+    }
+
 }

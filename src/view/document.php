@@ -43,21 +43,20 @@ class Document extends \DomDocument implements \Countable
         $content = file_get_contents($layout);
 
         //desabilita erros chatos da libxml na leitura de layouts
+        libxml_clear_errors();
         libxml_use_internal_errors(true);
         $this->strictErrorChecking = FALSE;
         $options = LIBXML_VERSION >= 20900 ? LIBXML_PARSEHUGE : null;
         $this->loadXML($content, $options);
 
         $errors = libxml_get_errors();
+	libxml_clear_errors();
 
         if (count($errors) > 0)
         {
             $error = $errors[0];
-            libxml_clear_errors();
             throw new \Exception('Erro lendo XML: ' . $layout . ' - Erro: ' . $error->message);
         }
-
-        libxml_clear_errors();
     }
 
     /**

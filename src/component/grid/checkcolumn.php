@@ -68,9 +68,8 @@ class CheckColumn extends \Component\Grid\Column
             $idJs = $this->getIdJs();
             $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
             $check->addStyle('margin', '0 6px');
-            $check->click("selecteCheck({$idValue}); selecteChecks('{$idJs}');");
+            $check->click("selecteCheck(this); selecteChecks('{$idJs}');");
         }
-
 
         return $check;
     }
@@ -89,7 +88,7 @@ class CheckColumn extends \Component\Grid\Column
             $('#{$gridId} #checkAll{$name}').click( function ()
             {
                 var selecionado = $(this).prop('checked');
-                $('#{$gridId} .checkBox{$name}').prop( 'checked', selecionado );
+                $('#{$gridId} td:visible .checkBox{$name}').prop( 'checked', selecionado );
                 selecteChecks('{$gridId}');
             });";
 

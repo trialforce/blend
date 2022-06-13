@@ -159,6 +159,11 @@ abstract class Combo extends \Component\Component
         return $this->inputValue->getValue();
     }
 
+    /**
+     * Ajax funcion to fill the label using value
+     * Example:
+     * \App::addJs("p('combo-cliente/fillLabelByValue/idCliente');");
+     */
     public function fillLabelByValue()
     {
         \App::dontChangeUrl();

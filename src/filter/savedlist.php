@@ -28,6 +28,11 @@ class SavedList
         $file = $this->getFile();
         $folder = $file->getFolder();
 
+        if (!$folder->exists())
+        {
+            $folder->create();
+        }
+
         if ($folder->isWritable() && !$file->exists())
         {
             $file->save('');

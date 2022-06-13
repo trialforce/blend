@@ -58,6 +58,8 @@ class CrudDropZone extends \Page\Crud
 
     public function updateImages()
     {
+        \Log::debug('cruddropzone->updateImages');
+
         if (!$this->isUpdate())
         {
             \App::dontChangeUrl();
@@ -82,7 +84,7 @@ class CrudDropZone extends \Page\Crud
 
                 if ($file->isImage())
                 {
-                    $url = urlencode($thumbFile->getUrl());
+                    $url = $thumbFile->getUrl();
                     $img->addClass('swipebox');
                     $img->css('background-image', "url('{$url}')");
                     $img->attr('data-href', $url);

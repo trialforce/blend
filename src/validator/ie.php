@@ -26,14 +26,14 @@ class Ie extends \Validator\Validator
         $this->uf = $uf;
     }
 
-    function CheckIEAC($inscE)
+    function checkIEGeneric($inscE, $start)
     {
         if (mb_strlen($inscE) != 13)
         {
             return FALSE;
         }
 
-        if (mb_substr($inscE, 0, 2) != '01')
+        if (mb_substr($inscE, 0, 2) != $start)
         {
             return FALSE;
         }
@@ -90,8 +90,13 @@ class Ie extends \Validator\Validator
         }
     }
 
+    function checkIEAC($inscE)
+    {
+        return $this->checkIEGeneric($inscE, '01');
+    }
+
     //Alagoas
-    function CheckIEAL($inscE)
+    function checkIEAL($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -124,7 +129,7 @@ class Ie extends \Validator\Validator
     }
 
     //Amazonas
-    function CheckIEAM($inscE)
+    function checkIEAM($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -162,7 +167,7 @@ class Ie extends \Validator\Validator
     }
 
     //Amapá
-    function CheckIEAP($inscE)
+    function checkIEAP($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -216,7 +221,7 @@ class Ie extends \Validator\Validator
     }
 
     //Bahia
-    function CheckIEBA($inscE)
+    function checkIEBA($inscE)
     {
         if (!(strlen($inscE) == 9 || mb_strlen($inscE) == 8))
         {
@@ -319,7 +324,7 @@ class Ie extends \Validator\Validator
     }
 
     //Ceará
-    function CheckIECE($inscE)
+    function checkIECE($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -346,67 +351,13 @@ class Ie extends \Validator\Validator
     }
 
     //Distrito Federal
-    function CheckIEDF($inscE)
+    function checkIEDF($inscE)
     {
-        if (mb_strlen($inscE) != 13)
-        {
-            return FALSE;
-        }
-
-        if (mb_substr($inscE, 0, 2) != '07')
-        {
-            return FALSE;
-        }
-
-        $base = 4;
-        $soma = 0;
-
-        for ($i = 0; $i <= 10; $i++)
-        {
-            $soma += $inscE[$i] * $base;
-            $base--;
-            if ($base == 1)
-            {
-                $base = 9;
-            }
-        }
-
-        $dig = 11 - ($soma % 11);
-
-        if ($dig >= 10)
-        {
-            $dig = 0;
-        }
-
-        if (!($dig == $inscE[11]))
-        {
-            return 0;
-        }
-        else
-        {
-            $base = 5;
-            $soma = 0;
-            for ($i = 0; $i <= 11; $i++)
-            {
-                $soma += $inscE[$i] * $base;
-                $base--;
-                if ($base == 1)
-                {
-                    $base = 9;
-                }
-            }
-            $dig = 11 - ($soma % 11);
-            if ($dig >= 10)
-            {
-                $dig = 0;
-            }
-
-            return ($dig == $inscE[12]);
-        }
+        return $this->checkIEGeneric($inscE, '07');
     }
 
     //Espirito Santo
-    function CheckIEES($inscE)
+    function checkIEES($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -437,7 +388,7 @@ class Ie extends \Validator\Validator
     }
 
     //Goias
-    function CheckIEGO($inscE)
+    function checkIEGO($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -512,7 +463,7 @@ class Ie extends \Validator\Validator
     }
 
     //Maranhão
-    function CheckIEMA($inscE)
+    function checkIEMA($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -548,7 +499,7 @@ class Ie extends \Validator\Validator
     }
 
     //Mato Grosso
-    function CheckIEMT($inscE)
+    function checkIEMT($inscE)
     {
         if (mb_strlen($inscE) != 11)
         {
@@ -583,7 +534,7 @@ class Ie extends \Validator\Validator
     }
 
     //Mato Grosso do Sul
-    function CheckIEMS($inscE)
+    function checkIEMS($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -624,7 +575,7 @@ class Ie extends \Validator\Validator
     }
 
     //Minas Gerais
-    function CheckIEMG($inscE)
+    function checkIEMG($inscE)
     {
         if (mb_strlen($inscE) != 13)
         {
@@ -693,7 +644,7 @@ class Ie extends \Validator\Validator
     }
 
     //Pará
-    function CheckIEPA($inscE)
+    function checkIEPA($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -725,8 +676,8 @@ class Ie extends \Validator\Validator
         return ($dig == $inscE[8]);
     }
 
-//Paraíba
-    function CheckIEPB($inscE)
+    //Paraíba
+    function checkIEPB($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -761,8 +712,8 @@ class Ie extends \Validator\Validator
         return ($dig == $inscE[8]);
     }
 
-//Paraná
-    function CheckIEPR($inscE)
+    //Paraná
+    function checkIEPR($inscE)
     {
         if (mb_strlen($inscE) != 10)
         {
@@ -823,7 +774,7 @@ class Ie extends \Validator\Validator
     }
 
     //Pernambuco
-    function CheckIEPE($inscE)
+    function checkIEPE($inscE)
     {
         if (mb_strlen($inscE) == 9)
         {
@@ -903,7 +854,7 @@ class Ie extends \Validator\Validator
     }
 
     //Piauí
-    function CheckIEPI($inscE)
+    function checkIEPI($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -935,7 +886,7 @@ class Ie extends \Validator\Validator
     }
 
     //Rio de Janeiro
-    function CheckIERJ($inscE)
+    function checkIERJ($inscE)
     {
         if (mb_strlen($inscE) != 8)
         {
@@ -970,7 +921,7 @@ class Ie extends \Validator\Validator
     }
 
     //Rio Grande do Norte
-    function CheckIERN($inscE)
+    function checkIERN($inscE)
     {
         if (!( (strlen($inscE) == 9) || (strlen($inscE) == 10) ))
         {
@@ -1009,7 +960,7 @@ class Ie extends \Validator\Validator
     }
 
     //Rio Grande do Sul
-    function CheckIERS($inscE)
+    function checkIERS($inscE)
     {
         if (mb_strlen($inscE) != 10)
         {
@@ -1041,7 +992,7 @@ class Ie extends \Validator\Validator
     }
 
     //Rondônia
-    function CheckIERO($inscE)
+    function checkIERO($inscE)
     {
         if (mb_strlen($inscE) == 9)
         {
@@ -1092,7 +1043,7 @@ class Ie extends \Validator\Validator
     }
 
     //Roraima
-    function CheckIERR($inscE)
+    function checkIERR($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -1117,7 +1068,7 @@ class Ie extends \Validator\Validator
     }
 
     //Santa Catarina
-    function CheckIESC($inscE)
+    function checkIESC($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -1144,7 +1095,7 @@ class Ie extends \Validator\Validator
     }
 
     //São Paulo
-    function CheckIESP($inscE)
+    function checkIESP($inscE)
     {
         if (!( mb_strlen($inscE) == 12 ) || ( mb_strlen($inscE) == 13 ))
         {
@@ -1227,95 +1178,10 @@ class Ie extends \Validator\Validator
                 //return ($dig == $inscE[ 11 ]);
             }
         }
-
-        /* if ( mb_strtoupper( mb_substr( $inscE, 0, 1 ) ) == 'P' )
-          {
-          if ( mb_strlen( $inscE ) != 13 )
-          {
-          return 0;
-          }
-          else
-          {
-          $base = 1;
-          $soma = 0;
-
-          for ( $i = 1; $i <= 8; $i++ )
-          {
-          $soma += $inscE[ $i ] * $base;
-          $base++;
-          if ( $base == 2 )
-          {
-          $base = 3;
-          }
-          if ( $base == 9 )
-          {
-          $base = 10;
-          }
-          }
-
-          $dig = $soma % 11;
-          return ($dig == $inscE[ 9 ]);
-          }
-          }
-          else
-          {
-          if ( mb_strlen( $inscE ) != 12 )
-          {
-          return 0;
-          }
-          else
-          {
-          $base = 1;
-          $soma = 0;
-
-          for ( $i = 0; $i <= 7; $i++ )
-          {
-          $soma += $inscE[ $i ] * $base;
-          $base++;
-          if ( $base == 2 )
-          {
-          $base = 3;
-          }
-          if ( $base == 9 )
-          {
-          $base = 10;
-          }
-          }
-
-          $dig = $soma % 11;
-
-          if ( $dig > 9 )
-          {
-          $dig = 0;
-          }
-
-          if ( $dig != $inscE[ 8 ] )
-          {
-          return 0;
-          }
-          else
-          {
-          $base = 3;
-          $soma = 0;
-          for ( $i = 0; $i <= 10; $i++ )
-          {
-          $soma += $inscE[ $i ] * $base;
-          $base--;
-          if ( $base == 1 )
-          {
-          $base = 10;
-          }
-          }
-          $dig = $soma % 11;
-
-          return ($dig == $inscE[ 11 ]);
-          }
-          }
-          } */
     }
 
     //Sergipe
-    function CheckIESE($inscE)
+    function checkIESE($inscE)
     {
         if (mb_strlen($inscE) != 9)
         {
@@ -1342,7 +1208,7 @@ class Ie extends \Validator\Validator
     }
 
     //Tocantins
-    function CheckIETO($inscE)
+    function checkIETO($inscE)
     {
         if (mb_strlen($inscE) != 11)
         {
@@ -1387,7 +1253,7 @@ class Ie extends \Validator\Validator
         $error = parent::validate($value);
         $this->value = parent::unmask($this->value);
 
-        $ok = $this->CheckIE($this->value, $this->uf);
+        $ok = $this->checkIE($this->value, $this->uf);
 
         if (!$ok)
         {
@@ -1397,7 +1263,7 @@ class Ie extends \Validator\Validator
         return $error;
     }
 
-    function CheckIE($inscE, $uf)
+    function checkIE($inscE, $uf)
     {
         if (mb_strtoupper($inscE) == 'ISENTO' || mb_strtoupper($inscE) == 'ISENTA')
         {

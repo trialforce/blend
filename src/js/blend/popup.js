@@ -19,6 +19,7 @@ function popup(action, selector)
     {
         $('.makePopupFade').addClass('popupFaded');
         $('body').css('overflow','hidden');
+        setFocusOnFirstField();
 
         element.fadeIn(600);
     } 

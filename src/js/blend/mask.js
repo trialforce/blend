@@ -1,3 +1,15 @@
+/* global blend */
+blend.mask = {};
+blend.plugins.push(blend.mask);
+
+blend.mask.register = function ()
+{
+};
+
+blend.mask.start = function ()
+{
+    applyAllMasks(); 
+};
 
 /**
  * Máscara de CPF/CNPJ
@@ -41,11 +53,26 @@ var maskDateTime = function (input, e, currentField, options)
 
 var maskSimpleFone = function (e, r, n, t)
 {
-    var str = e.replace(/[\.\-]/g, "");
-    var ss = str.replace(/\D/g, '');
+    var onlyDigits = e.replace(/\D/g, '');
     
-    var mask = str.length > 12 ? "(99)99999-9999" : "(99)9999-99999";
-    mask = (ss[0] == 0) ? '9999-999-9999' : mask;
+    //0800
+    if ( onlyDigits[0] == 0)
+    {
+        mask = '9999-999-9999';
+    }
+    //internacional number
+    else if ( onlyDigits.length > 11)
+    {
+        mask = "+9999999999999999999";
+    }
+    else if ( onlyDigits.length > 10)
+    {
+        mask = "(99)99999-99999";
+    }
+    else
+    {
+        mask = "(99)9999-99999";
+    }
     
     return mask;
 };

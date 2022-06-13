@@ -20,6 +20,7 @@ class QueryBuilder
     protected $offset = null;
     protected $groupBy = null;
     protected $orderBy = null;
+    protected $logId = null;
 
     /**
      * Construct the query builder
@@ -336,7 +337,7 @@ class QueryBuilder
     }
 
     /**
-     * Add a collum to query
+     * Add a column to query
      *
      * @param string $columnName column name
      * @param string $alias column alias
@@ -365,7 +366,7 @@ class QueryBuilder
     }
 
     /**
-     * Add a raw collumn to query
+     * Add a raw column to query
      * @param string $columnName column name/sql
      * @return $this
      */
@@ -426,6 +427,17 @@ class QueryBuilder
     public function setOrderBy($orderBy)
     {
         $this->orderBy = $orderBy;
+        return $this;
+    }
+
+    public function getLogId()
+    {
+        return $this->logId;
+    }
+
+    public function setLogId($logId)
+    {
+        $this->logId = $logId;
         return $this;
     }
 
@@ -715,7 +727,7 @@ class QueryBuilder
         $where = $whereStd->getSqlParam();
 
         $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
-        return new \Type\Text($select);
+        return $select;
     }
 
     /**
@@ -731,7 +743,7 @@ class QueryBuilder
         $where = $whereStd->getSql();
         $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, TRUE);
 
-        return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs);
+        return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs, $this->logId);
     }
 
     /**
@@ -888,9 +900,9 @@ class QueryBuilder
      *
      * @return int
      */
-    public function count()
+    public function count($column = '*')
     {
-        return $this->aggregation('count(*)');
+        return $this->aggregation('count(' . $column . ')');
     }
 
     /**

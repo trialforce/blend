@@ -215,10 +215,12 @@ class Paginator extends \View\Div
      *
      * @return int
      */
-    public static function getCurrentPaginationLimitValue()
+    public function getCurrentPaginationLimitValue()
     {
-        $value = Cookie::get('paginationLimitCookie') ? Cookie::get('paginationLimitCookie') : \DataSource\DataSource::DEFAULT_PAGE_LIMIT;
-        $value = Request::get('paginationLimit') ? Request::get('paginationLimit') : $value;
+        $id = $this->grid->getGridName();
+
+        $value = Cookie::getDefault('paginationLimitCookie', \DataSource\DataSource::DEFAULT_PAGE_LIMIT);
+        $value = Request::getDefault('paginationLimit-' . $id, $value);
 
         return $value;
     }
@@ -230,10 +232,12 @@ class Paginator extends \View\Div
      */
     public function createPaginationLimitField()
     {
-        $value = self::getCurrentPaginationLimitValue();
+        $value = $this->getCurrentPaginationLimitValue();
         Cookie::set('paginationLimitCookie', $value);
 
-        $paginationLimit = new \View\Select('paginationLimit', self::listPaginationLimitOptions(), $value, 'fr no-print-screen');
+        $id = $this->grid->getGridName();
+
+        $paginationLimit = new \View\Select('paginationLimit-' . $id, static::listPaginationLimitOptions(), $value, 'paginationLimit fr no-print-screen');
         $paginationLimit->setTitle('Limite de registros por página');
         $link = $this->getGrid()->getLink('listar');
         $paginationLimit->change("p('" . $link . "');");

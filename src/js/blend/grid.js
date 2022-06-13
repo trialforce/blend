@@ -1,5 +1,17 @@
+/* global blend */
 
 var grid = {};
+blend.grid = {};
+blend.plugins.push(blend.grid);
+
+blend.grid.register = function ()
+{
+};
+
+blend.grid.start = function ()
+{
+    grid.restoreTextSize();
+};
 
 grid.changeTextSize = function(element)
 {
@@ -38,9 +50,10 @@ grid.openTrDetail = function(element)
     }
     else
     {
-        var newTr = $.create('tr');
+        var newTr = $(document.createElement('tr'));
         newTr.addClass('grid-tr-detail-column-group');
-        var newTd = $.create('td',detailId);
+        var newTd = $(document.createElement('r'));
+        newTd.attr('id',detailId);
         newTd.attr('colspan', grid.find('th').length);
         newTr.append(newTd);
         newTr.insertAfter(tr);
@@ -70,9 +83,5 @@ function selecteChecks(gridName)
 //used in grid checkcolumn, need refactor
 function selecteCheck(elementId)
 {
-    var element = $('#' + elementId);
-    var checked = !element.prop('checked');
-    element.prop('checked', checked);
-    
     $('#checkAllcheck').prop('checked', false);
 }

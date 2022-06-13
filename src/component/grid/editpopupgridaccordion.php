@@ -16,20 +16,22 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         }
 
         $this->addFilterToDataSource();
-        $data = $this->getDataSource()->getData();
+        $count = $this->getDataSource()->getCount();
+        $this->dataSource->setPaginationLimit(15);
+
+        if (!$this->dataSource->getPage())
+        {
+            $this->dataSource->setPage(0);
+        }
+
         $label = $this->getModelLabel();
         $view = array();
 
-        //$caption = new \View\Div($captionName, $captions);
-        //$caption->setAttribute('style', 'height: 40px;    line-height: 40px;    font-weight: bold;');
-
-        if (count($data) == 0)
+        if ($count == 0)
         {
             $th[] = new \View\Td(null, 'Nenhum ' . lcfirst($label . ' encontrado.'));
             $tr = new \View\Tr(null, $th);
             $view[] = $this->head = new \View\THead(NULL, $tr);
-            //$view[] = $this->body = new \View\TBody(NULL, null);
-            //$view[] = $this->foot = null;
         }
         else
         {
@@ -46,15 +48,11 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
         $semAcento = \Type\Text::get($label)->toFile();
 
         $captions = [];
-        $captions[] = '(' . count($data) . ') ' . $this->getModelLabelPlural();
+        $captions[] = '(' . $count . ') ' . $this->getModelLabelPlural();
 
-        //$accordionId = strtolower(str_replace('\\', '_', $this->getId()));
         $accordion = new \View\Ext\Accordion($this->getId() . '-holder', $captions, $this->table, 'col-12 ');
-
         $urlAdd = "return p('{$this->getPageName()}/{$this->getAddMethod()}')";
-
         $buttons = new \View\Ext\Button('btnAdd' . $semAcento, 'plus', 'Adicionar ' . lcfirst($label), $urlAdd, 'success small');
-
         $btnHolder = new \View\Div('btnSearchButtons', $buttons, 'gridButtonsSearch');
 
         $accordion->getHead()->append($btnHolder);

@@ -361,9 +361,9 @@ class Column
 
     /**
      * Define the grid element.
-     * @param type $grid
+     * @param \Component\Grid\Grid $grid
      *
-     * @return \Component\Grid\Simple
+     * @return \Component\Grid\Column
      */
     public function setGrid($grid)
     {

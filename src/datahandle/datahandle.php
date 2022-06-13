@@ -98,6 +98,19 @@ class DataHandle
     }
 
     /**
+     * Verify is some variable exists in datahandle
+     *
+     * @param string $var
+     * @return boolean
+     */
+    public static function exists($var)
+    {
+        $class = get_called_class();
+        $instance = $class::getInstance();
+        return isset($instance->$var);
+    }
+
+    /**
      * Get a var, if not return default passed value and set it in object
      *
      * @param string $var
@@ -147,6 +160,22 @@ class DataHandle
         }
 
         return null;
+    }
+
+    /**
+     * Remove passed variable
+     *
+     * @param string $var
+     * @return $this
+     */
+    public function remove($var)
+    {
+        if (isset($this->$var))
+        {
+            unset($this->$var);
+        }
+
+        return $this;
     }
 
 }

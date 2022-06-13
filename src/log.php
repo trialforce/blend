@@ -63,7 +63,14 @@ function blend_shutdown()
         //ou via html no navegador
         else
         {
-            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe! Mensagem do erro: ' . $error['message'] . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'] . '</body></html>';
+            $msg = '';
+
+            if (\DataHandle\Config::get('emailTest'))
+            {
+                $msg = '<br/>Erro:<br/>' . nl2br($error['message']) . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'];
+            }
+
+            echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe!' . $msg . '</body></html>';
         }
     }
 
@@ -123,9 +130,9 @@ class Log
     static $debug = true;
 
     const FOLDER = 'log/';
-    const ERROR_FILE = 'error.txt';
-    const DEBUG_FILE = 'debug.txt';
-    const SQL_FILE = 'sql.txt';
+    const ERROR_FILE = 'error_php.log';
+    const DEBUG_FILE = 'debug.log';
+    const SQL_FILE = 'sql.log';
 
     protected static $logSql = false;
     protected static $logSqlConsole = false;
@@ -422,8 +429,7 @@ class Log
 
         $error = '';
         $error .= "###############################################" . PHP_EOL;
-        $error .= 'Error in ' . date('d/m/y G:i:s:u') . ' = ' . $file . ' on line ' . $line . "\n";
-        $error .= $type . ' - ' . $message . PHP_EOL;
+        $error .= 'Error ' . $type . ' - ' . $message . 'in ' . $file . ' on line ' . $line . PHP_EOL;
 
         //controls especial js erro type, used in API
         if (strtolower($type) != 'js')
@@ -494,13 +500,22 @@ class Log
      *
      * @param string $sql
      */
-    public static function sql($sql)
+    public static function sql($sql, $time = null, $idConn = null, $logId = null)
     {
         $sql = str_replace(array("\r\n", "\r", "\n"), ' ', $sql);
 
+        if ($time && $idConn && $logId)
+        {
+            $string = $idConn . ' - ' . $time . ' - ' . $logId . ' - ' . $sql;
+        }
+        else
+        {
+            $string = $sql;
+        }
+
         if (Log::getLogSql())
         {
-            Log::logInFile(LOG::SQL_FILE, $sql);
+            Log::logInFile(LOG::SQL_FILE, $string);
         }
 
         if (Log::getLogSqlConsole())
@@ -511,7 +526,7 @@ class Log
             }
             else
             {
-                \Console::log($sql);
+                \Console::log($string);
             }
         }
     }

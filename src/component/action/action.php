@@ -15,6 +15,7 @@ class Action extends \Component\Component
     protected $title;
     protected $url;
     protected $pk;
+    protected $model;
     protected $renderInEdit = true;
     protected $groupInEdit = '';
     protected $renderInGrid = false;
@@ -80,6 +81,20 @@ class Action extends \Component\Component
     public function setPk($pk)
     {
         $this->pk = $pk;
+        return $this;
+    }
+
+    /**
+     * @return \Db\Model
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    public function setModel($model)
+    {
+        $this->model = $model;
         return $this;
     }
 
@@ -174,6 +189,23 @@ class Action extends \Component\Component
     {
         $this->renderInGridDetail = $renderInGridDetail;
         return $this;
+    }
+
+    /**
+     * Mount the button for the grid
+     *
+     * @param int $line the index of the button inside grid
+     *
+     * @return \View\View
+     */
+    public function mountButtonGrid($line = null)
+    {
+        $modelId = $this->getPk();
+        $link = new \View\Ext\LinkButton('action-link-' . $this->getId() . '-' . $modelId, $this->getIcon(), null, $this->getParsedUrl());
+        $link->setData('model-id', $modelId);
+        $link->setClass('pkColumnEdit');
+
+        return $link;
     }
 
 }

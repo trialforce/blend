@@ -33,7 +33,7 @@ class Session extends DataHandle
      */
     public function __construct()
     {
-        parent::__construct($_SESSION);
+        parent::__construct(isset($_SESSION) ? $_SESSION : null);
     }
 
     /**

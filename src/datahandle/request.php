@@ -70,19 +70,41 @@ class Request extends DataHandle
     {
         $vars = get_object_vars($this);
 
+        $uri = [];
+
         if (is_array($vars))
         {
             foreach ($vars as $line => $info)
             {
-                if ($line != 'PHPSESSID')
+                if ($line == 'PHPSESSID')
                 {
-                    $value = $info;
+                    continue;
+                }
 
-                    if (is_array($info))
+                $value = $info;
+
+                $valid = true;
+
+                if (is_array($info))
+                {
+                    if (isset($info[0]))
                     {
                         $value = $info[0];
-                    }
 
+                        if (is_array($value))
+                        {
+                            $valid = false;
+                        }
+                    }
+                    else
+                    {
+                        // empty array
+                        $valid = false;
+                    }
+                }
+
+                if ($valid)
+                {
                     $uri[] = $line . '=' . $value;
                 }
             }
@@ -95,7 +117,7 @@ class Request extends DataHandle
 
     public static function getArray($param1, $param2)
     {
-        if (isset($_REQUEST[$param1]) && $_REQUEST[$param1][$param2])
+        if (isset($_REQUEST[$param1]) && isset($_REQUEST[$param1][$param2]) && $_REQUEST[$param1][$param2])
         {
             return $_REQUEST[$param1][$param2];
         }

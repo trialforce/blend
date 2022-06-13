@@ -14,22 +14,36 @@ class PkColumnEdit extends \Component\Grid\EditColumn
         $this->setIdentificator(TRUE)->setRender(TRUE)->setRenderInDetail(FALSE);
     }
 
-    public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
+    protected function getIdValue($item)
     {
         $grid = $this->getGrid();
         $identificator = $grid->getIdentificatorColumn();
         $idValue = \DataSource\Grab::getUserValue($identificator, $item);
+
+        return $idValue;
+    }
+
+    public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
+    {
         $url = $this->getEditUrl($item);
+        $idValue = $this->getIdValue($item);
 
         if ($tr && $url)
         {
             $tr->setAttribute('ondblclick', 'p(\'' . $url . '\');');
             $tr->setData('model-id', $idValue);
-
             $td->addClass('pkColumnEdit');
         }
 
-        $content = array();
+        $content = $this->mountActions($item, $line);
+
+        return new \View\Div(null, $content, 'grid-action-column-holder');
+    }
+
+    protected function mountActions($item, $line)
+    {
+        $content = [];
+        $idValue = $this->getIdValue($item);
         $actions = $this->getGrid()->getActions();
 
         if (isIterable($actions))
@@ -45,15 +59,14 @@ class PkColumnEdit extends \Component\Grid\EditColumn
                 }
 
                 $action->setPk($idValue);
-                $link = new \View\Ext\LinkButton('action-link-' . $action->getId(), $action->getIcon(), null, $action->getParsedUrl());
-                $link->setData('model-id', $idValue);
-                $link->setClass('pkColumnEdit');
+                $action->setModel($item);
+                $link = $action->mountButtonGrid($line);
 
                 $content[] = $link;
             }
         }
 
-        return new \View\Div(null, $content, 'grid-action-column-holder');
+        return $content;
     }
 
 }

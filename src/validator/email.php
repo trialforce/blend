@@ -25,4 +25,13 @@ class Email extends \Validator\Validator
         return filter_var($this->value, FILTER_VALIDATE_EMAIL);
     }
 
+    public static function obfuscate($email)
+    {
+        $em = explode('@', $email);
+        $name = implode('@', array_slice($em, 0, count($em) - 1));
+        $len = floor(strlen($name) / 2);
+
+        return substr($name, 0, $len) . str_repeat('*', $len) . '@' . end($em);
+    }
+
 }

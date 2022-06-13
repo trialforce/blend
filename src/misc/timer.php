@@ -22,6 +22,12 @@ class Timer
     private $end;
 
     /**
+     * A global timer acessible in all system
+     * @var \Misc\Timer
+     */
+    private static $global;
+
+    /**
      * Construct and starts the timer
      */
     public function __construct()
@@ -70,6 +76,18 @@ class Timer
     }
 
     /**
+     * Make a stop and diff direct to debug file
+     *
+     * @param string $message
+     */
+    public function diffDebug($message)
+    {
+        \Log::debug($message . ' = ' . $this->stop()->diff());
+
+        return $this;
+    }
+
+    /**
      * Show diff
      *
      * @return int
@@ -77,6 +95,33 @@ class Timer
     public function __toString()
     {
         return $this->diff() . '';
+    }
+
+    public static function setGlobalTimer(\Misc\Timer $timer)
+    {
+        self::$global = $timer;
+    }
+
+    public static function getGlobalTimer()
+    {
+        return self::$global;
+    }
+
+    public static function activeGlobalTimer()
+    {
+        self::$global = new \Misc\Timer();
+    }
+
+    public static function debug($message)
+    {
+        $global = self::getGlobalTimer();
+
+        if (!$global)
+        {
+            return;
+        }
+
+        $global->diffDebug($message);
     }
 
 }

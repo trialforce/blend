@@ -1,14 +1,6 @@
-
-
 /*Placeholder*/
 ::-webkit-input-placeholder, :-moz-placeholder, ::-moz-placeholder, :-ms-input-placeholder, input[placeholder], [placeholder], *[placeholder], .placeholder {
     color: #ccc;
-}
-
-/*outline from chrome*/
-input:focus, button:focus {
-    outline: none;
-    box-shadow: 0 0 6px #5db6ea;
 }
 
 select[readonly]

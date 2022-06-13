@@ -70,7 +70,7 @@ class Remove extends \Component\Action\Action
 
         if (!$this->getIdentifier())
         {
-            throw new \UserException('É necessário informar um identificdor para remoção!');
+            throw new \UserException('É necessário informar um identificador para remoção!');
         }
 
         if ($confirmed == 1)

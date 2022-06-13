@@ -1,0 +1,45 @@
+.content-editable .input {
+    height: 100%;
+    width: 100%;
+    float: left;
+    min-height: 100px;
+    line-height: 1.4;
+    text-indent: 0;
+}
+
+.content-editable .input li {
+    width: auto;
+    display: list-item;
+    margin-left: 20px;
+    list-style-type: inherit;
+}
+
+.content-editable-menu {
+    display: flex;
+    position: absolute;
+    top: 6px;
+    right: 0;
+    font-size: 12px;
+}
+
+.content-editable-button {
+    padding: 0 4px;
+}
+
+.content-editable-select {
+    font-size: 9px;
+    padding: 2px;
+    height: 20px;
+    margin-top: -4px;
+    line-height: 20px;
+    text-align: left;
+    text-indent: 0px;
+    min-width: 40px;
+    width: auto;
+}
+
+.content-editable-color {
+    margin-top: -4px;
+    height: 20px;
+    width: 20px; 
+}

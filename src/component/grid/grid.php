@@ -85,6 +85,14 @@ class Grid extends \Component\Component
     protected $actions;
 
     /**
+     * Call interface functions.
+     * Used for optimizations
+     *
+     * @var boolean
+     */
+    protected $callInterfaceFunctions = FALSE;
+
+    /**
      * Construct a grid
      *
      * @param string $id
@@ -96,11 +104,20 @@ class Grid extends \Component\Component
         $this->setDataSource($dataSource);
     }
 
+    public function getGridName()
+    {
+        $id = strtolower($this->getId());
+        $id = str_replace('component\grid\\', '', $id);
+        $id = str_replace('\\', '-', $id);
+
+        return $id;
+    }
+
     /**
      * Retorna o datasource selecionado.
      * Já com as colunas definidas
      *
-     * @return \DataSource\Model
+     * @return \DataSource\DataSource
      */
     public function getDataSource()
     {
@@ -109,7 +126,7 @@ class Grid extends \Component\Component
 
     /**
      * Define the DataSource
-     * @param type $dataSource
+     * @param \DataSource\DataSource $dataSource
      */
     public function setDataSource($dataSource)
     {
@@ -173,6 +190,16 @@ class Grid extends \Component\Component
         $this->title = $title;
 
         return $this;
+    }
+
+    public function getCallInterfaceFunctions()
+    {
+        return $this->callInterfaceFunctions;
+    }
+
+    public function setCallInterfaceFunctions($callInterfaceFunctions)
+    {
+        $this->callInterfaceFunctions = $callInterfaceFunctions;
     }
 
     /**
@@ -388,9 +415,20 @@ class Grid extends \Component\Component
      */
     public function createTableInner()
     {
+        $dataSource = $this->getDataSource();
+        $paginator = $this->getPaginator();
+
+        if ($paginator instanceof \Component\Grid\Paginator)
+        {
+            $limit = $paginator->getCurrentPaginationLimitValue();
+            $dataSource->setPaginationLimit($limit);
+            $dataSource->setLimit($limit);
+        }
+
         //only force the getData, to make any changes in data that is needed
         //the data is not used here (but getData is cached, so it's okay)
-        $this->getDataSource()->getData();
+        $dataSource->getData();
+
         $view = array();
 
         if ($this->getTitle())
@@ -564,7 +602,7 @@ class Grid extends \Component\Component
      * Define paginator
      *
      * @param \View\View $paginator
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function setPaginator($paginator)
     {
@@ -818,10 +856,6 @@ class Grid extends \Component\Component
         if ($event == 'exportGridFile')
         {
             $dataSource->setPaginationLimit(999999);
-        }
-        else
-        {
-            $dataSource->setPaginationLimit(\Component\Grid\Paginator::getCurrentPaginationLimitValue());
         }
 
         if (Request::get('orderBy'))

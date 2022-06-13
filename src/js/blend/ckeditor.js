@@ -1,3 +1,23 @@
+/* global blend, CKEDITOR */
+
+blend.ckeditor = {};
+blend.plugins.push(blend.ckeditor);
+
+blend.ckeditor.register = function ()
+{
+};
+
+blend.ckeditor.start = function ()
+{
+    dateTimeInput();
+};
+
+blend.ckeditor.beforeSubmit = function ()
+{
+    updateEditors();
+};
+
+
 /**
  * Update the content of html editor nicEditor and CkEditor
  *
@@ -28,13 +48,14 @@ function updateEditors()
             }
         }
     });
-    
+
     //add support for ckeditor 4
-    if ( typeof CKEDITOR == 'object')
+    if (typeof CKEDITOR == 'object')
     {
-        for ( var instance in CKEDITOR.instances )
+        for (var instance in CKEDITOR.instances)
         {
-          CKEDITOR.instances[instance].updateElement();
+            CKEDITOR.instances[instance].updateElement();
+            CKEDITOR.disableAutoInline = true;
         }
     }
 }
@@ -49,29 +70,35 @@ function useImageCkEditor(a)
 
 function createCkEditor(id)
 {
-    if (typeof CKEDITOR == 'undefined' || $('#'+id).length == 0 )
+
+    if (typeof CKEDITOR == 'undefined' || $('#' + id).length == 0)
     {
-        setTimeout(function(){createCkEditor(id)},300);
+        setTimeout(function ()
+        {
+            createCkEditor(id)
+        }, 300);
         return;
     }
     
+    CKEDITOR.disableAutoInline = true;
+
     //ckeditor allready exists, avoid error
-    if ( typeof CKEDITOR.instances[id] === 'object')
+    if (typeof CKEDITOR.instances[id] === 'object')
     {
         //return;
     }
 
-    var editor = CKEDITOR.replace( id );
-    
+    var editor = CKEDITOR.replace(id);
+
     //active the save button when editor changes
-    editor.on('change', function() 
+    editor.on('change', function ()
     {
         $('#btnSalvar').removeAttr('disabled');
     });
 
-    editor.addCommand('blendSave', 
+    editor.addCommand('blendSave',
     {
-        exec : function(editor, data) 
+        exec: function (editor, data)
         {
             $('#btnSalvar').click();
         }

@@ -204,13 +204,13 @@ class Manager
     public function getDbVersion()
     {
         $query = new \Db\QueryBuilder('migration', $this->getConnInfoId());
-        return $query->columns('max(version) as dbVersion')->where('folder', '=', $this->getFolder())->first()->dbVersion;
+        return $query->setLogId('getLastMigrationVersion')->columns('max(version) as dbVersion')->where('folder', '=', $this->getFolder())->first()->dbVersion;
     }
 
     private function insertVersion($version)
     {
         $sql = "INSERT INTO migration (version,folder) VALUES ('$version','$this->folder');";
-        $this->getConn()->execute($sql);
+        $this->getConn()->execute($sql, null, 'insertVersion');
     }
 
     private function createMigrationTableIfNeeeded()
@@ -238,7 +238,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;";
 
-        $conn->execute($sqlCreateTable);
+        $conn->execute($sqlCreateTable, null, 'Create table migration');
     }
 
     public function diffModel($modelName, $params = null)

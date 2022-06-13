@@ -1,3 +1,36 @@
+blend.autoNumeric = {};
+blend.plugins.push(blend.autoNumeric);
+
+blend.autoNumeric.start = function ()
+{
+    applyAutonumeric();
+};
+
+function applyAutonumeric()
+{
+    $('input.float').autoNumeric('init');
+    
+    //limpa campo quando entrar nele e for zerado
+    $('input.float').focus(function () 
+    {
+        if ($(this).val() == '0,00')
+        {
+            $(this).val('');
+        }
+    });
+
+    //limpa campo quando entrar nele e for zerado
+    $('input.float').blur(function () 
+    {
+        if ($(this).val() == '')
+        {
+            $(this).val('0,00');
+        }
+    });
+
+    $('input.integer').autoNumeric('init');
+}
+
 /**
 * autoNumeric.js
 * @author: Bob Knothe
@@ -36,7 +69,7 @@
 (function ($) {
     "use strict";
     /*jslint browser: true*/
-    /*global jQuery*/
+    /*global jQuery, blend*/
     /**
     * Cross browser routine for getting selected range/cursor position
     */

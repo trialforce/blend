@@ -9,7 +9,7 @@ namespace View;
  *
  * You can also use the <object> tag to embed another webpage into your HTML document.
  */
-class Object extends \View\View
+class Objct extends \View\View
 {
 
     public function __construct($idName = \NULL, $data = NULL, $type = NULL, $class = NULL, $father = NULL)

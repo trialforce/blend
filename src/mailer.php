@@ -5,6 +5,16 @@ use DataHandle\Config;
 class Mailer extends \PHPMailer\PHPMailer\PHPMailer
 {
 
+    /**
+     * Define que o item a ser anexado será uma imagem inline.
+     */
+    const ATTACHMENT_TYPE_IMAGE = 0;
+
+    /**
+     * Define que o item a ser anexado será um arquivo.
+     */
+    const ATTACHMENT_TYPE_FILE = 1;
+
     public function __construct()
     {
         parent::__construct();
@@ -17,19 +27,7 @@ class Mailer extends \PHPMailer\PHPMailer\PHPMailer
         $emailProtocol = Config::get('emailProtocol');
 
         $this->configSmtp($emailHost, $emailPort, $emailUser, $emailPass, $emailProtocol, true, $emailFrom);
-
-        //\Log::debug('')
     }
-
-    /**
-     * Define que o item a ser anexado será uma imagem inline.
-     */
-    const ATTACHMENT_TYPE_IMAGE = 0;
-
-    /**
-     * Define que o item a ser anexado será um arquivo.
-     */
-    const ATTACHMENT_TYPE_FILE = 1;
 
     public function addAddress($address, $name = '')
     {

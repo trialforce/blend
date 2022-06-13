@@ -24,8 +24,12 @@ class Words extends \Validator\Validator
 
     public function validate($value = null)
     {
-        $error = parent::validate($value);
+        if ($value)
+        {
+            $this->setValue($value);
+        }
 
+        $error = parent::validate($this->value);
         $words = explode(' ', $this->value);
 
         if (count($words) < $this->wordCount)

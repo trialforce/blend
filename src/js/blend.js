@@ -9,29 +9,80 @@ var blendJs = function(){};
 var blend = {};
 blend.defaultFormPost = 'form';
 blend.plugins = [];
- 
-function pluginsRegister()
-{
-    for (var i = 0; i < blend.plugins.length; i++)
-    {
-        var plugin = blend.plugins[i];
-        
-        if ( typeof plugin.register == 'function')
-        {
-            plugin.register();
-        }
-    }
-}
 
-function pluginsStart()
+var b = function(selector)
+{
+    var nodeList = document.querySelectorAll(selector);
+    
+    nodeList.each = nodeList.forEach;
+    
+    nodeList.attr = function(attribute, value)
+    {
+        if (typeof value == 'undefined')
+        {
+            return this[0].getAttribute(attribute);
+        }
+        else
+        {
+            this[0].settAttribute(attribute,value);
+        }
+    };
+    
+    nodeList.hasClass = function(cssClass)
+    {
+        return this[0].classList.contains(cssClass);
+    };
+    
+    nodeList.addClass = function(cssClass)
+    {
+        this.forEach(function(element)
+        {
+            element.classList.add(cssClass);
+        });
+    };
+    
+    nodeList.removeClass = function(cssClass)
+    {
+        this.forEach(function(element)
+        {
+            element.classList.remove(cssClass);
+        });
+    };
+    
+    nodeList.hide = function()
+    {
+        this.forEach(function(element)
+        {
+            element.style.display = 'none';
+        });
+    };
+    
+    nodeList.css = function(rule, value)
+    {
+        if (typeof value == 'undefined')
+        {
+            return this[0].style[rule];
+        }
+        
+        this.forEach(function(element)
+        {
+            element.style[rule] = value;
+        });
+    };
+    
+    return nodeList;
+}
+ 
+function pluginsCallMethod(method)
 {
     for (var i = 0; i < blend.plugins.length; i++)
     {
         var plugin = blend.plugins[i];
+        var pluginMethod = plugin[method];
         
-        if ( typeof plugin.start == 'function')
+        if ( typeof pluginMethod == 'function')
         {
-            plugin.start();
+            pluginMethod();
         }
     }
 }
@@ -45,78 +96,43 @@ if (!window.console)
     };
 }
 
-if (typeof $ == 'function')
+window.onpopstate = function(event) 
 {
-    window.onpopstate = function(event) 
+    var okay = escape();
+
+    if (!okay)
     {
-        var okay = escape();
-        
-        if ( !okay )
-        {
-            avoidUrlRegister = true;
-            p(window.location.href, true);
-        }
-        else
-        {
-            //não mudar a url
-            return false;
-        }       
-    };
-}
+        avoidUrlRegister = true;
+        p(window.location.href, true);
+    }
+    else
+    {
+        //não mudar a url
+        return false;
+    }
+};
 
 //Loading without ajax
-window.onload =  function ()
+window.onload = function ()
 {
-    pluginsRegister();
+    pluginsCallMethod('register');
     dataAjax();
-        
-    /**
-     * Add support to play method in jquery
-     *
-     * @returns {jQuery.fn@call;each}
-     */
-    jQuery.fn.play = function () 
-    {
-        return this.each(function () 
-        {
-            if (typeof this.play === 'function')
-            {
-                this.play();
-            }
-        });
-    };
-    
-    //jquery plugin to create element
-    //https://github.com/ern0/jquery.create/blob/ster/jquery.create.js
-    (function($) 
-    {
-        $.create = function(tag,id) 
-        {
-            let elm = document.createElement(tag.toUpperCase());
-
-            if (typeof(id) != "undefined") 
-            {
-                elm.id = id;
-            }
-
-            return $(elm);
-        }; // $.create()
-    }(jQuery));
     
     //destroy popup on esc
-    $(document).keyup(function(e) 
+    document.addEventListener('keydown', function(e)
     {
-        if (e.key === "Escape") 
+        if(e.key=='Escape'||e.key=='Esc'||e.keyCode==27)
         {
-           return escape();
+            return escape();
         }
-    });
+    }, true)
+    
 };
 
 function escape()
 {
     //main menu
-    if ( $('body').hasClass('menu-open') )
+    if ( b('body').hasClass('menu-open') )
     {
         menuClose();
         return true;
@@ -141,11 +157,11 @@ function escape()
     //calendar
     else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
     {
-        $('.xdsoft_datetimepicker.xdsoft_noselect').hide();
+        b('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
     }
     //slider full screen
-    else if ( $('slider-full-screen').length > 0)
+    else if ( b('slider-full-screen').length > 0)
     {
         removeSlideFullScreen();
     }
@@ -153,84 +169,9 @@ function escape()
     return false;
 }
 
-function convertAjaxLinks()
-{
-    //links
-    $("[data-ajax]").each(function ()
-    {
-        var element = $(this);
-        var dataAjax = element.attr('data-ajax');
-        var href = element.attr('href');
-        var disabled = element.attr('disabled');
-        element.removeAttr('data-ajax');
-        
-        //if is an outside link do not use ajax system
-        if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0) )
-        {
-            href = null;
-        }
-
-        if (href && dataAjax)
-        {
-            if (disabled == 'disabled')
-            {
-                element.click(function ()
-                {
-                    toast('Ação desabilitada!');
-                    return false;
-                });
-            }
-            else if (dataAjax === 'noFormData')
-            {
-                element.click(function () {
-                    return g(href, '');
-                });
-            } 
-            else
-            {
-                element.click(function () {
-                    return p(href);
-                });
-            }
-        }
-    }
-    );
-}
-
-function convertOnPressEnter()
-{
-    $("[data-on-press-enter]").each(function ()
-    {
-        var element = $(this);
-        var myEvent = element.attr('data-on-press-enter');
-
-        //get out if converted
-        if (element.attr('data-on-press-enter-converted') == "1")
-        {
-            return;
-        }
-
-        //mark as converted
-        element.attr('data-on-press-enter-converted', "1");
-        element.keydown(
-                function (e)
-                {
-                    if (e.keyCode == "13" && !e.shiftKey)
-                    {
-                        eval(myEvent);
-                        e.preventDefault();
-                    } else
-                    {
-                        return true;
-                    }
-                }
-        );
-    }
-    );
-}
 
 /**
- * Parse data-ajax attribute, to make a link ajax
+ * Make all actions that is need after some post/ajax post
  *
  * @returns boolean always false
  */
@@ -244,104 +185,14 @@ function dataAjax()
     {
         alert('Erro ao executar javascript da página!');
         console.error(e);
-        hideLoading();
+        return hideLoading();
     }
-    
-    pluginsStart();
     
     //clear the function to avoid calling more times
     blendJs = function(){};
-	
-    convertAjaxLinks();
-    convertOnPressEnter();
-
-    //remove invalid on change
-    if ( typeof validatorRemoveInvalid == 'function' )
-    {
-        validatorRemoveInvalid();
-        validatorApplyInvalid();
-    }
-
-    //make masks work
-    if (typeof jQuery().mask == 'function')
-    {
-        applyAllMasks(); 
-    }
-
-    //input float and integer
-    if (typeof ($('input.float').autoNumeric) === "function")
-    {
-        applyAutonumeric();
-    }
-
-    if (typeof ($('.swipebox').swipebox) === "function")
-    {
-        $('.swipebox').swipebox();
-    }
-
-    //multipleSelect();
-    if (typeof seletMenuItem == 'function') 
-    {
-        seletMenuItem();
-    }
-    
-    if (typeof dateTimeInput == "function")
-    {
-        dateTimeInput();
-    }
-    
-    //add system class
-    if ( typeof isIos =="function" && isIos())
-    {
-        $('body').removeClass('os-ios').addClass('os-ios');
-    }
-    else if ( typeof isAndroid =="function" && isAndroid())
-    {
-        $('body').removeClass('os-android').addClass('os-android');
-    }
-    
-    //blend slider
-    $('.slider').each(function ()
-    {
-        slide('#' + $(this).attr('id'))
-    });
-    
-    if (typeof actionList == 'function')
-    {
-        actionList.restore();
-    }
-    
-    if ( typeof grid =='function')
-    {
-        grid.restoreTextSize();    
-    }
-    
-    hideLoading();
-
-    return false;
-}
-
-function applyAutonumeric()
-{
-    $('input.float').autoNumeric('init');
-    
-    //limpa campo quando entrar nele e for zerado
-    $('input.float').focus(function () {
-        if ($(this).val() == '0,00')
-        {
-            $(this).val('');
-        }
-    });
-
-    //limpa campo quando entrar nele e for zerado
-    $('input.float').blur(function () {
-        if ($(this).val() == '')
-        {
-            $(this).val('0,00');
-        }
-    });
-
-    $('input.integer').autoNumeric('init');
+    pluginsCallMethod('start');
+  
+    return hideLoading();
 }
 
 /**
@@ -376,22 +227,9 @@ function updateUrl(page)
     return true;
 }
 
-function getBaseUrl()
-{
-    var bases = document.getElementsByTagName('base');
-    var base = '';
-    
-    if ( bases && bases[0])
-    {
-        base = bases[0].href;
-    }
-    
-    return base;
-}
-
 function correctUrl(url)
 {
-    var base = getBaseUrl();
+    var base = b('base').attr('href');
     
     var startsWith = url.substr(0, base.length) === base;
 
@@ -495,15 +333,17 @@ function showLoading()
 {
     $("body").bind("keydown", avoidTab);
     $(".loading").fadeIn('fast');
+    return false;
 }
 
 function hideLoading()
 {
     $("body").unbind("keydown", avoidTab);
     $(".loading").fadeOut('fast');
+    return false;
 }
 
-function getFormDataToPost(formData)
+function getFormDataToPost(formData,type)
 {
     var isEmpty = typeof formData === 'undefined' || formData == null;
     
@@ -523,7 +363,7 @@ function getFormDataToPost(formData)
     {
         return formData;   
     }
-    
+       
     //4 - this is the the defafult case, blend will post the entire form
     var hasFiles = $('input[type=file]').length > 0;
 
@@ -531,9 +371,17 @@ function getFormDataToPost(formData)
     if ( !hasFiles )
     {
         formData = $(blend.defaultFormPost).serialize();
+        
+        //put the current url in post, usefull to get real url, when you are inside a component
+        //only in post, so we not "fill" wrong data inside get
+        if (type =='POST')
+        {
+            formData+='&page-url='+$('body').data('page-url');
+        }
+        
         return formData;
     }
-
+    
     //4.2 - has files, so we need to make js magic in formData
     return mountHtml5FormData();
 }
@@ -560,6 +408,9 @@ function mountHtml5FormData()
     {
         formData.append(this.name, '0');
     });
+    
+    //put the current url in post, usefull to get real url, when you are inside a component
+    formData.append('page-url',$('body').data('page-url'));
 
     //minnor support for multiple values
     $("select[multiple]").each(function () 
@@ -580,6 +431,22 @@ function mountHtml5FormData()
     return formData;
 }
 
+function disableFocused()
+{
+    var focused = $(':focus');
+
+    //disable focused element, perhaps a button or link
+    if (typeof focused.get(0) != 'undefined')
+    {
+        if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
+        {
+            focused.attr('disabled', true);
+        }
+    }
+    
+    return focused;
+}
+
 /**
  *
  * Make a ajax to a page
@@ -591,32 +458,24 @@ function mountHtml5FormData()
  */
 function r(type, page, formData, callBack)
 {
-    isAjax = true;
-    var focused = $(':focus');
-
-    //disable focused element, perhaps a button or link
-    if (typeof focused.get(0) != 'undefined')
+    //in the case is a hash
+    if (page.indexOf('#') == 0)
     {
-        if (focused.get(0).tagName == 'a' || focused.get(0).tagName == 'button')
-        {
-            focused.attr('disabled', true);
-        }
+        window.scrollTo( { top: document.querySelector(page).offsetTop, behavior: 'smooth'} );
+        return false;
     }
-
-    showLoading();
     
-    //TODO refactor to plugin
-    if (typeof updateEditors == 'function')
-    {
-        updateEditors();
-    }
-
-    var host = $('base').attr('href');
+    isAjax = true;
+    var focused = disableFocused();
+    showLoading();
+    pluginsCallMethod('beforeSubmit');
+    
+    var host = b('base').attr('href');
     var url = host + page.replace(host, '');
 
     //default jquery value https://api.jquery.com/jQuery.ajax/
     var contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
-    formData = getFormDataToPost(formData);
+    formData = getFormDataToPost(formData,type);
    
     if (formData instanceof FormData)
     {
@@ -631,9 +490,6 @@ function r(type, page, formData, callBack)
         dataType: "json",
         contentType: contentType,
         processData: false,
-        xhrFields: {
-            withCredentials: true //make cookie work on ajax
-        },
         success: function (data)
         {
             //enable the focused element
@@ -642,8 +498,7 @@ function r(type, page, formData, callBack)
             if (!data)
             {
                 toast('Sem retorno do servidor!', 'danger');
-                hideLoading();
-                return;
+                return hideLoading();
             }
 
             //only make response if content exists, to avoid clean
@@ -724,9 +579,9 @@ function r(type, page, formData, callBack)
     return false;
 }
 
-function getJson(page, formData, loadingShow, callBack)
+async function getJson(page, formData, loadingShow, callBack)
 {
-    var host = $('base').attr('href');
+    var host = b('base').attr('href');
     var url = host + page.replace(host, '');
 
     if (loadingShow)
@@ -734,16 +589,14 @@ function getJson(page, formData, loadingShow, callBack)
         showLoading();
     }
 
-    $.ajax({
+    return $.ajax({
         dataType: "json",
+        cache: false,
         method: "POST",
         url: url,
         async: true,
         timeout: 20000,
         data: formData,
-        xhrFields: {
-            withCredentials: true //make cookie work on ajax
-        },
         success: function (response)
         {
             if (response && typeof response.script == 'string')
@@ -785,7 +638,7 @@ function getSelected(selector)
  */
 function getCurrentPage()
 {
-    var relativeUrl = window.location.pathname.replace($('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
+    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
     return relativeUrl.split('/')[0];
 }
 
@@ -795,7 +648,7 @@ function getCurrentPage()
  */
 function getCurrentEvent()
 {
-    var relativeUrl = window.location.pathname.replace($('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
+    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
     return relativeUrl.split('/')[1];
 }
 
@@ -834,11 +687,11 @@ function setFocusOnFirstField()
     //support popup
     if ($('.popup').length)
     {
-        $('.popup').find('input:not([readonly]):not([disabled]):first').focus();
+        $('.popup').find('input:not([readonly]):not([disabled]):visible:first').focus();
     } 
     else
     {
-        $('.content input:not([readonly]):not([disabled]):first').focus();
+        $('.content input:not([readonly]):not([disabled]):visible:first').focus();
     }
 
     return false;
@@ -862,15 +715,16 @@ function focusNextElement()
 
 function addScriptOnce(src, callBack)
 {
+    var baseUrl = b('base').attr('href');;
     var list = document.getElementsByTagName('script');
     var i = list.length;
     var findedOnDoc = false;
-    var compare = src.replace(getBaseUrl(),'');
+    var compare = src.replace(baseUrl,'');
 
     //verify if is already loaded
     while (i--)
     {
-        var myCompare = list[i].src.replace(getBaseUrl(),'');
+        var myCompare = list[i].src.replace(baseUrl,'');
         if ( myCompare == compare)
         {
             findedOnDoc = true;
@@ -917,7 +771,7 @@ function slug(str)
 
     // remove accents, swap ñ for n, etc
     var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
-    var to   = "aaaaaeeeeeiiiiooooouuuunc--_---";
+    var to = "aaaaaeeeeeiiiiooooouuuunc--_---";
 
     for (var i=0, l=from.length ; i<l ; i++) 
     {
@@ -926,7 +780,8 @@ function slug(str)
 
     str = str.replace(/[^a-z0-9 -_]/g, '') // remove invalid chars
       .replace(/\s+/g, '-') // collapse whitespace and replace by -
-      .replace(/-+/g, '-'); // collapse dashes
+      .replace(/-+/g, '-') // collapse dashes
+      .replace('.','-');
 
     return str;
-}
+}   

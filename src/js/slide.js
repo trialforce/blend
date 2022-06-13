@@ -1,3 +1,25 @@
+/* global blend */
+blend.slide = {};
+blend.plugins.push(blend.slide);
+
+blend.slide.register = function ()
+{
+};
+
+blend.slide.start = function ()
+{
+    //first inner slider
+    $('.slider').not('.slider-outter').each(function ()
+    {
+        slide('#' + $(this).attr('id'));
+    });
+    
+    //after that the rest
+    $('.slider').each(function ()
+    {
+        slide('#' + $(this).attr('id'));
+    });
+};
 
 /**
  * Create a simple slider, with mobile support
@@ -20,17 +42,44 @@ function slide(selector)
         return;
     }
     
-    var items = group.find('.slider-items').get(0);
-    var prev = group.find('.slider-prev').get(0);
-    var next = group.find('.slider-next').get(0);
+    //cached elements
+    var wrapper = group.find('>.slider-wrapper');
+    var items = wrapper.find('>.slider-items').get(0);
+    
+    //remove width for outter slider
+    var prev = wrapper.find('>.slider-prev').get(0);
+    var next = wrapper.find('>.slider-next').get(0);
+    
+    if ( !prev )
+    {
+        prev = group.find('>.slider-prev').get(0);
+    }
+    
+    if (!next)
+    {
+        next = group.find('>.slider-next').get(0);
+    }
+    
+    var slides = items.querySelectorAll(':scope >.slide'); //only first level child
+    var slidesLength = slides.length;
+    var hasSubSlider = group.find('.slider').length>0;
+    
+    if (!items)
+    {
+        return;
+    }
+    
+    //remove outter class, is not needed after parse
+    group.get(0).classList.remove('slider-outter');
+
+    //data
     var autoSlide = group.data('auto-slide');
     var fullScreen = group.data('full-screen');
     var dataStartIndex = group.data('start-index');
     var dataChangeOnHover = group.data('change-on-hover');
-    var doneOnHover = false;
     
     //copy outter width to inner
-    var outterWidth = group.find('.slider-wrapper').width();
+    var outterWidth = wrapper.width();
     var outterHeight = parseInt(group.height());
 
     //if the height it not loaded yet, wait a little
@@ -44,37 +93,72 @@ function slide(selector)
         return;
     }
     
+    //ajdust width e height
+    items.style.left = '-' + outterWidth+'px';
+    
+    for (var i=0; i<slides.length; i++)
+    {
+        var curSlide = slides[i];
+        curSlide.style.width = outterWidth+'px';
+        curSlide.style.height = outterHeight+'px';
+    }
+    
+    wrapper.css('height', outterHeight+'px');
+    
     if (dataChangeOnHover)
     {
         $(group).mouseover( function(element)
         {
-            if (doneOnHover ==true)
+            if (slidesLength > 1)
             {
-                return;
+                setSlide(1);
             }
-            
-            setSlide(1); 
-            doneOnHover = true;
-            //alert(element);
+        });
+        
+        $(group).mouseleave( function(element)
+        {
+            if (slidesLength > 1)
+            {
+                setSlide(0);
+            }
         });
     }
     
-    //if it don't has any slide, does nothing
-    var slideCount = group.find('.slide').length;
-    
     //remove slide prev/next if not neeed
-    if (slideCount <= 1 )
+    if (slidesLength <= 1 )
     {
-        group.find('.slider-prev').remove();
-        group.find('.slider-next').remove();
+        if (prev)
+        {
+            prev.remove();
+        }
+        
+        if (next)
+        {
+            next.remove();
+        }   
+    }
+    else
+    {
+        // Click events
+        if (prev)
+        {
+            prev.addEventListener('click', function (event)
+            {
+                shiftSlide(-1); 
+                clearInterval(timerInterval);
+            }, {passive: true});
+        }
+
+        if (next)
+        {
+            next.addEventListener('click', function (event)
+            {
+                shiftSlide(1);
+                clearInterval(timerInterval);
+            }, {passive: true});
+        }
     }
 
-    //ajdust width e height
-    group.find('.slide').css('width', outterWidth+'px');
-    group.find('.slide').css('height', outterHeight+'px');
-    group.find('.slider-items').css('left', '-' + outterWidth+'px');
-    group.find('.slider-wrapper').css('height', outterHeight+'px');
-    
     var slicker = group.find('.slider-slick');
     
     slicker.each( function(index)
@@ -100,16 +184,8 @@ function slide(selector)
     var threshold = 50;
     var thresholdMove = 5;
     var allowShift = true;
-    
-    if (!items)
-    {
-        return;
-    }
 
-    var slides = items.getElementsByClassName('slide');
-    var slidesLength = slides.length;
-    var slideSize = items.getElementsByClassName('slide')[0].offsetWidth;
-
+    var slideSize = slides[0].offsetWidth;
     var firstSlide = slides[0];
     var lastSlide = slides[slidesLength - 1];
 
@@ -130,23 +206,24 @@ function slide(selector)
     
     cloneLast.classList.add('cloned');
 
-    // Clone first and last slide
+    //clone first and last slide
     items.appendChild(cloneFirst);
     items.insertBefore(cloneLast, firstSlide);
     group.addClass('loaded');
 
-    // Mouse and Touch events
+    //mouse, touch and transition events
     items.onmousedown = dragStart;
-
-    // Touch events
     items.addEventListener('touchstart', dragStart, {passive: true});
     items.addEventListener('touchend', dragEnd, {passive: true});
     items.addEventListener('touchmove', dragAction, {passive: true});
+    items.addEventListener('transitionend', checkIndex, true);
+    
+    var timerInterval;
     
     //auto slide
     if (Number.isInteger(autoSlide) && slidesLength > 1) 
     {
-        setInterval(function(){shiftSlide(1)}, autoSlide);
+        timerInterval = setInterval(function(){shiftSlide(1)}, autoSlide);
     }
     
     //start position/index
@@ -157,28 +234,6 @@ function slide(selector)
             setSlide(dataStartIndex);
         }
     }
-
-    // Click events
-    if (prev)
-    {
-        prev.addEventListener('click', function (event)
-        {
-            //event.preventDefault();
-            shiftSlide(-1); 
-        }, {passive: true});
-    }
-
-    if (next)
-    {
-        next.addEventListener('click', function (event)
-        {
-            //event.preventDefault();
-            shiftSlide(1);
-        }, {passive: true});
-    }
-
-    // Transition events
-    items.addEventListener('transitionend', checkIndex, true);
 
     function dragStart(e)
     {
@@ -309,6 +364,7 @@ function slide(selector)
         items.classList.add('shifting');
         items.style.left = (slideSize * (position + 1) * -1) + "px";
         index = position;
+        clearInterval(timerInterval);
 
         return false;
     }

@@ -182,7 +182,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-12 {
+.column-p-12, .col-p-12 {
     width: 98%;
     margin: 1%;
     float: left;
@@ -190,7 +190,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-11 {
+.column-p-11, .col-p-11 {
     width: 89.66%;
     margin: 1%;
     float: left;
@@ -198,7 +198,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-10 {
+.column-p-10, .col-p-10 {
     width: 81.33%;
     margin: 1%;
     float: left;
@@ -206,7 +206,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-9 {
+.column-p-9, .col-p-9 {
     width: 73%;
     margin: 1%;
     float: left;
@@ -214,7 +214,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-8 {
+.column-p-8, .col-p-8 {
     width: 64.66%;
     margin: 1%;
     float: left;
@@ -222,7 +222,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-7 {
+.column-p-7, .col-p-7 {
     width: 56.33%;
     margin: 1%;
     float: left;
@@ -230,7 +230,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-6 {
+.column-p-6, .col-p-6 {
     width: 48%;
     margin: 1%;
     float: left;
@@ -238,7 +238,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-5 {
+.column-p-5, .col-p-5 {
     width: 38.66%;
     margin: 1%;
     float: left;
@@ -246,7 +246,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-4 {
+.column-p-4 , .col-p-4 {
     width: 31.33%;
     margin: 1%;
     float: left;
@@ -254,7 +254,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-3 {
+.column-p-3, .col-p-3 {
     width: 23%;
     margin: 1%;
     float: left;
@@ -262,7 +262,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-2 {
+.column-p-2 , .col-p-1{
     width: 14.66%;
     margin: 1%;
     float: left;
@@ -270,7 +270,7 @@ table.column-12 {
     display: inline-block;
 }
 
-.column-p-1 {
+.column-p-1 , .col-p-2{
     width: 6.33%;
     margin: 1%;
     float: left;
@@ -285,16 +285,16 @@ table.column-12 {
 
 @media screen and (max-width: 800px) {
 
-     .hide-in-desktop {
+    .hide-in-desktop {
         display: block !important;
     }
-    
+
     .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11 {
         width: 100%;
         display: inline-block;
     }
-    
-    
+
+
     .col-m-0 {
         width: 0 !important;
         display: none;
@@ -348,7 +348,7 @@ table.column-12 {
         width: calc(100%) !important;
         display: inline-block;
     }
-    
+
     .hide-in-mobile {
         display: none !important;
     }

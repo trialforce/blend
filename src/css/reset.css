@@ -215,12 +215,13 @@ p {
     margin: 10px 0;
 }
 
-a {
+a, .link , .btn.link {
     color: #3581FB;
     text-decoration: none;
+    background: transparent;
 }
 
-a:hover {
+a:hover, .link:hover , .btn.link:hover {
     text-decoration: underline;
 }
 

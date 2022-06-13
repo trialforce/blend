@@ -10,6 +10,10 @@
     color: #fff;
 }
 
+.minor-alert {
+    background: #ffd400;
+}
+
 .danger, .table tr.danger {
     background-color: #f00;
     color: #fff;

@@ -64,6 +64,12 @@ class Phone extends \Validator\Validator
             return;
         }
 
+        //caso for um número internacional a gente nem mexe com ele
+        if (substr($this->value, 0, 1) == '+')
+        {
+            return;
+        }
+
         if (!$this->validaCaracteres($value))
         {
             $error[] = 'Telefone inválido, só pode conter números, parênteses e traço!';
@@ -134,6 +140,12 @@ class Phone extends \Validator\Validator
      */
     public static function fixNumber($number, $defaultPrefix = 51, $format = false)
     {
+        //caso for um número internacional a gente nem mexe com ele
+        if (substr($number, 0, 1) == '+')
+        {
+            return $number;
+        }
+
         $number = Validator::unmask($number);
         $nove = 9;
         //lista de prefixos de paises suportados

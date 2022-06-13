@@ -8,6 +8,7 @@ namespace Type;
 class Bytes implements \Type\Generic, \JsonSerializable
 {
 
+    const PETA = 1125899906842624;
     const TERA = 1099511627776;
     const GIGA = 1073741824;
     const MEGA = 1048576;
@@ -25,46 +26,63 @@ class Bytes implements \Type\Generic, \JsonSerializable
      * @var float
      */
     protected $decimals = 0;
+    protected $limit = self::PETA;
 
-    public function __construct($value = null)
+    public function __construct($value = null, $limit = null)
     {
         $this->setValue($value);
+
+        if ($limit)
+        {
+            $this->limit = $limit;
+        }
     }
 
     public function __toString()
     {
-        if (strlen($this->value) == 0)
-        {
-            return '0 KB';
-        }
-
         $finalValueString = '';
         $value = intval($this->value);
+        if ($value < 0)
+        {
+            $value = $value * -1;
+        }
 
-        if ($value > self::TERA)
+        if ($value > self::PETA && $this->limit >= self::PETA)
+        {
+            $petas = $this->getValueType($value, self::PETA);
+            $finalValueString .= $petas . ' PB';
+            $bytesEmPetas = (self::PETA * $petas);
+            $value = ($value - $bytesEmPetas);
+        }
+        else if ($value > self::TERA && $this->limit >= self::TERA)
         {
             $teras = $this->getValueType($value, self::TERA);
             $finalValueString .= $teras . ' TB';
             $bytesEmTeras = (self::TERA * $teras);
             $value = ($value - $bytesEmTeras);
         }
-        else if ($value > self::GIGA)
+        else if ($value > self::GIGA && $this->limit >= self::GIGA)
         {
             $gigas = $this->getValueType($value, self::GIGA);
             $finalValueString .= $gigas . ' GB';
             $value = ($value - (self::GIGA * $gigas));
         }
-        else if ($value > self::MEGA)
+        else if ($value > self::MEGA && $this->limit >= self::MEGA)
         {
             $megas = $this->getValueType($value, self::MEGA);
             $finalValueString .= $megas . ' MB';
             $value = ($value - (self::MEGA * $megas));
         }
-        else if ($value > self::KILO)
+        else if ($value > self::KILO && $this->limit >= self::KILO)
         {
             $kilos = $this->getValueType($value, self::KILO);
             $finalValueString .= $kilos . ' KB';
             $value = ($value - (self::KILO * $kilos));
+        }
+
+        if (strlen($finalValueString) == 0)
+        {
+            return '0 KB';
         }
 
         return $finalValueString;
@@ -136,7 +154,12 @@ class Bytes implements \Type\Generic, \JsonSerializable
 
     public function toDb()
     {
-        return number_format($this->value, $this->decimals, '.', '');
+        if (is_numeric($this->value))
+        {
+            return number_format($this->value, $this->decimals, '.', '');
+        }
+
+        return 0;
     }
 
     public static function get($value)

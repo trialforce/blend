@@ -190,21 +190,7 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Montagem da tela de adicionar
-     */
-    public function adicionar()
-    {
-        \App::dontChangeUrl();
-        $this->setFocusOnFirstField();
-
-        $this->append($this->getHead());
-        $this->append($this->getBodyDiv($this->mountFieldLayout()));
-
-        $this->adjustFields();
-    }
-
-    /**
-     * Monta um ou mais FieldLayout
+     * Mount one or more FieldLayout
      *
      * @return array de campos
      */
@@ -225,6 +211,20 @@ class Crud extends \Page\Page
         return $fields;
     }
 
+    /**
+     * Montagem da tela de adicionar
+     */
+    public function adicionar()
+    {
+        \App::dontChangeUrl();
+        $this->setFocusOnFirstField();
+
+        $this->append($this->getHead());
+        $this->append($this->getBodyDiv($this->mountFieldLayout()));
+
+        $this->adjustFields();
+    }
+
     public function editar()
     {
         $this->setFocusOnFirstField();
@@ -235,6 +235,13 @@ class Crud extends \Page\Page
         $this->createFloatingMenu();
 
         $this->adjustFields();
+    }
+
+    public function ver()
+    {
+        $campos = $this->editar();
+        \App::addJs("preparaVer();");
+        return $campos;
     }
 
     public function createFloatingMenu()
@@ -299,21 +306,14 @@ class Crud extends \Page\Page
         return $result;
     }
 
-    public function ver()
-    {
-        $campos = $this->editar();
-        \App::addJs("preparaVer();");
-        return $campos;
-    }
-
     /**
      * Retorna o FieldLayout utilizado para montagem dos campos
      *
-     * @return \Fieldlayout\Vector
+     * @return \FieldLayout\Vector
      */
     public function getFieldLayout()
     {
-        return new \Fieldlayout\Vector(null, $this->model);
+        return new \FieldLayout\Vector(null, $this->model);
     }
 
     /**
@@ -498,7 +498,7 @@ class Crud extends \Page\Page
 
         if (!$pk)
         {
-            throw new \UserException('Imposível encontrar chave primária do modelo!');
+            throw new \UserException('Impossível encontrar chave primária do modelo!');
         }
 
         $pkValue = $this->getFormValue($pk);
@@ -588,11 +588,6 @@ class Crud extends \Page\Page
         \App::redirect($this->getPageUrl() . '/editar/' . $model->getId(), true);
 
         toast('Registro duplicado com sucesso !');
-    }
-
-    public function editarDialog()
-    {
-        throw new \Exception('Not working anymore!');
     }
 
     public function parseEvent($event)
@@ -742,108 +737,6 @@ class Crud extends \Page\Page
     }
 
     /**
-     * Create a fixed filter
-     *
-     * @deprecated since version 2019-04-13
-     *
-     * @param string $idColumn
-     * @param array $options
-     * @param mixed $defaultValue
-     * @param string $allLabel
-     * @return \View\Select
-     */
-    public function createFixedFilter($idColumn, $options, $defaultValue = '', $allLabel = 'Todos', $onlyFilter = false)
-    {
-        $grid = $this->getGrid();
-        $ds = $grid->getDataSource();
-        $realColumnName = \Db\Column\Column::getRealColumnName($idColumn);
-        $column = $ds->getColumn($realColumnName);
-
-        if (!$column)
-        {
-            $label = ucfirst(str_replace('id', '', $realColumnName));
-            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column\Column::TYPE_VARCHAR);
-        }
-
-        $column->setSql($idColumn);
-
-        $collection = new \Db\Collection($options);
-        $filter = new \Filter\Collection($column, $collection);
-        $filter->setDefaultValue($defaultValue);
-        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
-
-        if (!$onlyFilter)
-        {
-            $grid->addFilter($filter);
-        }
-
-        $ds->addExtraFilter($filter->getDbCond());
-
-        return $filter;
-    }
-
-    /**
-     * Create a fixed filter interval type
-     *
-     * @deprecated since version 2019-04-13
-     *
-     * @param string $idColumn
-     * @param string $options
-     * @param string $defaultValue
-     * @param string $allLabel
-     * @return \View\Select
-     */
-    public function createFixedIntervalFilter($idColumn, $defaultValueBegin = '', $defaultValueEnd = '', $onlyFilter = false)
-    {
-        $grid = $this->getGrid();
-        $ds = $grid->getDataSource();
-        $realColumnName = \Db\Column\Column::getRealColumnName($idColumn);
-        $column = $ds->getColumn($realColumnName);
-
-        if (!$column)
-        {
-            $label = ucfirst(str_replace('id', '', $realColumnName));
-            $column = new \Component\Grid\Column($realColumnName, $label, \Component\Grid\Column::ALIGN_LEFT, \Db\Column\Column::TYPE_VARCHAR);
-        }
-
-        $column->setSql($idColumn);
-
-        $filter = new \Filter\DateInterval($column, $idColumn);
-        $filter->setFilterType(\Filter\Text::FILTER_TYPE_ENABLE_SHOW_ALWAYS);
-
-        if ($defaultValueBegin)
-        {
-            $filter->setDefaultValue($defaultValueBegin);
-        }
-
-        if ($defaultValueEnd)
-        {
-            $filter->setDefaultValueFinal($defaultValueEnd);
-        }
-
-        if (!$onlyFilter)
-        {
-            $grid->addFilter($filter);
-        }
-
-        $ds->addExtraFilter($filter->getDbCond());
-
-        return $filter;
-    }
-
-    /**
-     * Get fixed filter value
-     *
-     * @param string $variable
-     * @param string $defaultValue
-     * @return string
-     */
-    public function getFixedFilterValue($variable, $defaultValue = '1')
-    {
-        return isset($_REQUEST[$variable]) ? Request::get($variable) : $defaultValue;
-    }
-
-    /**
      * Return a "name" for html input considering the form name
      *
      * @param string $id
@@ -969,10 +862,32 @@ class Crud extends \Page\Page
         $id = Request::get('v');
         //edit or add
         $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
-        $url .= '?iframe=true';
+        //iframe and rand (to avoid browser cache)
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
+
+        $this->crudEditPopup($url, $title, $idInput);
+    }
+
+    public function verPopup()
+    {
+        \App::dontChangeUrl();
+        $idInput = Request::get('idInput');
+        $id = Request::get('v');
+        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true&rand=' . rand();
+        $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
         $this->crudEditPopup($url, $title, $idInput);
     }
 
@@ -988,9 +903,20 @@ class Crud extends \Page\Page
 
         // add referencing parent
         $url = $this->getPageUrl() . '/adicionar/' . $idParent;
-        $url .= '?iframe=true';
+        $url .= '?iframe=true&rand=' . rand();
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
+
+        //repass extra parameters
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+
+            $url .= '&' . http_build_query($get);
+        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -1001,7 +927,10 @@ class Crud extends \Page\Page
         $body->setWidth('100', '%')->setHeight('70', 'vh');
         $buttons = null;
 
-        $popup = new \View\Blend\Popup('edit-popup', $title, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $titleLink = new \View\A('popup-title', $title, $this->getPageUrl(), null, null);
+        $titleLink->setTitle($title);
+
+        $popup = new \View\Blend\Popup('edit-popup', $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
         $popup->setIcon($this->icon);
         $popup->footer->remove();
         $popup->show();
@@ -1011,6 +940,166 @@ class Crud extends \Page\Page
         {
             $this->byId('btbClosePopup')->click("comboModelClose('{$idInput}')");
         }
+    }
+
+    /**
+     * Is multiple update allowed
+     *
+     * @return boolean
+     */
+    public function isMultipleUpdateAllowed()
+    {
+        return false;
+    }
+
+    public function listar()
+    {
+        $fields = parent::listar();
+
+        if ($this->isMultipleUpdateAllowed())
+        {
+            $button = new \View\Ext\Button('multipleEdit', 'edit', 'Edição multipla', 'multipleEdit', 'clean', 'Edição múltipla');
+            $this->addButton($button);
+        }
+
+        return $fields;
+    }
+
+    public function multipleEdit()
+    {
+        \App::dontChangeUrl();
+
+        $model = $this->getModel();
+        $columns = $model->getColumns();
+        $options = [];
+
+        foreach ($columns as $column)
+        {
+            if ($column instanceof \Db\Column\Search)
+            {
+                continue;
+            }
+
+            $options[$column->getName()] = $column->getLabel();
+        }
+
+        $content = [];
+        $content[] = new \View\P(null, 'Selecione os campos a atualizar');
+
+        $select = new \View\Select('seletedColumn', $options, null, '');
+        $content[] = $this->getContainer('Adicionar campo', $select, 'col-12');
+        $content[] = new \View\Div('', new \View\Button('addColumn', 'Adicionar', 'multipleEditAddField', 'success'), 'col-12');
+        $content[] = new \View\Div('result');
+
+        \View\Blend\Popup::confirm('Atualização em massa', $content, 'multipleEditConfirm', null, 'small')->show();
+    }
+
+    public function multipleEditAddField()
+    {
+        \App::dontChangeUrl();
+
+        //toast('multipleEditAddField=' . $seletedColumn);
+        $selectedColumn = \DataHandle\Request::get('seletedColumn');
+        $selectedValue = \DataHandle\Request::exists($selectedColumn);
+
+        if ($selectedValue)
+        {
+            throw new \UserException('Campo já adicionado!');
+        }
+
+        $model = $this->getModel();
+        $column = $model->getColumn($selectedColumn);
+
+        $fieldLayout = $this->getFieldLayout();
+
+        //add support for multiple fieldlayout
+        if (is_array($fieldLayout))
+        {
+            $fieldLayout = $fieldLayout[0];
+        }
+
+        $label = $fieldLayout->getLabel($column);
+        $input = $fieldLayout->getInputField($column, 'col-12');
+        $div = $fieldLayout->getContain($input, $label, 'notnull');
+        $div->addClass('col-12');
+
+        $removeCode = '$(this).parent(\'.field-contain\').remove();';
+        $remove = new \View\Ext\Icon('trash multiple-edit-remove', null, $removeCode);
+
+        $div->append($remove);
+        $this->byId('seletedColumn')->val('');
+        $this->byId('result')->append($div);
+    }
+
+    public function multipleEditConfirm()
+    {
+        \App::dontChangeUrl();
+        $dataSource = $this->getDataSource();
+        $this->addFiltersToDataSource($dataSource);
+        $count = $dataSource->getCount();
+
+        $content[] = 'Essa ação é irreversível. Execute com atenção!';
+
+        \View\Blend\Popup::prompt('Confirma atualização em massa de ' . $count . ' registros', $content, 'multipleEditExecute')->show();
+    }
+
+    public function multipleEditExecute()
+    {
+        \App::dontChangeUrl();
+        $dataSource = $this->getDataSource();
+        $this->addFiltersToDataSource($dataSource);
+        $dataSource->setPaginationLimit(null);
+        $dataSource->setPage(0);
+        $data = $dataSource->getData();
+
+        $model = $this->getModel();
+        $columns = $model->getColumns();
+
+        $posted = [];
+
+        foreach ($columns as $column)
+        {
+            if ($column instanceof \Db\Column\Search)
+            {
+                continue;
+            }
+
+            if (\DataHandle\Request::exists($column->getName()))
+            {
+                $posted[$column->getName()] = \DataHandle\Request::get($column->getName());
+            }
+        }
+
+        $executed = 0;
+
+        foreach ($data as $model)
+        {
+            foreach ($posted as $property => $value)
+            {
+                $model->setValue($property, $value);
+            }
+
+            $errors = $model->validate();
+
+            if (is_array($errors) && count($errors) > 0)
+            {
+                continue;
+            }
+
+            try
+            {
+                $model->save();
+            }
+            catch (\Exception $exception)
+            {
+                continue;
+            }
+
+            $executed++;
+        }
+
+        \View\Blend\Popup::delete();
+        toast('Atualização em massa executada com sucesso! Executados: ' . $executed . '/' . count($data));
     }
 
 }

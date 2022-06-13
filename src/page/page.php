@@ -375,9 +375,8 @@ class Page extends \View\Layout
      */
     public function listar()
     {
-        $this->setFocusOnFirstField();
         $this->setDefaultGrid();
-        $grid = $this->getGrid(Request::get('stateId'));
+        $grid = $this->getGrid();
 
         //to avoid problemns when grid does not exists, really need a remake
         if (!$grid)
@@ -386,13 +385,10 @@ class Page extends \View\Layout
         }
 
         $this->addFiltersToDataSource($grid->getDataSource());
-        $div = $grid->onCreate();
-
         $views[] = $this->getHead();
-        $views[] = $this->getBodyDiv($div);
+        $views[] = $this->getBodyDiv([new \View\Div('content-pre'), $grid]);
 
         $this->append($views);
-
         $this->byId('q')->focus();
     }
 
@@ -671,76 +667,6 @@ class Page extends \View\Layout
     }
 
     /**
-     * Add media from niceditor
-     */
-    public function addMedia()
-    {
-        $body[] = $upload = new \View\Input('mediaUpload', \View\Input::TYPE_FILE);
-        $upload->attr('multiple', 'multiple');
-        $upload->change("fileUpload('{$this->getPageUrl()}/mediaUpload')");
-
-        $body[] = new \View\Div('mediaContainer', $this->listMedia());
-        $body[] = new \View\Div('selectedContainer', NULL, 'clearfix');
-
-        $footer[] = $btnAddMedia = new \View\Input('btnAddMedia', \View\Input::TYPE_SUBMIT, 'Adicionar media', 'btn primary fl');
-        $btnAddMedia->click('passThis.submit(document.getElementById(\'btnAddMedia\')); ' . \View\Blend\Popup::getJs('destroy', 'id'));
-
-        $footer = new \View\Form(NULL, $footer, NULL, NULL);
-        $footer->attr('onsubmit', 'return false;');
-
-        $body[] = $footer;
-
-        $popup = new \View\Blend\Popup('id', 'Adicionar media', $body, NULL, 'big');
-        $popup->show();
-
-        //remove default nic panel
-        \App::addJs('$(\'.nicEdit-pane\').parent().hide();');
-        \App::setPushState(Request::get('p'));
-    }
-
-    /**
-     * Lista all media filés
-     *
-     * @return \View\Div
-     */
-    public function listMedia()
-    {
-        $folder = \Disk\Media::getMediaFolder();
-        $files = $folder->listFiles();
-
-        $i = 0;
-
-        $images = array();
-
-        foreach ($files as $file)
-        {
-            //convett to media object
-            $file = new \Disk\Media($file);
-            $isFile = $file->isFile();
-
-            if ($file->isImage())
-            {
-                $view = new \View\Img('img' . $i, $file->getUrl(), NULL, '100', $file->getPath());
-            }
-            else if ($isFile)
-            {
-                $view = new \View\Span('file' . $i, $file->getExtension());
-                $view->setTitle($file->getBasename());
-            }
-
-            if ($isFile)
-            {
-                $images[] = $imgCont = new \View\Div('imgCont' . $i, $view);
-                $basename = $file->getBasename();
-                $imgCont->click("e('selectMedia/{$basename}');");
-                $i++;
-            }
-        }
-
-        return $images;
-    }
-
-    /**
      * Upload a file
      *
      * @return \Disk\File
@@ -767,8 +693,13 @@ class Page extends \View\Layout
         return $return;
     }
 
-    public function upload($file, $uploadFile = NULL)
+    public function upload($file = NULL, $uploadFile = NULL)
     {
+        if (!$file)
+        {
+            return;
+        }
+
         $fileUpload = new \Disk\FileUpload($file);
         $fileUpload->verifyExtension(array('php', 'html', 'js'), TRUE);
 
@@ -780,117 +711,6 @@ class Page extends \View\Layout
         }
 
         return NULL;
-    }
-
-    /**
-     * Make upload from media gallery
-     *
-     * @return \Disk\File
-     */
-    public function mediaUpload()
-    {
-        $file = $this->fileUpload();
-
-        if ($file)
-        {
-            $this->byId('mediaContainer')->html($this->listMedia());
-        }
-
-        if (!is_array($file))
-        {
-            Request::set('v', $file . '');
-            $this->selectMedia();
-            \App::addJs("$('#btnAddMedia').click();");
-        }
-
-        return $file;
-    }
-
-    /**
-     * Function called when media is selected
-     */
-    public function selectMedia()
-    {
-        \App::dontChangeUrl();
-        $file = new \Disk\Media(Request::get('v'));
-
-        $link = new \View\A('selectedMedia', $file->getBasename(), $file->getUrl(), \View\A::TARGET_BLANK);
-        $view[] = $this->getContainer('Caminho', $link);
-
-        $altInput = new \View\Input('alt', 'text', $file->getFriendName());
-        $altInput->css('width', '400px')->setTitle('O título é muito importante para que os mecanismos de busca (Google) encontrem suas imagens.');
-
-        $view[] = $this->getContainer('Título', $altInput);
-
-        $view = array(new \View\Div('selectedInfo', $view, 'selectedInfo'));
-
-        if ($file->isImage())
-        {
-            $image = new \Media\Image($file->getPath());
-
-            $imageView[] = $this->getContainer('Largura', new \View\Input('imgWidth', \View\Input::TYPE_NUMBER, Config::getDefault('mediaImageDefaultWidth', $image->getWidth())));
-            $imageView[] = $this->getContainer('Altura', new \View\Input('imgHeight', \View\Input::TYPE_NUMBER, trim(Config::getDefault('mediaImageDefaultHeight', $image->getHeight()))));
-            $imageView[] = new \View\Input('isImage', \View\Input::TYPE_HIDDEN, 'true');
-            $view[] = new \View\Div('imageSize', $imageView, 'imageSize');
-        }
-        else
-        {
-            $view[] = new \View\Input('isImage', \View\Input::TYPE_HIDDEN, 'false');
-        }
-
-        $this->byId('selectedContainer')->html($view);
-    }
-
-    /**
-     * Resize a image
-     */
-    public function resizeImage()
-    {
-        $href = explode('/', Request::get('href'));
-        $href = $href[count($href) - 1];
-        $image = new \Media\Image(new \Disk\Media($href));
-        $image->resize(Request::get('width'), Request::get('height'));
-
-        $newWidth = $image->getWidth();
-        $newHeight = $image->getHeight();
-
-        //user thumbnail
-        $thumbFile = new \Disk\Media('thumb' . DS . $image->getBasename(FALSE) . '_' . $newWidth . '_' . $newHeight . '.' . $image->getExtension());
-        $thumbFile->createFolderIfNeeded();
-
-        $image->export($thumbFile, 80);
-        \App::addJs('mediaReturnFileName = "' . $thumbFile->getUrl() . '"');
-        \App::addJs('mediaReturnWidth = "' . $newWidth . '"');
-        \App::addJs('mediaReturnHeight = "' . $newHeight . '"');
-
-        //thumbinho
-        $thumbinho = new \Disk\Media('thumb' . DS . $image->getBasename(FALSE) . '_thumb.' . $image->getExtension());
-        $image->resize(NULL, Config::getDefault('mediaImageDefaultThumbHeight', 50));
-        $image->export($thumbinho, 80);
-    }
-
-    /**
-     * Result of crop an image by image upload
-     */
-    public function cropImage()
-    {
-        \App::dontChangeUrl();
-
-        $href = Request::get('imageHandlerHref');
-        $elementId = Request::get('imageHandlerId');
-        $file = new \Disk\Media($href);
-        $path = $file->getPath();
-        $img = new \Media\Image($path);
-
-        $targ_w = Request::get('w');
-        $targ_h = Request::get('h');
-
-        $img->crop(Request::get('x'), Request::get('y'), $targ_w, $targ_h, Request::get('w'), Request::get('h'));
-        $img->export($path);
-
-        \App::addJs('destroyCropCanvas();');
-        $img2 = \View\Ext\ImageUpload::getImg($href . '?_=' . rand());
-        $this->byId('imgResult_' . $elementId)->html($img2);
     }
 
     /**
@@ -953,8 +773,11 @@ class Page extends \View\Layout
         $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
         $element->setOutputJs(TRUE);
         //remove do dom para não reaparecer
+        //$element->remove();
         $element->parentNode->removeChild($element);
         $element->html($table);
+
+        \App::setResponse('other-content-to-avoid-problem', null);
     }
 
     /**

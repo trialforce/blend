@@ -263,6 +263,29 @@ class Popup extends Div
     }
 
     /**
+     * Create a simple confirm popup
+     *
+     * @return \View\Blend\Popup
+     */
+    public static function confirm($title, $question, $okAction, $cancelAction = NULL, $class = NULL)
+    {
+        if (is_null($cancelAction))
+        {
+            $cancelAction = \View\Blend\Popup::getJs('destroy', 'confirm');
+        }
+
+        $buttons[0] = new \View\Ext\Button('nao', 'cancel', 'Cancelar', $cancelAction);
+        $buttons[1] = new \View\Ext\Button('ok', 'check', 'Confirmar', $okAction, 'primary');
+        $buttons[1]->setAutoFocus();
+        $buttons[1]->focus();
+
+        $popup = new \View\Blend\Popup('confirm', $title, $question, $buttons, 'prompt no-overflow ' . $class);
+        $popup->setIcon('question');
+
+        return $popup;
+    }
+
+    /**
      * Alert
      *
      * @param sting $title
@@ -287,12 +310,12 @@ class Popup extends Div
     /**
      * Create a fiedlayout dialog
      *
-     * @param \Fieldlayout\Vector $layout
+     * @param \FieldLayout\Vector $layout
      * @param string $okAction
      * @param string $closeAction
      * @return \View\Blend\Popup
      */
-    public static function fieldLayoutDialog(\Fieldlayout\Vector $layout, $okAction, $closeAction = NULL)
+    public static function fieldLayoutDialog(\FieldLayout\Vector $layout, $okAction, $closeAction = NULL)
     {
         //call onCreate
         $fields = $layout->onCreate();
