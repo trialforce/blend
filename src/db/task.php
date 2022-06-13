@@ -52,7 +52,17 @@ abstract class Task
      */
     public function addResult($message = null)
     {
-        $this->result[] = $message;
+        if (is_array($message))
+        {
+            foreach ($message as $msg)
+            {
+                $this->result[] = $msg;
+            }
+        }
+        else
+        {
+            $this->result[] = $message;
+        }
 
         return $this;
     }

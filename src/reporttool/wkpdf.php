@@ -65,14 +65,19 @@ class WkPdf extends \mikehaertl\wkhtmlto\Pdf
 
     public function output($path)
     {
-        $result = $this->saveAs($path);
+        if (file_exists($path))
+        {
+            unlink($path);
+        }
 
-        if (!$result)
+        $this->saveAs($path);
+
+        if (!file_exists($path))
         {
             throw new \Exception('Impossible criar WKPDF: ' . $this->getError());
         }
 
-        return $result;
+        return true;
     }
 
 }
