@@ -98,18 +98,8 @@ if (!window.console)
 
 window.onpopstate = function(event) 
 {
-    var okay = escape();
-
-    if (!okay)
-    {
-        avoidUrlRegister = true;
-        p(window.location.href, true);
-    }
-    else
-    {
-        //não mudar a url
-        return false;
-    }
+    avoidUrlRegister = true;
+    p(window.location.href, true);
 };
 
 //Loading without ajax

@@ -136,7 +136,8 @@ abstract class Action
         curl_setopt($ch, CURLOPT_POST, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
+        //less then 200 maybe will be problem in big ping/latency
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200);
         curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 10);
@@ -147,9 +148,6 @@ abstract class Action
         }
 
         curl_exec($ch);
-        // also get the error and response code
-//        $error = curl_error($ch);
-
         curl_close($ch);
 
         return TRUE;

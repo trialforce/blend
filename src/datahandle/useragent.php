@@ -220,6 +220,7 @@ class UserAgent
         'DowntimeDetector', //http://downforeveryoneorjustme.com
         'facebook', //http://facebook.com
         'semrush', //Sem Rush
+        'SiteAuditBot', //semrush
         'WhatsApp', //WhatsApp Share??
         'Twitterbot', //twitter
         'Pinterest', //http://www.pinterest.com

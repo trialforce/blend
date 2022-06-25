@@ -574,13 +574,12 @@ class Layout extends \View\Document
         $html = str_replace('</p>', "</p>\r\n", $html);
         $html = str_replace('<br>', "<br/>\r\n", $html);
         $html = str_replace('</a>', "\r\n</a>", $html);
-
+        //padronize line endings
         $html = str_replace("\r\n", 'NEW_LINE', $html);
         $html = str_replace("\r\n", 'NEW_LINE', $html);
         $html = str_replace(array("\r", "\n"), 'NEW_LINE', $html);
         $html = str_replace(array("\r", "\n"), 'NEW_LINE', $html);
         $html = str_replace('NEW_LINE', "\r\n", $html);
-
         //remove two blank lines
         $html = str_replace("\r\n\r\n", "\r\n", $html);
 
