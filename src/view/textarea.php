@@ -29,8 +29,16 @@ class TextArea extends \View\View
      */
     public function setValue($value = NULL)
     {
-        $this->clearChildren();
-        $this->append($value);
+        if ($this->getOutputJs())
+        {
+            $valueSlashes = str_replace(array("\r\n", PHP_EOL, "\r", "\n"), '\n', $value);
+            \App::addJs($this->getSelector() . ".val('$valueSlashes')");
+        }
+        else
+        {
+            $this->clearChildren();
+            $this->append($value);
+        }
     }
 
     /**
