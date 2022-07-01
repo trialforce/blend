@@ -119,7 +119,7 @@ class Model extends DataSource
      */
     public function getData()
     {
-        if (is_null($this->data) || (isIterable($this->data) && count($this->data) == 0))
+        if (is_null($this->data) || (isIterable($this->data) && isCountable($this->data) && count($this->data) == 0))
         {
             $model = $this->model;
             //programatelly callback
