@@ -50,7 +50,7 @@ class Document extends \DomDocument implements \Countable
         $this->loadXML($content, $options);
 
         $errors = libxml_get_errors();
-	libxml_clear_errors();
+        libxml_clear_errors();
 
         if (count($errors) > 0)
         {
@@ -207,6 +207,11 @@ class Document extends \DomDocument implements \Countable
         return $this;
     }
 
+    public function getElementById($elementId)
+    {
+        return $this->getElementByIdServer($elementId);
+    }
+
     /**
      * Retorna o DomNode especifico para o id solicitado.
      *
@@ -217,7 +222,7 @@ class Document extends \DomDocument implements \Countable
      * @param type $elementId
      * @return \View\View
      */
-    public function getElementById($elementId, $class = NULL)
+    public function getElementByIdServer($elementId, $serverClass = NULL)
     {
         //without id, no element for you!
         if (!$elementId)
@@ -254,7 +259,8 @@ class Document extends \DomDocument implements \Countable
         //erro e facilitar a programação
         if (!$element instanceof \DOMElement)
         {
-            $element = new \View\Div(\View\View::REPLACE_SHARP . $elementId);
+            $serverClass = $serverClass ? $serverClass : '\View\Div';
+            $element = new $serverClass(\View\View::REPLACE_SHARP . $elementId);
             $element->setOutputJs(TRUE);
             //remove do dom para não reaparecer
             $element->parentNode->removeChild($element);
@@ -283,7 +289,7 @@ class Document extends \DomDocument implements \Countable
      */
     public function byId($id, $class = NULL)
     {
-        return self::toView($this->getElementById($id, $class));
+        return self::toView($this->getElementByIdServer($id, $class));
     }
 
     /**
