@@ -828,6 +828,17 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
+     * Convert datetime to UTC (both format and value).
+     *
+     * @return string
+     */
+    public function getUtcTimezone()
+    {
+        $utcDate = (new \DateTime($this->toDb()))->setTimezone(new \DateTimeZone('UTC'));
+        return $utcDate->format(\Type\DateTime::MASK_TIMESTAMP_UTC);
+    }
+
+    /**
      * Return a PHP Date instance
      * Return a instance of PHP DateTime
      * @return \DateTime
