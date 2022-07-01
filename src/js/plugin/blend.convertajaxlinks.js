@@ -1,9 +1,11 @@
-/* global blend */
+/* global blend, b */
 blend.convertAjaxLinks = {};
 blend.plugins.push(blend.convertAjaxLinks);
 
 blend.convertAjaxLinks.start = function ()
 {
+    var baseUrl = b('base').attr('href');
+    
     //links
     $("[data-ajax]").each(function ()
     {
@@ -14,7 +16,7 @@ blend.convertAjaxLinks.start = function ()
         element.removeAttr('data-ajax');
         
         //if is an outside link do not use ajax system
-        if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0) )
+        if (href && href.startsWith('http') && !href.startsWith(baseUrl))
         {
             href = null;
         }
