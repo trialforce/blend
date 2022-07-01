@@ -107,13 +107,22 @@ abstract class Combo extends \Component\Component
         }
 
         $this->inputValue->setValue($value);
-        $item = $this->getFirstDataItem($value);
 
-        if ($item)
+        $dataSource = $this->getInstanceDataSource();
+        $columns = array_values($dataSource->getColumns());
+        $indentificatorColumm = $columns[0];
+
+        $where = new \Db\Where($indentificatorColumm->getName(), '=', $value . '');
+        $dataSource->setExtraFilter($where);
+        $data = $dataSource->getData();
+
+        if (isIterable($data) && isset($data[0]))
         {
-            $value = \DataSource\Grab::getUserValue($this->getLabelColumn(), $item);
+            $value = \DataSource\Grab::getUserValue($this->getLabelColumn(), $data[0]);
             $this->labelValue->setValue($value);
         }
+
+        return $this;
     }
 
     protected function getInstanceDataSource()
