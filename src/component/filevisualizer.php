@@ -125,7 +125,7 @@ class FileVisualizer extends \Component\Component
         }
         else if ($file->isImage())
         {
-            $body[] = new \View\Img('preview-image', $file->getUrl(), '100%', null, $file->getBasename());
+            $body[] = new \View\Img('preview-image', $file->getUrl(), null, null, $file->getBasename());
         }
         else
         {
