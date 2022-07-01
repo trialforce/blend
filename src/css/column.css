@@ -293,7 +293,11 @@ table.column-12 {
         width: 100%;
         display: inline-block;
     }
-
+    
+    .col-p-2, .col-p-3, .col-p-4, .col-p-5, .col-p-6, .col-p-7, .colp--8, .col-p-9, .col-p-10, .col-p-11 {
+        width: 100%;
+        display: inline-block;
+    }
 
     .col-m-0 {
         width: 0 !important;
