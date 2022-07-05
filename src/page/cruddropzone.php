@@ -4,62 +4,11 @@ namespace Page;
 
 use DataHandle\Request;
 
-class CrudDropZone extends \Page\Crud
+trait CrudDropZone
 {
-
-    protected $activeDropzone;
-
-    /**
-     * Active dropzone
-     *
-     * @return int
-     */
-    public function getActiveDropzone()
-    {
-        return $this->activeDropzone;
-    }
-
-    /**
-     * Define if dropzone is actived
-     *
-     * @param int $activeDropzone
-     */
-    public function setActiveDropzone($activeDropzone)
-    {
-        $this->activeDropzone = $activeDropzone;
-
-        return $this;
-    }
-
-    /**
-     * Construct dropzone pag
-     *
-     * @param \Db\Model $model
-     * @param int $activeDropzone
-     */
-    public function __construct($model = NULL, $activeDropzone = FALSE)
-    {
-        $this->setActiveDropzone($activeDropzone);
-        parent::__construct($model);
-    }
-
-    public function editar()
-    {
-        $fields = parent::editar();
-
-        if ($this->activeDropzone)
-        {
-            $this->createDropZone();
-            $this->updateImages();
-        }
-
-        return $fields;
-    }
 
     public function updateImages()
     {
-        \Log::debug('cruddropzone->updateImages');
-
         if (!$this->isUpdate())
         {
             \App::dontChangeUrl();
@@ -85,7 +34,6 @@ class CrudDropZone extends \Page\Crud
                 if ($file->isImage())
                 {
                     $url = $thumbFile->getUrl();
-                    $img->addClass('swipebox');
                     $img->css('background-image', "url('{$url}')");
                     $img->attr('data-href', $url);
                     $img->attr('title', $thumbFile->getBasename(FALSE));
