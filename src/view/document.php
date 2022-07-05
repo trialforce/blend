@@ -310,6 +310,14 @@ class Document extends \DomDocument implements \Countable
         return null;
     }
 
+    public function byClass($className)
+    {
+        //accetps starting with .
+        $className = str_replace('.', '', $className);
+        $xpath = new \DomXpath($this);
+        return $xpath->query("//*[contains(@class, '{$className}')]");
+    }
+
     /**
      * Return an view element if is a dom element
      *
@@ -328,14 +336,20 @@ class Document extends \DomDocument implements \Countable
 
     /**
      * Query dom elements using Css selector
+     * You need to install The CssSelector Component
+     * https://symfony.com/doc/current/components/css_selector.html
+     * composer require symfony/css-selector
      *
      * @param string $cssSelector
      * @return \DOMNodeList
      */
     public function query($cssSelector)
     {
+        $converter = new \Symfony\Component\CssSelector\CssSelectorConverter();
+        $selector = $converter->toXPath($cssSelector);
+
         $xpath = new \DOMXPath($this);
-        $result = $xpath->query(XPathToCss::convert($cssSelector));
+        $result = $xpath->query($selector);
 
         return $result;
     }
