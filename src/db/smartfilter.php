@@ -333,6 +333,13 @@ class SmartFilter
                     $singular = \Type\Text::toSingular($word);
                     $filtersingular .= ' ' . $singular;
                 }
+
+                // specific search when using codes, filter by complete text
+                if (is_numeric($word))
+                {
+                    $this->conds[] = new \Db\Cond($columnQuery . ' like ?', '%' . $filter . '%', \Db\Cond::COND_OR);
+                    return;
+                }
             }
 
             $where = '';
