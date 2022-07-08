@@ -390,15 +390,12 @@ function mountHtml5FormData()
     //add all form fields
     $('input, select, textarea').each(function ()
     {
-        formData.append(this.name, this.value);
+        if (this.type !== 'checkbox' || this.checked === true)
+        {
+	    formData.append(this.name, this.value);
+        }
     });
 
-    //control uncked checkbox
-    $("input:checkbox:not(:checked)").each(function ()
-    {
-        formData.append(this.name, '0');
-    });
-    
     //put the current url in post, usefull to get real url, when you are inside a component
     formData.append('page-url',$('body').data('page-url'));
 
