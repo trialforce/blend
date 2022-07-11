@@ -65,8 +65,13 @@ blend.contentEditable.start = function()
             continue;
         }
         
-        var menu = blend.contentEditable.createMenu(element);
-        parent.appendChild(menu);
+        var createMenu = element.hasAttribute('data-create-menu');
+        
+        if (createMenu == true)
+        {
+            var menu = blend.contentEditable.createMenu(element);
+            parent.appendChild(menu);
+        }
     }
 };
 
