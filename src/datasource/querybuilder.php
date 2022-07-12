@@ -131,6 +131,12 @@ class QueryBuilder extends DataSource
             //restore groupby
             $qBuilder->setGroupBy($groupBy);
         }
+        else if (trim(strtolower($aggregator->getMethod()) == Aggregator::METHOD_COUNT_DISTINCT))
+        {
+            $query = 'count(distinct( ' . $sqlColumn . ' ))';
+
+            $result = $qBuilder->aggregation($query);
+        }
         else
         {
             $method = $aggregator->getMethod();
