@@ -884,7 +884,6 @@ class Crud extends \Page\Page
 
         if (count($get) > 0)
         {
-
             $url .= '&' . http_build_query($get);
         }
 
@@ -924,7 +923,6 @@ class Crud extends \Page\Page
 
         if (count($get) > 0)
         {
-
             $url .= '&' . http_build_query($get);
         }
 

@@ -276,8 +276,6 @@ class EditPopupGrid extends \Component\Grid\Grid
 
     protected function createTr($columns, $index, $item)
     {
-        $beforeGridCreateRow = false;
-        $afterGridCreateRow = false;
         $dom = \View\View::getDom();
 
         $beforeGridCreateRow = $dom instanceof \Page\BeforeGridCreateRow;
