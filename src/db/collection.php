@@ -231,6 +231,10 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             return $this->count();
         }
+        else if ($method == 'distinct')
+        {
+            return $this->countDistinct($property);
+        }
 
         return 0;
     }

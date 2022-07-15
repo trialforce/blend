@@ -10,6 +10,7 @@ class Aggregator
     const METHOD_AVG = 'avg';
     const METHOD_MIN = 'min';
     const METHOD_MAX = 'max';
+    const METHOD_COUNT_DISTINCT = 'distinct';
 
     /**
      * Aggregator method
@@ -101,6 +102,10 @@ class Aggregator
             else if ($this->method == self::METHOD_COUNT)
             {
                 $label = 'Quant.:';
+            }
+            else if ($this->method == self::METHOD_COUNT_DISTINCT)
+            {
+                $label = 'Unic.:';
             }
         }
 
