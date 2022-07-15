@@ -166,7 +166,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
                 $valueB = self::getPropertyFromItem($b, $orderBy);
             }
 
-            if (is_numeric($valueA) && is_numeric($valueB))
+            //add suporte for pt-br numbers
+            if (is_numeric(str_replace(',', '.', $valueA)) && is_numeric(str_replace(',', '.', $valueB)))
             {
                 return $valueA - $valueB;
             }
