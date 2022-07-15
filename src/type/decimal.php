@@ -21,6 +21,18 @@ class Decimal implements \Type\Generic, \JsonSerializable
      */
     protected $decimals = 2;
 
+    /**
+     *
+     * @var string
+     */
+    protected $preffix = '';
+
+    /**
+     *
+     * @var string
+     */
+    protected $suffix = '';
+
     public function __construct($value = NULL, $decimals = 2)
     {
         if ($value instanceof \Type\Generic)
@@ -60,6 +72,28 @@ class Decimal implements \Type\Generic, \JsonSerializable
         return $this;
     }
 
+    public function getPreffix()
+    {
+        return $this->preffix;
+    }
+
+    public function getSuffix()
+    {
+        return $this->suffix;
+    }
+
+    public function setPreffix($preffix)
+    {
+        $this->preffix = $preffix;
+        return $this;
+    }
+
+    public function setSuffix($suffix)
+    {
+        $this->suffix = $suffix;
+        return $this;
+    }
+
     public function __toString()
     {
         if (strlen($this->value) == 0)
@@ -67,7 +101,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
             return '';
         }
 
-        return number_format($this->value, $this->decimals, ',', '.');
+        return $this->prefix . number_format($this->value, $this->decimals, ',', '.') . $this->suffix;
     }
 
     public function toHuman()
