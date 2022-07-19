@@ -16,6 +16,7 @@ class ContentEditable extends \View\Div
     {
         $content = $this->createContent($id, $innerHtml);
         parent::__construct($id . '-holder', $content, 'content-editable');
+        $this->setData('create-menu', 'true');
     }
 
     protected function createContent($id, $innerHtml = null)
@@ -36,6 +37,24 @@ class ContentEditable extends \View\Div
     {
         $this->div->html($value);
         $this->input->val($value);
+    }
+
+    public function getCreateMenu()
+    {
+        return $this->getData('create-menu');
+    }
+
+    public function setCreateMenu($createMenu)
+    {
+        if (!$createMenu)
+        {
+            $this->removeAttr('data-create-menu');
+        }
+        else
+        {
+
+            $this->setData('create-menu', 'true');
+        }
     }
 
 }

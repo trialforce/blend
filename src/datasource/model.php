@@ -220,6 +220,11 @@ class Model extends DataSource
                 $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $referenceSql[0] . ') )))';
             }
 
+            if (trim(strtolower($method) == Aggregator::METHOD_COUNT_DISTINCT))
+            {
+                $subquery = 'count(distinct( ' . $referenceSql[0] . ' ))';
+            }
+
             $querys[$sqlColumn] = $subquery;
         }
 

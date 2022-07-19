@@ -262,7 +262,7 @@ class Crud extends \Page\Page
 
         if ($this->verifyPermission('editar'))
         {
-            $editar = new \Component\Action\Page($this->getPageUrl(), 'editar', $this->getModel()->getId(), 'edit', 'Editar');
+            $editar = new \Component\Action\Page($this->getPageUrl(), $this->getMethodUpdate(), $this->getModel()->getId(), 'edit', 'Editar');
             $editar->setRenderInEdit(FALSE)->setRenderInGrid(TRUE)->setRenderInGridDetail(TRUE);
         }
         else
@@ -429,10 +429,20 @@ class Crud extends \Page\Page
         return '';
     }
 
+    public function getMethodInsert()
+    {
+        return self::EVENT_INSERT;
+    }
+
+    public function getMethodUpdate()
+    {
+        return self::EVENT_UPDATE;
+    }
+
     public function getTopButtonsSearch()
     {
         $adicionar = 'Adicionar ' . lcfirst($this->model->getLabel());
-        $buttons[] = $btnInsert = new \View\Ext\LinkButton('btnInsert', 'plus', $adicionar, $this->getPageUrl() . '/' . self::EVENT_INSERT, 'btn btninserir success');
+        $buttons[] = $btnInsert = new \View\Ext\LinkButton('btnInsert', 'plus', $adicionar, $this->getPageUrl() . '/' . $this->getMethodInsert(), 'btn btninserir success');
         $btnInsert->setTitle('Abre a tela para digitação de um novo cadastro!');
 
         if (!$this->verifyPermission('adicionar'))
@@ -874,7 +884,6 @@ class Crud extends \Page\Page
 
         if (count($get) > 0)
         {
-
             $url .= '&' . http_build_query($get);
         }
 
@@ -914,7 +923,6 @@ class Crud extends \Page\Page
 
         if (count($get) > 0)
         {
-
             $url .= '&' . http_build_query($get);
         }
 
@@ -939,6 +947,10 @@ class Crud extends \Page\Page
         if ($idInput)
         {
             $this->byId('btbClosePopup')->click("comboModelClose('{$idInput}')");
+        }
+        else
+        {
+            $this->byId('btbClosePopup')->click("p(window.location.href); popup('destroy','#edit-popup');");
         }
     }
 
