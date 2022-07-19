@@ -1049,7 +1049,7 @@ class Model implements \JsonSerializable
     /**
      * Define the data from request in the model
      *
-     * @param \DataHandle $request
+     * @param \DataHandle\DataHandle $request
      * @return \Db\Model
      */
     public function setData(\DataHandle\DataHandle $request, $overwrite = TRUE)

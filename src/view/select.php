@@ -35,7 +35,7 @@ class Select extends \View\View
      * Define the value
      *
      * (non-PHPdoc)
-     * @see i\View\Input::setValue()
+     * @see \View\Input::setValue()
      */
     public function setValue($value)
     {
@@ -92,7 +92,7 @@ class Select extends \View\View
     /**
      * Create options
      *
-     * @param array $searchResult
+     * @param iterable $searchResult
      */
     public function createOptions($searchResult, $value = NULL, $putDefaultOption = TRUE)
     {
