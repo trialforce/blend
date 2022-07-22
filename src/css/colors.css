@@ -19,6 +19,11 @@
     color: #fff;
 }
 
+.minor-danger {
+    background-color: #f76464;
+    color: #fff;
+}
+
 .info {
     background-color: #3581FB;
     /*border: solid 1px #3581FB;*/

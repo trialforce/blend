@@ -101,7 +101,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
             return '';
         }
 
-        return $this->prefix . number_format($this->value, $this->decimals, ',', '.') . $this->suffix;
+        return $this->preffix . number_format($this->value, $this->decimals, ',', '.') . $this->suffix;
     }
 
     public function toHuman()

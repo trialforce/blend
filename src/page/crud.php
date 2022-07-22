@@ -855,9 +855,15 @@ class Crud extends \Page\Page
     public function listarPopup()
     {
         \App::dontChangeUrl();
+        $isAjax = \DataHandle\Server::getInstance()->isAjax();
         $url = $this->getPageUrl() . '/listar/?iframe=true';
-        $title = ucfirst($this->model->getLabel());
 
+        if (!$isAjax)
+        {
+            return \App::redirect($url, true);
+        }
+
+        $title = ucfirst($this->model->getLabel());
         $this->crudEditPopup($url, $title);
     }
 
@@ -868,10 +874,17 @@ class Crud extends \Page\Page
     public function editarPopup()
     {
         \App::dontChangeUrl();
+        $isAjax = \DataHandle\Server::getInstance()->isAjax();
         $idInput = Request::get('idInput');
         $id = Request::get('v');
         //edit or add
         $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
+
+        if (!$isAjax)
+        {
+            return \App::redirect($url, true);
+        }
+
         //iframe and rand (to avoid browser cache)
         $url .= '?iframe=true&rand=' . rand();
 
@@ -907,12 +920,18 @@ class Crud extends \Page\Page
     public function adicionarPopup()
     {
         \App::dontChangeUrl();
+        $isAjax = \DataHandle\Server::getInstance()->isAjax();
         $idInput = Request::get('idInput');
         $idParent = Request::get('v');
 
         // add referencing parent
         $url = $this->getPageUrl() . '/adicionar/' . $idParent;
         $url .= '?iframe=true&rand=' . rand();
+
+        if (!$isAjax)
+        {
+            return \App::redirect($url, true);
+        }
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
 
