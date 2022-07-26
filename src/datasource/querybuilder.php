@@ -98,7 +98,7 @@ class QueryBuilder extends DataSource
     {
         $data = $this->getData();
 
-        //we can execut aggregation trough php
+        //we can execute aggregation trough php
         if ($this->getCount() == count($data) && $data instanceof \Db\Collection)
         {
             $result = $data->aggr($aggregator->getMethod(), $aggregator->getColumnName());
@@ -118,6 +118,7 @@ class QueryBuilder extends DataSource
         $realName = $aggregator->getColumnName();
         $sqlColumn = $this->getQueryColumnByRealname($realName);
         $sqlColumn = \Db\Column\Column::getRealSqlColumn($sqlColumn);
+        $gridColumn = $this->getColumn($aggregator->getColumnName());
 
         if ($qBuilder->getGroupBy())
         {
@@ -142,10 +143,13 @@ class QueryBuilder extends DataSource
             $method = $aggregator->getMethod();
             $query = $method . '( ' . $sqlColumn . ' )';
 
+            if ($gridColumn && $gridColumn->getFormatter() && get_class($gridColumn->getFormatter()) == '\Type\Time')
+            {
+                $query = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $sqlColumn . ') )))';
+            }
+
             $result = $qBuilder->aggregation($query);
         }
-
-        $gridColumn = $this->getColumn($aggregator->getColumnName());
 
         if ($gridColumn && $gridColumn->getFormatter())
         {
