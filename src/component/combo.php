@@ -204,7 +204,15 @@ abstract class Combo extends \Component\Component
 
         if (!$hideCombo)
         {
-            \View\VIew::getDom()->byId($id)->val('');
+            $element = \View\View::getDom()->byId($id);
+
+            //avoid hacking attempt
+            if (!$element)
+            {
+                return;
+            }
+
+            $element->val('');
         }
 
         $dataSource = $this->getDataSource();

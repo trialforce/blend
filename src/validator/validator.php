@@ -330,6 +330,11 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
      */
     public static function unmask($value)
     {
+        if (is_array($value))
+        {
+            return '';
+        }
+
         return preg_replace("/[^0-9]/", "", $value);
     }
 
