@@ -758,7 +758,7 @@ function slug(str)
 
     // remove accents, swap ñ for n, etc
     var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
-    var to = "aaaaaeeeeeiiiiooooouuuunc--_---";
+    var to = "aaaaaeeeeeiiiiooooouuuunc-@_---";
 
     for (var i=0, l=from.length ; i<l ; i++) 
     {

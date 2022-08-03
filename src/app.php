@@ -532,7 +532,7 @@ class App
 
     public static function sanitizePage($page)
     {
-        $replaced = preg_replace("/[^a-zA-Z0-9_\-]/", "", $page);
+        $replaced = preg_replace("/[^a-zA-Z0-9_\-@]/", "", $page);
 
         if ($page != $replaced)
         {
