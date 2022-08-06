@@ -969,7 +969,14 @@ class Crud extends \Page\Page
         }
         else
         {
-            $this->byId('btbClosePopup')->click("p(window.location.href); popup('destroy','#edit-popup');");
+            if (stripos($url, 'ver') > 0)
+            {
+                $this->byId('btbClosePopup')->click("popup('destroy','#edit-popup');");
+            }
+            else
+            {
+                $this->byId('btbClosePopup')->click("p(window.location.href); popup('destroy','#edit-popup');");
+            }
         }
     }
 
