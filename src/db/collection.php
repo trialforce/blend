@@ -169,7 +169,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             //add suporte for pt-br numbers
             if (is_numeric(str_replace(',', '.', $valueA)) && is_numeric(str_replace(',', '.', $valueB)))
             {
-                return $valueA - $valueB;
+                return floatval($valueA) - floatval($valueB);
             }
             else
             {
