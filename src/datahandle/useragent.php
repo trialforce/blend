@@ -397,6 +397,7 @@ class UserAgent
         'petalbot',
         'CensysInspect',
         'expanseinc.com',
+        'Embarcadero',
         'Baiduspider');
 
     /**
