@@ -234,9 +234,9 @@ class Template
 
                 if (isIterable($data) && count($data) > 0)
                 {
-                    foreach ($data as $item)
+                    foreach ($data as $position => $item)
                     {
-                        $result .= $this->replaceOneItem($item, $columns, $sectionContent, $sectionName);
+                        $result .= $this->replaceOneItem($item, $columns, $sectionContent, $sectionName, $position);
                     }
                 }
 
@@ -344,11 +344,15 @@ class Template
      * @param mixed $item original item
      * @param array $columns columns
      * @param string $sectionContent section content
+     * @param int $position position in array
      * @return string
      */
-    protected function replaceOneItem($item, $columns, $sectionContent, $sectionName)
+    protected function replaceOneItem($item, $columns, $sectionContent, $sectionName, $position = null)
     {
         $myResult = $sectionContent;
+        //add support for position in array variable
+        $myResult = $this->replaceVariable('position', $position, $myResult);
+        $item->position = $position;
         $myResult = $this->makeExpressions($item, null, $sectionContent);
 
         //passes trough each column of model
@@ -359,8 +363,6 @@ class Template
             //replace default columns value
             $value = $this->getValue($item, $columnName);
             $myResult = $this->replaceVariable($columnName, $value, $myResult);
-            //$myResult = str_replace('{$' . $columnName . '}', $value, $myResult);
-
             $dbColumn = null;
 
             //support setReferenceDescriptin data
@@ -397,6 +399,7 @@ class Template
                 $myResult = $this->replaceVariable($prop, $value, $myResult);
             }
         }
+
 
         //make the child replace
         if ($sectionName)
@@ -447,9 +450,9 @@ class Template
 
                     if (count($childData) > 0)
                     {
-                        foreach ($childData as $itemChild)
+                        foreach ($childData as $position => $itemChild)
                         {
-                            $myChildResult = $this->replaceOneItem($itemChild, $columns, $childContent, NULL);
+                            $myChildResult = $this->replaceOneItem($itemChild, $columns, $childContent, NULL, $position);
                             $myChildResult = $this->makeExpressions($item, $itemChild, $myChildResult);
                             $childResult .= $myChildResult;
                         }

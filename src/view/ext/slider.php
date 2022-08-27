@@ -37,17 +37,3 @@ class Slider extends \View\Div
     }
 
 }
-
-/*<div id="slider2" class="slider" style="width: 300px;">
-        <div class="slider-wrapper">
-            <div class="slider-items">
-                <span class="slide" style="background: #7ADCEF;">Other 1</span>
-                <span class="slide" style="background: #FFCF47;">Other 2</span>
-                <span class="slide" style="background: #F97C68;">Other 3</span>
-                <span class="slide" style="background: #a78df5;">Other 4</span>
-                <span class="slide" style="background: #ff8686;">Other 5</span>
-            </div>
-        </div>
-        <div class="slider-control slider-prev"></div>
-        <div class="slider-control slider-next"></div>
-    </div>*/
