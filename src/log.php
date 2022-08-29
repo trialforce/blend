@@ -332,6 +332,12 @@ class Log
             return false;
         }
 
+        //only send mail if server has phpmailer
+        if (!class_exists('\PHPMailer\PHPMailer\PHPMailer'))
+        {
+            return;
+        }
+
         $serverUrl = \DataHandle\Server::getInstance()->getHost();
         $errorEmail = str_replace("###############################################" . PHP_EOL, '', $backTrace);
 

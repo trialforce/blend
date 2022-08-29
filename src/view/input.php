@@ -125,7 +125,7 @@ class Input extends \View\View
     {
         if (!$autoComplete)
         {
-            $this->setAttribute('autocomplete', 'false');
+            $this->setAttribute('autocomplete', 'off');
         }
         else
         {

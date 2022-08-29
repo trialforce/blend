@@ -181,7 +181,17 @@ class Manager
 
         foreach ($queries as $query)
         {
-            if (!trim($query))
+            $query = trim($query);
+
+            if (!$query)
+            {
+                continue;
+            }
+
+            $start = substr($query, 0, 2);
+
+            //dont run commented query
+            if ($start == '/*' || $start == '*/' || $start == "//")
             {
                 continue;
             }

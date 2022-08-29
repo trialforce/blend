@@ -129,6 +129,7 @@ abstract class DataSource
 
     public function setPaginationLimit($paginationLimit)
     {
+        $this->setOffset($this->getPage() * $paginationLimit);
         $this->paginationLimit = $paginationLimit;
         return $this;
     }

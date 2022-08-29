@@ -106,6 +106,9 @@ class App
     public function getCurrentPage()
     {
         $page = $this->getCurrentPageRaw();
+
+        $page = self::sanitizePage($page);
+
         $module = Request::get('m');
 
         if ($module && $module != 'component')
@@ -525,6 +528,18 @@ class App
         {
             self::addJs("window.location=window.location;");
         }
+    }
+
+    public static function sanitizePage($page)
+    {
+        $replaced = preg_replace("/[^a-zA-Z0-9_\-@]/", "", $page);
+
+        if ($page != $replaced)
+        {
+            return '';
+        }
+
+        return $page;
     }
 
 }

@@ -4,6 +4,9 @@ namespace Component\Grid;
 
 use DataHandle\Request;
 
+/**
+ * Helper to generate Grouped datasources
+ */
 class GroupHelper
 {
 
@@ -117,6 +120,7 @@ class GroupHelper
                 }
 
                 $dbColumn = null;
+                $type = null;
 
                 if ($groupName == $modelGroupName)
                 {
@@ -146,6 +150,7 @@ class GroupHelper
                 if ($dbColumn)
                 {
                     $columnSql = $model::getTableName() . '.' . $simpleColumnName;
+                    $type = $dbColumn->getType();
 
                     if ($dbColumn instanceof \Db\Column\Search)
                     {
@@ -154,7 +159,16 @@ class GroupHelper
                     }
                 }
 
-                $sqlColumns[] = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
+                if ($type == \Db\Column\Column::TYPE_TIME)
+                {
+                    $sqlColumn = 'SEC_TO_TIME(' . $method . '( TIME_TO_SEC( ' . $columnSql . '))) AS "' . $columnLabelSafe . '"';
+                }
+                else
+                {
+                    $sqlColumn = $method . '(' . $columnSql . ') AS "' . $columnLabelSafe . '"';
+                }
+
+                $sqlColumns[] = $sqlColumn;
                 self::addLeftJoin($queryBuilder, $relations, $groupName);
 
                 //correct method to aggregation

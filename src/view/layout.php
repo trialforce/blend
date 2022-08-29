@@ -421,6 +421,12 @@ class Layout extends \View\Document
     {
         $bodys = $this->getElementsByTagName('body');
 
+        // avoid hacking attempts
+        if (!$bodys->item(0))
+        {
+            throw new \UserException('Sem permissão');
+        }
+
         return new \View\DomContainer($bodys->item(0));
     }
 
