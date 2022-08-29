@@ -39,7 +39,7 @@ class Cnpj extends \Validator\Validator
     }
 
     /**
-     * Validate CPNJ
+     * Validate CNPJ
      *
      * @return boolean
      */

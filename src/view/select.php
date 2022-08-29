@@ -103,7 +103,7 @@ class Select extends \View\View
      * Static versin of create options
      *
      * @param \View\View $element
-     * @param array $searchResult
+     * @param iterable $searchResult
      * @param string $value
      * @param string $putDefaultOption
      * @return \View\View
