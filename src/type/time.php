@@ -152,12 +152,20 @@ class Time implements \Type\Generic, \JsonSerializable
      */
     public function treatValue($value)
     {
-        //parse milesecond
+        //parse milesecond, or decimal hour value
         if (stripos($value, '.'))
         {
             $explode = explode('.', $value);
-            $this->milesecond = intval($explode[1]);
-            $value = $explode[0];
+
+            if ($this->useMilesecond)
+            {
+                $this->milesecond = intval($explode[1]);
+                $value = $explode[0];
+            }
+            else
+            {
+                $value = $explode[0] . ':' . intval($explode[1] / 100 * 61);
+            }
         }
 
         //parse hour, minute, second

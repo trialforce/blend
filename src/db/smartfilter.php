@@ -324,6 +324,7 @@ class SmartFilter
 
             //calculate singular words
             $filtersingular = '';
+            $wordsSingular = [];
             $words = explode(' ', $filter);
 
             foreach ($words as $word)
@@ -332,6 +333,12 @@ class SmartFilter
                 {
                     $singular = \Type\Text::toSingular($word);
                     $filtersingular .= ' ' . $singular;
+                    $wordsSingular[] = $singular;
+                }
+                else
+                {
+                    // mantain the same word to use in complete singular query
+                    $wordsSingular[] = $word;
                 }
 
                 // specific search when using codes, filter by complete text
@@ -358,7 +365,6 @@ class SmartFilter
             if ($filtersingular && $filter != $filtersingular)
             {
                 $whereSingular = '';
-                $wordsSingular = explode(' ', trim($filtersingular));
                 $argsSingular = [];
 
                 foreach ($wordsSingular as $word)

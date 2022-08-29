@@ -169,7 +169,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             //add suporte for pt-br numbers
             if (is_numeric(str_replace(',', '.', $valueA)) && is_numeric(str_replace(',', '.', $valueB)))
             {
-                return $valueA - $valueB;
+                return floatval($valueA) - floatval($valueB);
             }
             else
             {
@@ -251,7 +251,19 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $idx => $item)
         {
-            $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toDb();
+            $info = self::getPropertyFromItem($item, $property);
+            $regexpResult = [];
+            preg_match('/([0-9]{1,}):([0-9]{1,}):?([0-9]{1,})?/', $info, $regexpResult);
+
+            if (count($regexpResult) > 0)
+            {
+                $total += \Type\Time::get($info)->toDecimal()->toDb();
+            }
+            else
+            {
+
+                $total += \Type\Decimal::get($info)->toDb();
+            }
         }
 
         return $total;

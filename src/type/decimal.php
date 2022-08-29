@@ -182,7 +182,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
         return $this;
     }
 
-    public static function get($value)
+    public static function get($value = null)
     {
         return new \Type\Decimal($value . '');
     }
