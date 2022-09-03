@@ -3,7 +3,7 @@
 namespace Validator;
 
 /**
- * Validator and type or brasizilian CPF/CPNJ
+ * Validator and type or brasizilian CPF/CNPJ
  */
 class CnpjCpf extends \Validator\Validator implements \JsonSerializable
 {
@@ -109,7 +109,7 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
-     * Faz a validação do CPNJ
+     * Faz a validação do CNPJ
      *
      * @return boolean
      */

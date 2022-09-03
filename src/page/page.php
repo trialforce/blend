@@ -648,12 +648,12 @@ class Page extends \View\Layout
      *
      * @return \View\Div
      */
-    public function getContainer($label, $view, $class = NULL)
+    public function getContainer($label, $view, $class = NULL, $required = false)
     {
-        return self::createContainer($label, $view, $class);
+        return self::createContainer($label, $view, $class, $required);
     }
 
-    public static function createContainer($label, $view, $class = NULL)
+    public static function createContainer($label, $view, $class = NULL, $required = false)
     {
         if ($view instanceof \Component\Component)
         {
@@ -662,6 +662,11 @@ class Page extends \View\Layout
 
         $label = new \View\Label('label_' . $view->getId(), $view->getId(), $label, 'field-label');
         $contain = new \View\Div('contain_' . $view->getId(), array($label, $view), 'field-contain ' . $class);
+
+        if ($required)
+        {
+            $label->data('required', '1');
+        }
 
         return $contain;
     }

@@ -213,19 +213,10 @@ class Log
      * @param Exception $exception or Exception from php 5 Throwable from php 7
      * @SuppressWarnings(PHPMD.Superglobals)
      *
-     * @return nothing
      */
     public static function exception($exception)
     {
         $devel = \DataHandle\Config::get('devel');
-
-        if ($devel)
-        {
-            $log = $exception->getCode() . ' - <b>' . $exception->getMessage() . '</b> - ' . $exception->getFile() . ' on line ' . $exception->getLine() . '</br></br>';
-            $log .= $exception->getTraceAsString();
-            \Log::screen($log);
-            return false;
-        }
 
         $mysqlError = \Log::parseMysqlErrors($exception);
 
@@ -233,11 +224,16 @@ class Log
         {
             return false;
         }
-
         //don't make any log if it is an UserException
-        if ($exception instanceof \UserException)
+        else if ($exception instanceof \UserException)
         {
             return false;
+        }
+        else if ($devel)
+        {
+            $log = $exception->getCode() . ' - <b>' . $exception->getMessage() . '</b> - ' . $exception->getFile() . ' on line ' . $exception->getLine() . '</br></br>';
+            $log .= $exception->getTraceAsString();
+            \Log::screen($log);
         }
 
         $errorMessage = \Log::generateErrorLog($exception);
@@ -637,11 +633,9 @@ class Log
             var_dump($var);
         }
 
-        $content = '<pre class="var-dump"><a href="#" onclick="$(this).parent().remove(); return false;">Fechar </a>' . ob_get_contents() . '</pre>';
-        $content = \View\Script::treatStringToJs($content);
-        ob_get_clean();
+        self::dumpToScreen(ob_get_contents());
 
-        \App::addJs("$('body').prepend(`{$content}`)");
+        ob_get_clean();
     }
 
     /**
@@ -666,15 +660,24 @@ class Log
             echo($var);
         }
 
-        $content = '<pre class="var-dump">
-<a href="#" onclick="$(this).parent().remove(); return false;">Fechar (X)</a>
-' . ob_get_contents() . '
-</pre>';
+        self::dumpToScreen(ob_get_contents());
 
-        $content = \View\Script::treatStringToJs($content);
         ob_get_clean();
+    }
 
-        \App::addJs("$(body).prepend('{$content}')");
+    private static function dumpToScreen($content)
+    {
+        $content = \View\Script::treatStringToJs("<p>".$content."</p>");
+
+        $divVarDump = \View\Script::treatStringToJs('<pre class="var-dump"><a href="#" onclick="$(this).parent().remove(); return false;">Fechar </a></pre>');
+
+        \App::addJs(
+            'if ($("body > pre.var-dump").length == 0) 
+            { 
+                $("body").prepend(`'.$divVarDump.'`); 
+            } 
+            $("body > pre.var-dump").append(`'.$content.'`);'
+        );
     }
 
     /**

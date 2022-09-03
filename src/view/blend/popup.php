@@ -288,7 +288,7 @@ class Popup extends Div
     /**
      * Alert
      *
-     * @param sting $title
+     * @param string $title
      * @param mixed $content
      * @param string $closeAction
      * @return \View\Blend\Popup

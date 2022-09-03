@@ -95,7 +95,7 @@ abstract class DataSource
     /**
      * A smart filter callback function
      *
-     * @var function
+     * @var callable
      */
     protected $smartFilterCallback;
 

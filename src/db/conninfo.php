@@ -49,6 +49,12 @@ class ConnInfo
     protected $host;
 
     /**
+     * Port of the server
+     * @var integer
+     */
+    protected $port;
+
+    /**
      * Database name
      * @var string
      */
@@ -88,9 +94,10 @@ class ConnInfo
      * @param string $name database name
      * @param string $username username
      * @param string $password password
+     * @param int $port port
      * @param string $charset charset
      */
-    public function __construct($id, $type, $host, $name, $username, $password = NULL, $charset = NULL)
+    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = NULL)
     {
         $this->id = $id;
         $this->type = $type;
@@ -98,6 +105,7 @@ class ConnInfo
         $this->name = trim($name);
         $this->username = $username;
         $this->password = $password;
+        $this->port = $port;
         $this->charset = $charset;
         $this->makeDsn();
 
@@ -111,7 +119,8 @@ class ConnInfo
     protected function makeDsn()
     {
         $charset = strlen($this->charset) > 0 ? 'charset=' . $this->charset . ';' : '';
-        $this->dsn = $this->type . ':' . $charset . 'host=' . $this->host . ';dbname=' . $this->name;
+        $port = $this->port ? ';port=' . $this->port : '';
+        $this->dsn = $this->type . ':' . $charset . 'host=' . $this->host . $port . ';dbname=' . $this->name;
     }
 
     /**
@@ -242,6 +251,22 @@ class ConnInfo
     {
         $this->password = $password;
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @param int $port
+     */
+    public function setPort(int $port)
+    {
+        $this->port = $port;
     }
 
     /**
