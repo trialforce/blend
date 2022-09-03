@@ -27,6 +27,7 @@ class Search extends \Db\Column\Column
     {
         parent::__construct($label, $name, $type);
         $this->setQuery($query);
+        $this->setNullable(true);
     }
 
     /**

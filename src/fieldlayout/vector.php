@@ -360,6 +360,11 @@ class Vector
             $field->addClass($weight);
         }
 
+        if ($column instanceof \Db\Column\Search)
+        {
+            $field->setReadOnly(true);
+        }
+
         $this->treatField($field, $column);
 
         return $original;
