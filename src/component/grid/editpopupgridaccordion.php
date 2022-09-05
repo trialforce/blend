@@ -8,6 +8,12 @@ namespace Component\Grid;
 class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
 {
 
+    /**
+     *
+     * @var \View\Ext\Accordion
+     */
+    protected $accordion;
+
     public function createTableInner()
     {
         if (!$this->actions)
@@ -57,7 +63,14 @@ class EditPopupGridAccordion extends \Component\Grid\EditPopupGrid
 
         $accordion->getHead()->append($btnHolder);
 
+        $this->accordion = $accordion;
+
         return $accordion;
+    }
+
+    public function getAccordion()
+    {
+        return $this->accordion;
     }
 
     public function getModelLabelPlural()

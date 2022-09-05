@@ -234,6 +234,7 @@ class Model extends DataSource
         {
             //programatelly callback
             $filters = NULL;
+
             if ($this->getSmartFilterCallback())
             {
                 $filters = $this->mountCallBackFilters();
