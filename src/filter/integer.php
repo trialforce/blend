@@ -92,8 +92,8 @@ class Integer extends \Filter\Text
             {
                 if ($conditionValue == self::COND_BETWEEN)
                 {
-                    $values[] = \Type\Decimal::value($filterValue);
-                    $values[] = \Type\Decimal::value($filterFinalValue);
+                    $values[] = $this->getValue($filterValue);
+                    $values[] = $this->getValue($filterFinalValue);
 
                     $cond = new \Db\Cond($columnName . ' BETWEEN ? AND ?', $values, $conditionType, $this->getFilterType());
                 }
@@ -101,13 +101,18 @@ class Integer extends \Filter\Text
                 {
 
                     $conditionType = \Db\Cond::COND_AND;
-                    $filterValue = \Type\Decimal::value($filterValue);
+                    $filterValue = $this->getValue($filterValue);
                     $cond = new \Db\Where($columnName, $conditionValue, $filterValue);
                 }
             }
         }
 
         return $cond;
+    }
+
+    protected function getValue($filterValue)
+    {
+        return \Type\Decimal::value($filterValue);
     }
 
 }
