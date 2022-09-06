@@ -54,6 +54,8 @@ class Cep extends \Validator\Validator
 
     public static function mask($value)
     {
+        $cep = null;
+
         if ($value)
         {
             $value = \Validator\Validator::unmask($value);
