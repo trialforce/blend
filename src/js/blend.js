@@ -653,8 +653,9 @@ function toast(msg, type, duration)
     type = type+ '' === 'undefined' ? '' : type;
     var toast = $("<div class='toast " + type + "'>" +
             msg +
-            "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>")
-            .appendTo('body');
+            "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>");
+
+    parent.$('body').append(toast);
             
     setTimeout(function(){toast.addClass('show')}, 100);
     setTimeout(function(){toast.removeClass('show')}, duration);

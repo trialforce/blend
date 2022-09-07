@@ -78,12 +78,12 @@
 }
 
 .combo .dropDownContainer tr:hover {
-    background-color: #3581FB;
+    background-color: #009bdb;
     color: #fff;
 }
 
 .combo .dropDownContainer tr.selected {
-    background-color: #3581FB;
+    background-color: #009bdb;
     color: #fff;
 }
 
