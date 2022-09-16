@@ -667,6 +667,30 @@ class Image extends \Disk\File
     }
 
     /**
+     * Return the filename extension which represents the byte data.
+     *
+     * @param string $data bytecode
+     * @return string
+     */
+    public static function getImageExtension($data)
+    {
+        $types = array('jpg' => "\xFF\xD8\xFF", 'gif' => 'GIF', 'png' => "\x89\x50\x4e\x47\x0d\x0a", 'bmp' => 'BM', 'psd' => '8BPS', 'swf' => 'FWS');
+        $bytes = \Type\Text::get($data)->sub(0, 8)->getValue();
+        $found = 'other';
+
+        foreach ($types as $type => $header)
+        {
+            if (strpos($bytes, $header) === 0)
+            {
+                $found = $type;
+                break;
+            }
+        }
+
+        return $found;
+    }
+
+    /**
      * Verify if some extension is supported
      *
      * @param string $format
