@@ -123,6 +123,8 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
             $this->content = imagecreatefromjpeg($this->path);
+
+            $this->fixOrientation($this->content, $this->path);
         }
         else if ($extension == Image::EXT_GIF)
         {
@@ -148,6 +150,36 @@ class Image extends \Disk\File
         }
 
         return $this;
+    }
+
+    /**
+     * Fixes image 'fake' orientation in jpg files produced by mobile phone cameras.
+     * This solution uses GD.
+     *
+     * @param resource $image
+     * @param string $filename
+     */
+    function fixOrientation(&$image, $filename)
+    {
+        $exif = exif_read_data($filename);
+
+        if (!empty($exif['Orientation']))
+        {
+            switch ($exif['Orientation'])
+            {
+                case 3:
+                    $image = imagerotate($image, 180, 0);
+                    break;
+
+                case 6:
+                    $image = imagerotate($image, -90, 0);
+                    break;
+
+                case 8:
+                    $image = imagerotate($image, 90, 0);
+                    break;
+            }
+        }
     }
 
     /**
