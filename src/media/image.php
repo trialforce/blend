@@ -159,7 +159,7 @@ class Image extends \Disk\File
      * @param resource $image
      * @param string $filename
      */
-    function fixOrientation(&$image, $filename)
+    public function fixOrientation(&$image, $filename)
     {
         $exif = exif_read_data($filename);
 
