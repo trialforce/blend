@@ -18,13 +18,19 @@ var b = function(selector)
     
     nodeList.attr = function(attribute, value)
     {
+        if (!this[0])
+        {
+            return;
+        }
+        
         if (typeof value == 'undefined')
         {
             return this[0].getAttribute(attribute);
         }
         else
         {
-            this[0].settAttribute(attribute,value);
+            this[0].setAttribute(attribute,value);
+            return this[0];
         }
     };
     
