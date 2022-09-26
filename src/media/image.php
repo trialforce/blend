@@ -123,6 +123,8 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
             $this->content = imagecreatefromjpeg($this->path);
+
+            $this->fixOrientation($this->content, $this->path);
         }
         else if ($extension == Image::EXT_GIF)
         {
@@ -148,6 +150,36 @@ class Image extends \Disk\File
         }
 
         return $this;
+    }
+
+    /**
+     * Fixes image 'fake' orientation in jpg files produced by mobile phone cameras.
+     * This solution uses GD.
+     *
+     * @param resource $image
+     * @param string $filename
+     */
+    public function fixOrientation(&$image, $filename)
+    {
+        $exif = exif_read_data($filename);
+
+        if (!empty($exif['Orientation']))
+        {
+            switch ($exif['Orientation'])
+            {
+                case 3:
+                    $image = imagerotate($image, 180, 0);
+                    break;
+
+                case 6:
+                    $image = imagerotate($image, -90, 0);
+                    break;
+
+                case 8:
+                    $image = imagerotate($image, 90, 0);
+                    break;
+            }
+        }
     }
 
     /**
@@ -664,6 +696,30 @@ class Image extends \Disk\File
         $exts[] = self::EXT_WEBP;
 
         return in_array($this->getExtension(), $exts);
+    }
+
+    /**
+     * Return the filename extension which represents the byte data.
+     *
+     * @param string $data bytecode
+     * @return string
+     */
+    public static function getImageExtension($data)
+    {
+        $types = array('jpg' => "\xFF\xD8\xFF", 'gif' => 'GIF', 'png' => "\x89\x50\x4e\x47\x0d\x0a", 'bmp' => 'BM', 'psd' => '8BPS', 'swf' => 'FWS');
+        $bytes = \Type\Text::get($data)->sub(0, 8)->getValue();
+        $found = 'other';
+
+        foreach ($types as $type => $header)
+        {
+            if (strpos($bytes, $header) === 0)
+            {
+                $found = $type;
+                break;
+            }
+        }
+
+        return $found;
     }
 
     /**

@@ -303,6 +303,8 @@ class SmartFilter
 
     protected function filterByString($filter, \Db\Column\Column $column)
     {
+        $hasSpace = stripos($filter, ' ') > 0;
+
         $columnQuery = $this->getColumnQuery($column);
         $firstLetter = $filter[0];
         $lastLetter = $filter[mb_strlen($filter) - 1];
@@ -342,7 +344,7 @@ class SmartFilter
                 }
 
                 // specific search when using codes, filter by complete text
-                if (is_numeric($word))
+                if (!$hasSpace && is_numeric($word))
                 {
                     $this->conds[] = new \Db\Cond($columnQuery . ' like ?', '%' . $filter . '%', \Db\Cond::COND_OR);
                     return;
