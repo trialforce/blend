@@ -227,4 +227,17 @@ class Server extends DataHandle
         return $host;
     }
 
+    /**
+     * Get the domain that of the application
+     *
+     * @return string
+     */
+    protected function getDomain()
+    {
+        $prefix = $this->isHttps() ? 'https://' : 'http://';
+        $host = $prefix . $this->getVar('HTTP_HOST');
+
+        return $host;
+    }
+
 }
