@@ -12,13 +12,14 @@
 
 .loading p {
     background-color: #fff;
-    width: 110px;
+    width: 150px;
     left: 50%;
     position: fixed;
-    margin-left: -75px;
+    margin-left: -95px;
     top: 280px;
-    padding:10px;
+    padding: 10px;
     border-radius: 2px;
     border: solid 1px #ccc;
-    box-shadow: 0px 0px 30px RGBA(0,0,0,0.4);
+    box-shadow: 0px 0px 30pxRGBA(0,0,0,0.4);
+    font-size: 80%;
 }
