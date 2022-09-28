@@ -910,6 +910,12 @@ class Image extends \Disk\File
         }
 
         $watermark = new \Media\Image($urlWatermark, true);
+
+        if (!$watermark->getContent())
+        {
+            return;
+        }
+
         imagefilter($watermark->getContent(), IMG_FILTER_BRIGHTNESS, 30);
         imagefilter($watermark->getContent(), IMG_FILTER_GRAYSCALE);
 
