@@ -852,16 +852,38 @@ class Crud extends \Page\Page
         \View\Blend\Popup::alert($column->getLabel(), $column->getDescription())->show();
     }
 
+    /**
+     * Repass extra parameters
+     * @return string
+     */
+    private static function getExtraParametersForIFrame()
+    {
+        $url = '';
+        $get = \DataHandle\Get::getInstance();
+        $get->remove('p')->remove('e')->remove('v');
+        $get = (array) $get;
+
+        if (count($get) > 0)
+        {
+            $url .= '&' . http_build_query($get);
+        }
+
+        return $url;
+    }
+
     public function listarPopup()
     {
         \App::dontChangeUrl();
         $isAjax = \DataHandle\Server::getInstance()->isAjax();
-        $url = $this->getPageUrl() . '/listar/?iframe=true';
+        $url = $this->getPageUrl() . '/listar/?';
+        $url .= static::getExtraParametersForIFrame();
 
         if (!$isAjax)
         {
             return \App::redirect($url, true);
         }
+
+        $url .= '&iframe=true&rand=' . rand();
 
         $title = ucfirst($this->model->getLabel());
         $this->crudEditPopup($url, $title);
@@ -878,7 +900,8 @@ class Crud extends \Page\Page
         $idInput = Request::get('idInput');
         $id = Request::get('v');
         //edit or add
-        $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/';
+        $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/?';
+        $url .= static::getExtraParametersForIFrame();
 
         if (!$isAjax)
         {
@@ -886,19 +909,9 @@ class Crud extends \Page\Page
         }
 
         //iframe and rand (to avoid browser cache)
-        $url .= '?iframe=true&rand=' . rand();
+        $url .= '&iframe=true&rand=' . rand();
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
-
-        //repass extra parameters
-        $get = \DataHandle\Get::getInstance();
-        $get->remove('p')->remove('e')->remove('v');
-        $get = (array) $get;
-
-        if (count($get) > 0)
-        {
-            $url .= '&' . http_build_query($get);
-        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -908,7 +921,17 @@ class Crud extends \Page\Page
         \App::dontChangeUrl();
         $idInput = Request::get('idInput');
         $id = Request::get('v');
-        $url = $this->getPageUrl() . '/ver/' . $id . '?iframe=true&rand=' . rand();
+        $url = $this->getPageUrl() . '/ver/' . $id . '?';
+        $url .= static::getExtraParametersForIFrame();
+
+        if (!$isAjax)
+        {
+            return \App::redirect($url, true);
+        }
+
+        //iframe and rand (to avoid browser cache)
+        $url .= '&iframe=true&rand=' . rand();
+
         $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
         $this->crudEditPopup($url, $title, $idInput);
     }
@@ -925,25 +948,17 @@ class Crud extends \Page\Page
         $idParent = Request::get('v');
 
         // add referencing parent
-        $url = $this->getPageUrl() . '/adicionar/' . $idParent;
-        $url .= '?iframe=true&rand=' . rand();
+        $url = $this->getPageUrl() . '/adicionar/' . $idParent . '?';
+        $url = static::getExtraParametersForIFrame();
 
         if (!$isAjax)
         {
             return \App::redirect($url, true);
         }
 
+        $url .= 'iframe=true&rand=' . rand();
+
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
-
-        //repass extra parameters
-        $get = \DataHandle\Get::getInstance();
-        $get->remove('p')->remove('e')->remove('v');
-        $get = (array) $get;
-
-        if (count($get) > 0)
-        {
-            $url .= '&' . http_build_query($get);
-        }
 
         $this->crudEditPopup($url, $title, $idInput);
     }
