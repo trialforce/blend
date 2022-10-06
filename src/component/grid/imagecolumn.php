@@ -95,7 +95,6 @@ class ImageColumn extends \Component\Grid\Column
 
         if ($src instanceof \Disk\File)
         {
-
             $newSrc = clone($src);
             $path = $this->replaceDataInString($src->getPath(), $item);
             $newSrc->setPath($path);
