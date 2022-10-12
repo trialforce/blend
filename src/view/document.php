@@ -128,6 +128,11 @@ class Document extends \DomDocument implements \Countable
         }
     }
 
+    public function prepend($content)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
     /**
      * Coloca um layout dentro do outro
      *
