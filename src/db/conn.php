@@ -216,7 +216,7 @@ class Conn extends \PDO
                         $ret->bindValue($arg, NULL, \PDO::PARAM_NULL);
                     }
                 }
-                else if (is_int($value) || is_float($value))
+                else if (is_int($value))
                 {
                     $ret->bindValue($arg, $value, \PDO::PARAM_INT);
                 }

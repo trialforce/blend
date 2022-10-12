@@ -20,4 +20,9 @@ class Decimal extends Integer
         return $input;
     }
 
+    protected function getValue($filterValue)
+    {
+        return \Type\Decimal::value($filterValue);
+    }
+
 }
