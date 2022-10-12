@@ -34,7 +34,8 @@ class IntInput extends \View\Input
             $value = $value->toDb();
         }
 
-        $value = intval($value);
+        //null or int value
+        $value = $value === null ? null : intval($value);
 
         return parent::setValue($value);
     }
