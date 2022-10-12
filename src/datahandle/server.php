@@ -232,10 +232,10 @@ class Server extends DataHandle
      *
      * @return string
      */
-    protected function getDomain()
+    public function getDomain()
     {
         $prefix = $this->isHttps() ? 'https://' : 'http://';
-        $host = $prefix . $this->getVar('HTTP_HOST');
+        $host = $prefix . $this->getVar('HTTP_HOST') . '/';
 
         return $host;
     }
