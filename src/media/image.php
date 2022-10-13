@@ -571,7 +571,7 @@ class Image extends \Disk\File
             $ratio = $height / $this->getHeight();
             $width = $this->getWidth() * $ratio;
         }
-        else if (!$height && $width)
+        else if (!$height && is_numeric($width))
         {
             $ratio = $width / $this->getWidth();
             $height = $this->getHeight() * $ratio;
