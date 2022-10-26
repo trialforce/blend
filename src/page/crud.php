@@ -949,14 +949,14 @@ class Crud extends \Page\Page
 
         // add referencing parent
         $url = $this->getPageUrl() . '/adicionar/' . $idParent . '?';
-        $url = static::getExtraParametersForIFrame();
+        $url .= static::getExtraParametersForIFrame();
 
         if (!$isAjax)
         {
             return \App::redirect($url, true);
         }
 
-        $url .= 'iframe=true&rand=' . rand();
+        $url .= '&iframe=true&rand=' . rand();
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
 
