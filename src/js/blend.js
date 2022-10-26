@@ -1,4 +1,4 @@
-/* global CKEDITOR, shortcut, FormData */
+/* global shortcut, FormData */
 
 "use strict";
 //handle the back and forward buttons
@@ -13,7 +13,6 @@ blend.plugins = [];
 var b = function(selector)
 {
     var nodeList = document.querySelectorAll(selector);
-    
     nodeList.each = nodeList.forEach;
     
     nodeList.attr = function(attribute, value)
