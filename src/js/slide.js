@@ -182,7 +182,8 @@ function slide(selector)
     var posFinalY;
     var index = 0;
     var threshold = 50;
-    var thresholdMove = 5;
+    //needs to 15 at least for avoid shaking in iPhone
+    var thresholdMove = 15; 
     var allowShift = true;
 
     var slideSize = slides[0].offsetWidth;
