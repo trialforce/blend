@@ -398,7 +398,10 @@ class UserAgent
         'CensysInspect',
         'expanseinc.com',
         'Embarcadero',
-        'Baiduspider');
+        'Baiduspider',
+        'SeekportBot', //Mozilla/5.0 (compatible; SeekportBot; +https://bot.seekport.com)
+        'Nikto' //Nikto Webserver Scanner https://github.com/sullo/nikto
+    );
 
     /**
      * Get some information about browser, base on user agent
