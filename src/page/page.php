@@ -753,17 +753,17 @@ class Page extends \View\Layout
     public function updateGrid($id)
     {
         //add support for old \Grid and new \Component\Grid
-        $gridClass = '\Grid\\' . $id;
+        $gridClass = '\Grid\\' . str_replace('-', '\\', $id);
 
         if (!class_exists($gridClass))
         {
-            $gridClass = '\Component\Grid\\' . $id;
+            $gridClass = '\Component\Grid\\' . str_replace('-', '\\', $id);
         }
 
         //FIXME this started to be a mess
         if (!class_exists($gridClass))
         {
-            $gridClass = $id;
+            $gridClass = str_replace('-', '\\', $id);
         }
 
         $grid = new $gridClass;
@@ -775,14 +775,24 @@ class Page extends \View\Layout
             $table->open();
         }
 
-        $element = new \View\Div(\View\View::REPLACE_SHARP . substr($gridClass, 1));
-        $element->setOutputJs(TRUE);
-        //remove do dom para não reaparecer
-        //$element->remove();
-        $element->parentNode->removeChild($element);
-        $element->html($table);
-
-        \App::setResponse('other-content-to-avoid-problem', null);
+        if (\DataHandle\Server::getInstance()->isAjax())
+        {
+            //\App::addJs($gridClass)
+            $gridId = substr($gridClass, 1);
+            $gridId = str_replace('\\', '\\\\', $gridId);
+            \App::setResponse($gridId, 'html');
+        }
+        else
+        {
+            $gridId = \View\View::REPLACE_SHARP . substr($gridClass, 1);
+            $element = new \View\Div($gridId);
+            $element->setOutputJs(TRUE);
+            //remove do dom para não reaparecer
+            //$element->remove();
+            $element->parentNode->removeChild($element);
+            $element->html($table);
+            \App::setResponse('other-content-to-avoid-problem', null);
+        }
     }
 
     /**
