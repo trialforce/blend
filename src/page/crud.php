@@ -919,6 +919,7 @@ class Crud extends \Page\Page
     public function verPopup()
     {
         \App::dontChangeUrl();
+        $isAjax = \DataHandle\Server::getInstance()->isAjax();
         $idInput = Request::get('idInput');
         $id = Request::get('v');
         $url = $this->getPageUrl() . '/ver/' . $id . '?';
