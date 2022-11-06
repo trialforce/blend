@@ -41,7 +41,7 @@ class Page extends \View\Layout
 
         if (\App::isUrlChanged())
         {
-            \App::addJs("$('body').attr('data-page-url','{$this->getPageUrl()}');");
+            \App::addJs("document.body.setAttribute('data-page-url','{$this->getPageUrl()}')");
         }
 
         return $fields;

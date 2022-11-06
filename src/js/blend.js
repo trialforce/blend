@@ -769,6 +769,7 @@ function addScriptOnce(src, callBack)
     {
         var script = document.createElement('script');
         script.src = src;
+        script.async = 'async';
         script.onload = callBack;
         document.getElementsByTagName('body')[0].appendChild(script);
     }

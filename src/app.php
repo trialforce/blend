@@ -412,6 +412,7 @@ class App
         if (count(self::$js) > 0)
         {
             $myJs = implode("\r\n", self::$js);
+            $myJs = "function blendJs() {\n{$myJs}\n};\nwindow.addEventListener('load', function() { blendJs() }, false)";
             $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
             $js->setId('blend-js');
             $layout->getHtml()->append($js);
@@ -476,7 +477,7 @@ class App
      */
     public static function addScriptOnce($scriptUrl, $callBack = null)
     {
-        \App::addJs("addScriptOnce('$scriptUrl', function(){{$callBack}} );");
+        \App::addJs("addScriptOnce('$scriptUrl', function(){{$callBack}} )");
     }
 
     /**

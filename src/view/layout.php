@@ -127,7 +127,7 @@ class Layout extends \View\Document
         }
 
         //register the event in html, so when get it from js
-        $this->byId('content')->data('event', $event);
+        \App::addJs("document.querySelector('#content').setAttribute('event', '{$event}')");
 
         if (method_exists($this, $event))
         {
