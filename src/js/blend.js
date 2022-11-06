@@ -12,7 +12,17 @@ blend.plugins = [];
 
 var b = function(selector)
 {
-    var nodeList = document.querySelectorAll(selector);
+    var nodeList;
+    
+    if ( selector instanceof NodeList)
+    {
+        nodeList = selector;
+    }
+    else
+    {
+        nodeList = document.querySelectorAll(selector);
+    }
+    
     nodeList.each = nodeList.forEach;
     
     nodeList.attr = function(attribute, value)
@@ -33,9 +43,37 @@ var b = function(selector)
         }
     };
     
+    nodeList.append = function(content)
+    {
+        if (this[0])
+        {
+            if ( typeof content == 'string')
+            {
+                this[0].insertAdjacentHTML('beforeend', content);
+            }
+            else
+            {
+                this[0].append(content);
+            }
+            
+            return true;
+        }
+    };
+    
+    nodeList.html = function(content)
+    {
+        if (this[0])
+        {
+            return this[0].innerHTML = content;
+        }
+    };
+    
     nodeList.hasClass = function(cssClass)
     {
-        return this[0].classList.contains(cssClass);
+        if (this[0])
+        {
+            return this[0].classList.contains(cssClass);
+        }
     };
     
     nodeList.addClass = function(cssClass)
@@ -64,7 +102,7 @@ var b = function(selector)
     
     nodeList.css = function(rule, value)
     {
-        if (typeof value == 'undefined')
+        if (typeof value == 'undefined' && this[0])
         {
             return this[0].style[rule];
         }
@@ -74,6 +112,22 @@ var b = function(selector)
             element.style[rule] = value;
         });
     };
+    
+    nodeList.isVisible = function()
+    {
+        for (var i in this)
+        {
+            var element  = this[i];
+            var length = typeof element.getClientRects == 'function' ? element.getClientRects().length : null;
+            
+            if ( !!( element.offsetWidth || element.offsetHeight || length ))
+            {
+                return parseInt(i);
+            }
+        };
+        
+        return -1;
+    }
     
     return nodeList;
 }
@@ -133,14 +187,16 @@ function escape()
         return true;
     }
     //popup
-    else if ( $('.popup:visible').length )
+    else if ( b('.popup').isVisible() >= 0 )
     {
         //try to call the close action of the popup
-        var jsText= $('#btbClosePopup:visible').attr('onclick');
+        var list= b('#btbClosePopup');
+        var index = list.isVisible();
+        var jsText= list[index].onclick;
         
         if (jsText)
         {
-            eval(jsText);
+            list[index].click();
         }
         else
         {
@@ -150,7 +206,7 @@ function escape()
         return true;
     }
     //calendar
-    else if ( $('.xdsoft_datetimepicker.xdsoft_noselect:visible').length )
+    else if ( b('.xdsoft_datetimepicker.xdsoft_noselect').isVisible() >0 )
     {
         b('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
@@ -314,27 +370,15 @@ function fileUpload(page)
     return r("POST", page, data);
 }
 
-var avoidTab = function ()
-{
-    var keyCode = event.keyCode || event.which;
-
-    if (keyCode == 9)
-    {
-        event.preventDefault();
-    }
-}
-
 function showLoading()
 {
-    $("body").bind("keydown", avoidTab);
-    $(".loading").fadeIn('fast');
+    b(".loading").removeClass('hide');
     return false;
 }
 
 function hideLoading()
 {
-    $("body").unbind("keydown", avoidTab);
-    $(".loading").fadeOut('fast');
+    b(".loading").addClass('hide');
     return false;
 }
 
@@ -498,10 +542,10 @@ function r(type, page, formData, callBack)
             {
                 if (data.responseType === 'append')
                 {
-                    $('#' + data.response).append(data.content);
+                    b('#' + data.response).append(data.content);
                 } else
                 {
-                    $('#' + data.response).html(data.content);
+                    b('#' + data.response).html(data.content);
                 }
             }
 
@@ -533,7 +577,9 @@ function r(type, page, formData, callBack)
             
             try
             {
-                $('body').append('<script>' + data.script + '</script>');
+                var script = document.createElement('script');
+                script.innerHTML = data.script;
+                b('body').append(script);
             }
             catch (e) 
             {
@@ -594,7 +640,7 @@ async function getJson(page, formData, loadingShow, callBack)
             if (response && typeof response.script == 'string')
             {
                 response.script.replace('\\\"', '\\"');
-                $('body').append('<script>' + response.script + '</script>');
+                b('body').append('<script>' + response.script + '</script>');
             } 
             else if ( typeof callBack == 'function')
             {
@@ -613,15 +659,6 @@ async function getJson(page, formData, loadingShow, callBack)
             hideLoading();
         }
     });
-}
-
-function getSelected(selector)
-{
-    var result = $(selector).map(function (i, el) {
-        return $(el).val();
-    });
-
-    return
 }
 
 /**
@@ -656,14 +693,15 @@ function toast(msg, type, duration)
 {
     duration = duration === undefined ? 3000 : duration;
     type = type+ '' === 'undefined' ? '' : type;
-    var toast = $("<div class='toast " + type + "'>" +
-            msg +
-            "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong></div>");
-
-    parent.$('body').append(toast);
+    
+    let toast = parent.document.createElement('div');
+    toast.setAttribute('class', 'toast ' + type);
+    toast.innerHTML = msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong>";
+    
+    parent.b('body').append(toast);
             
-    setTimeout(function(){toast.addClass('show')}, 100);
-    setTimeout(function(){toast.removeClass('show')}, duration);
+    setTimeout(function(){toast.classList.add('show')}, 100);
+    setTimeout(function(){toast.classList.remove('show')}, duration);
     setTimeout(function(){toast.remove()}, duration*2);
 
     return false;
@@ -678,7 +716,7 @@ function toast(msg, type, duration)
 function setFocusOnFirstField()
 {
     //support popup
-    if ($('.popup').length)
+    if (b('.popup').isVisible() > 0 )
     {
         $('.popup').find('input:not([readonly]):not([disabled]):visible:first').focus();
     } 
@@ -718,6 +756,7 @@ function addScriptOnce(src, callBack)
     while (i--)
     {
         var myCompare = list[i].src.replace(baseUrl,'');
+        
         if ( myCompare == compare)
         {
             findedOnDoc = true;
@@ -747,7 +786,7 @@ function addScriptOnce(src, callBack)
  */
 function scrollTop()
 {
-    $("html, body").animate({ scrollTop: 0 }, 300);
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 /**
