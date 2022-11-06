@@ -507,7 +507,7 @@ class Model implements \JsonSerializable
         $cacheKey = null;
 
         //avoid sql if not id passed, support id = 0
-        if (!$id && $id !== '0')
+        if (is_null($id))
         {
             return NULL;
         }
@@ -569,19 +569,11 @@ class Model implements \JsonSerializable
     public static function findOneByPkOrCreate($id = null, $logId = null)
     {
         $name = self::getName();
+        $obj = $name::findOneByPk($id, $logId);
 
-        if (!$id)
+        if (!$obj)
         {
             $obj = new $name();
-        }
-        else
-        {
-            $obj = $name::findOneByPk($id, $logId);
-
-            if (!$obj)
-            {
-                $obj = new $name();
-            }
         }
 
         return $obj;
