@@ -412,7 +412,7 @@ class App
         if (count(self::$js) > 0)
         {
             $myJs = implode("\r\n", self::$js);
-            $myJs = "function blendJs() {\n{$myJs}\n};\nwindow.addEventListener('load', function() { blendJs() }, false)";
+            $myJs = "function blendOnLoadJs() {\n{$myJs}\n};\nwindow.addEventListener('load', function() { blendOnLoadJs() }, false)";
             $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
             $js->setId('blend-js');
             $layout->getHtml()->append($js);
