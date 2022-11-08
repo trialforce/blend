@@ -150,9 +150,7 @@ function pluginsCallMethod(method)
 if (!window.console)
 {
     window.console = {};
-    window.console.log = function ()
-    {
-    };
+    window.console.log = function () {};
 }
 
 window.onpopstate = function(event) 
