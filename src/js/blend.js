@@ -206,7 +206,7 @@ function escape()
         return true;
     }
     //calendar
-    else if ( b('.xdsoft_datetimepicker.xdsoft_noselect').isVisible() >0 )
+    else if ( b('.xdsoft_datetimepicker.xdsoft_noselect').isVisible() >= 0 )
     {
         b('.xdsoft_datetimepicker.xdsoft_noselect').hide();
         return true;
@@ -716,7 +716,7 @@ function toast(msg, type, duration)
 function setFocusOnFirstField()
 {
     //support popup
-    if (b('.popup').isVisible() > 0 )
+    if (b('.popup').isVisible() >= 0 )
     {
         $('.popup').find('input:not([readonly]):not([disabled]):visible:first').focus();
     } 
