@@ -137,7 +137,6 @@ var b = function(selector)
 function executeScriptElements(containerElement) 
 {
     const scriptElements = containerElement.querySelectorAll("script");
-    console.log(scriptElements);
 
     Array.from(scriptElements).forEach((scriptElement) => 
     {
