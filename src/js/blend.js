@@ -64,7 +64,9 @@ var b = function(selector)
     {
         if (this[0])
         {
-            return this[0].innerHTML = content;
+            this[0].innerHTML = content;
+            executeScriptElements(this[0]);
+            return this[0];
         }
     };
     
@@ -130,6 +132,26 @@ var b = function(selector)
     }
     
     return nodeList;
+}
+
+function executeScriptElements(containerElement) 
+{
+    const scriptElements = containerElement.querySelectorAll("script");
+    console.log(scriptElements);
+
+    Array.from(scriptElements).forEach((scriptElement) => 
+    {
+        const clonedElement = document.createElement("script");
+
+        Array.from(scriptElement.attributes).forEach((attribute) => 
+        {
+            clonedElement.setAttribute(attribute.name, attribute.value);
+        });
+    
+        clonedElement.text = scriptElement.text;
+
+        scriptElement.parentNode.replaceChild(clonedElement, scriptElement);
+    });
 }
  
 function pluginsCallMethod(method)
