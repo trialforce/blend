@@ -170,21 +170,48 @@ class App
         //case page exists, avoid throw error
         if (class_exists($page))
         {
-            //create the theme, so we can use it's object in inner layout
-            //it's okay, it's cached
-            $this->getTheme();
-            //create page
-            $content = new $page();
+            $content = $this->hangleInnerPage();
         }
         //case page not exists, try to instanciate a component
         else
         {
-            //try to locate inside module folder
-            $component = Request::get('p');
-            $explode = explode('-', $component);
-            $module = $explode[0];
-            array_shift($explode);
-            $componentClassName = $module . '\Component\\' . implode('\\', $explode);
+            $content = $this->handleInnerComponent();
+        }
+
+        return $this->handleResult($content);
+    }
+
+    protected function hangleInnerPage()
+    {
+        $page = $this->getCurrentPage();
+        //create the theme, so we can use it's object in inner layout
+        //it's okay, it's cached
+        $this->getTheme();
+        //create page
+        $content = new $page();
+
+        return $content;
+    }
+
+    protected function handleInnerComponent()
+    {
+        //try to locate inside module folder
+        $component = Request::get('p');
+        $explode = explode('-', $component);
+        $module = $explode[0];
+        array_shift($explode);
+        $componentClassName = $module . '\Component\\' . implode('\\', $explode);
+
+        if (class_exists($componentClassName))
+        {
+            $content = new \View\Layout(null, TRUE);
+            $component = new $componentClassName();
+            $component->callEvent();
+        }
+        //if don't find look without module
+        else
+        {
+            $componentClassName = '\component\\' . str_replace('-', '\\', $component);
 
             if (class_exists($componentClassName))
             {
@@ -192,26 +219,9 @@ class App
                 $component = new $componentClassName();
                 $component->callEvent();
             }
-            //if don't find look without module
-            else
-            {
-                $componentClassName = '\component\\' . str_replace('-', '\\', $component);
-
-                if (class_exists($componentClassName))
-                {
-                    $content = new \View\Layout(null, TRUE);
-                    $component = new $componentClassName();
-                    $component->callEvent();
-                }
-            }
         }
 
-        if ($content instanceof \View\Document)
-        {
-            return $this->handleResult($content);
-        }
-
-        return false;
+        return $content;
     }
 
     /**
@@ -255,11 +265,11 @@ class App
         return self::$theme;
     }
 
-    public function handleResult(\View\Document $content, $page404 = false)
+    public function handleResult($content, $page404 = false)
     {
         $theme = self::getTheme($content);
 
-        if (!$theme)
+        if (!$theme && $content instanceof \View\Document)
         {
             \View\View::setDom($content);
             $theme = $content;

@@ -156,6 +156,14 @@ class Document extends \DomDocument implements \Countable
             return $this;
         }
 
+        //add suport por pure html
+        if (is_string($domInner))
+        {
+            $innerDom = new \View\Layout();
+            $innerDom->loadHTML($domInner);
+            $domInner = $innerDom;
+        }
+
         if ($domInner instanceof \View\Document)
         {
             //quando o layout for criado via programação acessa o primeiro filho
