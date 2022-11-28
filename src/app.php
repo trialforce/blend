@@ -178,7 +178,12 @@ class App
             $content = $this->handleInnerComponent();
         }
 
-        return $this->handleResult($content);
+        if ($content)
+        {
+            return $this->handleResult($content);
+        }
+
+        return false;
     }
 
     protected function hangleInnerPage()
@@ -201,6 +206,8 @@ class App
         $module = $explode[0];
         array_shift($explode);
         $componentClassName = $module . '\Component\\' . implode('\\', $explode);
+
+        $content = null;
 
         if (class_exists($componentClassName))
         {
