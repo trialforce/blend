@@ -170,7 +170,7 @@ class App
         //case page exists, avoid throw error
         if (class_exists($page))
         {
-            $content = $this->hangleInnerPage();
+            $content = $this->handleInnerPage();
         }
         //case page not exists, try to instanciate a component
         else
@@ -178,10 +178,15 @@ class App
             $content = $this->handleInnerComponent();
         }
 
-        return $this->handleResult($content);
+        if ($content)
+        {
+            return $this->handleResult($content);
+        }
+
+        return false;
     }
 
-    protected function hangleInnerPage()
+    protected function handleInnerPage()
     {
         $page = $this->getCurrentPage();
         //create the theme, so we can use it's object in inner layout
@@ -201,6 +206,8 @@ class App
         $module = $explode[0];
         array_shift($explode);
         $componentClassName = $module . '\Component\\' . implode('\\', $explode);
+
+        $content = null;
 
         if (class_exists($componentClassName))
         {
