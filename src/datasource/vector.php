@@ -106,10 +106,10 @@ class Vector extends DataSource
         $money = false;
         $total = 0;
 
-        if (is_array($data))
+        if (is_iterable($data))
         {
             //TODO make other aggregation methods
-            if ($aggregator->getMethod() == Aggregator::METHOD_SUM)
+            if ($aggregator->getMethod() == Aggregator::METHOD_SUM || $aggregator->getMethod() == Aggregator::METHOD_AVG)
             {
                 foreach ($data as $item)
                 {
@@ -132,6 +132,11 @@ class Vector extends DataSource
                     }
 
                     $total += $value;
+                }
+
+                if ($aggregator->getMethod() == Aggregator::METHOD_AVG)
+                {
+                    $total = count($data) == 0 ? 0 : $total / count($data);
                 }
             }
             else if ($aggregator->getMethod() == Aggregator::METHOD_COUNT)
