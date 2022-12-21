@@ -267,13 +267,11 @@ class Text implements \Type\Generic, \JsonSerializable
                 $endPoint++;
             }
 
-            if ($endPoint === false)
+            if ($endPoint !== false)
             {
                 // if there is no break in string, don't wrap further
-                $endPoint = null;
+                $this->string = $this->sub(0, $endPoint)->getValue();
             }
-
-            $this->string = $this->sub(0, $endPoint)->getValue();
         }
 
         return $this;
