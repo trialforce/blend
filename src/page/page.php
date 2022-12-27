@@ -643,7 +643,7 @@ class Page extends \View\Layout
      * Create a constainer with label
      *
      * @param string $label
-     * @param \View\View $view
+     * @param \View\View|\Component\Component $view
      * @param string $class
      *
      * @return \View\Div

@@ -431,10 +431,11 @@ class Grid extends \Component\Component
 
         $view = array();
 
-        if ($this->getTitle())
+        $title = $this->getTitle();
+        if ($title)
         {
             $captionName = strtolower(str_replace('\\', '-', $this->getId()) . '-caption');
-            $view[] = new \View\Caption($captionName, $this->getTitle());
+            $view[] = new \View\Caption($captionName, $title);
         }
 
         $view[] = $this->mountColGroup();

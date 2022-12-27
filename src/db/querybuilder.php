@@ -4,6 +4,8 @@ namespace Db;
 
 /**
  * Database Query Builder
+ *
+ * @template T
  */
 class QueryBuilder
 {
@@ -750,7 +752,7 @@ class QueryBuilder
      * Execute the query and return
      * the first element of the result
      *
-     * @return mixed
+     * @return T|null
      */
     public function first()
     {
@@ -768,9 +770,9 @@ class QueryBuilder
     /**
      * Return the first register or a new one
      *
-     * @param boolen $fillDataInWhere if is to fill data in where
+     * @param boolean $fillDataInWhere if is to fill data in where
      *
-     * @return \Db\Model
+     * @return T
      */
     public function firstOrCreate($fillDataInWhere = false)
     {
@@ -826,7 +828,7 @@ class QueryBuilder
     /**
      * Return a collection of the defined model name
      *
-     * @return \Db\Collection the collection with the resulted data
+     * @return \Db\Collection<T> the collection with the resulted data
      */
     public function toCollection()
     {
@@ -835,6 +837,9 @@ class QueryBuilder
         return new \Db\Collection($this->select($modelName));
     }
 
+    /**
+     * @return \Db\Collection<\stdClass>
+     */
     public function toCollectionStdClass()
     {
         return new \Db\Collection($this->select('stdClass'));
@@ -842,7 +847,7 @@ class QueryBuilder
 
     /**
      * Return data as an array of array
-     * @return array array of array
+     * @return array<T> array of array
      */
     public function toArray()
     {
