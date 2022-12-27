@@ -54,8 +54,8 @@ trait History
                 if ($column->getReferenceTable() && $column->getReferenceDescription())
                 {
                     $table = '\Model\\' . $column->getReferenceTable();
+                    /** @var \Db\Repository $repository */
                     $repository = $table::repository();
-                    $repository instanceof \Db\Repository;
 
                     $model = $repository->findOneByPk($value);
 

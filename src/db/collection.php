@@ -4,13 +4,15 @@ namespace Db;
 
 /**
  * A Collection with focus to deal with \Db\Model with ArrayAccess suport
+ *
+ * @template T
  */
 class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
 
     /**
      * The data of collection
-     * @var type
+     * @var array<T>
      */
     protected $data = array();
 
@@ -89,7 +91,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Return all the data as array
      *
-     * @return Array
+     * @return array<T>
      */
     public function getData()
     {
@@ -100,7 +102,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Return all the data as array
      * Alias to getdata
      *
-     * @return Array
+     * @return array<T>
      */
     public function toArray()
     {
@@ -110,7 +112,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Return the first item of array
      *
-     * @return mixes
+     * @return T|null
      */
     public function first()
     {
@@ -452,7 +454,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Add single item to collection if its property is distinct.
      *
      * @param string $property
-     * @param mixed $item
+     * @param T $item
      */
     private function addDistinctExecute($property, $item)
     {
@@ -467,7 +469,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Push a data to array, same effect as add
      *
-     * @param mixed $value
+     * @param T $value
      */
     public function push($value)
     {
@@ -477,7 +479,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Get a property from an item
      *
-     * @param mixed $item
+     * @param T $item
      * @param string $property
      * @return string
      */
@@ -515,7 +517,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Index an sort the data by a property
      *
      * @param string $property
-     * @return \Db\Collection
+     * @return $this
      */
     public function indexByProperty($property)
     {
@@ -546,7 +548,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param string $key the key of new array
      * @param string $value the value of new array
-     * @return array an key/value array
+     * @return $this
      */
     public function toKeyValue($key, $value)
     {
@@ -712,6 +714,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Get a item from data by key
      *
      * @param string $key
+     * @return T
      */
     public function get($key)
     {
@@ -742,7 +745,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * For implements \ArrayAccess.
      *
      * @param int $offset
-     * @param mixed $value
+     * @param T $value
      */
     public function offsetSet($offset, $value)
     {
@@ -786,8 +789,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \ArrayAccess.
      *
-     * @param type $offset
-     * @return type
+     * @param T $offset
+     * @return T
      */
     public function offsetGet($offset)
     {
@@ -799,7 +802,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \Iterator (foreach)
      *
-     * @return type
+     * @return T
      */
     public function rewind()
     {
@@ -817,7 +820,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \Iterator (foreach)
      *
-     * @return type
+     * @return T
      */
     function current()
     {
@@ -829,7 +832,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \Iterator  (foreach)
      *
-     * @return bool
+     * @return int|null|string
      */
     public function key()
     {
@@ -874,7 +877,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Implements object set
      *
      * @param string $name
-     * @param mixed $value
+     * @param T $value
      */
     public function __set($name, $value)
     {
@@ -886,7 +889,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param string $name
      *
-     * @return mixed
+     * @return T
      */
     public function __get($name)
     {

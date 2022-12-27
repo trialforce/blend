@@ -7,6 +7,8 @@ use DataHandle\Request;
 
 /**
  * Automated CRUD page
+ *
+ * @template T
  */
 class Crud extends \Page\Page
 {
@@ -27,7 +29,7 @@ class Crud extends \Page\Page
 
     /**
      * Modelo
-     * @var \Db\Model
+     * @var T
      */
     protected $model;
 
@@ -38,6 +40,9 @@ class Crud extends \Page\Page
      */
     protected $dataSource;
 
+    /**
+     * @param T $model
+     */
     public function __construct($model = NULL)
     {
         if (is_null($model))
@@ -72,7 +77,7 @@ class Crud extends \Page\Page
      * //TODO this function has to be renamed, because it's not a get
      * model, it mount the model based on url
      *
-     * @return \Db\Model
+     * @return T
      */
     public function getModel($request = NULL, $model = NULL)
     {
@@ -105,8 +110,8 @@ class Crud extends \Page\Page
     /**
      * Define o modelo
      *
-     * @param \Db\Model $model
-     * @return \View\PageCrud
+     * @param T $model
+     * @return \Page\Crud
      */
     public function setModel(\Db\Model $model)
     {
@@ -136,7 +141,7 @@ class Crud extends \Page\Page
 
     /**
      * Define the model based id from url or posted
-     * @return \Db\Model Description
+     * @return T Description
      */
     public function setModelFromIdUrl($throw = TRUE)
     {

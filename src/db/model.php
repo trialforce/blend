@@ -5,6 +5,8 @@ namespace Db;
 /**
  * Integrates the database with php.
  * Utilizes active Record concept.
+ *
+ * @template T
  */
 class Model implements \JsonSerializable
 {
@@ -294,7 +296,7 @@ class Model implements \JsonSerializable
 
     /**
      * Return the Query builder for this Model
-     * @return \Db\QueryBuilder
+     * @return \Db\QueryBuilder<T>
      */
     public static function query($tableNameInColumns = false)
     {
@@ -353,7 +355,7 @@ class Model implements \JsonSerializable
      * @param string $orderBy
      * @param string $orderWay
      *
-     * @return array
+     * @return array<T>
      */
     public static function find($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL, $logId = NULL)
     {
@@ -499,7 +501,7 @@ class Model implements \JsonSerializable
      *
      * @param string $id
      * @param bool $useCache
-     * @return \Db\Model
+     * @return T|null
      */
     public static function findOneByPk($id, $useCache = FALSE, $logId = NULL)
     {
@@ -564,7 +566,7 @@ class Model implements \JsonSerializable
      * If not find create anotger
      *
      * @param int|string $id
-     * @return \Db\Model
+     * @return T
      */
     public static function findOneByPkOrCreate($id = null, $logId = null)
     {
@@ -585,7 +587,7 @@ class Model implements \JsonSerializable
      * É um atalho para find
      *
      * @param array $filters
-     * @return null
+     * @return T|null
      */
     public static function findOne($filters = array(), $logId = null)
     {
@@ -606,7 +608,7 @@ class Model implements \JsonSerializable
      * É um atalho para find
      *
      * @param array $filters
-     * @return null
+     * @return T
      */
     public static function findOneOrCreate($filters = array(), $logId = null)
     {
