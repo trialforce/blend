@@ -5,7 +5,7 @@ namespace Db;
 /**
  * One conection with one database
  */
-class Conn extends \PDO
+class Conn
 {
 
     /**
@@ -13,7 +13,10 @@ class Conn extends \PDO
      * @var string
      */
     protected $id;
-
+    /**
+     * @var \Pdo
+     */
+    protected \Pdo $pdo;
     /**
      * Array de ConnInfo
      *
@@ -31,7 +34,7 @@ class Conn extends \PDO
     /**
      * Último retorno do pdo
      *
-     * @var \PDOStatement
+     * @var \PDOStatement|False
      */
     protected static $lastRet;
 
@@ -56,10 +59,7 @@ class Conn extends \PDO
 
     /**
      * Constroi uma conexão com o banco
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array $driverOptions
+     * @param ConnInfo $info
      */
     public function __construct(\Db\ConnInfo $info)
     {
@@ -74,13 +74,13 @@ class Conn extends \PDO
             $driverOptions = array();
         }
 
-        parent::__construct($info->getDsn(), $info->getUsername(), $info->getPassword(), $driverOptions);
+        $this->pdo = new \Pdo($info->getDsn(), $info->getUsername(), $info->getPassword(), $driverOptions);
         //make pdo throws execption
-        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         //big timeout to avoid problems
-        $this->setAttribute(\PDO::ATTR_TIMEOUT, 600);
+        $this->pdo->setAttribute(\PDO::ATTR_TIMEOUT, 600);
         //persistent conection to
-        $this->setAttribute(\PDO::ATTR_PERSISTENT, TRUE);
+        $this->pdo->setAttribute(\PDO::ATTR_PERSISTENT, TRUE);
     }
 
     public function getId()
@@ -95,13 +95,21 @@ class Conn extends \PDO
     }
 
     /**
+     * @return \Pdo
+     */
+    public function getPdo()
+    {
+        return $this->pdo;
+    }
+
+    /**
      * Return some server info
      *
      * @return string
      */
     public function getServerInfo()
     {
-        return $this->getAttribute(\PDO::ATTR_SERVER_INFO);
+        return $this->pdo->getAttribute(\PDO::ATTR_SERVER_INFO);
     }
 
     /**
@@ -144,7 +152,7 @@ class Conn extends \PDO
     /**
      * Retorna o última prepareStatament a ser utilizado
      *
-     * @return type
+     * @return \PDOStatement|false
      */
     public static function getLastRet()
     {
@@ -166,14 +174,14 @@ class Conn extends \PDO
      * @param string $sql the sql string
      * @param array $args arguments
      * @param string $logId any text you want to add to log to identificate the query
-     * @return int
+     * @return bool
      */
     public function execute($sql, $args = NULL, $logId = null)
     {
         $timer = new \Misc\Timer();
         self::$lastSql = \Db\Conn::interpolateQuery($sql, $args);
 
-        $ret = $this->prepare($sql);
+        $ret = $this->pdo->prepare($sql);
         self::$lastRet = $ret;
         $this->makeArgs($args, $ret);
 
@@ -185,6 +193,11 @@ class Conn extends \PDO
         self::$totalSqlTime += $diffTime;
 
         return $ok;
+    }
+
+    public function exec($sql)
+    {
+        return $this->pdo->exec($sql);
     }
 
     protected static function makeArgs($args, $ret)
@@ -269,7 +282,7 @@ class Conn extends \PDO
             unset($args['offset']);
         }
 
-        $ret = $this->prepare($sql);
+        $ret = $this->pdo->prepare($sql);
         $this->makeArgs($args, $ret);
 
         $ret->execute();
@@ -395,6 +408,7 @@ class Conn extends \PDO
      * @param string $id
      *
      * @return \Db\Conn
+     * @throws \Exception
      */
     public static function getInstance($id = 'default')
     {
@@ -404,7 +418,7 @@ class Conn extends \PDO
         {
             try
             {
-                self::$conn[$id] = new \Db\Conn($connInfo, $id);
+                self::$conn[$id] = new \Db\Conn($connInfo);
             }
             catch (\Exception $e)
             {
@@ -421,6 +435,7 @@ class Conn extends \PDO
      *
      * @param string $id
      * @return ConnInfo
+     * @throws \Exception
      */
     public static function getConnInfo($id = 'default', $throw = TRUE)
     {
@@ -434,6 +449,8 @@ class Conn extends \PDO
         {
             throw new \Exception("Informações da conexão '$id' não encontradas.");
         }
+
+        return null;
     }
 
 }
