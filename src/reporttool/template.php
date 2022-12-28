@@ -629,7 +629,7 @@ class Template
      * Add a all propertys from a model to a global param
      *
      * @param \Db\Model $model the current model
-     * @param stirng $modelName model name
+     * @param string $modelName model name
      * @return \ReportTool\Template
      */
     public function setModelParams($model, $modelName, $setModel = false)

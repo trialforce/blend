@@ -17,7 +17,7 @@ class DomContainer implements \Countable
      */
     protected $domElement;
 
-    public function __construct(\DOMElement $domElement)
+    public function __construct(\DOMElement|\DomNode|null $domElement)
     {
         $this->setDomElement($domElement);
     }

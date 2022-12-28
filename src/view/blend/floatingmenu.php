@@ -34,11 +34,10 @@ class FloatingMenu extends \View\Ul
      * Add and item to menu
      *
      * @param string $icon icon
-     * @param sring $label label
+     * @param string $label label
      * @param string $action action
      * @param string $class class
-     * @param string $title tittle
-     * @param bool $formChangeAdvice form change advice
+     * @param string $title title
      *
      * @return $this
      */

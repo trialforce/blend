@@ -690,7 +690,7 @@ class Grid extends \Component\Component
         $dataSource = $this->getDataSource();
         $data = $dataSource->getData();
         $columns = $this->getRenderColumns();
-        $tr = array();
+        $tr = [];
 
         if (isIterable($data))
         {
@@ -718,14 +718,18 @@ class Grid extends \Component\Component
             $td[] = $this->createTd($column, $index, $itemParsed, $tr);
         }
 
-        return $tr->html($td);
+        $tr->html($td);
+
+        return $tr;
     }
 
     protected function createTdMobile($columns, $index, $item, $tr)
     {
         $td = new \View\Td(NULL, NULL, 'hide-in-desktop');
 
-        return $td->html($this->createMobileContent($columns, $index, $item, $tr));
+        $td->html($this->createMobileContent($columns, $index, $item, $tr));
+
+        return $td;
     }
 
     protected function createMobileContent($columns, $index, $item, $tr)
@@ -773,8 +777,9 @@ class Grid extends \Component\Component
     {
         $td = new \View\Td(NULL, NULL, $column->getAlign() . ' hide-in-mobile');
         $value = $column->getValue($item, $index, $tr, $td);
+        $td->html($value);
 
-        return $td->html($value);
+        return $td;
     }
 
     /**

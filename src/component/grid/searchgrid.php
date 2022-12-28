@@ -185,7 +185,7 @@ class SearchGrid extends \Component\Grid\Grid
 
     /**
      * Remove an filter
-     * @param strring $filterName filter name
+     * @param string $filterName filter name
      *
      * @return $this
      */

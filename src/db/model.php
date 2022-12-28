@@ -2,6 +2,9 @@
 
 namespace Db;
 
+use DataHandle\DataHandle;
+use Db\Column\Column;
+
 /**
  * Integrates the database with php.
  * Utilizes active Record concept.
@@ -154,7 +157,8 @@ class Model implements \JsonSerializable
     /**
      * Define one column for model
      *
-     * @param \Db\Column\Column $column
+     * @param Column $column
+     * @param null $position
      */
     public static function setColumn(\Db\Column\Column $column, $position = null)
     {
@@ -363,13 +367,13 @@ class Model implements \JsonSerializable
 
     /**
      * Execute a search in database ans return a list
-     * @param type $columns
-     * @param \Db\Cond $filters
-     * @param type $limit
-     * @param type $offset
-     * @param type $orderBy
-     * @param type $orderWay
-     * @param type $returnType
+     * @param array $columns
+     * @param array $filters
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string|null $orderBy
+     * @param string|null $orderWay
+     * @param string|null $returnType
      *
      * @return array
      */
@@ -446,7 +450,7 @@ class Model implements \JsonSerializable
     /**
      * Make a count on database
      *
-     * @param type $filters
+     * @param array $filters
      *
      * @return int
      */
@@ -457,7 +461,7 @@ class Model implements \JsonSerializable
         return $name::aggregation($filters, 'count(' . $value . ')');
     }
 
-    public static function aggregations($filters = array(), $aggregations, $forceExternalSelect = FALSE, $columns = NULL, $logId = NULL)
+    public static function aggregations($filters = array(), $aggregations=NULL, $forceExternalSelect = FALSE, $columns = NULL, $logId = NULL)
     {
         $name = self::getName();
         $where = self::getWhereFromFilters($filters);
@@ -890,7 +894,8 @@ class Model implements \JsonSerializable
     {
         $name = $this->getName();
         $pks = $this->getPrimaryKeys();
-        $where = null;
+        $where = [];
+        $args = [];
 
         if (is_array($pks) && count($pks) > 0)
         {
@@ -982,8 +987,6 @@ class Model implements \JsonSerializable
         {
             return $this->$property;
         }
-
-        return NULL;
     }
 
     /**
@@ -1041,8 +1044,9 @@ class Model implements \JsonSerializable
     /**
      * Define the data from request in the model
      *
-     * @param \DataHandle\DataHandle $request
-     * @return \Db\Model
+     * @param DataHandle $request
+     * @param bool $overwrite
+     * @return Model
      */
     public function setData(\DataHandle\DataHandle $request, $overwrite = TRUE)
     {
@@ -1215,7 +1219,6 @@ class Model implements \JsonSerializable
     {
         $name = self::getName();
         $schemaName = \Db\Column\Collection::getSchemaClassName($name);
-        $relations = [];
 
         if (class_exists($schemaName))
         {

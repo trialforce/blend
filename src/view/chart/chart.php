@@ -16,7 +16,7 @@ interface Chart
      * @param float $offset
      *  @return \View\View the resultant segment
      */
-    public function addSegment($id = null, $color = null, $percent, $offset = 0);
+    public function addSegment($id = null, $color = null, $percent = 0, $offset = 0);
 
     /**
      * Add a label to graph
@@ -41,5 +41,5 @@ interface Chart
      * @param \Db\Collection $data the collection
      * @param string $extraClass extra css class
      */
-    public static function createFromCollection($id = null, \Db\Collection $data, $extraClass = null);
+    public static function createFromCollection($id = null, \Db\Collection $data = null, $extraClass = null);
 }

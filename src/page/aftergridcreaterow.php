@@ -8,5 +8,5 @@ namespace Page;
 interface AfterGridCreateRow
 {
 
-    public function afterGridCreateRow( $item, $line, \View\Tr $tr );
+    public function afterGridCreateRow( $item, $line, ?\View\Tr $tr );
 }

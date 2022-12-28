@@ -200,8 +200,19 @@ class Conn
         return $this->pdo->exec($sql);
     }
 
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
+    }
+
     protected static function makeArgs($args, $ret)
     {
+        //needed for PHP 8.0
+        if (is_null($args))
+        {
+            return null;
+        }
+
         //compatibility
         if (!is_array($args))
         {
@@ -284,7 +295,6 @@ class Conn
 
         $ret = $this->pdo->prepare($sql);
         $this->makeArgs($args, $ret);
-
         $ret->execute();
 
         if ($class === 'array')

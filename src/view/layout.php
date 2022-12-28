@@ -39,7 +39,7 @@ class Layout extends \View\Document
      * Return the textual content of some layout
      *
      * @param string $layout
-     * @return type
+     * @return mixed
      * @throws \Exception
      */
     public function getLayoutContent($layout)
@@ -102,6 +102,7 @@ class Layout extends \View\Document
      * Executes the current event
      *
      * @return mixed
+     * @throws \UserException
      */
     public function callEvent()
     {
@@ -218,8 +219,8 @@ class Layout extends \View\Document
 
     /**
      *
-     * @param type $content
-     * @return type
+     * @param string $content
+     * @return string
      */
     protected function parseIncludes($content)
     {
@@ -255,9 +256,12 @@ class Layout extends \View\Document
     /**
      * Adiciona uma planilha de estilos no layout
      *
+     * @param $id
      * @param string $href
-     * @param string $type
-     * @param string $media
+     * @param string|null $media
+     * @param bool $addDefaultPath
+     * @return Layout
+     * @throws \Exception
      */
     function addStyleShet($id, $href, $media = NULL, $addDefaultPath = TRUE)
     {
@@ -475,7 +479,7 @@ class Layout extends \View\Document
 
         if ($version)
         {
-            $class .= ' ' . $name . '' . $version;
+            $class .= ' ' . $name . '_' . $version;
         }
 
         $body->setAttribute('class', $class);
@@ -554,7 +558,9 @@ class Layout extends \View\Document
     {
         $this->formatOutput = TRUE;
 
-        return self::optimizeHtml($this->saveHTML());
+        $html = $this->saveHTML();
+
+        return self::optimizeHtml($html);
     }
 
     /**

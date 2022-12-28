@@ -25,10 +25,10 @@ class ProgressBar extends \View\Div implements \View\Chart\Chart
         }
     }
 
-    public function addSegment($id = null, $color = null, $percent, $offset = 0, $animated = true)
+    public function addSegment($id = null, $color = null, $percent=0, $offset = 0, $animated = true)
     {
         //needs an id to be animated
-        $id = $id ? $id : 'progrss-bar-value-segment-' . rand();
+        $id = $id ?: 'progrss-bar-value-segment-' . rand();
         $percent = $percent > 100 ? 100 : $percent;
 
         $bar = new \View\Div($id);
@@ -80,7 +80,7 @@ class ProgressBar extends \View\Div implements \View\Chart\Chart
         return $label;
     }
 
-    public static function createFromCollection($id = null, \Db\Collection $data, $extraClass = null)
+    public static function createFromCollection($id = null, \Db\Collection $data = null, $extraClass = null)
     {
         $pg = new \View\Ext\ProgressBar($id, null, $extraClass);
         $sum = $data->sum('value');

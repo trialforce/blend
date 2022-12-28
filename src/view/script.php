@@ -21,29 +21,34 @@ class Script extends \View\View
 
     /**
      * This class has an special append, to avoid treat
-     * @param type $content
+     * @param array $nodes
      */
-    public function append($content = null)
+    public function append(...$nodes):void
     {
-        if ($content)
+        if ($nodes)
         {
-            if (is_array($content))
+
+        }
+    }
+
+    protected function appendOne($nodes)
+    {
+        if (is_array($nodes))
+        {
+            foreach ($nodes as $item)
             {
-                foreach ($content as $item)
-                {
-                    $this->append($item);
-                }
+                $this->append($item);
+            }
+        }
+        else
+        {
+            if (is_string($nodes))
+            {
+                $this->appendChild(new \DOMText($nodes));
             }
             else
             {
-                if (is_string($content))
-                {
-                    $this->appendChild(new \DOMText($content));
-                }
-                else
-                {
-                    $this->appendChild($content);
-                }
+                $this->appendChild($nodes);
             }
         }
     }

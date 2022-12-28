@@ -2,8 +2,6 @@
 
 namespace View;
 
-use \DataHandle\Request;
-
 /**
  * Default layout class
  */
@@ -93,11 +91,27 @@ class Document extends \DomDocument implements \Countable
      * Adiciona um elemento no elemento atual, caso for um texto cria um textNode.
      * Caso seja um array adiciona um por um.
      *
-     * @param string $content
+     * @param array $nodes
      * @return boolean
      *
+     * @throws \Exception
      */
-    public function append($content)
+    public function append(...$nodes):void
+    {
+        foreach ($nodes as $info)
+        {
+            if ($info instanceof \DOMNode || is_string($info) || is_array($info))
+            {
+                $this->appendOne($info);
+            }
+            else
+            {
+                throw new \Exception('Não é uma instância DOMNode');
+            }
+        }
+    }
+
+    protected function appendOne($content)
     {
         if (is_array($content))
         {
@@ -105,7 +119,7 @@ class Document extends \DomDocument implements \Countable
             {
                 if ($info instanceof \DOMNode || is_string($info) || is_array($info))
                 {
-                    $this->append($info);
+                    $this->appendOne($info);
                 }
                 else
                 {
@@ -113,24 +127,19 @@ class Document extends \DomDocument implements \Countable
                 }
             }
 
-            return true;
+            return;
         }
 
-        //caso não seja instancia de DomElement, cria um elemento de texto
+        //caso não seja instancia de \DomElement, cria um elemento de texto
         if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
         {
-            $content = $this->createTextNode($content);
+            $this->createTextNode($content);
+            return;
         }
 
-        if ($content)
-        {
-            return parent::appendChild($content);
-        }
-    }
 
-    public function prepend($content)
-    {
-        throw new \Exception("Not implemented yet");
+            parent::appendChild($content);
+
     }
 
     /**
@@ -232,7 +241,7 @@ class Document extends \DomDocument implements \Countable
      * algumas vezes o id não é encontrado pela função getElementById padrão.
      * Neste caso aplicamos um Xpath para encontrar.
      *
-     * @param type $elementId
+     * @param string $elementId
      * @return \View\View
      */
     public function getElementByIdServer($elementId, $serverClass = NULL)
@@ -275,7 +284,7 @@ class Document extends \DomDocument implements \Countable
             $serverClass = $serverClass ? $serverClass : '\View\Div';
             $element = new $serverClass(\View\View::REPLACE_SHARP . $elementId);
             $element->setOutputJs(TRUE);
-            //remove do dom para não reaparecer
+            //removeg do dom para não reaparecer
             $element->parentNode->removeChild($element);
         }
 
@@ -382,7 +391,7 @@ class Document extends \DomDocument implements \Countable
      * Adiciona um elemento a lista de elementos.
      * Dessa forma ele pode ser localizado pelo getElementById a qualquer momento
      *
-     * @param DomElement $element
+     * @param \DomElement $element
      */
     public function addToElementList(\DomElement $element)
     {

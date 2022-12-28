@@ -431,7 +431,7 @@ class Log
 
         $error = '';
         $error .= "###############################################" . PHP_EOL;
-        $error .= 'Error ' . $type . ' - ' . $message . 'in ' . $file . ' on line ' . $line . PHP_EOL;
+        $error .= 'Error ' . $type . ' - ' . $message . ' in ' . $file . ' on line ' . $line . PHP_EOL;
 
         //controls especial js erro type, used in API
         if (strtolower($type) != 'js')

@@ -17,7 +17,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Documento dom
      *
-     * @var DomDocument
+     * @var \View\Layout|\DOMDocument|null
      */
     protected static $dom;
     protected $label;
@@ -183,7 +183,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      * Define o valor do campo
      *
      * @param string $value
-     * @return \View\Input
+     * @return \View\View
      */
     public function setValue($value)
     {
@@ -192,12 +192,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             $value = $value[0];
         }
-
-        //TODO VER NO futuro, é legal, mas impacta em outros lugares (grids de detalhes)
-        //$idPadronizado = str_replace( array( '#', \View\View::REPLACE_SHARP ), '', $this->getId() );
-        //set to request so other functions can get it
-        //\DataHandle\Post::set( $idPadronizado, $value . '' );
-        //\DataHandle\Request::set( $idPadronizado, $value . '' );
 
         parent::setAttribute('value', $value);
 
@@ -286,7 +280,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function setServerClass($class = NULL)
     {
-        $class = $class ? $class : get_class($this);
+        $class = $class ?: get_class($this);
         return $this->setData('server-class', $class);
     }
 
@@ -302,7 +296,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             parent::setAttribute('id', $id);
 
             //add to element list to can be finded in getElementById method
-            if (\View\View::getDom() && $this instanceof \DomElement)
+            if (\View\View::getDom())
             {
                 \View\View::getDom()->addToElementList($this);
             }
@@ -419,7 +413,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     {
         if (!$title)
         {
-            return;
+            return null;
         }
 
         //title html don't suppor html
@@ -449,33 +443,14 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      * @param string $content
      * @return boolean
      */
-    public function append($content = null)
+    public function append( ...$nodes):void
     {
         if ($this->getOutputJs())
         {
-            $this->appendJs($content);
+            $this->appendJs($nodes);
         }
 
-        return self::sAppend($this, $content);
-    }
-
-    /**
-     * Prepend like jquery
-     * Method not completed onlye works with view
-     * And not prepared for ajax
-     *
-     * @param mixed $content
-     */
-    public function prepend($content = null)
-    {
-        if ($this->firstChild)
-        {
-            $this->insertBefore($content, $this->firstChild);
-        }
-        else
-        {
-            $this->append($content);
-        }
+        self::sAppend($this, $nodes);
     }
 
     /**
@@ -484,7 +459,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      * @param \DomElement $element
      * @param mixed $content
      * @param \DomElement $treatHtml
-     * @return boolean
+     * @return mixed
      */
     public static function sAppend($element, $content, $treatHtml = TRUE)
     {
@@ -520,7 +495,15 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $element->appendChild($content->getDomElement());
         }
         //normal dom elements
-        else if ($content instanceof \DOMNode || $content instanceof \DOMElement || $content instanceof \DOMDocumentFragment)
+        else if ($content instanceof \DOMElement)
+        {
+            $element->appendChild($content);
+        }
+        else if ($content instanceof \DOMDocumentFragment)
+        {
+            $element->appendChild($content);
+        }
+        else if ($content instanceof \DOMNode)
         {
             $element->appendChild($content);
         }
@@ -777,7 +760,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      * Adiciona um estilo css
      *
      * @param string $property
-     * @param strng $value
+     * @param string $value
      * @return \View\View
      */
     public function addStyle($property, $value = '')
@@ -951,7 +934,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      *
      * @param boolean $readOnly
      */
-    protected static function setChildrenReadOnly($view, $readOnly)
+    public static function setChildrenReadOnly($view, $readOnly)
     {
         $children = $view->childNodes;
 
@@ -1180,7 +1163,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
     /**
      * Retorna o objeto Dom/Layout do elemento
-     * @return \View\Layout
+     * @return \View\Layout|\DOMDocument|null
      */
     public static function getDom()
     {
@@ -1190,8 +1173,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Define o objeto Dom/Layot do elemento
      *
-     * @param DomDocument $dom
-     * @return \View\View
+     * @param \DomDocument $dom
+     *
      */
     public static function setDom(\DomDocument $dom)
     {
@@ -1215,7 +1198,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function show($param = FALSE)
     {
-        $param = $param ? $param : 'block';
+        $param = $param ?: 'block';
         return $this->addStyle('display', $param);
     }
 
@@ -1260,7 +1243,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Extends to make it chain
      *
-     * @param type $name
+     * @param string $name
      * @return \View\View
      */
     public function removeAttribute($name)
@@ -1382,27 +1365,22 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             return $this->insertBefore($newNode, $refnode);
         }
-
-        return $this;
     }
 
     /**
      * Remove o elemento do layout
      */
-    public function remove()
+    public function remove():void
     {
         if ($this->parentNode)
         {
             $this->parentNode->removeChild($this);
         }
 
-        //TODO getOutput js make recursive overflow
         if ($this->getData('outputjs') && $this->getId())
         {
             \App::addJs($this->getSelector() . ".remove()");
         }
-
-        return $this;
     }
 
     /**
@@ -1492,7 +1470,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Return if field is invalid
      *
-     * @return strning if field is invalid
+     * @return string if field is invalid
      */
     public function getInvalid()
     {
@@ -1520,12 +1498,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Retorna a notação html do elemento
      *
-     * @return elemento
+     * @return string
      */
     public function __toString()
     {
         //Canoniza o elemento, nome de função maneiro.
-        return $this->C14N(TRUE);
+        return $this->C14N(TRUE).'';
     }
 
     /**

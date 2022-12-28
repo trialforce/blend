@@ -33,22 +33,23 @@ class Document extends \View\Document
         return new \View\Svg\Svg($this->firstChild);
     }
 
-    public function append($content)
+    public function append(...$nodes):void
     {
-        if ($content instanceof \View\Svg\Document)
+        foreach ($nodes as $content)
         {
-            $svgRoot = $content->byTag('g');
-
-            if ($svgRoot)
+            if ($content instanceof \View\Svg\Document)
             {
-                $cloned = $this->importNode($svgRoot->getDomElement(), true);
-                return $this->getSvgRoot()->append($cloned);
+                $svgRoot = $content->byTag('g');
+
+                if ($svgRoot)
+                {
+                    $cloned = $this->importNode($svgRoot->getDomElement(), true);
+                    $this->getSvgRoot()->append($cloned);
+                }
             }
 
-            return $this;
+            parent::append($content);
         }
-
-        return parent::append($content);
     }
 
 }
