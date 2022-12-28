@@ -202,6 +202,7 @@ class Action extends \Component\Component
     {
         $modelId = $this->getPk();
         $link = new \View\Ext\LinkButton('action-link-' . $this->getId() . '-' . $modelId, $this->getIcon(), null, $this->getParsedUrl());
+        $link->setTitle($this->getTitle());
         $link->setData('model-id', $modelId);
         $link->setClass('pkColumnEdit');
 

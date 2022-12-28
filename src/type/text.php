@@ -243,6 +243,41 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
+     * Limit text to given size, trying to limit on a phrase end point.
+     *
+     * @param int $size the maximum number of characters
+     * @return \Type\Text
+     */
+    public function phraseWrap($size)
+    {
+        if ($this->length() > $size)
+        {
+            $aux = $this->sub(0, $size)->getValue();
+
+            $endPoint = strrpos($aux, '.');
+
+            if ($endPoint === false)
+            {
+                // search for the last space
+                $endPoint = strrpos($aux, ' ');
+            }
+            else
+            {
+                // the endpoint '.' stays
+                $endPoint++;
+            }
+
+            if ($endPoint !== false)
+            {
+                // if there is no break in string, don't wrap further
+                $this->string = $this->sub(0, $endPoint)->getValue();
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Verify if string starts with some text
      *
      * @param string $beginString

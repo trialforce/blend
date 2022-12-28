@@ -13,6 +13,8 @@ class CheckColumn extends \Component\Grid\Column
 
     protected $nameType = self::NAME_TYPE_LINE;
 
+    protected $onClick;
+
     public function __construct($name = 'check')
     {
         //security
@@ -30,6 +32,11 @@ class CheckColumn extends \Component\Grid\Column
     function setNameType($nameType)
     {
         $this->nameType = $nameType;
+    }
+
+    public function setOnClick($onClick): void
+    {
+        $this->onClick = $onClick;
     }
 
     public function getHeadContent(\View\View $tr, \View\View $th)
@@ -68,7 +75,15 @@ class CheckColumn extends \Component\Grid\Column
             $idJs = $this->getIdJs();
             $check = new \View\Checkbox($this->getName() . '[' . $nameValue . ']', $idValue, FALSE, 'checkBox' . $this->getName());
             $check->addStyle('margin', '0 6px');
-            $check->click("selecteCheck(this); selecteChecks('{$idJs}');");
+
+            $onClick = "selecteCheck(this); selecteChecks('{$idJs}');";
+
+            if ($this->onClick)
+            {
+                $onClick .= $this->onClick.';';
+            }
+
+            $check->click($onClick);
         }
 
         return $check;

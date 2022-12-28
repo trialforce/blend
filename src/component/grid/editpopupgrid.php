@@ -144,14 +144,8 @@ class EditPopupGrid extends \Component\Grid\Grid
         $this->filterAdd = true;
     }
 
-    public function createTableInner()
+    public function getTitle()
     {
-        if (!$this->actions)
-        {
-            $this->setActions(null);
-        }
-
-        $this->addFilterToDataSource();
         $model = $this->getModel();
         $label = $model::getLabel();
 
@@ -163,7 +157,17 @@ class EditPopupGrid extends \Component\Grid\Grid
 
         $title[] = new \View\Div('btnSearchButtons', $buttons, 'gridButtonsSearch');
 
-        $this->setTitle($title);
+        return $title;
+    }
+
+    public function createTableInner()
+    {
+        if (!$this->actions)
+        {
+            $this->setActions(null);
+        }
+
+        $this->addFilterToDataSource();
 
         $fields = parent::createTableInner();
 

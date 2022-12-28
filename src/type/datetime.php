@@ -409,7 +409,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Calcula a diferença entre datas
      *
      * @param: da a ser comparada
-     * @return (object DiffDate)
+     * @return DiffDate
      */
     public function diffDates($date, $round = null)
     {
