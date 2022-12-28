@@ -567,7 +567,7 @@ class DomContainer implements \Countable
         \App::addJs("setTimeout(\"{$this->getSelector()}.focus();\", 150);");
     }
 
-    public function setInvalid($invalid = TRUE, $message)
+    public function setInvalid($invalid = TRUE, $message = null)
     {
         if ($invalid)
         {

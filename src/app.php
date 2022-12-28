@@ -291,7 +291,6 @@ class App
         else
         {
             \View\View::setDom($theme);
-
             $theme->appendLayout($defaultResponse, $content);
             $this->addJsToLayout($theme);
 
@@ -422,24 +421,26 @@ class App
     /**
      * Add stored js to one layout
      *
-     * @param Layoyt $layout
+     * @param \View\Layout $layout
      */
     public function addJsToLayout($layout)
     {
-        if (count(self::$js) > 0)
+        if (count(self::$js) == 0)
         {
-            $myJs = implode("\r\n", self::$js);
-            $myJs = "function blendOnLoadJs() {\n{$myJs}\n};\nwindow.addEventListener('load', function() { blendOnLoadJs() }, false)";
-            $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
-            $js->setId('blend-js');
-            $layout->getHtml()->append($js);
+            return;
         }
+
+        $myJs = implode("\r\n", self::$js);
+        $myJs = "function blendOnLoadJs() {\n{$myJs}\n};\nwindow.addEventListener('load', function() { blendOnLoadJs() }, false)";
+        $js = new \View\Script(null, $myJs, \View\Script::TYPE_JAVASCRIPT);
+        $js->setId('blend-js');
+        $layout->getHtml()->append($js);
     }
 
     /**
      * Return the list of javascript commands to execute
      *
-     * @return string
+     * @return array
      */
     public static function getJs()
     {

@@ -27,7 +27,7 @@ class Script extends \View\View
     {
         if ($nodes)
         {
-
+            $this->appendOne($nodes);
         }
     }
 
@@ -37,7 +37,7 @@ class Script extends \View\View
         {
             foreach ($nodes as $item)
             {
-                $this->append($item);
+                $this->appendOne($item);
             }
         }
         else
@@ -46,7 +46,7 @@ class Script extends \View\View
             {
                 $this->appendChild(new \DOMText($nodes));
             }
-            else
+            else if ($nodes)
             {
                 $this->appendChild($nodes);
             }
