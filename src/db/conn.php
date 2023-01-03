@@ -13,10 +13,12 @@ class Conn
      * @var string
      */
     protected $id;
+
     /**
      * @var \Pdo
      */
     protected \Pdo $pdo;
+
     /**
      * Array de ConnInfo
      *

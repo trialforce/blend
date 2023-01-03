@@ -96,18 +96,11 @@ class Document extends \DomDocument implements \Countable
      *
      * @throws \Exception
      */
-    public function append(...$nodes):void
+    public function append(...$nodes): void
     {
         foreach ($nodes as $info)
         {
-            if ($info instanceof \DOMNode || is_string($info) || is_array($info))
-            {
-                $this->appendOne($info);
-            }
-            else
-            {
-                throw new \Exception('Não é uma instância DOMNode');
-            }
+            $this->appendOne($info);
         }
     }
 
@@ -138,8 +131,7 @@ class Document extends \DomDocument implements \Countable
         }
 
 
-            parent::appendChild($content);
-
+        parent::appendChild($content);
     }
 
     /**
