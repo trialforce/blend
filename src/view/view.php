@@ -443,7 +443,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      * @param string $content
      * @return boolean
      */
-    public function append( ...$nodes):void
+    public function append(...$nodes): void
     {
         if ($this->getOutputJs())
         {
@@ -451,6 +451,28 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
 
         self::sAppend($this, $nodes);
+    }
+
+    /**
+     * Prepend like jquery
+     * Method not completed onlye works with view
+     * And not prepared for ajax
+     *
+     * @param mixed $content
+     */
+    public function prepend(...$nodes): void
+    {
+        if ($this->firstChild)
+        {
+            foreach ($nodes as $node)
+            {
+                $this->insertBefore($node, $this->firstChild);
+            }
+        }
+        else
+        {
+            $this->append($nodes);
+        }
     }
 
     /**
@@ -1370,7 +1392,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Remove o elemento do layout
      */
-    public function remove():void
+    public function remove(): void
     {
         if ($this->parentNode)
         {
@@ -1503,7 +1525,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     public function __toString()
     {
         //Canoniza o elemento, nome de função maneiro.
-        return $this->C14N(TRUE).'';
+        return $this->C14N(TRUE) . '';
     }
 
     /**

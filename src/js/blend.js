@@ -102,6 +102,28 @@ var b = function(selector)
         });
     };
     
+    nodeList.show = function(display = 'block')
+    {
+        this.forEach(function(element)
+        {
+            element.style.display = display;
+        });
+    };
+    
+    nodeList.toggle = function(display = 'block')
+    {
+        var visible = this.isVisible();
+
+        if (visible >= 0)
+        {
+            this.hide();
+        }
+        else
+        {
+            this.show(display);
+        }
+    };
+    
     nodeList.css = function(rule, value)
     {
         if (typeof value == 'undefined' && this[0])

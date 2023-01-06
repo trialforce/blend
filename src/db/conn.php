@@ -207,6 +207,16 @@ class Conn
         return $this->pdo->lastInsertId();
     }
 
+    public function beginTransaction()
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function commit()
+    {
+        return $this->pdo->commit();
+    }
+
     protected static function makeArgs($args, $ret)
     {
         //needed for PHP 8.0
@@ -398,7 +408,7 @@ class Conn
 
         // Walk the array to see if we can add single-quotes to strings
         //array_walk($values, create_function('&$v, $k', 'if (!is_numeric($v) && $v!="NULL") $v = "\'".$v."\'";'));
-        array_walk($values, function(&$v, $k)
+        array_walk($values, function (&$v, $k)
         {
             if (!is_numeric($v) && $v != "NULL")
             {
