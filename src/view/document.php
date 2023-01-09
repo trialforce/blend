@@ -130,7 +130,6 @@ class Document extends \DomDocument implements \Countable
             return;
         }
 
-
         parent::appendChild($content);
     }
 

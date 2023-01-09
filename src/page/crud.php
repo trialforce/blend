@@ -1159,6 +1159,7 @@ class Crud extends \Page\Page
 
         \View\Blend\Popup::delete();
         toast('Atualização em massa executada com sucesso! Executados: ' . $executed . '/' . count($data));
+        \App::refresh(true);
     }
 
 }
