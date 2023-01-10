@@ -158,7 +158,7 @@ class ConnInfo
     /**
      * Define the name of databse
      *
-     * @param stirng $name
+     * @param string $name
      * @return \Db\ConnInfo
      */
     public function setName($name)
@@ -191,7 +191,7 @@ class ConnInfo
 
     /**
      * Return server address/host
-     * @return type
+     * @return string
      */
     public function getHost()
     {
@@ -201,7 +201,7 @@ class ConnInfo
     /**
      * Define the host
      *
-     * @param type $host
+     * @param string $host
      * @return \Db\ConnInfo
      */
     public function setHost($host)
@@ -244,7 +244,7 @@ class ConnInfo
     /**
      * Define the password
      *
-     * @param type $password
+     * @param string $password
      * @return \Db\ConnInfo
      */
     public function setPassword($password)
@@ -282,7 +282,7 @@ class ConnInfo
     /**
      * Define the DSN connection string
      *
-     * @param type $dsn
+     * @param string $dsn
      * @return \Db\ConnInfo
      */
     public function setDsn($dsn)
