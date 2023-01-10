@@ -10,6 +10,10 @@ var blend = {};
 blend.defaultFormPost = 'form';
 blend.plugins = [];
 
+blend.ajax = {};
+blend.ajax.timeout = 200;
+blend.ajax.timer = null;
+
 var b = function(selector)
 {
     var nodeList;
@@ -411,6 +415,12 @@ function fileUpload(page)
     return r("POST", page, data);
 }
 
+function showLoadingTimeout()
+{
+    blend.ajax.timer = setTimeout(showLoading, blend.ajax.timeout );
+    return false;
+}
+
 function showLoading()
 {
     b(".loading").removeClass('hide');
@@ -419,6 +429,11 @@ function showLoading()
 
 function hideLoading()
 {
+    if (blend.ajax.timer)
+    {
+        clearTimeout(blend.ajax.timer);
+        blend.ajax.timer = null;
+    }
     b(".loading").addClass('hide');
     return false;
 }
@@ -544,7 +559,7 @@ function r(type, page, formData, callBack)
     
     isAjax = true;
     var focused = disableFocused();
-    showLoading();
+    showLoadingTimeout();
     pluginsCallMethod('beforeSubmit');
     
     var host = b('base').attr('href');
