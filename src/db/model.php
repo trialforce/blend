@@ -341,7 +341,7 @@ class Model implements \JsonSerializable
      * @param string $columnName
      * @param string $param
      * @param string $value
-     * @return \Db\QueryBuilder
+     * @return \Db\QueryBuilder<T>
      */
     public static function where($columnName, $param = NULL, $value = NULL)
     {
