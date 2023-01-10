@@ -10,6 +10,8 @@ class Engine extends Template
 
     const PAGE_SIZE_A4 = 'A4';
     const PAGE_SIZE_A4_LANDSCAPE = 'A4-L';
+    const PAGE_SIZE_A3 = 'A3';
+    const PAGE_SIZE_A3_LANDSCAPE = 'A3-L';
 
     /**
      * Layout
