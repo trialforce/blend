@@ -66,16 +66,7 @@ class Conn
     public function __construct(\Db\ConnInfo $info)
     {
         $this->id = $info->getId();
-
-        if ($info->getType() == \Db\ConnInfo::TYPE_MYSQL)
-        {
-            $driverOptions[\PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES utf8';
-        }
-        else
-        {
-            $driverOptions = array();
-        }
-
+        $driverOptions = array();
         $this->pdo = new \Pdo($info->getDsn(), $info->getUsername(), $info->getPassword(), $driverOptions);
         //make pdo throws execption
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -210,6 +201,11 @@ class Conn
     public function beginTransaction()
     {
         return $this->pdo->beginTransaction();
+    }
+
+    public function inTransaction()
+    {
+        return $this->pdo->inTransaction();
     }
 
     public function commit()
