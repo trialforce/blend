@@ -417,7 +417,11 @@ function fileUpload(page)
 
 function showLoadingTimeout()
 {
-    blend.ajax.timer = setTimeout(showLoading, blend.ajax.timeout );
+    if (!blend.ajax.timer)
+    {
+        blend.ajax.timer = setTimeout(showLoading, blend.ajax.timeout);
+    }
+    
     return false;
 }
 
