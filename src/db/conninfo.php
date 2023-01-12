@@ -76,7 +76,7 @@ class ConnInfo
      * Connection charset
      * @var string
      */
-    protected $charset = 'UTF-8';
+    protected $charset = 'utf8';
 
     /**
      * DNS String for PDFO
@@ -97,7 +97,7 @@ class ConnInfo
      * @param int $port port
      * @param string $charset charset
      */
-    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = NULL)
+    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = 'utf8')
     {
         $this->id = $id;
         $this->type = $type;
