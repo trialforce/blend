@@ -123,9 +123,15 @@ class Document extends \DomDocument implements \Countable
             return;
         }
 
+        if (is_string($content))
+        {
+            parent::append($content);
+        }
+
         //caso não seja instancia de \DomElement, cria um elemento de texto
         if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
         {
+
             $this->createTextNode($content);
             return;
         }
