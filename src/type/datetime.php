@@ -455,6 +455,8 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         }
 
         //adiciona suporte a data com utc 2017-12-20T16:06:31-02:00
+        //alguns exemplos tem 2023-01-28T10:00:00.000Z .000Z no final outros tem -02:00
+        //ignoramos ambos por enquanto
         if (stripos($date, 'T') && strlen($date) > 18)
         {
             //desconsidera GMT
