@@ -77,7 +77,7 @@ class Money implements \Type\Generic, \JsonSerializable
         }
 
         //remove reais
-        $value = strip_tags(str_replace('R$', '', $value));
+        $value = strip_tags(str_replace(['R$','BRL'], '', $value));
 
         //support brazilian format
         if (stripos($value, ','))
