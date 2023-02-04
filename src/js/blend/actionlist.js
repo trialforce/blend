@@ -14,7 +14,7 @@ blend.actionList.start = function ()
 
 actionList.toggle = function()
 {
-    if ( $('body').hasClass('action-list-open'))
+    if ( $('html').hasClass('action-list-open'))
     {
         actionList.close();
     }
@@ -41,19 +41,21 @@ actionList.restore = function()
     }
     else
     {
-        $('body').removeClass('action-list-open');
+        $('html').removeClass('action-list-open');
     }
 };
 
 actionList.open = function()
 {
-    $('body').addClass('action-list-open');
+    $('.blend-floating-menu').removeClass('open');
+    $('html').removeClass('todo-open');
+    $('html').addClass('action-list-open');
     localStorage.setItem('action-list-open', 1);
 };
 
 actionList.close = function()
 {
-    $('body').removeClass('action-list-open');
+    $('html').removeClass('action-list-open');
     localStorage.setItem('action-list-open', 0);
     
     return false;

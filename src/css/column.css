@@ -273,6 +273,11 @@ table.column-12 {
         display: inline-block;
     }
 
+    .col-m-10 {
+        width: 81.33% !important;
+        display: inline-block;
+    }
+
     .col-m-12 {
         width: calc(100%) !important;
         display: inline-block;
