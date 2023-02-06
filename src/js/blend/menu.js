@@ -37,7 +37,7 @@ function seletMenuItem()
 function menuToggle()
 {
     $('body').toggleClass('menu-open');
-    $('.blend-floating-menu').hide();
+    $('.blend-floating-menu').removeClass('open');
 
     return false;
 }
