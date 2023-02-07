@@ -2,6 +2,7 @@
 
 namespace Db\Column;
 
+
 /**
  * Information about one database column
  */
@@ -287,9 +288,7 @@ class Column
 
     public function getDefaultValue()
     {
-        $defaultValue = $this->defaultValue;
-
-        return $defaultValue;
+        return $this->defaultValue;
     }
 
     public function setDefaultValue($defaultValue)
@@ -462,7 +461,7 @@ class Column
         $catalog = $referenceClass::getCatalogClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
-        $sql = 'SELECT ' . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $value . '';
+        $sql = 'SELECT ' . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $value;
 
         return $sql;
     }
@@ -511,7 +510,7 @@ class Column
     /**
      * Define the label of the column
      *
-     * @param strng $label
+     * @param string $label
      * @return \Db\Column\Column
      */
     public function setLabel($label)
@@ -688,7 +687,7 @@ class Column
     /**
      * Define a list of validators
      *
-     * @param array $validators
+     * @param array|\Validator\Validator $validators
      * @return \Db\Column\Column
      */
     public function setValidators($validators)
@@ -781,7 +780,7 @@ class Column
         }
 
         //pula valores nulos, as vezes
-        if ($this->getNullable() && \Type\Check::rand(80))
+        if ($this->getNullable() && \Type\Check::createRandom(80))
         {
             return NULL;
         }
@@ -815,7 +814,7 @@ class Column
         }
         else if (in_array($type, array(\Db\Column\Column::TYPE_BOOL, \Db\Column\Column::TYPE_TINYINT)))
         {
-            $value = \Type\Check::rand();
+            $value = \Type\Check::createRandom();
         }
         else if (in_array($type, array(\Db\Column\Column::TYPE_CHAR, \Db\Column\Column::TYPE_VARCHAR, \Db\Column\Column::TYPE_TEXT)))
         {
@@ -849,8 +848,6 @@ class Column
 
         if ($this->getProperty() != $this->getName())
         {
-            $columnName = $columnName;
-
             if ($withAlias)
             {
                 $columnName .= ' AS ' . $this->getProperty();
@@ -914,7 +911,7 @@ class Column
      *
      * If it has table.column, consider only the after .
      *
-     * @param string $sqlForColumn sql for the column
+     * @param string|mixed $sqlForColumn sql for the column
      * @return string the real column name
      */
     public static function getRealColumnName($sqlForColumn)
