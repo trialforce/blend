@@ -1085,6 +1085,9 @@ class Grid extends \Component\Component
         $table = $this->createTableInner();
         $div->html($table);
 
+        //avoid TDS to update screen
+        \DataHandle\Config::set('response','null');
+
         return $table;
     }
 
