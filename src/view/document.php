@@ -120,23 +120,19 @@ class Document extends \DomDocument implements \Countable
                 }
             }
 
-            return;
+            return true;
         }
 
-        if (is_string($content))
-        {
-            parent::append($content);
-        }
-
-        //caso não seja instancia de \DomElement, cria um elemento de texto
+        //caso não seja instancia de DomElement, cria um elemento de texto
         if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
         {
-
-            $this->createTextNode($content);
-            return;
+            $content = $this->createTextNode($content);
         }
 
-        parent::appendChild($content);
+        if ($content)
+        {
+            return parent::appendChild($content);
+        }
     }
 
     /**
