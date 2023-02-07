@@ -36,8 +36,21 @@ function seletMenuItem()
  */
 function menuToggle()
 {
-    $('body').toggleClass('menu-open');
-    $('.blend-floating-menu').removeClass('open');
+    if ( $('html').hasClass('pinned-menu') )
+    {
+        pinMenu();
+        menuClose();
+        return;
+    }
+
+    if ( $('body').hasClass('menu-open'))
+    {
+        menuClose();
+    }
+    else
+    {
+        menuOpen();
+    }
 
     return false;
 }
@@ -66,6 +79,22 @@ function menuClose()
     $('body').removeClass('menu-open');
 
     return false;
+}
+
+function pinMenu()
+{
+    if ( $('html').hasClass('pinned-menu'))
+    {
+        $('html').removeClass('pinned-menu');
+        localStorage.setItem('pinned-menu','0');
+        setCookie('pinned-menu', '0');
+    }
+    else
+    {
+        $('html').addClass('pinned-menu');
+        localStorage.setItem('pinned-menu','1');
+        setCookie('pinned-menu', '1');
+    }
 }
 
 function openSubMenu(element)

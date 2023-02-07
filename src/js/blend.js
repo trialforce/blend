@@ -806,7 +806,7 @@ function focusNextElement()
 
 function addScriptOnce(src, callBack)
 {
-    var baseUrl = b('base').attr('href');;
+    var baseUrl = b('base').attr('href');
     var list = document.getElementsByTagName('script');
     var i = list.length;
     var findedOnDoc = false;
