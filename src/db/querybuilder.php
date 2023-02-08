@@ -513,6 +513,12 @@ class QueryBuilder
         return $this;
     }
 
+    public function clearWhere()
+    {
+        $this->where = [];
+        return $this;
+    }
+
     /**
      * Add a where object, can be \Db\Where or \Db\Cond ( \Db\Filter )
      * or any class that implements getWhere and getWhereSel methods
