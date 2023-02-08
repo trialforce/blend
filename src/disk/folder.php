@@ -122,7 +122,7 @@ class Folder
      */
     public function listImages()
     {
-        return \Disk\File::find($this->path . DS . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
+        return \Disk\File::find($this->path . DS . '*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE);
     }
 
     /**
