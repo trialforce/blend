@@ -41,8 +41,6 @@
 
 .blend-floating-menu-title {
     background: #eee;
-    margin-bottom: 10px;
-    border-bottom: solid 1px #ddd;
     height: 38px;
     line-height: 34px;
 }
@@ -103,6 +101,7 @@ li.floating-menu-item-mini-padding {
     padding: 2px 6px;
     height: 30px;
     line-height: 28px;
+    border: solid 1px #eee;
 }
 
 li.floating-menu-item-mini-padding input {
