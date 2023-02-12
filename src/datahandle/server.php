@@ -239,7 +239,7 @@ class Server extends DataHandle
         $host = $prefix . $this->getVar('HTTP_HOST') . '/';
 
         //remove unnecessary port
-        $host = str_replace(':443','', $host);
+        $host = str_replace($defaultPort,'', $host);
 
         return $host;
     }
