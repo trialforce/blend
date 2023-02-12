@@ -41,7 +41,7 @@ class FloatingMenu extends \View\Ul
      *
      * @return $this
      */
-    public function addItem($id, $icon, $label, $action, $class = NULL, $title = NULL, $group = NULL)
+    public function addItem($id, $icon, $label, $action= NULL, $class = NULL, $title = NULL, $group = NULL)
     {
         $icon = is_string($icon) ? new \View\Ext\Icon($icon) : $icon;
         $field = new \View\Span(null, array($icon, $label));

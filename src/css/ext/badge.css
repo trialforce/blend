@@ -12,3 +12,7 @@
     line-height: 20px;
     padding: 2px 6px;
 }
+
+.badge.clean {
+    color: #222;
+}

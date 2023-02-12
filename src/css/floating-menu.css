@@ -27,6 +27,7 @@
     top: 49px;
     right: 0;
     width: 0;
+    overflow-y: auto;
 }
 
 .blend-floating-menu li {
@@ -40,6 +41,7 @@
 }
 
 .blend-floating-menu-title {
+    font-weight: bold;
     background: #eee;
     height: 38px;
     line-height: 34px;

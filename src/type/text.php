@@ -56,9 +56,8 @@ class Text implements \Type\Generic, \JsonSerializable
      * Troca um contéudo por outro, na string atual.
      * Além disso retorna a nova string
      *
-     * @param string $search conteúdo original, a buscar
-     * @param string $replace novo conteúdo a subistituir
-     * @param string retorna a nova string
+     * @param string|string[] $search conteúdo original, a buscar
+     * @param string|string[] $replace novo conteúdo a subistituir
      * @return $this
      */
     public function replace($search, $replace)
@@ -71,7 +70,7 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Converte o texto para minusculas
      *
-     * @return String
+     * @return $this
      */
     public function toLower()
     {
@@ -139,7 +138,7 @@ class Text implements \Type\Generic, \JsonSerializable
      * Converte a string para caracteres ASCII.
      * Retira acentos e outros caracteres especificos.
      *
-     * @return String
+     * @return $this
      */
     public function toASCII()
     {

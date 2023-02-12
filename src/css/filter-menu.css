@@ -126,10 +126,6 @@ i.fa-layer-group.filter-menu {
     line-height: 33px;
 }
 
-#fm-filters {
-    width:100%;
-}
-
 .advanced-filter-span {
     display: none;
 }
@@ -140,7 +136,6 @@ i.fa-layer-group.filter-menu {
     line-height: 30px ;
     width: 20px;
 }
-
 
 .filters-tooltip {
     font-size: 10px;

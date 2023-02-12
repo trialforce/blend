@@ -87,11 +87,12 @@ class Input extends \View\View
      */
     const TYPE_DATETIME_LOCAL = 'datetime-local';
 
-    public function __construct($idName = \NULL, $type = 'text', $value = \NULL, $class = \NULL)
+    public function __construct($idName = \NULL, $type = 'text', $value = \NULL, $class = \NULL, $placeholder = \NULL)
     {
         parent::__construct('input', $idName, \NULL, $class);
         $this->setType($type);
         $this->setValue($value);
+        $this->setAttribute('placeholder', $placeholder);
     }
 
     /**

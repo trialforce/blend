@@ -235,7 +235,11 @@ class Server extends DataHandle
     public function getDomain()
     {
         $prefix = $this->isHttps() ? 'https://' : 'http://';
+        $defaultPort = $this->isHttps() ? ':443' : ':80';
         $host = $prefix . $this->getVar('HTTP_HOST') . '/';
+
+        //remove unnecessary port
+        $host = str_replace(':443','', $host);
 
         return $host;
     }
