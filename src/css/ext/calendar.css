@@ -5,8 +5,8 @@
     border-left: solid 1px #ddd;
 }
 
-.calendar td.today {
-    background-color: #ccc;
+.calendar td.today, .gantt .today {
+    background-color: #ccc !important;
 }
 
 .calendarDay {
@@ -24,4 +24,17 @@
     position: absolute;
     bottom: 0;
     width: 90%;
+}
+
+.gantt {
+
+}
+
+.gantt-last-day-month {
+    border-right: solid 4px #fff !important;
+}
+
+.gantt-month {
+    border-right: solid 4px #fff !important;;
+    text-align: center;
 }

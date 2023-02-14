@@ -119,6 +119,16 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
+     * Get the month label
+     *
+     * @return string
+     */
+    public function getMonthLabel()
+    {
+        return \Type\DateTime::getMonthExt($this->getMonth());
+    }
+
+    /**
      * Soma meses na data
      *
      * @param $month

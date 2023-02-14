@@ -585,11 +585,12 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             {
                 if ($obj instanceof \Component\Component)
                 {
-                    $html = $obj->onCreate();
+                    $html .= $obj->onCreate();
                     $html->remove();
                 }
                 else if (is_object($obj))
                 {
+
                     $html .= $obj->__toString();
                     //remove from dom
                     $obj->remove();
@@ -626,7 +627,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $html = $content;
         }
 
-        $html = json_encode($html);
+        $html = \Disk\Json::encode($html);
         //add support for "
         //$html = str_replace('&quot;', '\"', $html);
 

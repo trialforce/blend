@@ -83,7 +83,7 @@ function menuClose()
 
 function pinMenu()
 {
-    if ( $('html').hasClass('pinned-menu'))
+    if ( $('html').hasClass('pinned-menu') )
     {
         $('html').removeClass('pinned-menu');
         localStorage.setItem('pinned-menu','0');
@@ -91,6 +91,7 @@ function pinMenu()
     }
     else
     {
+        $('body').removeClass('menu-open')
         $('html').addClass('pinned-menu');
         localStorage.setItem('pinned-menu','1');
         setCookie('pinned-menu', '1');
