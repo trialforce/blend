@@ -30,6 +30,10 @@
 
 }
 
+.gantt td {
+    border-bottom: solid 1px #eee;
+}
+
 .gantt-last-day-month {
     border-right: solid 4px #fff !important;
 }
