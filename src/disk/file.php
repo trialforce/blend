@@ -528,6 +528,11 @@ class File implements \JsonSerializable
      */
     public function move(\Disk\File $file, $createIfNotExists = FALSE)
     {
+        if (!$file->exists())
+        {
+            throw new \Exception('Arquivo não encontrado ao mover: ' . $file->getPath());
+        }
+
         if ($createIfNotExists)
         {
             $file->createFolderIfNeeded();
