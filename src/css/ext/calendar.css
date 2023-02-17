@@ -31,7 +31,12 @@
 }
 
 .gantt td {
+    padding: 1px 4px;
     border-bottom: solid 1px #eee;
+}
+
+.gantt th {
+    padding: 12px 4px;
 }
 
 .gantt-last-day-month {
