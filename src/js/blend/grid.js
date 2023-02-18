@@ -52,7 +52,7 @@ grid.openTrDetail = function(element)
     {
         var newTr = $(document.createElement('tr'));
         newTr.addClass('grid-tr-detail-column-group');
-        var newTd = $(document.createElement('r'));
+        var newTd = $(document.createElement('td'));
         newTd.attr('id',detailId);
         newTd.attr('colspan', grid.find('th').length);
         newTr.append(newTd);
