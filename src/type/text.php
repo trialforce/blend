@@ -202,7 +202,7 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * @param integer $start posição inicial
      * @param integer $length quantidade de caracteres até o corte / tamanho
-     * @return String
+     * @return \Type\Text
      */
     public function sub($start, $length)
     {
