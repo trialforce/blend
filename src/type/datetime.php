@@ -827,6 +827,18 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         return TRUE;
     }
 
+    public function skipWeekend()
+    {
+        if ($this->getDayOfWeek() == 7)
+        {
+            $this->addDay(1);
+        }
+        else if ($this->getDayOfWeek() == 6)
+        {
+            $this->addDay(2);
+        }
+    }
+
     /**
      * Return the date in UTC format
      * Used by nfs-e nfe XML's
