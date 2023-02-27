@@ -828,6 +828,23 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     }
 
     /**
+     * If the day is a saturday or sunday, add days to change the date to the next monday.
+     *
+     * @return void
+     */
+    public function skipWeekend()
+    {
+        if ($this->getDayOfWeek() == 7)
+        {
+            $this->addDay(1);
+        }
+        else if ($this->getDayOfWeek() == 6)
+        {
+            $this->addDay(2);
+        }
+    }
+
+    /**
      * Return the date in UTC format
      * Used by nfs-e nfe XML's
      *
