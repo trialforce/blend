@@ -827,6 +827,11 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         return TRUE;
     }
 
+    /**
+     * If the day is a saturday or sunday, add days to change the date to the next monday.
+     *
+     * @return void
+     */
     public function skipWeekend()
     {
         if ($this->getDayOfWeek() == 7)
