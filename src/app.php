@@ -399,13 +399,20 @@ class App
     }
 
     /**
-     * Verify if url is changed or not in thss request
+     * Verify if url is changed or not in this request
      *
      * @return bool
      */
     public static function isUrlChanged()
     {
-        return Config::get('pushState') != 'undefined';
+        if ( \DataHandle\Server::getInstance()->isAjax() )
+        {
+            return Config::get('pushState') != 'undefined';
+        }
+        else
+        {
+            return true;
+        }
     }
 
     /**
