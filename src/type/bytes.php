@@ -42,6 +42,7 @@ class Bytes implements \Type\Generic, \JsonSerializable
     {
         $finalValueString = '';
         $value = intval($this->value);
+
         if ($value < 0)
         {
             $value = $value * -1;
@@ -105,11 +106,13 @@ class Bytes implements \Type\Generic, \JsonSerializable
     {
         $numberParts = explode($separator, $number);
         $response = $numberParts[0];
+
         if (count($numberParts) > 1)
         {
             $response .= $separator;
             $response .= substr($numberParts[1], 0, $precision);
         }
+
         return $response;
     }
 

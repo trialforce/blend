@@ -54,7 +54,7 @@ class Request extends DataHandle
     /**
      * Return singleton of \Request
      *
-     * @return \Request
+     * @return \DataHandle\Request
      */
     public static function getInstance()
     {

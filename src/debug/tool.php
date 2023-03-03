@@ -4,6 +4,7 @@ namespace Debug;
 
 class Tool extends \View\Layout
 {
+    private \Debug\Data $data;
 
     public function __construct()
     {
@@ -12,9 +13,20 @@ class Tool extends \View\Layout
         $this->strictErrorChecking = FALSE;
         $this->loadHTML($this->getHtml());
 
-        $content[] = new \Debug\Head();
-        $content[] = new \Debug\SqlTable();
+        $this->data = new \Debug\Data();
+        $this->data->complete();
+
+        $content[] = new \Debug\Head($this->data);
+        $content[] = new \Debug\SqlTable($this->data);
         $this->byId('body')->append($content);
+    }
+
+    /**
+     * @return \Debug\Data
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 
     public function getHtml()
@@ -77,13 +89,7 @@ class Tool extends \View\Layout
     {
         $file = $this->saveToStorage();
         $rand = rand();
-        echo "<script>window.open('{$file->getUrl()}?_={$rand}');</script>";
-    }
-
-    public static function start()
-    {
-        \Log::setLogSql(true);
-        \Misc\Timer::activeGlobalTimer();
+        echo "<script>window.open('{$file->getUrl()}?_={$rand}','debugbar');</script>";
     }
 
     public static function create()

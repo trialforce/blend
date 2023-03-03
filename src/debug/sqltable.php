@@ -5,12 +5,10 @@ namespace Debug;
 class SqlTable extends \View\Div
 {
 
-    public static $slowQueryTime = 0.1;
-
-    public function __construct()
+    public function __construct(\Debug\Data $data)
     {
         parent::__construct('sqlTableOut');
-        $logs = \Db\Conn::getSqlLog();
+        $logs = $data->getSqlLog();
 
         if (!is_array($logs))
         {
@@ -25,7 +23,7 @@ class SqlTable extends \View\Div
         $tr = [];
 
         $caption = [];
-        $caption[] = "Sql queries";
+        $caption[] = "SQL queries";
         $caption[] = $btn = new \View\Button(null, 'Open all', "openAll()");
         $btn->css('float', 'right');
 
@@ -57,8 +55,6 @@ class SqlTable extends \View\Div
 
         $totalTime = 0;
 
-        $logIds = [];
-
         foreach ($logs as $idx => $log)
         {
             $sql = \Debug\SqlFormatter::format($log->sql);
@@ -67,12 +63,12 @@ class SqlTable extends \View\Div
 
             $color = '';
 
-            if (isset($logIds[$log->logId]))
+            if ($log->repeated)
             {
                 $color = 'orange';
             }
 
-            if ($log->time > self::$slowQueryTime)
+            if ($log->slowQuery === true)
             {
                 $color = 'red';
             }
@@ -92,8 +88,6 @@ class SqlTable extends \View\Div
             {
                 $myTr->css('background-color', $color);
             }
-
-            $logIds[$log->logId] = $log->logId;
 
             $totalTime += $log->time;
         }

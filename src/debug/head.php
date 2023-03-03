@@ -5,22 +5,21 @@ namespace Debug;
 class Head extends \View\Div
 {
 
-    public function __construct($id = \NULL, $innerHtml = \NULL, $class = \NULL, $father = \NULL)
+    public function __construct(\Debug\Data $data)
     {
-        parent::__construct($id, $innerHtml, $class, $father);
-
-        $serverTime = \Misc\Timer::getGlobalTimer()->stop()->diff();
-        $sqlTime = \Db\Conn::$totalSqlTime;
+        parent::__construct();
 
         $tr = [];
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, \DataHandle\Server::getInstance()->getRequestUri(true)), new \View\Td(null, \Type\DateTime::now()->format(\Type\DateTime::MASK_FORMATED_HOUR))]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'Memory Limit'), new \View\Td(null, ini_get('memory_limit') . '')]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'Memory alocated'), new \View\Td(null, \Type\bytes::get(memory_get_usage(true)) . '')]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'Memory used'), new \View\Td(null, \Type\bytes::get(memory_get_peak_usage(true) . ''))]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'Server time'), new \View\Td(null, \Type\Decimal::get($serverTime)->setDecimals(4))]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'PHP time'), new \View\Td(null, \Type\Decimal::get($serverTime - $sqlTime)->setDecimals(4))]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'SQL time'), new \View\Td(null, \Type\Decimal::get($sqlTime)->setDecimals(4))]);
-        $tr[] = new \View\Tr(nul, [new \View\TH(null, 'SQL Count'), new \View\Td(null, count(\Db\Conn::getSqlLog()))]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, $data->requestMethod.': '.$data->host.' - '.$data->requestUri), new \View\Td(null, $data->dateTime->format(\Type\DateTime::MASK_FORMATED_HOUR))]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'Memory Limit'), new \View\Td(null, $data->memoryLimit)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'Memory allocated'), new \View\Td(null, $data->memoryAllocated)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'Memory used'), new \View\Td(null, $data->memoryUsed)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'Server time'), new \View\Td(null,$data->timeServer) ]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'PHP time'), new \View\Td(null, $data->timePhp)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'SQL time'), new \View\Td(null, $data->timeSql)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'SQL Count'), new \View\Td(null, $data->sqlCount)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'SQL Count Repeated'), new \View\Td(null, $data->sqlCountRepeated)]);
+        $tr[] = new \View\Tr(null, [new \View\Th(null, 'SQL Count Slow'), new \View\Td(null, $data->sqlCountSlow)]);
 
         $table = new \View\Table('memory', $tr);
 
