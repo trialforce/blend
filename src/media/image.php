@@ -163,7 +163,7 @@ class Image extends \Disk\File
             return;
         }
 
-        $exif = exif_read_data($this->path);
+        $exif = @exif_read_data($this->path);
 
         if (!empty($exif['Orientation']))
         {
