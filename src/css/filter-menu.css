@@ -1,4 +1,3 @@
-
 i.fa.filter-menu {
     position: absolute;
     font-size: 24px;
@@ -23,10 +22,6 @@ i.fa.filter-menu:active {
 }
 
 #popupSearchField .blend-floating-menu {
-    /*top: 33px;
-    right: 6px;
-    max-height: 80vh;
-    overflow-y: scroll;*/
     position: relative;
 }
 
@@ -84,7 +79,6 @@ i.fa-layer-group.filter-menu {
 
 .filterInput.integer, .filterInput.float {
     min-width: inherit;
-    /*width: 35%;*/
 }
 
 .fixed-filter-interval {
@@ -242,10 +236,6 @@ i.fa-layer-group.filter-menu {
     background-color: transparent;
 }
 
-#tab-holder-search-field i.fa, #tab-holder-search-field i.fab {
-    /*margin-right: 0;*/
-}
-
 .columns-holder-outter {
     margin-right: 0;
     width: 49%;
@@ -299,10 +289,6 @@ i.fa-layer-group.filter-menu {
     display: none;
 }
 
-#tab-holder-search-field {
-    
-}
-
 #tab-holder-search-field .grid {
     margin-top: 0;
     width: 100%;
@@ -320,6 +306,7 @@ i.fa-layer-group.filter-menu {
     color: #111;
     margin-right: 8px;
     margin-bottom: 8px;
+    background-color: var(--brighterColor);
 }
 
 @media screen and (max-width: 800px) {
@@ -340,6 +327,5 @@ i.fa-layer-group.filter-menu {
     #btn-search-bookmark-holder {
         text-align: center;
     }
-    
 }
     
