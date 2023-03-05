@@ -222,7 +222,7 @@ class Crud extends \Page\Page
     public function adicionar()
     {
         \App::dontChangeUrl();
-        $this->setFocusOnFirstField();
+        $this->setFocusOnFirstField(false);
 
         $this->append($this->getHead());
         $this->append($this->getBodyDiv($this->mountFieldLayout()));
@@ -232,7 +232,7 @@ class Crud extends \Page\Page
 
     public function editar()
     {
-        $this->setFocusOnFirstField();
+        $this->setFocusOnFirstField(false);
         $this->setModelFromIdUrl();
 
         $this->append($this->getHead());

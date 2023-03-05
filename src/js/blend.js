@@ -773,8 +773,18 @@ function toast(msg, type, duration)
  *
  * @returns false;
  */
-function setFocusOnFirstField()
+function setFocusOnFirstField(onMobileToo)
 {
+    console.log('onMobileToo='.onMobileToo);
+    //simple way to detect mobile https://stackoverflow.com/questions/7838680/detecting-that-the-browser-has-no-mouse-and-is-touch-only
+    let isMobile = window.matchMedia("(any-pointer: coarse)").matches ? true : false;
+
+    //don't focus on mobile
+    if (isMobile && onMobileToo != true)
+    {
+        return;
+    }
+
     //support popup
     if (b('.popup').isVisible() >= 0 )
     {

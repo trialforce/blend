@@ -389,7 +389,8 @@ class Page extends \View\Layout
         $views[] = $this->getBodyDiv([new \View\Div('content-pre'), $grid]);
 
         $this->append($views);
-        $this->byId('q')->focus();
+        $this->setFocusOnFirstField(false);
+        //$this->byId('q')->focus();
     }
 
     public function gridExportData()
@@ -721,11 +722,13 @@ class Page extends \View\Layout
     /**
      * Set focus on first field
      *
+     * @param $onMobileToo
      * @return false
      */
-    public function setFocusOnFirstField()
+    public function setFocusOnFirstField($onMobileToo=true)
     {
-        \App::addJs('setFocusOnFirstField()');
+        $onMobileToo = $onMobileToo == true ? 'true': 'false';
+        \App::addJs('setFocusOnFirstField('.$onMobileToo.')');
 
         return false;
     }
