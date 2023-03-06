@@ -51,7 +51,7 @@ class Conn
      *
      * @var array
      */
-    protected static $sqlLog;
+    protected static $sqlLog = [];
 
     /**
      * total sql time
