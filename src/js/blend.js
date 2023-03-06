@@ -261,6 +261,10 @@ function escape()
     {
         removeSlideFullScreen();
     }
+    else if (!isMobile())
+    {
+        history.back();
+    }
     
     return false;
 }
@@ -767,6 +771,14 @@ function toast(msg, type, duration)
     return false;
 }
 
+function isMobile()
+{
+    //simple way to detect mobile https://stackoverflow.com/questions/7838680/detecting-that-the-browser-has-no-mouse-and-is-touch-only
+    let isMobile = window.matchMedia("(any-pointer: coarse)").matches ? true : false;
+
+    return isMobile;
+}
+
 /**
  * Set focus on first field.
  * Supports popup;
@@ -775,11 +787,8 @@ function toast(msg, type, duration)
  */
 function setFocusOnFirstField(onMobileToo)
 {
-    //simple way to detect mobile https://stackoverflow.com/questions/7838680/detecting-that-the-browser-has-no-mouse-and-is-touch-only
-    let isMobile = window.matchMedia("(any-pointer: coarse)").matches ? true : false;
-
     //don't focus on mobile
-    if (isMobile && onMobileToo != true)
+    if (isMobile() && onMobileToo != true)
     {
         return;
     }
