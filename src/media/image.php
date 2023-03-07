@@ -163,7 +163,6 @@ class Image extends \Disk\File
             return;
         }
 
-        //$exif = @exif_read_data($this->path, 'APP1');
         $exif = @exif_read_data($this->path, 'EXIF');
 
         if (!empty($exif['Orientation']))
