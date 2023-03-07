@@ -1,7 +1,7 @@
 .badge {
     background-color: #aaa;
-    color: #fff;
-    border-radius: 6px;
+    color: var(--brighterColor);
+    border-radius: var(--borderRadius);
     display: inline-block;
     padding: 6px 6px;
     font-size: 90%;
@@ -14,5 +14,5 @@
 }
 
 .badge.clean {
-    color: #222;
+    color: var(--fontColor);
 }

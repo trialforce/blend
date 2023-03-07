@@ -1,8 +1,7 @@
 .accordion {
-    background: #fff;
-    border-radius: 3px;
-    border: solid 1px #d8d7dc;
-    border-bottom: solid 1px #cfcfcf;
+    background: var(--brighterColor);
+    border-radius: var(--borderRadius);
+    box-shadow: var(--boxShadowDefault);
 }
 
 .accordion-head {
@@ -11,7 +10,7 @@
     font-weight: bold;
     min-height: 40px;
     line-height: 40px;
-    padding: 0 10px;
+    padding: 0 var(--paddingDefault);
 }
 
 .accordion-open .accordion-head {
@@ -27,22 +26,22 @@
     line-height: 40px !important;
 }
 
-.accordion-icon:before {
-    content: "\f107";
-}
-
 .accordion-body {
-    padding: 0 10px;
+    padding: 0 var(--paddingDefault);
+    transition: var(--animTimeDefault);
     height: 0;
     overflow: hidden;
-    transition: 0.1s ease-in-out;
 }
 
 .accordion-open .accordion-body {
-    padding: 10px;
+    padding: var(--paddingDefault);
+    transition: var(--animTimeDefault);;
     height: auto;
     overflow: initial;
-    transition: 0.1s ease-in-out;
+}
+
+.accordion-icon:before {
+    content: "\f107";
 }
 
 .accordion-open .accordion-icon:before {
