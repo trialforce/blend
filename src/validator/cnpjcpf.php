@@ -56,19 +56,19 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
             {
                 if (!self::validaCPF($this->value))
                 {
-                    $error[] = 'CPF digitado inválido.';
+                    $error[] = 'CPF digitado inválido. ' .$this->value;
                 }
             }
             else if (mb_strlen($this->value) > 13)
             {
                 if (!self::validaCNPJ($this->value))
                 {
-                    $error[] = 'CNPJ digitado inválido.';
+                    $error[] = 'CNPJ digitado inválido. '.$this->value;
                 }
             }
             else
             {
-                $error[] = 'Valor digitado inválido.';
+                $error[] = 'Valor digitado inválido. '.$this->value;
             }
         }
 
