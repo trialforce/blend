@@ -64,7 +64,14 @@ function menuOpen()
 {
     menuSearch(''); 
     $('body').addClass('menu-open');
-    setTimeout(function(){$('#main-menu-search').focus();}, 200);
+
+    if (!isMobile())
+    {
+        setTimeout(function ()
+        {
+            $('#main-menu-search').focus();
+        }, 200);
+    }
     
     return false;
 }

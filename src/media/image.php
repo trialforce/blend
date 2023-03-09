@@ -68,7 +68,7 @@ class Image extends \Disk\File
      * @param type $path
      * @param type $load
      */
-    public function __construct($path, $load = FALSE)
+    public function __construct($path=NULL, $load = FALSE)
     {
         parent::__construct($path, $load);
     }

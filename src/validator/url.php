@@ -58,4 +58,24 @@ class Url extends \Validator\Validator
 
         return str_replace($prefix, '', rtrim($url,"/'"));
     }
+
+    /**
+     * Similar to validate, but more "open"
+     * @param $url
+     * @return bool
+     */
+    public static function isUrl($url)
+    {
+        $regex = '/(http:\/\/|https:\/\/)?[a-zA-Z][a-z0-9_-]*?[.]?[a-z0-9]*[.](com|net)(\.br)?(\/)?([a-z]*)?/ium';
+        preg_match( $regex,$url, $matches);
+
+        if (isset($matches[0]) && $matches[0])
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
