@@ -79,7 +79,7 @@ class Document extends \DomDocument implements \Countable
 
         if ($encoding == 'UTF-8')
         {
-            $source = utf8_decode($source);
+            $source = mb_convert_encoding($source,'HTML-ENTITIES');
         }
 
         $ok = @parent::loadHTML($source);

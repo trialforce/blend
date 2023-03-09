@@ -97,7 +97,7 @@ class ConnInfo
      * @param int $port port
      * @param string $charset charset
      */
-    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = 'utf8')
+    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = 'utf8mb4')
     {
         $this->id = $id;
         $this->type = $type;
