@@ -371,7 +371,7 @@ class Page extends \View\Layout
     }
 
     /**
-     * Montagem de tela de adicionar
+     * Default list method
      */
     public function listar()
     {
@@ -386,11 +386,10 @@ class Page extends \View\Layout
 
         $this->addFiltersToDataSource($grid->getDataSource());
         $views[] = $this->getHead();
-        $views[] = $this->getBodyDiv([new \View\Div('content-pre'), $grid]);
+        $views[] = $this->getBodyDiv($grid);
 
         $this->append($views);
         $this->setFocusOnFirstField(false);
-        //$this->byId('q')->focus();
     }
 
     public function gridExportData()
