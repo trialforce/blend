@@ -270,16 +270,29 @@ class Document extends \DomDocument implements \Countable
             $element = $x->query("//*[@id='{$elementId}']")->item(0);
         }
 
-        //caso não encontre elemento cria um falso para não dar
-        //erro e facilitar a programação
+        //caso não encontre elemento cria um falso para não dar erro e facilitar a programação
         if (!$element instanceof \DOMElement)
         {
-            $serverClass = $serverClass ? $serverClass : '\View\Div';
-            $element = new $serverClass(\View\View::REPLACE_SHARP . $elementId);
-            $element->setOutputJs(TRUE);
-            //removeg do dom para não reaparecer
-            $element->parentNode->removeChild($element);
+            $element = $this->byIdJs($elementId, $serverClass);
         }
+
+        return $element;
+    }
+
+    /**
+     * Get a fake dom element to generate JS commands
+     *
+     * @param $elementId element id
+     * @param $serverClass server class
+     * @return \View\View
+     */
+    public function byIdJs($elementId, $serverClass= null)
+    {
+        $serverClass = $serverClass ? $serverClass : '\View\Div';
+        $element = new $serverClass(\View\View::REPLACE_SHARP . $elementId);
+        $element->setOutputJs(TRUE);
+        //remove from dom, do avoid duplicates
+        $element->parentNode->removeChild($element);
 
         return $element;
     }

@@ -630,9 +630,16 @@ class Crud extends \Page\Page
      *
      * @param \View\View $button
      */
-    public function addButton($button)
+    public function addButton($button, $prepend = false)
     {
-        $this->byId('btnGroup')->append($button);
+        if ($prepend)
+        {
+            $this->byId('btnGroup')->prepend($button);
+        }
+        else
+        {
+            $this->byId('btnGroup')->append($button);
+        }
 
         return $this;
     }
@@ -1018,7 +1025,7 @@ class Crud extends \Page\Page
         if ($this->isMultipleUpdateAllowed())
         {
             $button = new \View\Ext\Button('multipleEdit', 'edit', 'Edição multipla', 'multipleEdit', 'clean', 'Edição múltipla');
-            $this->addButton($button);
+            $this->addButton($button, true);
         }
 
         return $fields;
