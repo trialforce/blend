@@ -70,7 +70,9 @@ td.hide-in-mobile {
     color: #111;
     z-index: 99999;
     top: 0;
-    padding: 10px;    
+    padding: 10px;
+    overflow: auto;
+    max-height: 100vh;
 }
 
 @media screen and ( max-width: 1250px ) {

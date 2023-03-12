@@ -390,12 +390,6 @@ class Crud extends \Page\Page
 
         if (!$this->isSearch())
         {
-            $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
-            $btnSalvar->setTitle('Salva o registro atual no banco de dados!');
-
-            $buttons[] = $btnVoltar = new \View\Ext\Button('btnVoltar', 'arrow-left', 'Voltar', 'history.back(1);');
-            $btnVoltar->setTitle('Volta para a listagem!');
-
             if ($this->isUpdate())
             {
                 $idFMenu = str_replace('/', '-', $this->getPageUrl());
@@ -403,6 +397,9 @@ class Crud extends \Page\Page
                 $btnAction = new \View\Button('floating-menu-' . $idFMenu, array(new \View\Ext\Icon('wrench'), new \View\Span(null, 'Ações', 'btn-label'), $this->floatingMenu), 'return actionList.toggle();', 'btn clean blend-floating-menu-holder action-list-toogle');
                 $buttons[] = $btnAction;
             }
+
+            $buttons[] = $btnSalvar = new \View\Ext\Button('btnSalvar', 'save', 'Gravar ' . $this->getLcModelLabel(), 'salvar', 'save btninserir primary');
+            $btnSalvar->setTitle('Salva o registro atual no banco de dados!');
         }
         else
         {
