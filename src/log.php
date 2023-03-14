@@ -55,12 +55,12 @@ function blend_shutdown()
             return;
         }
 
-        //retorna erro pelo console
+        //return error throgh shell
         if (defined('STDIN'))
         {
             echo 'Mensagem do erro: ' . $error['message'] . ' Arquivo: ' . $error['file'] . ' linha: ' . $error['line'] . "\r\n";
         }
-        //ou via html no navegador
+        //ou trough browser
         else
         {
             $msg = '';
@@ -74,7 +74,7 @@ function blend_shutdown()
         }
     }
 
-    if (\Log::getLogSql() || \Log::getLogSqlConsole())
+    if (\Log::getLogSql() > 0)
     {
         \Log::sql('TOTAL SQL TIME ' . \Db\Conn::$totalSqlTime . ' seg');
     }
@@ -134,12 +134,16 @@ class Log
     const DEBUG_FILE = 'debug.log';
     const SQL_FILE = 'sql.log';
 
+    const LOG_SQL_OFF = 0;
+    const LOG_SQL_FILE = 1;
+    const LOG_SQL_CONSOLE = 2;
+    const LOG_SQL_OBJ = 3;
+
     protected static $logSql = false;
-    protected static $logSqlConsole = false;
     protected static $indexData = null;
 
     /**
-     * Determina se deve ou não efetuar o registro dos sqls
+     * Active SQL LOG
      *
      * @param boolean $logSql
      */
@@ -161,31 +165,6 @@ class Log
     public static function getLogSql()
     {
         return Log::$logSql;
-    }
-
-    /**
-     * Determina se deve ou não retornar ao console o sql executado
-     *
-     * @param boolean $logSqlConsole
-     */
-    public static function setLogSqlConsole($logSqlConsole)
-    {
-        Log::$logSqlConsole = $logSqlConsole;
-
-        if ($logSqlConsole)
-        {
-            $requestUri = \DataHandle\Server::getInstance()->getRequestUri(true);
-            \Log::sql('---------------------------------- ' . $requestUri);
-        }
-    }
-
-    /**
-     * Retorna se deve ou não retornar ao console o sql executado
-     * @return boolean
-     */
-    public static function getLogSqlConsole()
-    {
-        return Log::$logSqlConsole;
     }
 
     public static function setIndexData(\Log\IndexData $data)
@@ -515,20 +494,24 @@ class Log
             $string = $sql;
         }
 
-        if (Log::getLogSql())
-        {
-            Log::logInFile(LOG::SQL_FILE, $string);
-        }
+        $logSql = Log::getLogSql() ;
 
-        if (Log::getLogSqlConsole())
+        if ( $logSql> 0 )
         {
-            if (stripos($sql, 'ERROR:') === 0)
+            if ($logSql == self::LOG_SQL_FILE)
             {
-                \Console::error($sql);
+                Log::logInFile(LOG::SQL_FILE, $string);
             }
-            else
+            else if ($logSql == self::LOG_SQL_CONSOLE)
             {
-                \Console::log($string);
+                if (stripos($sql, 'ERROR:') === 0)
+                {
+                    \Console::error($sql);
+                }
+                else
+                {
+                    \Console::log($string);
+                }
             }
         }
     }

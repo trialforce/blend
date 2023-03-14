@@ -57,7 +57,7 @@ class Data
 
     public static function start($obStart = false)
     {
-        \Log::setLogSql(true);
+        \Log::setLogSql(\Log::LOG_SQL_OBJ);
         \Misc\Timer::activeGlobalTimer();
 
         if ($obStart)

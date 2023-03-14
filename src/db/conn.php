@@ -116,7 +116,7 @@ class Conn
     protected static function addSqlLog($sql, $result, $time, $idConn = NULL, $logId = NULL)
     {
         //if not loggind does nothing
-        if (!(\Log::getLogSql() || \Log::getLogSqlConsole()))
+        if (\Log::getLogSql() == 0)
         {
             return;
         }
