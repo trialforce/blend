@@ -6,12 +6,6 @@ namespace Debug;
  * Create the debug data
  * Example: https://www.treblle.com/
  *
- * response status
- * response text
- * response header
- * response length
- *
- *
  */
 class Data
 {
@@ -54,6 +48,13 @@ class Data
     public $headers = [];
     public $sqlLog = [];
     public $error;
+    public $extra = [];
+
+    /**
+     * Extra informartion
+     * @var array
+     */
+    private static $extras = [];
 
     public static function start($obStart = false)
     {
@@ -63,8 +64,9 @@ class Data
         if ($obStart)
         {
             ob_start();
-            register_shutdown_function('\Debug\Data::shutdown');
         }
+
+        register_shutdown_function('\Debug\Data::shutdown');
     }
 
     public static function shutdown()
@@ -72,6 +74,28 @@ class Data
         $debugData = new \Debug\Data(true);
 
         \Disk\File::getFromStorage('debugapi.json')->save($debugData->toJson());
+    }
+
+    /**
+     * Add an extra property to debug data
+     *
+     * @param $property property
+     * @param $value value
+     * @return void
+     */
+    public static function addExtra($property, $value)
+    {
+        self::$extras[$property] = $value;
+    }
+
+    /**
+     * Return the extra content
+     *
+     * @return array
+     */
+    public static function getExtras()
+    {
+        return self::$extras;
     }
 
     public function __construct($complete = false)
@@ -183,7 +207,7 @@ class Data
         $this->error();
         $this->obContent();
 
-        //$this->server = $_SERVER;
+        $this->extra = self::getExtras();
     }
 
     public function obContent()
