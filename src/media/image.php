@@ -124,7 +124,7 @@ class Image extends \Disk\File
         {
             $this->content = imagecreatefromjpeg($this->path);
 
-            $this->fixOrientation();
+            @$this->fixOrientation();
         }
         else if ($extension == Image::EXT_GIF)
         {
