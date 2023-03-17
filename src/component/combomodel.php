@@ -18,6 +18,11 @@ abstract class ComboModel extends \Component\Combo
             return $this->getContent();
         }
 
+        if (!$this->getId())
+        {
+            throw new \Exception('ComboModel: é necessário definir um id para o componente!');
+        }
+
         $view = parent::onCreate();
 
         if ($this->getModelName())
