@@ -220,7 +220,7 @@ class Log
         Log::put(Log::ERROR_FILE, $errorMessage);
 
         //put log in default file
-        $file = new \Disk\File(init_get('error_log'));
+        $file = new \Disk\File(ini_get('error_log'));
         $file->append($errorMessage);
 
         return \Log::sendDevelEmailIfNeeded('Exceção', $exception->getMessage(), $errorMessage);
