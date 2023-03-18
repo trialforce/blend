@@ -1,10 +1,12 @@
 <?php
 
-ini_set("display_errors", "0"); //desabilita mostrar erros na tela
-ini_set("log_errors", "1"); //habilita log de erros
-ini_set("error_log", APP_PATH . DS . 'error.log');
-
 use DataHandle\Session;
+
+ini_set("display_errors", "0");
+ini_set("log_errors", "1");
+ini_set("error_log", APP_PATH .'/storage/error.log');
+
+register_shutdown_function('blend_shutdown');
 
 /**
  * Blend shutdown function
@@ -118,11 +120,8 @@ function FriendlyErrorType($type)
     return "";
 }
 
-register_shutdown_function('blend_shutdown');
-
 /**
- * Gerencia logs e debug do framework
- * @SuppressWarnings(PHPMD.DevelopmentCodeFragment)
+ * Logs and debugs of blend
  */
 class Log
 {
@@ -174,7 +173,8 @@ class Log
 
     /**
      * Return the current index data
-     * @return \Log\IndexData
+     *
+     * @return  \Log\IndexData|null
      */
     public static function getIndexData()
     {
@@ -187,11 +187,11 @@ class Log
     }
 
     /**
-     * Registra uma exceção no log
+     * Register a log of an \Exception
      *
-     * @param Exception $exception or Exception from php 5 Throwable from php 7
-     * @SuppressWarnings(PHPMD.Superglobals)
-     *
+     * @param $exception
+     * @return bool|null
+     * @throws \PHPMailer\PHPMailer\Exception|ReflectionException
      */
     public static function exception($exception)
     {
@@ -212,7 +212,7 @@ class Log
         {
             $log = $exception->getCode() . ' - <b>' . $exception->getMessage() . '</b> - ' . $exception->getFile() . ' on line ' . $exception->getLine() . '</br></br>';
             $log .= $exception->getTraceAsString();
-            \Log::screen($log);
+            echo $log;
         }
 
         $errorMessage = \Log::generateErrorLog($exception);
@@ -220,7 +220,7 @@ class Log
         Log::put(Log::ERROR_FILE, $errorMessage);
 
         //put log in default file
-        $file = new \Disk\File(APP_PATH . '/error.log');
+        $file = new \Disk\File(init_get('error_log'));
         $file->append($errorMessage);
 
         return \Log::sendDevelEmailIfNeeded('Exceção', $exception->getMessage(), $errorMessage);
@@ -231,6 +231,7 @@ class Log
      *
      * @param \Error $exception
      * @return boolean
+     * @throws ReflectionException
      */
     protected static function parseMysqlErrors($exception)
     {
@@ -244,7 +245,7 @@ class Log
             if (isset($explode[1]))
             {
                 $column = $explode[1];
-                $exception = \Log::setExceptionMessage($exception, 'Campo \'' . $column . '\' deve ser preenchido!');
+                \Log::setExceptionMessage($exception, 'Campo \'' . $column . '\' deve ser preenchido!');
 
                 return true;
             }
@@ -264,14 +265,13 @@ class Log
 
                 if ($message)
                 {
-                    $exception = self::setExceptionMessage($exception, $message);
-                    return;
+                    self::setExceptionMessage($exception, $message);
+                    return false;
                 }
             }
             else
             {
-                //$value = $explode[1];
-                $exception = self::setExceptionMessage($exception, 'Registro duplicado! ' . $idxName);
+                self::setExceptionMessage($exception, 'Registro duplicado! ' . $idxName);
             }
         }
 
@@ -281,16 +281,25 @@ class Log
     /**
      * Send an email to developer
      *
-     * @param string $errorMessage the formatted message
+     * @param $type
+     * @param $message
+     * @param $backTrace
      * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
      */
     protected static function sendDevelEmailIfNeeded($type, $message, $backTrace)
     {
+        //only send mail if server has phpmailer
+        if (!class_exists('\PHPMailer\PHPMailer\PHPMailer'))
+        {
+            return false;
+        }
+
         $develEmail = \DataHandle\Config::get('develEmail');
 
         if (!$develEmail)
         {
-            return null;
+            return false;
         }
 
         $file = \Disk\File::getFromStorage('error-email.log');
@@ -299,7 +308,7 @@ class Log
         {
             $vector = \Disk\Json::decodeFromFile($file);
         }
-        catch (\Exception $exc)
+        catch (\Exception)
         {
             //create a simple vector if file not exists or is empty
             $vector = [];
@@ -309,12 +318,6 @@ class Log
         if (in_array($message, $vector))
         {
             return false;
-        }
-
-        //only send mail if server has phpmailer
-        if (!class_exists('\PHPMailer\PHPMailer\PHPMailer'))
-        {
-            return;
         }
 
         $serverUrl = \DataHandle\Server::getInstance()->getHost();
@@ -341,8 +344,7 @@ class Log
      */
     protected static function generateErrorLog($exception)
     {
-        $error = '';
-        $error .= "###############################################" . PHP_EOL;
+        $error = "###############################################" . PHP_EOL;
         $error .= 'Exception in ' . date('d/m/y G:i:s:u') . ' = ' . $exception->getFile() . ' on line ' . $exception->getLine() . "\n";
         $error .= $exception->getMessage() . PHP_EOL;
         $error .= $exception->getTraceAsString() . PHP_EOL;
@@ -372,9 +374,10 @@ class Log
     /**
      * Define the message of an exception
      *
-     * @param \Exception $e
+     * @param $exception
      * @param string $message
-     * @return \Exception
+     * @return Exception
+     * @throws ReflectionException
      */
     public static function setExceptionMessage($exception, $message)
     {
@@ -397,6 +400,7 @@ class Log
      * @param string $message error message
      * @param int $line line of the error
      * @param string $file file of the error
+     * @throws \PHPMailer\PHPMailer\Exception
      */
     public static function error($type, $message, $line, $file, $errorFile = Log::ERROR_FILE)
     {
@@ -408,8 +412,7 @@ class Log
             return;
         }
 
-        $error = '';
-        $error .= "###############################################" . PHP_EOL;
+        $error = "###############################################" . PHP_EOL;
         $error .= 'Error ' . $type . ' - ' . $message . ' in ' . $file . ' on line ' . $line . PHP_EOL;
 
         //controls especial js erro type, used in API
@@ -566,20 +569,8 @@ class Log
             $message = $msg;
         }
 
-        $userFolder = Session::get('user') ? Session::get('user') . DS : '';
-        \Disk\File::getFromStorage($userFolder . 'log' . DS . $relativeFilePath)->append($message);
-    }
-
-    /**
-     * Obtem url para os logs
-     *
-     * @param string $relativePath
-     * @return string
-     */
-    public static function getLogUrl($relativePath)
-    {
-        $user = Session::get('user');
-        return \Server::getInstance()->getHost() . '/module/' . APP_MODULE . '/' . Log::FOLDER . '/' . $user . '/' . $relativePath;
+        $userFolder = Session::get('user') ? Session::get('user') .'/'  : '';
+        \Disk\File::getFromStorage($userFolder . 'log/' . $relativeFilePath)->append($message);
     }
 
     /**
@@ -632,22 +623,6 @@ class Log
         \Log::dump($var . "\r\n" . $ob);
     }
 
-    public static function screen($var = null)
-    {
-        $vars = func_get_args();
-
-        ob_start();
-
-        foreach ($vars as $var)
-        {
-            echo($var);
-        }
-
-        self::dumpToScreen(ob_get_contents());
-
-        ob_get_clean();
-    }
-
     private static function dumpToScreen($content)
     {
         $content = \View\Script::treatStringToJs("<p>".$content."</p>");
@@ -662,18 +637,4 @@ class Log
             $("body > pre.var-dump").append(`'.$content.'`);'
         );
     }
-
-    /**
-     * Log memory information
-     *
-     * @param string $message
-     */
-    public static function memory($message = NULL)
-    {
-        $memoryUsage = \Disk\File::formatBytes(memory_get_usage(TRUE));
-        $memoryPeak = \Disk\File::formatBytes(memory_get_peak_usage(TRUE));
-        $message = $message ? $message . ' - ' : '';
-        \Log::debug($message . $memoryUsage . '/' . $memoryPeak);
-    }
-
 }
