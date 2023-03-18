@@ -1,4 +1,3 @@
-
 .combo {
     display: inline-block;
     position: relative;
@@ -7,17 +6,17 @@
 }
 
 .combo-edit-btn {
+    border-radius: var(--borderRadius) 0 0 var(--borderRadius);
     float: left;
     width: 36px;
     margin: 0;
     box-sizing: border-box;
-    border-radius: var(--borderRadius) 0 0 var(--borderRadius);
 }
 
 .combo .labelValue.combo-edit-input {
+    border-radius: 0 var(--borderRadius) var(--borderRadius) 0;
     float:right;
     margin-right: 0;
-    border-radius: 0 var(--borderRadius) var(--borderRadius) 0;
     border-left: none;
 }
 
@@ -46,6 +45,7 @@
     top: 11px;
     width: 23px;
     height: 12px;
+    background-color: var(--brighterColor);
     background-image: url(../theme/img/search.png);
     text-align: center;
     background-repeat: no-repeat;
@@ -53,15 +53,15 @@
 }
 
 .combo .dropDownContainer, .combo div.dropDownContainer {
+    background-color: var(--brighterColor);
+    top: var(--inputHeight);
+    box-shadow: var(--boxShadowDefault);
+    border: solid 1px var(--detailColor);
+    min-width: calc(100% - var(--paddingDefault)) !important;
     margin:0;
     position: absolute;
     z-index: 99;
-    background-color: var(--brighterColor);
-    top: 33px;
-    box-shadow: 3px 3px 5px RGBA(0,0,0,0.2);
     max-width: initial;
-    min-width: calc(100% - 2px) !important;
-    border: solid 1px #eee;
 }
 
 .combo .dropDownContainer div {
