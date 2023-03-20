@@ -308,7 +308,7 @@ class Log
         {
             $vector = \Disk\Json::decodeFromFile($file);
         }
-        catch (\Exception)
+        catch (\Exception $exc)
         {
             //create a simple vector if file not exists or is empty
             $vector = [];
