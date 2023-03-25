@@ -2,11 +2,18 @@
 
 namespace Db\Model;
 
+/**
+ * Trait that allows control of json history of modications of any model
+ */
 trait History
 {
 
     protected $oldModel;
 
+    /**
+     * Called before register history
+     * @return void
+     */
     public function historyPre()
     {
         $class = static::getName();
@@ -14,6 +21,10 @@ trait History
         $this->oldModel = $oldModel ? $oldModel : new $class();
     }
 
+    /**
+     * Called after register history
+     * @return void
+     */
     public function historyPos()
     {
         $action = $this->oldModel->getId() ? 'Atualizar' : 'Inserir';
@@ -21,6 +32,13 @@ trait History
         $this->historyReg($this::getName(), $this->getId(), $action, $diff);
     }
 
+    /**
+     * Feed the diff object with "description" values
+     *
+     * @param $diff diff object/array
+     * @param $className the model class name
+     * @return \stdClass
+     */
     public static function feed($diff, $className)
     {
         $result = new \stdClass();
@@ -79,6 +97,14 @@ trait History
         return $result;
     }
 
+    /**
+     * Compare two models (the same model in diferent moments) and return
+     * the difference between
+     *
+     * @param \Db\Model $modelA
+     * @param \Db\Model $modelB
+     * @return array
+     */
     public static function diffModel(\Db\Model $modelA, \Db\Model $modelB)
     {
         $arrayA = $modelA->getArray();
