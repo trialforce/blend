@@ -663,7 +663,7 @@ class Template
     }
 
     /**
-     * Execute the template and return it's string represetation
+     * Execute the template and return it's string representation
      *
      * @return string return the result of the execute
      */
