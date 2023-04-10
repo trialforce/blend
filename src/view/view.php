@@ -241,7 +241,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function focus()
     {
-        \App::addJs("setTimeout(\"{$this->getSelector()}.focus();\", 150);");
+        \App::addJs("setTimeout(\"{$this->getSelector()}.focus();\", 150)");
     }
 
     /**
@@ -346,7 +346,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         if ($this->getOutputJs())
         {
-            \App::addJs($this->getSelector() . ".addClass('{$classToAdd}');");
+            \App::addJs($this->getSelector() . ".addClass('{$classToAdd}')");
         }
         else
         {
@@ -388,7 +388,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         if ($this->getOutputJs())
         {
-            \App::addJs($this->getSelector() . ".removeClass('{$classToRemove}');");
+            \App::addJs($this->getSelector() . ".removeClass('{$classToRemove}')");
         }
 
         return $this;
@@ -631,7 +631,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         //add support for "
         //$html = str_replace('&quot;', '\"', $html);
 
-        \App::addJs($this->getSelector() . ".{$method}({$html});");
+        \App::addJs($this->getSelector() . ".{$method}({$html})");
 
         return $this;
     }
@@ -788,7 +788,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public function addStyle($property, $value = '')
     {
-        $this->removeStyle($property);
+        $this->removeStyle($property,true);
         $style = $this->getStyle();
 
         //if not ends with ;
@@ -802,13 +802,13 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         if ($this->getOutputJs())
         {
-            \App::addJs($this->getSelector() . ".css('$property','$value');");
+            \App::addJs($this->getSelector() . ".css('$property','$value')");
         }
 
         return $this;
     }
 
-    public function removeStyle($property)
+    public function removeStyle($property, $avoidJs = false)
     {
         $style = $this->getStyle();
 
@@ -828,9 +828,9 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $this->setStyle($style);
         }
 
-        if ($this->getOutputJs())
+        if ($this->getOutputJs() && !$avoidJs)
         {
-            \App::addJs($this->getSelector() . ".css('$property','');");
+            \App::addJs($this->getSelector() . ".css('$property','')");
         }
 
         return $this;
@@ -1275,7 +1275,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         if ($this->getOutputJs())
         {
-            \App::addJs($this->getSelector() . ".removeAttr('$name');");
+            \App::addJs($this->getSelector() . ".removeAttr('$name')");
         }
 
         return $this;
@@ -1470,8 +1470,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             if ($this->getOutputJS())
             {
                 $name = $this->getRealId();
-                \App::addJs("$('[name={$name}]').attr('data-invalid', '{$invalid}');");
-                \App::addJs("$('[data-invalid-id={$name}]').attr('data-invalid', '{$invalid}');");
+                \App::addJs("$('[name={$name}]').attr('data-invalid', '{$invalid}')");
+                \App::addJs("$('[data-invalid-id={$name}]').attr('data-invalid', '{$invalid}')");
             }
 
             if ($message)
@@ -1481,8 +1481,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
                     $message = implode(' ', $message);
                 }
 
-                \App::addJs("$('[name={$name}]').attr('title','{$message}');");
-                \App::addJs("$('[data-invalid-id={$name}]').attr('title','{$message}');");
+                \App::addJs("$('[name={$name}]').attr('title','{$message}')");
+                \App::addJs("$('[data-invalid-id={$name}]').attr('title','{$message}')");
                 parent::setAttribute('title', $message);
             }
         }
@@ -1507,7 +1507,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      */
     public static function invalidate($seletor, $message)
     {
-        \App::addJs("$('{$seletor}').attr('data-invalid', '1').attr('title','{$message}');");
+        \App::addJs("$('{$seletor}').attr('data-invalid', '1').attr('title','{$message}')");
     }
 
     /**

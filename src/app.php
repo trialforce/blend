@@ -345,11 +345,34 @@ class App
             return $echoed;
         }
 
-        $result['response'] = $response;
-        $result['responseType'] = Config::getDefault('responseType', 'html');
+        $cmds = [];
+        $html = trim($html . '');
+
+        if ($html)
+        {
+            $content = new stdClass();
+            $content->selector = $response;
+            $content->cmd = Config::getDefault('responseType', 'html');
+            $content->content = $html;
+
+            $cmds[] = $content;
+        }
+
+        $jss = App::getJs();
+
+        foreach ($jss as $js)
+        {
+            $content = new stdClass();
+            $content->selector = 'body';
+            $content->cmd = 'script';
+            $content->content = $js;
+
+            $cmds[] = $content;
+        }
+
+        $result = [];
         $result['pushState'] = Config::get('pushState');
-        $result['content'] = trim($html . ''); //so you can verify response in js
-        $result['script'] = 'function blendJs(){ ' . implode(' ', App::getJs()) . '}';
+        $result['cmds'] = $cmds;
 
         return json_encode($result);
     }

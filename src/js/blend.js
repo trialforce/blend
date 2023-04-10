@@ -533,7 +533,7 @@ function mountHtml5FormData()
 
 function disableFocused()
 {
-    var focused = $(':focus');
+    let focused = $(':focus');
 
     //disable focused element, perhaps a button or link
     if (typeof focused.get(0) != 'undefined')
@@ -564,17 +564,14 @@ function r(type, page, formData, callBack)
         window.scrollTo( { top: document.querySelector(page).offsetTop, behavior: 'smooth'} );
         return false;
     }
-    
-    isAjax = true;
-    var focused = disableFocused();
+
     showLoadingTimeout();
     pluginsCallMethod('beforeSubmit');
-    
-    var host = b('base').attr('href');
-    var url = host + page.replace(host, '');
-
-    //default jquery value https://api.jquery.com/jQuery.ajax/
-    var contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+    isAjax = true;
+    let focused = disableFocused();
+    let host = b('base').attr('href');
+    let url = host + page.replace(host, '');
+    let contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
     formData = getFormDataToPost(formData,type);
    
     if (formData instanceof FormData)
@@ -601,26 +598,7 @@ function r(type, page, formData, callBack)
                 return hideLoading();
             }
 
-            //only make response if content exists, to avoid clean
-            if (data.content !== '')
-            {
-                if (data.responseType === 'append')
-                {
-                    b('#' + data.response).append(data.content);
-                } else
-                {
-                    b('#' + data.response).html(data.content);
-                }
-            }
-
-            //try to get page from data.pushsate
-            if (typeof data.pushState !== undefined && data.pushState !== null)
-            {
-                if (data.pushState.length > 0)
-                {
-                    page = data.pushState;
-                }
-            }
+            data.cmds.filter(parseResponse);
 
             //if is GET get page from url+ formdata
             if (type === 'GET')
@@ -634,26 +612,18 @@ function r(type, page, formData, callBack)
                 
                 page = url + append + formData;
             }
+
+            //try to get page from data.pushsate
+            if (typeof data.pushState !== undefined && data.pushState !== null)
+            {
+                if (data.pushState.length > 0)
+                {
+                    page = data.pushState;
+                }
+            }
             
             updateUrl(page);
-            //put the js inside body element, to execute
-            data.script.replace('\\\"', '\\"');
-            
-            try
-            {
-                var script = document.createElement('script');
-                script.innerHTML = data.script;
-                b('body').append(script);
-            }
-            catch (e) 
-            {
-                alert('Erro ao executar javascript vindo do servidor!');
-                console.log(e);
-                console.log(data.script);
-            }
-            
-            //treat js especials
-            dataAjax();
+            dataAjax(); //treat js especials
             
             if ( typeof callBack == 'function')
             {
@@ -679,6 +649,32 @@ function r(type, page, formData, callBack)
     });
 
     return false;
+}
+
+function parseResponse(data)
+{
+    //only make response if content exists, to avoid clean
+    if (data.content !== '')
+    {
+        let element = b('#' + data.selector);
+
+        if (data.cmd === 'append')
+        {
+            element.append(data.content);
+        }
+        else if (data.cmd === 'html')
+        {
+            element.html(data.content);
+        }
+        else if (data.cmd === 'script')
+        {
+            runScriptOnce(data.content);
+        }
+        else
+        {
+            console.error("CMD not found:" + data.cmd);
+        }
+    }
 }
 
 async function getJson(page, formData, loadingShow, callBack)
@@ -849,15 +845,33 @@ function addScriptOnce(src, callBack)
         script.src = src;
         script.async = 'async';
         script.onload = callBack;
-        document.getElementsByTagName('body')[0].appendChild(script);
+        document.querySelector('body').appendChild(script);
     }
     //if already on document, we only call the callback
     else
     {
-        callBack();
+        if (typeof callBack == 'function')
+        {
+            callBack();
+        }
     }
 }
 
+function runScriptOnce(content,callback)
+{
+    if (!content)
+    {
+        return;
+    }
+
+    //legacy replace
+    content.replace('\\\"', '\\"');
+    let script = document.createElement('script');
+    script.innerHTML = content;
+    script.onload = callback;
+    document.querySelector('body').append(script);
+    script.remove();
+}
 
 /**
  * Scroll to top
