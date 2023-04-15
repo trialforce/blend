@@ -668,13 +668,19 @@ class Model implements \JsonSerializable
     }
 
     /**
-     * Delete com filtros
+     * Remove multiple registers from database
      *
      * @param array $filters
-     * @return array
+     * @return array|boolean
      */
     public static function remove($filters = null)
     {
+        //avoid delete without where
+        if (!$filters)
+        {
+            return false;
+        }
+
         $name = self::getName();
         $where = $name::getWhereFromFilters($filters);
         $catalog = $name::getCatalogClass();
