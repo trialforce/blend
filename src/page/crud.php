@@ -332,7 +332,7 @@ class Crud extends \Page\Page
 
         if ($this->isUpdate())
         {
-            $extraLabel = \Type\Text::get($this->model->getTitleLabel())->ellipsis(60) . '';
+            $extraLabel = $this->model->getTitleLabel();
             $extraLabel = $extraLabel ? $extraLabel = ' - ' . $extraLabel : '';
         }
 
