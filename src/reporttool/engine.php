@@ -353,7 +353,7 @@ class Engine extends Template
      *
      * @return \mPDF
      */
-    protected function getMpdfObj()
+    public function getMpdfObj()
     {
         if (\DataHandle\Config::get('wkpdf-path'))
         {
