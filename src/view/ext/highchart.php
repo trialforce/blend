@@ -37,7 +37,7 @@ class HighChart extends \View\Div
      */
     protected $seriesData;
 
-    public function __construct($id = \NULL, $ds, $type = self::CHART_TYPE_LINE)
+    public function __construct($id = \NULL, $ds = null, $type = self::CHART_TYPE_LINE)
     {
         parent::__construct($id);
         $this->setType($type);

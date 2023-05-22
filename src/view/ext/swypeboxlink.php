@@ -15,7 +15,7 @@ class SwypeBoxLink extends \View\A
      */
     private $img;
 
-    public function __construct($id = \NULL, $label = \NULL, $href = '#', $thumb, $class = \NULL, $target = '_BLANK', $father = NULL)
+    public function __construct($id = \NULL, $label = \NULL, $href = '#', $thumb = null, $class = \NULL, $target = '_BLANK', $father = NULL)
     {
         //avoids errors
         $target = $target ? $target : '_BLANK';
