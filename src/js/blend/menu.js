@@ -132,6 +132,7 @@ function menuCloseAll()
 
 function menuSearch(term)
 {
+    $('#li_hide').show();
     term = toAscii(term.toLocaleLowerCase())+"";
     
     if (term == '')
@@ -139,6 +140,7 @@ function menuSearch(term)
         $('.main-menu a').show();
         $('.subMenu').hide();
         $('.menu-submenu-header').show();
+        $('#li_hide').hide();
         return;
     }
     
@@ -162,8 +164,7 @@ function menuSearch(term)
         {
             element.hide();
         }
-        
-    });
+    })
 }
 
 
