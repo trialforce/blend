@@ -63,14 +63,15 @@ class FloatingMenu extends \View\Ul
     /**
      * Add and item to menu
      *
+     * @param $id
      * @param string $icon
-     * @param sring $label
+     * @param string $label
      * @param string $action
-     * @param string $class
-     * @param string $title
-     * @param bool $formChangeAdvice
-     *
+     * @param string|null $class
+     * @param string|null $title
+     * @param string|null $group
      * @return $this
+     * @throws \Exception
      */
     public function addItemLink($id, $icon, $label, $action, $class = NULL, $title = NULL, $group = NULL)
     {
@@ -91,6 +92,7 @@ class FloatingMenu extends \View\Ul
      * @param \Component\Action\Action $action
      * @param integer $pk
      * @return $this
+     * @throws \Exception
      */
     public function addAction(\Component\Action\Action $action, $pk = null)
     {

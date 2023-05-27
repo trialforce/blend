@@ -274,36 +274,42 @@ class App
 
     public function handleResult($content, $page404 = false)
     {
-        $theme = self::getTheme($content);
-
-        if (!$theme && $content instanceof \View\Document)
-        {
-            \View\View::setDom($content);
-            $theme = $content;
-        }
-
-        $defaultResponse = Config::getDefault('response', 'content');
-
         if (Server::getInstance()->isAjax())
         {
-            echo App::prepareResponse($defaultResponse, $content);
+            $defaultResponse = Config::getDefault('response', 'content');
+            echo static::prepareResponse($defaultResponse, $content);
         }
         else
         {
-            \View\View::setDom($theme);
-            $theme->appendLayout($defaultResponse, $content);
-            $this->addJsToLayout($theme);
+            $theme = self::getTheme($content);
 
-            if ($page404)
+            if (!$theme && $content instanceof \View\Document)
             {
-                // Send 404 response to client
-                http_response_code(404);
+                \View\View::setDom($content);
+                $theme = $content;
             }
 
-            echo $theme;
+            $this->handleResultOutput($theme, $content, $page404);
         }
 
         return true;
+    }
+
+    protected function handleResultOutput(\View\Layout $theme, $content,$page404 = false)
+    {
+        $defaultResponse = Config::getDefault('response', 'content');
+
+        \View\View::setDom($theme);
+        $theme->appendLayout($defaultResponse, $content);
+        $this->addJsToLayout($theme);
+
+        if ($page404)
+        {
+            // Send 404 response to client
+            http_response_code(404);
+        }
+
+        echo $theme;
     }
 
     /**

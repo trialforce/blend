@@ -114,7 +114,7 @@ class DataHandle
      * Get a var, if not return default passed value and set it in object
      *
      * @param string $var
-     * @param string $defaultValue
+     * @param mixed $defaultValue
      * @return mixed
      */
     public static function getDefault($var, $defaultValue)
