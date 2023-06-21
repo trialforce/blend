@@ -182,6 +182,8 @@ class Text implements \Type\Generic, \JsonSerializable
     public function toFile($space = '_')
     {
         $space = $space ? $space : '_';
+        // replace invisible space characters
+        $this->string = str_replace("\xc2\xa0", $space, $this->string);
         $this->toASCII();
         $this->toLower();
         $this->replace(' ', $space);
