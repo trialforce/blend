@@ -68,7 +68,7 @@ class Csv
 
         //store file on disk
         $csvPath = str_replace('\\', '_', strtolower($relativePath) . '.csv');
-        $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $csvPath);
+        $file = \Disk\File::getFromStorage(Session::get('user') . '/grid_export/' . $csvPath);
         //remove file to avoid error
         $file->remove();
         $file->save(utf8_decode($csv));

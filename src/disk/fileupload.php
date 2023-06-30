@@ -154,7 +154,7 @@ class FileUpload extends \Disk\File
      */
     public function getUploadFileName($folder = NULL)
     {
-        $folder = $folder ? $folder . DS : '';
+        $folder = $folder ? $folder . '/' : '';
         return $folder . $this->getBasenameForFile() . '_' . rand() . '.' . $this->getExt();
     }
 

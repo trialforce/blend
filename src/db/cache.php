@@ -12,10 +12,10 @@ class Cache extends \Disk\File
     /**
      * @param $relativeFileName
      */
-    public function __construct( $relativeFileName )
+    public function __construct($relativeFileName)
     {
-        $fileName = strtolower( $relativeFileName );
-        parent::__construct( self::getStoragePath() . DS . 'cache' . DS . $fileName, TRUE );
+        $fileName = strtolower($relativeFileName);
+        parent::__construct(self::getStoragePath() . '/cache/' . $fileName, TRUE);
     }
 
     /**
@@ -27,9 +27,9 @@ class Cache extends \Disk\File
     {
         $content = parent::getContent();
 
-        if ( strlen( $content ) > 0 )
+        if (strlen($content) > 0)
         {
-            return unserialize( parent::getContent() );
+            return unserialize(parent::getContent());
         }
 
         return NULL;
@@ -40,9 +40,9 @@ class Cache extends \Disk\File
      *
      * @param $content
      */
-    public function setContent( $content )
+    public function setContent($content)
     {
-        parent::setContent( serialize( $content ) );
+        parent::setContent(serialize($content));
     }
 
 }

@@ -100,7 +100,7 @@ p {
         $layout = self::generate($dataSource, $reportColumns);
 
         $path = str_replace('\\', '_', strtolower($relativePath) . '.html');
-        $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . $path);
+        $file = \Disk\File::getFromStorage(Session::get('user') . '/grid_export/' . $path);
         //remove file to avoid error
         $file->remove();
         $file->save($layout . '');

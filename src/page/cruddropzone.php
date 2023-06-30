@@ -186,7 +186,7 @@ trait CrudDropZone
     public function listImages($id)
     {
         $path = $this->getCompleteFolderName($id);
-        return \Disk\File::find($path . DS . '*');
+        return \Disk\File::find($path . '/*');
     }
 
     /**

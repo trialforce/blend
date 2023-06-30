@@ -108,7 +108,7 @@ class Engine extends Template
 
         if ($class != 'ReportTool\Engine')
         {
-            $layoutPath = str_replace(array('/', '\\'), DS, $class);
+            $layoutPath = str_replace(array('/', '\\'), '/', $class);
         }
 
         return $layoutPath;

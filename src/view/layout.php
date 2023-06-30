@@ -277,7 +277,7 @@ class Layout extends \View\Document
 
         if ($addDefaultPath)
         {
-            $defaultPath = APP_PATH .'/';
+            $defaultPath = APP_PATH . '/';
         }
 
         $file = new \Disk\File($defaultPath . $href);
@@ -323,7 +323,7 @@ class Layout extends \View\Document
         }
         else
         {
-            $file = new \Disk\File(APP_PATH . DS . $src);
+            $file = new \Disk\File(APP_PATH . '/' . $src);
         }
 
         //auto optimize/minimize file if is needed

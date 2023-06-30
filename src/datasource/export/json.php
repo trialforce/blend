@@ -34,7 +34,7 @@ class Json
             $json[] = $result;
         }
 
-        $file = \Disk\File::getFromStorage(Session::get('user') . DS . 'grid_export' . DS . str_replace('\\', '_', strtolower($relativePath) . '.json'));
+        $file = \Disk\File::getFromStorage(Session::get('user') . '/grid_export/' . str_replace('\\', '_', strtolower($relativePath) . '.json'));
         //remove file to avoid error
         $file->remove();
         $file->save(\Disk\Json::encode($json));
