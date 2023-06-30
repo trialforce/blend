@@ -56,7 +56,7 @@ class File implements \JsonSerializable
      */
     public function getPath()
     {
-        $path = str_replace(array('/', '\\'), DS, $this->path);
+        $path = str_replace(array('/', '\\'), '/', $this->path);
 
         //remove parameters after link, put keep :? from grid/colum replaceDataInString
         if (stripos($path, '?') > 0 && stripos($path, ':?') === false)
@@ -79,7 +79,7 @@ class File implements \JsonSerializable
         //padronize paths
         if ($path)
         {
-            $path = str_replace(DS . DS, DS, str_replace(array('/', '\\'), DS, $path));
+            $path = str_replace('//', '/', str_replace(array('/', '\\'), '/', $path));
         }
 
         $this->path = $path;
@@ -487,7 +487,7 @@ class File implements \JsonSerializable
         {
             if ($isMedia)
             {
-                $filePath = str_replace(DS, "/", str_replace(APP_PATH, '', $this->getPath()));
+                $filePath = str_replace('/', "/", str_replace(APP_PATH, '', $this->getPath()));
 
                 if ($type == 1)
                 {
@@ -496,7 +496,7 @@ class File implements \JsonSerializable
             }
             else
             {
-                $filePath = str_replace(DS, "/", str_replace($storagePath, '', $this->getPath()));
+                $filePath = str_replace('/', "/", str_replace($storagePath, '', $this->getPath()));
 
                 if ($type == 1)
                 {
@@ -507,7 +507,7 @@ class File implements \JsonSerializable
         else
         {
             //default case
-            $filePath = str_replace(DS, "/", str_replace(APP_PATH, '', $this->getPath()));
+            $filePath = str_replace('/', "/", str_replace(APP_PATH, '', $this->getPath()));
 
             if ($type == 2)
             {
@@ -753,8 +753,8 @@ class File implements \JsonSerializable
         if (!$storagePath)
         {
             $server = \DataHandle\Server::getInstance();
-            self::setStoragePath(APP_PATH . DS . 'storage' . DS);
-            self::setStorageUrl($server->getHost() . DS . 'storage' . DS);
+            self::setStoragePath(APP_PATH .  '/storage/');
+            self::setStorageUrl($server->getHost() . '/storage/');
         }
 
         return self::$storagePath;

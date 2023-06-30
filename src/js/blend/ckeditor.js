@@ -9,7 +9,7 @@ blend.ckeditor.register = function ()
 
 blend.ckeditor.start = function ()
 {
-    dateTimeInput();
+
 };
 
 blend.ckeditor.beforeSubmit = function ()

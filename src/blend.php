@@ -1,6 +1,23 @@
 <?php
-
 require 'autoload.php';
+
+/**
+ *
+ * This file is mainly used to active the framework.
+ * And beyond that it has some generic purpose functions
+ *
+ */
+
+/**
+ * Directory separaror
+ * @deprecated since version 28/07/2018
+ */
+//const DS = '/';
+/**
+ * Current timestamp in brazilial format
+ * @deprecated since version 28/07/2018
+ */
+//define('NOW', date('d/m/Y H:i:s'));
 
 /* Active php gzip */
 ini_set('zlib.output_compression', 'On');
@@ -23,29 +40,6 @@ if (session_status() == PHP_SESSION_NONE)
 }
 
 /**
- * Directory separaror
- * @deprecated since version 28/07/2018
- */
-define('DS', '/');
-/**
- * Current timestamp in brazilial format
- * @deprecated since version 28/07/2018
- */
-define('NOW', date('d/m/Y H:i:s'));
-
-/**
- * Adjust path to system bar
- * @deprecated since version 28/07/2018
- *
- * @param string $path
- * @return string
- */
-function adjusthPath($path)
-{
-    return str_replace(array('\\', '/'), DS, $path);
-}
-
-/**
  * Reproduces javascript function alert, to be called from PHP
  *
  * @param string $message the message itself
@@ -54,39 +48,6 @@ function adjusthPath($path)
 function alert($message)
 {
     \App::addJs('alert(\'' . $message . '\');');
-}
-
-if (!function_exists('toast'))
-{
-
-    /**
-     * Make a Simple js toast.
-     *
-     * Type valid values:
-     * NULL
-     * danger
-     * primary
-     * info
-     * alert
-     * success
-     * Or any other css class
-     *
-     * @param string $message toast message, can be html
-     * @param string $type a custom css type, in case a extra class in css.
-     * @param int $duration default 4000 mileseconds
-     */
-    function toast($message = NULL, $type = NULL, $duration = 4000)
-    {
-        //little control to improved debug using toast
-        if (is_object($message))
-        {
-            $message = \Disk\Json::encode($message);
-        }
-
-        $messageParsed = \View\Script::treatStringToJs($message);
-        \App::addJs("toast('{$messageParsed}', '{$type}', {$duration} )");
-    }
-
 }
 
 /**
@@ -110,14 +71,6 @@ function globRecursive($pattern, $flags = 0)
     }
 
     return $files;
-}
-
-/**
- * Exception to user, do not log in file
- */
-class UserException extends Exception
-{
-
 }
 
 /**
@@ -153,9 +106,9 @@ function byId($id)
 }
 
 /**
- * Parse/explode a url considering subdomain and domin
+ * Parse/explode a url considering subdomain and domain
  * @param string $url url
- * @return string array
+ * @return array|null explode array
  */
 function parseUrl($url)
 {
@@ -176,6 +129,7 @@ function parseUrl($url)
     return $out;
 }
 
+//default blend function to find any file, can be overwritten in yout index.php
 if (!function_exists('filePath'))
 {
 
@@ -187,6 +141,7 @@ if (!function_exists('filePath'))
 
 }
 
+//default blend function to load any file, can be overwritten in yout index.php
 if (!function_exists('loadFile'))
 {
 
@@ -203,32 +158,45 @@ if (!function_exists('loadFile'))
     spl_autoload_register('loadFile');
 }
 
-//PHP 8.0 function
-if (!function_exists('str_starts_with'))
+
+if (!function_exists('toast'))
 {
 
-    function str_starts_with($haystack, $needle)
+    /**
+     * Make a Simple js toast.
+     *
+     * Type valid values:
+     * NULL
+     * danger
+     * primary
+     * info
+     * alert
+     * success
+     * Or any other css class
+     *
+     * @param string $message toast message, can be html
+     * @param string $type a custom css type, in case a extra class in css.
+     * @param int $duration default 4000 mileseconds
+     * @throws Exception
+     */
+    function toast($message = NULL, $type = NULL, $duration = 4000)
     {
-        $length = strlen($needle);
-        return substr($haystack, 0, $length) === $needle;
+        //little control to improved debug using toast
+        if (is_object($message))
+        {
+            $message = \Disk\Json::encode($message);
+        }
+
+        $messageParsed = \View\Script::treatStringToJs($message);
+        \App::addJs("toast('$messageParsed', '$type', $duration )");
     }
 
 }
 
-//PHP 8.0 function
-if (!function_exists('str_ends_with'))
+/**
+ * Exception to user, do not log in file
+ */
+class UserException extends Exception
 {
-
-    function str_ends_with($haystack, $needle)
-    {
-        $length = strlen($needle);
-
-        if (!$length)
-        {
-            return true;
-        }
-
-        return substr($haystack, -$length) === $needle;
-    }
 
 }

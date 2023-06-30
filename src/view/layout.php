@@ -277,7 +277,7 @@ class Layout extends \View\Document
 
         if ($addDefaultPath)
         {
-            $defaultPath = APP_PATH . DS;
+            $defaultPath = APP_PATH .'/';
         }
 
         $file = new \Disk\File($defaultPath . $href);

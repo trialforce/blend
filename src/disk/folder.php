@@ -95,7 +95,7 @@ class Folder
      */
     public function findOneFile($relativeGlob)
     {
-        $files = \Disk\File::find($this->path . DS . $relativeGlob);
+        $files = \Disk\File::find($this->path .'/' . $relativeGlob);
 
         if (isset($files[0]))
         {
@@ -112,7 +112,7 @@ class Folder
      */
     public function listFiles($search = '*', $recursive = FALSE, $flags = null)
     {
-        return \Disk\File::find($this->path . DS . $search, $flags, $recursive);
+        return \Disk\File::find($this->path . '/' . $search, $flags, $recursive);
     }
 
     /**
@@ -122,7 +122,7 @@ class Folder
      */
     public function listImages()
     {
-        return \Disk\File::find($this->path . DS . '*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE);
+        return \Disk\File::find($this->path . '/*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE);
     }
 
     /**
