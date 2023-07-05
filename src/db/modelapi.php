@@ -67,13 +67,13 @@ class ModelApi extends \Db\Model
         return parent::update($columns);
     }
 
-    public static function getTableName()
+	public static function getTableName()
     {
         $tableName = parent::getTableName();
 
         if (stripos($tableName, 'api') === 0)
         {
-            $tableName = lcfirst(str_replace('api', '', $tableName));
+            $tableName = lcfirst(str_replace(['apiRunmore','api'], '', $tableName));
         }
 
         return $tableName;
@@ -86,7 +86,7 @@ class ModelApi extends \Db\Model
 
         if (stripos($name, 'api') === 0)
         {
-            $name = 'Model\\' . str_replace('Api\\', '', $name);
+            $name = 'Model\\' . str_replace(['Api\\Runmore\\','Api\\'], '', $name);
         }
 
         return $name;

@@ -16,7 +16,7 @@ blend.ajax.timer = null;
 
 var b = function(selector)
 {
-    var nodeList;
+    let nodeList;
     
     if ( selector instanceof NodeList)
     {
@@ -268,7 +268,6 @@ function escape()
     
     return false;
 }
-
 
 /**
  * Make all actions that is need after some post/ajax post
@@ -604,12 +603,12 @@ function r(type, page, formData, callBack)
             if (type === 'GET')
             {
                 var append = '?';
-                
+
                 if (url.includes(append))
                 {
                     append = '&';
                 }
-                
+
                 page = url + append + formData;
             }
 
@@ -621,10 +620,10 @@ function r(type, page, formData, callBack)
                     page = data.pushState;
                 }
             }
-            
+
             updateUrl(page);
             dataAjax(); //treat js especials
-            
+
             if ( typeof callBack == 'function')
             {
                 callBack();
@@ -633,6 +632,7 @@ function r(type, page, formData, callBack)
         ,
         error: function (xhr, ajaxOptions, thrownError)
         {
+            console.log(thrownError);
             hideLoading();
 
             if (xhr.responseText === '')

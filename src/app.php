@@ -106,28 +106,9 @@ class App
     public function getCurrentPage()
     {
         $page = $this->getCurrentPageRaw();
-
         $page = self::sanitizePage($page);
 
-        $module = Request::get('m');
-
-        if ($module && $module != 'component')
-        {
-            //module\page\pagename
-            $modulePage = $module . '\page\\' . str_replace('-', '\\', $page);
-
-            if (class_exists($modulePage))
-            {
-                $page = $modulePage;
-            }
-            else
-            {
-                //page\module\pagename
-                $page = '\page\\' . $module . '\\' . str_replace('-', '\\', $page);
-            }
-        }
-        //if a url exists in request
-        else if ($page)
+        if ($page)
         {
             //add support for module in old projects
             $explode = explode('-', $page);
