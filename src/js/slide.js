@@ -60,10 +60,12 @@ function slide(selector)
         next = group.find('>.slider-next').get(0);
     }
     
-    var slides = items.querySelectorAll(':scope >.slide'); //only first level child
+    var slides= items.querySelectorAll(':scope >.slide'); //only first level child
     var slidesLength = slides.length;
+    slides[0].style.display = 'inline-block';
+
     var hasSubSlider = group.find('.slider').length>0;
-    
+
     if (!items)
     {
         return;
@@ -192,7 +194,8 @@ function slide(selector)
 
     var cloneFirst = firstSlide.cloneNode(true);
     cloneFirst.classList.add('cloned');
-    
+    cloneFirst.id += '-cloned';
+
     if (cloneFirst.tagName == 'VIDEO')
     {
         cloneFirst.removeAttribute('autoplay');
@@ -206,6 +209,7 @@ function slide(selector)
     }
     
     cloneLast.classList.add('cloned');
+    cloneLast.id += '-cloned';
 
     //clone first and last slide
     items.appendChild(cloneFirst);
@@ -344,6 +348,13 @@ function slide(selector)
                 posInitial = items.offsetLeft;
             }
 
+            //show all slides
+            let slides = items.querySelectorAll(':scope >.slide');
+            for (var i=0; i<slides.length; i++)
+            {
+                slides[i].style.display='inline-block';
+            }
+
             if (dir == 1)
             {
                 items.style.left = (posInitial - slideSize) + "px";
@@ -363,6 +374,7 @@ function slide(selector)
     function setSlide(position)
     {
         items.classList.add('shifting');
+        slides[position].style.display = 'inline-block';
         items.style.left = (slideSize * (position + 1) * -1) + "px";
         index = position;
         clearInterval(timerInterval);
