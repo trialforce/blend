@@ -1407,47 +1407,35 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
-     * Adiciona um conteúdo em texto html
+     * Add some htmltext into one element
      *
      * @param string $htmlText
      */
     public static function appendHtmlText($element, $htmlText)
     {
+        if (!$htmlText)
+        {
+            return $element;
+        }
+
+        //element need one id, so we can append to it later
         if (!$element->getAttribute('id'))
         {
             $element->setAttribute('id', rand());
         }
 
-        if ($htmlText)
+        if (function_exists('tidy_repair_string'))
         {
-            if (function_exists('tidy_repair_string'))
-            {
-                //só o que tiver dentro do body
-                $config['show-body-only'] = TRUE;
-                $htmlText = \tidy_repair_string($htmlText, $config, 'utf8');
-            }
-
-            $layout = new \View\Layout(null, false);
-            $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
-
-            /* libxml_clear_errors();
-              libxml_use_internal_errors(true);
-              $layout->strictErrorChecking = FALSE;
-              $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
-
-              $errors = libxml_get_errors();
-
-              if (count($errors) > 0)
-              {
-              $error = $errors[0];
-              libxml_clear_errors();
-              throw new \Exception('Erro adicionando HTML: ' . $error->message);
-              } */
-
-            libxml_clear_errors();
-
-            \View\View::getDom()->appendLayout($element->getAttribute('id'), $layout);
+            $config['show-body-only'] = TRUE; //only return what is on body
+            $config['drop-empty-elements'] = FALSE; //avoid drop empty elments
+            $htmlText = \tidy_repair_string($htmlText, $config, 'utf8');
         }
+
+        $layout = new \View\Layout(null, false);
+        $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
+        libxml_clear_errors();
+
+        \View\View::getDom()->appendLayout($element->getAttribute('id'), $layout);
 
         return $element;
     }
