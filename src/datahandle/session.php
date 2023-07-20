@@ -8,6 +8,9 @@ if (session_status() == PHP_SESSION_NONE && !headers_sent())
     session_start();
 }
 
+/**
+ * Blend class to deal with Server Session
+ */
 class Session extends DataHandle
 {
 
@@ -33,17 +36,24 @@ class Session extends DataHandle
      */
     public function __construct()
     {
-        parent::__construct(isset($_SESSION) ? $_SESSION : null);
+        parent::__construct($_SESSION ?? null);
     }
 
     /**
-     * Obtém a instancia de um \Session
+     * Get one current instance of \DataHandle\Session
      *
      * @return \DataHandle\Session
      */
     public static function getInstance()
     {
-        return parent::getInstance();
+        $class = get_called_class();
+
+        if (!isset(self::$dataHandle[$class]))
+        {
+            self::$dataHandle[$class] = new \DataHandle\Session();
+        }
+
+        return self::$dataHandle[$class];
     }
 
     /**
@@ -74,6 +84,36 @@ class Session extends DataHandle
         {
             return $_SESSION[$var];
         }
+
+        return null;
+    }
+
+    /**
+     * Destroy session
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    public function destroy()
+    {
+        $vars = array_keys(get_object_vars($this));
+
+        //session destroy seens not to be enough
+        $_SESSION = array();
+
+        //clear properties
+        foreach ($vars as $var)
+        {
+            if ($var)
+            {
+                unset($this->$var);
+            }
+        }
+
+        if (\DataHandle\Session::getStatus() == \DataHandle\Session::STATUS_ACTIVE)
+        {
+            //session_regenerate_id(true);
+            session_destroy();
+        }
     }
 
     /**
@@ -90,6 +130,8 @@ class Session extends DataHandle
         {
             return $_SESSION[$var];
         }
+
+        return null;
     }
 
     /**
@@ -97,13 +139,25 @@ class Session extends DataHandle
      *
      * http://br2.php.net/session_status
      *
-     * php > 5.4
      *
      * @return int
      */
     public static function getStatus()
     {
         return session_status();
+    }
+
+    /**
+     * Define the session id
+     *
+     * http://php.net/manual/pt_BR/function.session-id.php
+     *
+     * @param string $sessionId
+     *
+     */
+    public static function setId($sessionId)
+    {
+        return session_id($sessionId);
     }
 
     /**
@@ -138,45 +192,17 @@ class Session extends DataHandle
     }
 
     /**
-     * Define the session id
+     * Close the possibility of writing in session
+     * This allow more speed avoiding unnecessary session locking
      *
-     * http://php.net/manual/pt_BR/function.session-id.php
+     * https://www.php.net/manual/en/function.session-write-close.php
      *
-     * @param string $sessionId
-     * @return \DataHandle\Session
+     * @return bool
      */
-    public static function setId($sessionId)
+    public static function writeClose()
     {
-        session_id($sessionId);
-        return;
+        return session_write_close();
     }
 
-    /**
-     * Destroy session
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     */
-    public function destroy()
-    {
-        $vars = array_keys(get_object_vars($this));
-
-        //session destroy parece não ser o suficiente
-        $_SESSION = array();
-
-        //limpa as propriedades
-        foreach ($vars as $var)
-        {
-            if ($var)
-            {
-                unset($this->$var);
-            }
-        }
-
-        if (\DataHandle\Session::getStatus() == \DataHandle\Session::STATUS_ACTIVE)
-        {
-            //session_regenerate_id(true);
-            session_destroy();
-        }
-    }
 
 }
