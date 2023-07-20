@@ -37,12 +37,12 @@ class DataHandle
     /**
      * Define os dados suporte array e xml
      *
-     * @param SimpleXMLElement $data
+     * @param \SimpleXMLElement $data
      */
     public function setData($data)
     {
         //caso for um objeto converte para array
-        if (is_object($data) && !$data instanceof SimpleXMLElement)
+        if (is_object($data) && !$data instanceof \SimpleXMLElement)
         {
             $data = (array) $data;
         }
@@ -60,7 +60,7 @@ class DataHandle
                 $this->setVar($var, $value);
             }
         }
-        else if ($data instanceof SimpleXMLElement)
+        else if ($data instanceof \SimpleXMLElement)
         {
             $attributes = $data->attributes();
 
