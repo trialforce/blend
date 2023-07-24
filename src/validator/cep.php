@@ -20,7 +20,7 @@ class Cep extends \Validator\Validator
     /**
      * Validate CEP
      * @param string $value
-     * @return string
+     * @return array
      */
     public function validate($value = NULL)
     {

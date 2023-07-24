@@ -32,8 +32,7 @@ interface Generic
     public function __toString();
 
     /**
-     * Return the string representation of this type to human,
-     * used in grid, list e etc
+     * Return the string representation of this type to human, used in grid, list e etc
      */
     public function toHuman();
 

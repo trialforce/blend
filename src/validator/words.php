@@ -3,7 +3,7 @@
 namespace Validator;
 
 /**
- * Valida a quantidade de palavras
+ * Validate word count. Usefull for name validation.
  */
 class Words extends \Validator\Validator
 {

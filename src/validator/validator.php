@@ -3,9 +3,9 @@
 namespace Validator;
 
 /**
- * Validador genérico
+ * Generic Validator class
  */
-class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
+class Validator implements \Type\Generic
 {
 
     /**
@@ -51,11 +51,11 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Define o valor
+     * Define a value to this validator
      *
      * @param string $value
      *
-     * @return Validator\Validator Description
+     * @return \Validator\Validator Description
      */
     public function setValue($value)
     {
@@ -78,14 +78,12 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
         }
         else if ($this->column)
         {
-            $label = $this->column->getLabel();
+            return $this->column->getLabel();
         }
         else
         {
-            $label = get_class($this);
+            return get_class($this);
         }
-
-        return $label;
     }
 
     /**
@@ -117,11 +115,10 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
             $this->value = $value;
         }
 
-        $error = array();
+        $error = [];
 
         if ($this->column)
         {
-
             if (!$this->validateRequired() && $this->column->getType() != \Db\Column\Column::TYPE_TINYINT)
             {
                 $error[] = "Preenchimento obrigatório.";
@@ -131,14 +128,14 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
             {
                 $sizeInt = intval($this->column->getSize());
 
-                if ($this->column->getSize() && $this->validateMaxSize($this->value))
+                if ($this->column->getSize() && $this->validateMaxSize())
                 {
-                    $error[] = "Não pode exceder {$sizeInt} caracteres.";
+                    $error[] = "Não pode exceder $sizeInt caracteres.";
                 }
 
-                if ($this->column->getMinSize() && $this->validateMinSize($this->value))
+                if ($this->column->getMinSize() && $this->validateMinSize())
                 {
-                    $error[] = "Deve ter {$this->column->getMinSize()} caracteres no mínimo.";
+                    $error[] = "Deve ter $this->column->getMinSize() caracteres no mínimo.";
                 }
 
                 if (!$this->validateConstantValues())
@@ -162,11 +159,11 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
      * @param string $value
      * @return boolean
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function validateOrThrow($value = null)
     {
-        $value = $value ? $value : $this->getValue();
+        $value = $value ?: $this->getValue();
         $error = $this->validate($value);
 
         if (isset($error[0]))
@@ -178,9 +175,8 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Verifica se um campo requerido foi corretamente preenchido
+     * Verify the default requited situation
      *
-     * @param string $value
      * @return boolean
      */
     protected function validateRequired()
@@ -216,9 +212,9 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Verifica tamanho máximo do campo
+     * Validate default max sizes situation
      *
-     * @return type
+     * @return bool
      */
     protected function validateMaxSize()
     {
@@ -241,8 +237,9 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * verifica tamanho mínimo do campo
-     * @return type
+     * Validate default min sizes situation
+     *
+     * @return bool
      */
     protected function validateMinSize()
     {
@@ -257,7 +254,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * valida os valores constantes
+     * Validate constant values
      */
     protected function validateConstantValues()
     {
@@ -282,7 +279,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Valida os types (int and float)
+     * Validate type of the value
      */
     protected function validateType()
     {
@@ -308,22 +305,8 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Propertys to avoid when serialize
-     *
-     * @return string
-     */
-    public function listAvoidPropertySerialize()
-    {
-        $avoid[] = 'column';
-        $avoid[] = 'value';
-
-        return $avoid;
-    }
-
-    /**
-     * Tira máscara de um campo
-     *
-     * Somente números
+     * Default method to remove mask of value.
+     * By default is remove all chacaters letting only numbers
      *
      * @param string $value
      * @return string
@@ -339,9 +322,9 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
     }
 
     /**
-     * Necessário para descobrir se negativos são inteiro
+     * Verify if is am integer, even if the type is string
      *
-     * @param type $var
+     * @param string $var
      * @return boolean
      */
     public static function isInteger($var)
@@ -405,7 +388,7 @@ class Validator implements \Disk\JsonAvoidPropertySerialize, \Type\Generic
      * Return the string representation of this type to human,
      * used in grid, list e etc
      *
-     * @return stirng
+     * @return string
      */
     public function toHuman()
     {
