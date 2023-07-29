@@ -2,7 +2,7 @@
 
 /**
  * Animated number from zero to the real number
- * 
+ *
  */
 
 blend.grownumber = {};
@@ -15,26 +15,21 @@ blend.grownumber.register = function ()
 
 blend.grownumber.start = function ()
 {
-    var elements = $('[data-grow-number]');
+    let elements = $('[data-grow-number]');
 
     elements.each(function (idx)
     {
-        var element = $(elements[idx]);
-        var valueOriginal = toNumber(element.data('grow-number'));
-        var intervalTime = blend.grownumber.defaultTime / valueOriginal;
-        var increment = 1;
+        let element = $(elements[idx]);
+        let valueOriginal = toNumber(element.data('grow-number'));
+        let intervalTime = blend.grownumber.defaultTime / valueOriginal;
+        let increment =  Math.round(valueOriginal / blend.grownumber.defaultTime);
 
-        if (intervalTime < 10)
-        {
-            increment = 10;
-            intervalTime *= 10;
-        }
 
         element.html('0');
 
-        var myInterval = setInterval(function ()
+        let myInterval = setInterval(function ()
         {
-            var newValue = parseInt(element.text()) + increment;
+            let newValue = parseInt(element.text()) + increment;
 
             if (newValue > valueOriginal)
             {
@@ -48,7 +43,7 @@ blend.grownumber.start = function ()
             {
                 element.html(newValue);
                 clearInterval(myInterval);
-                //avoid do ite again
+                //avoid do it again
                 element.removeAttr('data-grow-number');
             }
 
