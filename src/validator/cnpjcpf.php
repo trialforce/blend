@@ -162,8 +162,8 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
     /**
      * retorna se caracter se repete n vezes
      *
-     * @param type $numero
-     * @param type $repeticoes
+     * @param int $numero
+     * @param int $repeticoes
      * @return boolean
      */
     protected static function contaRepeteNumero($numero, $repeticoes)
@@ -209,7 +209,7 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
         }
         else
         {
-            $mascara = $value . '';
+            $mascara = $value;
         }
 
         return $mascara;
