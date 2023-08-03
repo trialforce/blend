@@ -184,7 +184,7 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
      *
      * Chupinhado de http://webmarcos.net/2008/11/12/funcao-para-formatar-cpfcnpj/
      *
-     * @param string $value
+     * @param mixed $value
      * @return string
      */
     public static function mask($value)
@@ -209,7 +209,7 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
         }
         else
         {
-            $mascara = $value;
+            $mascara = $value.'';
         }
 
         return $mascara;
