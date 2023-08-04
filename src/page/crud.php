@@ -667,6 +667,7 @@ class Crud extends \Page\Page
 
         $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
         $this->byId($elementId)->html($input);
+        $this->byId($elementId)->attr('onclick', '');
     }
 
     /**
