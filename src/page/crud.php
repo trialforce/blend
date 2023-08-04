@@ -666,7 +666,7 @@ class Crud extends \Page\Page
         $input->blur("p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');");
 
         $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
-        $this->byId($elementId)->html($input)->attr('onclick', '');
+        $this->byId($elementId)->html($input);
     }
 
     /**
