@@ -23,8 +23,7 @@ blend.grownumber.start = function ()
         let valueOriginal = toNumber(element.data('grow-number'));
         let intervalTime = blend.grownumber.defaultTime / valueOriginal;
         let increment =  Math.round(valueOriginal / blend.grownumber.defaultTime);
-
-
+        increment = increment == 0 ? 1 : increment;
         element.html('0');
 
         let myInterval = setInterval(function ()
