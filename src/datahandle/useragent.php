@@ -613,8 +613,12 @@ class UserAgent
             $this->name = UserAgent::BROWSER_SAFARI;
             $this->completeName = UserAgent::BROWSER_SAFARI;
             $this->developer = UserAgent::DEVELOPER_APPLE;
-            $this->platform = UserAgent::PLATFORM_IPHONE;
-            $this->mobile = true;
+        }
+        elseif ($this->detectedBrowser('AppleWebKit'))
+        {
+            $this->name = UserAgent::BROWSER_SAFARI;
+            $this->completeName = UserAgent::BROWSER_SAFARI;
+            $this->developer = UserAgent::DEVELOPER_APPLE;
         }
         elseif ($this->detectedBrowser(UserAgent::BROWSER_SAFARI))
         {

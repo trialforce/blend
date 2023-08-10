@@ -79,6 +79,7 @@ function slide(selector)
     var fullScreen = group.data('full-screen');
     var dataStartIndex = group.data('start-index');
     var dataChangeOnHover = group.data('change-on-hover');
+    var dataDragDisable = group.data('drag-disabled');
     
     //copy outter width to inner
     var outterWidth = wrapper.width();
@@ -217,12 +218,15 @@ function slide(selector)
     group.addClass('loaded');
 
     //mouse, touch and transition events
-    items.onmousedown = dragStart;
-    items.addEventListener('touchstart', dragStart, {passive: true});
-    items.addEventListener('touchend', dragEnd, {passive: true});
-    items.addEventListener('touchmove', dragAction, {passive: true});
+    if (!dataDragDisable) {
+        items.onmousedown = dragStart;
+        items.addEventListener('touchstart', dragStart, {passive: true});
+        items.addEventListener('touchend', dragEnd, {passive: true});
+        items.addEventListener('touchmove', dragAction, {passive: true});
+    }
+
     items.addEventListener('transitionend', checkIndex, true);
-    
+
     var timerInterval;
     
     //auto slide
