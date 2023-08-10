@@ -400,7 +400,8 @@ class UserAgent
         'Embarcadero',
         'Baiduspider',
         'SeekportBot', //Mozilla/5.0 (compatible; SeekportBot; +https://bot.seekport.com)
-        'Nikto' //Nikto Webserver Scanner https://github.com/sullo/nikto
+        'Nikto', //Nikto Webserver Scanner https://github.com/sullo/nikto
+        'gptbot', //Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)
     );
 
     /**
