@@ -5,12 +5,6 @@ function preparaVer()
     //remove filtros
     $('#savedListGroup').hide();
 
-    //adiciona botão de voltar, caso necessáiro
-    if ($('#btnVoltar').length == 0)
-    {
-        $('#btnGroup').append('<button id=\"btnVoltar\" class=\"btn\" onclick=\"history.back(1);\" type=\"button\" title=\"Volta para a listagem!\" ><i class=\"fa fa-arrow-left\"></i><span class=\"btn-label\"> Voltar</span></button>');
-    }
-
     //esconde botões de adicionar de mestre-detalhe
     $('[id^="btnAdd"]').hide().data('hide-by-see');
     //esconde botão de salvar
