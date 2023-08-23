@@ -196,7 +196,7 @@ class Data
         $this->post = $_POST;
         $this->session = [];
 
-        if (session_status() == PHP_SESSION_ACTIVE )
+        if (session_status() != PHP_SESSION_DISABLED )
         {
             $this->session = $_SESSION;
         }
