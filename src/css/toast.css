@@ -3,7 +3,7 @@
     left: 50%;
     transform: translateX(-50%);
     top: -100px;
-    opacity:0; 
+    opacity:0;
     background-color: #fff;
     color: #222;
     border-radius: 2px;
@@ -16,7 +16,7 @@
 }
 
 .toast.show {
-    top:55px;
+    top:4px;
     opacity: 1;
     transition: 0.3s ease-in-out
 }
@@ -27,5 +27,5 @@
         min-width: 98%;
         box-sizing: border-box;
         margin-left: 0;
-    }  
+    }
 }

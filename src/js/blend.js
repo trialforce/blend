@@ -753,13 +753,20 @@ function toast(msg, type, duration)
 {
     duration = duration === undefined ? 3000 : duration;
     type = type+ '' === 'undefined' ? '' : type;
-    
-    let toast = parent.document.createElement('div');
+
+    let isFrame = window.self !== window.top;
+
+    if ( isFrame )
+    {
+        return parent.toast(msg, type, duration);
+    }
+
+    let toast = document.createElement('div');
     toast.setAttribute('class', 'toast ' + type);
-    toast.innerHTML = msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"$(this).parent().remove();\">X</strong>";
-    
-    parent.b('body').append(toast);
-            
+    toast.innerHTML = msg + "<strong style=\"float:right;cursor:pointer;\" onclick=\"parentNode.remove();\">X</strong>";
+
+    b('body').append(toast);
+
     setTimeout(function(){toast.classList.add('show')}, 100);
     setTimeout(function(){toast.classList.remove('show')}, duration);
     setTimeout(function(){toast.remove()}, duration*2);
