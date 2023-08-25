@@ -321,7 +321,10 @@ function updateUrl(page)
         return false;
     }
     
-    window.history.pushState({url: urlToRegister}, "", urlToRegister);
+    // stores the last url, used when browsing back
+    localStorage.setItem('prevUrl', urlToRegister);
+    
+    window.history.pushState({url: urlToRegister, prevUrl: window.location.href}, "", urlToRegister);
     avoidUrlRegister = false;
     return true;
 }
