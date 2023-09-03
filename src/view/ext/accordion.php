@@ -2,6 +2,9 @@
 
 namespace View\Ext;
 
+/**
+ * Simple Accordion
+ */
 class Accordion extends \View\Div
 {
 
@@ -13,19 +16,11 @@ class Accordion extends \View\Div
         parent::__construct($id, null, 'accordion ' . $class, $father);
 
         $title = new \View\Div($id . '-title', $head, 'accordion-title');
-        $title->click($this->getOnClick());
+        $title->click($this->createOnClick());
 
         $this->head = new \View\Div($id . '-head', [$title, $this->createIcon()], 'accordion-head', $this);
 
         $this->body = new \View\Div($id . '-body', $content, 'accordion-body', $this);
-    }
-
-    protected function getOnClick()
-    {
-        //add support for crap grid id's with \\
-        $idJs = str_replace('\\', '\\\\', $this->getId());
-        $onclick = "return blend.accordion.toggle('{$idJs}');";
-        return $onclick;
     }
 
     public function open()
@@ -37,11 +32,6 @@ class Accordion extends \View\Div
     public function close()
     {
         $this->removeClass('accordion-open');
-    }
-
-    public function createIcon()
-    {
-        return new \View\Ext\Icon(' accordion-icon', $this->getId() . '-icon', $this->getOnClick());
     }
 
     public function getHead()
@@ -64,6 +54,34 @@ class Accordion extends \View\Div
     {
         $this->body = $body;
         return $this;
+    }
+
+    public function onOpen($event)
+    {
+        $this->setData('on-open', $this->verifyAjaxEvent($event));
+    }
+
+    public function setOnOpen($event)
+    {
+        $this->setData('on-open', $event);
+    }
+
+    public function getOnOpen()
+    {
+        return $this->getData('on-open');
+    }
+
+    protected function createOnClick()
+    {
+        //add support for crap grid id's with \\
+        $idJs = str_replace('\\', '\\\\', $this->getId());
+        $onclick = "return blend.accordion.toggle('{$idJs}');";
+        return $onclick;
+    }
+
+    public function createIcon()
+    {
+        return new \View\Ext\Icon(' accordion-icon', $this->getId() . '-icon', $this->createOnClick());
     }
 
     /**

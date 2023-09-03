@@ -11,7 +11,3 @@
 .clearfix {
     display: block;
 }
-
-html[xmlns] .clearfix {
-    display: block;
-}

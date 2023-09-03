@@ -239,10 +239,6 @@ input:focus, button:focus {
     display: block;
 }
 
-html[xmlns] .clearfix {
-    display: block;
-}
-
 .fr {
     float: right;
 }

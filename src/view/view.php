@@ -436,12 +436,15 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         return $this->getAttribute('title');
     }
 
+
     /**
-     * Adiciona um elemento no elemento atual, caso for um texto cria um textNode.
-     * Caso seja um array adiciona um por um.
+     * Append inner elements to current element.
+     * You can pass a lot of things here.
+     * array, \View\Document,\View\View, \View\DomContainer,
+     * \DOMElement,\DOMDocumentFragment,\DOMNode,\DOMNodeList,\Component\Component
      *
-     * @param string $content
-     * @return boolean
+     * @param mixed ...$nodes
+     * @return void
      */
     public function append(...$nodes): void
     {
@@ -585,8 +588,9 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             {
                 if ($obj instanceof \Component\Component)
                 {
-                    $html .= $obj->onCreate();
-                    $html->remove();
+                    $result = $obj->onCreate();
+                    $html .= $result;
+                    $result->remove();
                 }
                 else if (is_object($obj))
                 {
