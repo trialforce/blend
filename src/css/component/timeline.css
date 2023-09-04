@@ -11,6 +11,7 @@
     border-left: solid 2px var(--iconColor);
     padding: var(--paddingDefault);
     padding-top: 0;
+    width: 100%;
 }
 
 .timeline .timeline-item .timeline-item-right {
@@ -23,7 +24,8 @@
     margin-left: var(--paddingDefault);
     border-top-width: 2px;
     border-top-style: solid;
-    min-width: 400px;
+    width: 400px;
+    max-width: calc(100% - 102px);
 }
 
 .timeline .timeline-item .timeline-item-title {
@@ -35,10 +37,15 @@
     padding-top: var(--paddingDefault);
 }
 
+.timeline .timeline-item-content table td {
+    line-break: anywhere;
+}
+
 .timeline .timeline-item .timeline-item-datetime {
     box-sizing: border-box;
     text-align: left;
     width: 60px;
+    min-width: 60px;
     font-size: 80%;
     padding-top: var(--paddingDefault);
 }
