@@ -79,8 +79,8 @@ class Data
     /**
      * Add an extra property to debug data
      *
-     * @param $property property
-     * @param $value value
+     * @param string $property
+     * @param string $value
      * @return void
      */
     public static function addExtra($property, $value)
@@ -101,9 +101,7 @@ class Data
     public function __construct($complete = false)
     {
         $serverTime = \Misc\Timer::getGlobalTimer()->stop()->diff();
-
         $sqlTime = \Db\Conn::$totalSqlTime;
-
         $server = \DataHandle\Server::getInstance();
         $userAgent = $server->getUserAgent();
 
@@ -114,8 +112,10 @@ class Data
 
         if ($server->get('REDIRECT_URL'))
         {
-            $this->requestUri =$server->get('REDIRECT_URL');
+            $this->requestUri = $server->get('REDIRECT_URL');
         }
+
+        $this->requestUri = trim($this->requestUri,'/');
 
         $this->dateTime = \Type\DateTime::now();
 
