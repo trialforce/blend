@@ -149,7 +149,7 @@ class Model implements \JsonSerializable
     /**
      * Define the columsn of Model on the fly, avoid use it
      *
-     * @param array $columns
+     * @param array|\Db\Column\Collection $columns
      */
     public static function setColumns($columns)
     {

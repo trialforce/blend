@@ -845,7 +845,7 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      *
      * @param string $property
      * @param string $value
-     * @return string
+     * @return \View\View
      */
     public function css($property, $value = NULL)
     {
