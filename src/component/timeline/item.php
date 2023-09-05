@@ -8,10 +8,11 @@ namespace Component\Timeline;
 class Item implements DataItem
 {
     public $dateTime;
-    public $icon;
+    public $icon = null;
     public $title;
-    public $content;
-    public $link;
+    public $content = null;
+    public $link = null;
+    public $color = null;
 
     public function getTimelineDateTime()
     {
@@ -36,5 +37,10 @@ class Item implements DataItem
     public function getTimelineLink()
     {
         return $this->link;
+    }
+
+    public function getTimelineColor()
+    {
+        return $this->color;
     }
 }

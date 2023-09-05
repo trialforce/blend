@@ -8,7 +8,7 @@
 }
 
 .timeline .timeline-item .timeline-item-right-outter {
-    border-left: solid 2px var(--iconColor);
+    border-left: solid 2px #bbb;
     padding: var(--paddingDefault);
     padding-top: 0;
     width: 100%;

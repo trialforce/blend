@@ -994,8 +994,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Método estático que retorna o tempo e data atual
      *
-     * @param máscara a ser aplicada
-     * @return (objetct) Date
+     * @return \Type\DateTime sDate
      */
     public static function now()
     {

@@ -104,20 +104,21 @@ class Timeline extends \Component\Component
 
         $dateTimeView = new \View\Div(null, $dateTime, 'timeline-item-datetime');
 
-        if ($dateTime instanceof \Type\DateTime)
+        if (!$dateTime instanceof \Type\DateTime)
         {
-            $dateTimeView->html( $dateTime->format('d/m').'<br/>'.$dateTime->format('H:i'));
-            $dateTimeView->setTitle($dateTime->toHuman());
+            $dateTime = new \Type\DateTime($dateTime);
         }
+
+        $dateTimeView->html( $dateTime->format('d/m').'<br/>'.$dateTime->format('H:i'));
+        $dateTimeView->setTitle($dateTime->toHuman());
 
         $title = $item->getTimelineTitle();
 
         if ($link)
         {
             $title = new \View\A(null,$title, $link);
+            $title->css('color', $item->getTimelineColor());
         }
-
-        $title->css('color', $item->getTimelineColor());
 
         $right = [];
         $right[] = new \View\Div(null, $title, 'timeline-item-title');

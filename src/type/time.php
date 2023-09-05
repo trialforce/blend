@@ -148,7 +148,7 @@ class Time implements \Type\Generic, \JsonSerializable
      * Treat value to support brazilian format
      *
      * @param string $value
-     * @return string
+     * @return $this
      */
     public function treatValue($value)
     {
@@ -280,7 +280,6 @@ class Time implements \Type\Generic, \JsonSerializable
     /**
      * To hour (int)
      *
-     * @param  $time
      * @return \Type\Decimal
      */
     public function toDecimal()
@@ -290,13 +289,13 @@ class Time implements \Type\Generic, \JsonSerializable
 
     public static function now()
     {
-        return \Type\Date::now()->getValue(\Type\Date::MASK_TIME);
+        return \Type\Date::now()->getValue(\Type\DateTime::MASK_TIME);
     }
 
     /**
      * Static get a time type
      *
-     * @param type $value
+     * @param mixed $value
      * @return \Type\Time
      */
     public static function get($value)
