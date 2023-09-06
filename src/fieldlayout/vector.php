@@ -310,7 +310,6 @@ class Vector
         $constantValues = $column->getConstantValues();
         $property = $column->getProperty();
 
-        //TODO padronize 100% and put it on \Db\Column\Column or not?
         $classes[\Db\Column\Column::TYPE_INTEGER] = '\View\Ext\IntInput';
         $classes[\Db\Column\Column::TYPE_TIME] = '\View\Ext\TimeInput';
         $classes[\Db\Column\Column::TYPE_TIMESTAMP] = '\View\Ext\DateTimeInput';

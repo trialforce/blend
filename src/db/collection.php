@@ -403,8 +403,13 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      */
     public function add($value)
     {
+        //don't add if is null
+        if (is_null($value))
+        {
+            return $this;
+        }
         //need interface
-        if ($value instanceof \Db\ConstantValues)
+        else if ($value instanceof \Db\ConstantValues)
         {
             $value = $value->getArray();
         }
