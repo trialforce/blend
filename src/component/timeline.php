@@ -116,7 +116,8 @@ class Timeline extends \Component\Component
 
         if ($link)
         {
-            $title = new \View\A(null,$title, $link);
+            $target = stripos($link,'http') === 0 ? '_BLANK' : '';
+            $title = new \View\A(null,$title, $link,null,$target);
             $title->css('color', $item->getTimelineColor());
         }
 
