@@ -46,7 +46,7 @@ trait CrudDropZone
                 $span = new \View\Span(NULL, $media->getBasename(TRUE));
 
                 $delete = new \View\Ext\Icon('times');
-                $delete->click("return p('{$this->getPageUrl()}/deleteImage/?file=" . $media->getPath() . "')");
+                $delete->click("return p('{$this->getFolderName()}/deleteImage/?file=" . $media->getPath() . "')");
 
                 $array = array($img, $span, $delete);
 
@@ -76,7 +76,7 @@ trait CrudDropZone
         $file = Request::get('file');
         $label = basename($file);
 
-        $confirmationLink = "return p('{$this->getPageUrl()}/deleteImageConfirm/?file=" . $file . "')";
+        $confirmationLink = "return p('{$this->getFolderName()}/deleteImageConfirm/?file=" . $file . "')";
         \View\Blend\Popup::prompt('Confirma remoção de imagem', 'Arquivo: ' . $label, $confirmationLink, \View\Blend\Popup::getJs('destroy'))->setId('deleteConfirm')->show();
     }
 
@@ -106,8 +106,8 @@ trait CrudDropZone
         $imgAll = new \View\Div('img-all', NULL, 'img-all');
         new \View\Div('myAwesomeDropzone', $imgAll, 'dropzone clearfix');
 
-        $uploadUrl = $this->getPageUrl() . '/dropUpload/' . $id . '/';
-        $pageName = $this->getPageUrl();
+        $pageName = $this->getFolderName();
+        $uploadUrl = $pageName . '/dropUpload/' . $id . '/';
         $acceptedFiles = $this->getAcceptFiles() ? $this->getAcceptFiles() : 'image/*';
 
         $js = "createDropZone( '{$uploadUrl}', '{$acceptedFiles}', '{$pageName}')";
