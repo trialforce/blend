@@ -213,6 +213,11 @@ class Conn
         return $this->pdo->commit();
     }
 
+    public function rollBack()
+    {
+        return $this->pdo->rollBack();
+    }
+
     protected static function makeArgs($args, $ret)
     {
         //needed for PHP 8.0
