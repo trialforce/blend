@@ -7,8 +7,10 @@ namespace Debug;
  * Example: https://www.treblle.com/
  *
  */
+
 class Data
 {
+
     /**
      * @var \Type\DateTime
      */
@@ -34,8 +36,8 @@ class Data
     public $timeSql;
     public $timePhp;
     public $sqlCount;
-    public $sqlCountRepeated=0;
-    public $sqlCountSlow=0;
+    public $sqlCountRepeated = 0;
+    public $sqlCountSlow = 0;
     public $slowQueryTime = 0.1;
     public $input = '';
     public $inputSize = 0;
@@ -115,13 +117,13 @@ class Data
             $this->requestUri = $server->get('REDIRECT_URL');
         }
 
-        $this->requestUri = trim($this->requestUri,'/');
+        $this->requestUri = trim($this->requestUri, '/');
 
         $this->dateTime = \Type\DateTime::now();
 
-        $this->memoryLimit = ini_get('memory_limit').'';
-        $this->memoryAllocated = \Type\Bytes::get(memory_get_usage(true)).'';
-        $this->memoryUsed = \Type\Bytes::get(memory_get_peak_usage(true)).'';
+        $this->memoryLimit = ini_get('memory_limit') . '';
+        $this->memoryAllocated = \Type\Bytes::get(memory_get_usage(true)) . '';
+        $this->memoryUsed = \Type\Bytes::get(memory_get_peak_usage(true)) . '';
 
         $this->timeServer = \Type\Decimal::get($serverTime)->setDecimals(4);
         $this->timeSql = \Type\Decimal::get($sqlTime)->setDecimals(4);
@@ -196,7 +198,7 @@ class Data
         $this->post = $_POST;
         $this->session = [];
 
-        if (session_status() != PHP_SESSION_DISABLED )
+        if (session_status() != PHP_SESSION_DISABLED)
         {
             $this->session = $_SESSION;
         }
@@ -214,7 +216,7 @@ class Data
     {
         $this->outputLength = ob_get_length();
 
-        if ($this->outputLength>0)
+        if ($this->outputLength > 0)
         {
             $this->output = ob_get_contents();
             ob_end_flush();
@@ -232,9 +234,27 @@ class Data
         }
     }
 
-
     public function toJson()
     {
         return \Disk\Json::encode($this);
     }
+
+}
+
+if (!function_exists('getallheaders'))
+{
+
+    function getallheaders()
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value)
+        {
+            if (substr($name, 0, 5) == 'HTTP_')
+            {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+
 }
