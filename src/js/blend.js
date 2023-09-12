@@ -13,6 +13,7 @@ blend.plugins = [];
 blend.ajax = {};
 blend.ajax.timeout = 200;
 blend.ajax.timer = null;
+blend.isBack = false;
 
 var b = function(selector)
 {
@@ -202,6 +203,7 @@ if (!window.console)
 
 window.onpopstate = function(event) 
 {
+    blend.isBack = true;
     avoidUrlRegister = true;
     p(window.location.href, true);
 };
@@ -321,10 +323,7 @@ function updateUrl(page)
         return false;
     }
     
-    // stores the last url, used when browsing back
-    localStorage.setItem('prevUrl', urlToRegister);
-    
-    window.history.pushState({url: urlToRegister, prevUrl: window.location.href}, "", urlToRegister);
+    window.history.pushState({url: urlToRegister}, "", urlToRegister);
     avoidUrlRegister = false;
     return true;
 }
@@ -631,6 +630,8 @@ function r(type, page, formData, callBack)
             {
                 callBack();
             }
+            
+            blend.isBack = false;
         }
         ,
         error: function (xhr, ajaxOptions, thrownError)
@@ -648,6 +649,8 @@ function r(type, page, formData, callBack)
                 toast(xhr.responseText);
                 dataAjax();
             }
+            
+            blend.isBack = false;
         }
     });
 
