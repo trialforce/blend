@@ -1,4 +1,5 @@
 <?php
+
 require 'autoload.php';
 
 /**
@@ -7,7 +8,6 @@ require 'autoload.php';
  * And beyond that it has some generic purpose functions
  *
  */
-
 /**
  * Directory separaror
  * @deprecated since version 28/07/2018
@@ -197,6 +197,11 @@ if (!function_exists('toast'))
  * Exception to user, do not log in file
  */
 class UserException extends Exception
+{
+
+}
+
+class ResponseCodeException extends \Exception
 {
 
 }
