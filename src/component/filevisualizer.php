@@ -13,6 +13,7 @@ class FileVisualizer extends \Component\Component
 
     public function __construct($file = null)
     {
+        parent::__construct();
         $this->setFile($file);
     }
 
@@ -49,11 +50,11 @@ class FileVisualizer extends \Component\Component
         //$array[] = $this->getImageExtraButton($item);
 
         $link = new \View\A('', array($holder, $span), $this->getFile()->getUrl(), 'file-visualizer-link', \View\A::TARGET_BLANK);
-        $link->click("return p('{$previewUrl}');");
+        $link->click("return p('$previewUrl');");
         $link->setTitle($this->getFile()->getUrl());
 
         $url = $this->getLink('delete', null, ['file' => $this->getFile()->getPath()]);
-        $delete = new \View\Ext\Icon('times', null, "if ( confirm('Confirma remoção de arquivo?')) { return p('{$url}') } ;", 'file-visualizer-remove-icon');
+        $delete = new \View\Ext\Icon('times', null, "if ( confirm('Confirma remoção de arquivo?')) { return p('$url') } ;", 'file-visualizer-remove-icon');
         $content = array($link, $delete);
 
         $externo = new \View\Div('', $content, 'file-visualizer');
@@ -116,7 +117,7 @@ class FileVisualizer extends \Component\Component
         if ($isDir)
         {
             $this->mountFolder($file);
-            return;
+            return false;
         }
         else if ($file->isText())
         {
@@ -149,6 +150,7 @@ class FileVisualizer extends \Component\Component
         $popup->addClass('big')->show();
 
         \App::dontChangeUrl();
+        return true;
     }
 
     public function upload()
@@ -163,17 +165,14 @@ class FileVisualizer extends \Component\Component
         $tempFile = $_FILES['file-0']['tmp_name'];
         $file = new \Disk\File($_FILES['file-0']['name']);
         $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
+
         $targetFile = new \Disk\File($targetPath . '/' . $fileName);
+        $targetFile->createFolderIfNeeded();
 
         $ok = move_uploaded_file($tempFile, $targetFile);
 
         if ($ok && $targetFile->exists())
         {
-            if ($targetFile->isImage())
-            {
-                //TODO MAKE THUMB
-            }
-
             $this->byId('file-visualizer-upload')->val('');
             $this->mountFolder($targetFile);
         }
@@ -218,8 +217,9 @@ class FileVisualizer extends \Component\Component
      * Create a FileVisualizae holder
      *
      * @param \Disk\Folder $folder the root folder
-     * @param type $search the files to search, use glob sintax
+     * @param string $search the files to search, use glob sintax
      * @return \View\Div the holder element
+     * @throws \Exception
      */
     public static function createHolder(\Disk\Folder $folder, $search = '*')
     {
@@ -228,7 +228,7 @@ class FileVisualizer extends \Component\Component
 
         if ($isCkEditor || $search == 'image')
         {
-            $search = '*.{jpg,jpeg,png,gif}';
+            $search = '*.{jpg,jpeg,png,gif,wbep,svg}';
             $accept = 'image/*';
         }
 

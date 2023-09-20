@@ -3,6 +3,11 @@
 blend.ckeditor = {};
 blend.plugins.push(blend.ckeditor);
 
+blend.ckeditor.getConfig = function()
+{
+    return {};
+}
+
 blend.ckeditor.register = function ()
 {
 };
@@ -70,7 +75,7 @@ function useImageCkEditor(a)
 
 function createCkEditor(id)
 {
-
+    //if not loaded yet, make it wait a little
     if (typeof CKEDITOR == 'undefined' || $('#' + id).length == 0)
     {
         setTimeout(function ()
@@ -79,7 +84,7 @@ function createCkEditor(id)
         }, 300);
         return;
     }
-    
+
     CKEDITOR.disableAutoInline = true;
 
     //ckeditor allready exists, avoid error
@@ -88,7 +93,7 @@ function createCkEditor(id)
         //return;
     }
 
-    var editor = CKEDITOR.replace(id);
+    let editor = CKEDITOR.replace(id,blend.ckeditor.getConfig());
 
     //active the save button when editor changes
     editor.on('change', function ()

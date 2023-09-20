@@ -727,14 +727,18 @@ async function getJson(page, formData, loadingShow, callBack)
     });
 }
 
+function getRelativeUrl()
+{
+    return window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
+}
+
 /**
  * Return current page
  * @returns {string}
  */
 function getCurrentPage()
 {
-    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
-    return relativeUrl.split('/')[0];
+    return getRelativeUrl().split('/')[0];
 }
 
 /**
@@ -743,8 +747,20 @@ function getCurrentPage()
  */
 function getCurrentEvent()
 {
-    var relativeUrl = window.location.pathname.replace(b('base').attr('href').replace(window.location.protocol + '//' + window.location.host, ''), '');
-    return relativeUrl.split('/')[1];
+    let relative = getRelativeUrl();
+    let value = relative.split('/')[1];
+    return value ? value : null ;
+}
+
+/**
+ * Return the current value
+ * @returns {string}
+ */
+function getCurrentValue()
+{
+    let relative = getRelativeUrl();
+    let value = relative.split('/')[2];
+    return value ? value : null ;
 }
 
 /**
