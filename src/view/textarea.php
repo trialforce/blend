@@ -12,14 +12,16 @@ class TextArea extends \View\View
     /**
      * Construct the textarea
      *
-     * @param string $idName
-     * @param string $value
+     * @param string|null $id
+     * @param string|null $value
+     * @param string|null $class
+     * @throws \Exception
      */
-    public function __construct($idName = NULL, $value = NULL, $class = NULL)
+    public function __construct($id = NULL, string $value = NULL, string $class = NULL)
     {
-        parent::__construct('textarea', $idName, $value, $class);
-        //a simple default value
-        $this->setRows(4);
+        parent::__construct('textarea', $id, $value, $class);
+        $this->setName($id);
+        $this->setRows(4);  //a simple default value
     }
 
     /**
@@ -72,12 +74,6 @@ class TextArea extends \View\View
      */
     public function getRows()
     {
-        return $this->getAttribute('rows');
+        return intval($this->getAttribute('rows'));
     }
-
-    public function setReadOnly($readOnly, $setInChilds = FALSE)
-    {
-        parent::setReadOnly($readOnly, $setInChilds);
-    }
-
 }

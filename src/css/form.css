@@ -1,6 +1,10 @@
 /*Placeholder*/
 ::-webkit-input-placeholder, :-moz-placeholder, ::-moz-placeholder, :-ms-input-placeholder, input[placeholder], [placeholder], *[placeholder], .placeholder {
-    color: #ccc;
+    color: var(--placeholder);
+}
+
+input::placeholder {
+    color: var(--placeholder);
 }
 
 select[readonly]

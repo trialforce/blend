@@ -14,14 +14,16 @@ class Select extends \View\View
     /**
      * Construct select
      *
-     * @param string $idName
-     * @param array $options
-     * @param string $value
-     * @param string $class
+     * @param string|null $id
+     * @param mixed|null $options
+     * @param string|null $value
+     * @param string|null $class
+     * @throws \Exception
      */
-    public function __construct($idName = NULL, $options = NULL, $value = NULL, $class = NULL)
+    public function __construct($id = NULL, $options = NULL, $value = NULL, $class = NULL)
     {
-        parent::__construct('select', $idName);
+        parent::__construct('select', $id);
+        $this->setName($id);
 
         if ($options)
         {
@@ -93,6 +95,10 @@ class Select extends \View\View
      * Create options
      *
      * @param iterable $searchResult
+     * @param null $value
+     * @param bool $putDefaultOption
+     * @return View
+     * @throws \Exception
      */
     public function createOptions($searchResult, $value = NULL, $putDefaultOption = TRUE)
     {
@@ -100,58 +106,13 @@ class Select extends \View\View
     }
 
     /**
-     * Static versin of create options
-     *
-     * @param \View\View $element
-     * @param iterable $searchResult
-     * @param string $value
-     * @param string $putDefaultOption
-     * @return \View\View
-     */
-    public static function constructOptions($element, $searchResult, $value = NULL, $putDefaultOption = TRUE)
-    {
-        $element->clearChildren();
-
-        //if has default option in array, deactive it
-        if (isIterable($searchResult) && isset($searchResult['']))
-        {
-            $putDefaultOption = false;
-        }
-
-        if ($putDefaultOption)
-        {
-            $defaultValue = '';
-
-            if (is_string($putDefaultOption))
-            {
-                $defaultValue = $putDefaultOption;
-            }
-
-            $option = new \View\Option('', $defaultValue, FALSE, $element);
-            $option->setId('select-null-option');
-        }
-
-        if (isIterable($searchResult))
-        {
-            foreach ($searchResult as $index => $item)
-            {
-                $option = \View\Option::createOption($item, $index, $element);
-            }
-        }
-
-        if (isset($value))
-        {
-            self::defineValue($element, $value);
-        }
-
-        return $element;
-    }
-
-    /**
      * Add an option
      *
-     * @param string $value
-     * @param string $label
+     * @param string|null $value
+     * @param string|null $label
+     * @param bool $selected
+     * @return Select
+     * @throws \Exception
      */
     public function addOption($value = NULL, $label = NULL, $selected = FALSE)
     {
@@ -163,7 +124,7 @@ class Select extends \View\View
     /**
      * Return the value
      *
-     * @return string
+     * @return string|string[]
      */
     public function getValue()
     {
@@ -214,7 +175,7 @@ class Select extends \View\View
 
         if (!stripos($this->getId(), '['))
         {
-            $this->setIdAndName($this->getId() . '[]');
+            $this->setId($this->getId() . '[]');
         }
 
         return $this;
@@ -227,7 +188,56 @@ class Select extends \View\View
      */
     public function getMultiple()
     {
-        return $this->getAttribute('multiple');
+        return (bool)$this->getAttribute('multiple');
+    }
+
+    /**
+     * Static versin of create options
+     *
+     * @param View $element
+     * @param iterable $searchResult
+     * @param string|null $value
+     * @param bool $putDefaultOption
+     * @return View
+     * @throws \Exception
+     */
+    public static function constructOptions($element, $searchResult, $value = NULL, $putDefaultOption = TRUE)
+    {
+        $element->clearChildren();
+
+        //if has default option in array, deactive it
+        if (isIterable($searchResult) && isset($searchResult['']))
+        {
+            $putDefaultOption = false;
+        }
+
+        if ($putDefaultOption)
+        {
+            $defaultValue = '';
+
+            if (is_string($putDefaultOption))
+            {
+                $defaultValue = $putDefaultOption;
+            }
+
+            $option = new \View\Option('', $defaultValue, FALSE, $element);
+            $option->setId('select-null-option');
+        }
+
+        if (isIterable($searchResult))
+        {
+            foreach ($searchResult as $index => $item)
+            {
+                $option = \View\Option::createOption($item, $index, $element);
+            }
+        }
+
+        if (isset($value))
+        {
+            self::defineValue($element, $value);
+        }
+
+        return $element;
     }
 
 }

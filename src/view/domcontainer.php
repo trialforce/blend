@@ -71,6 +71,11 @@ class DomContainer implements \Countable
         return $this;
     }
 
+    /**
+     * @deprecated since 17/09/2023
+     * @param $idName
+     * @return $this
+     */
     public function setIdAndName($idName)
     {
         if ($idName)

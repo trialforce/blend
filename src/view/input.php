@@ -87,9 +87,10 @@ class Input extends \View\View
      */
     const TYPE_DATETIME_LOCAL = 'datetime-local';
 
-    public function __construct($idName = \NULL, $type = 'text', $value = \NULL, $class = \NULL, $placeholder = \NULL)
+    public function __construct($id = \NULL, $type = 'text', $value = \NULL, $class = \NULL, $placeholder = \NULL)
     {
-        parent::__construct('input', $idName, \NULL, $class);
+        parent::__construct('input', $id, \NULL, $class);
+        $this->setName($id);
         $this->setType($type);
         $this->setValue($value);
         $this->setAttribute('placeholder', $placeholder);
@@ -99,7 +100,7 @@ class Input extends \View\View
      * Define o tipo
      *
      * @param string $type
-     * @return \Input
+     * @return $this
      */
     public function setType($type)
     {

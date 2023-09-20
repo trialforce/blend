@@ -26,67 +26,67 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     /**
      * Construct a view
      *
-     * @param string $domName
-     * @param string $idName
+     * @param string $tagName
+     * @param string $id
      * @param mixed $innerHtml
      * @param string $class
-     * @param \DOMElement $father
      * @throws \Exception
      */
-    public function __construct($domName, $idName = \NULL, $innerHtml = NULL, $class = NULL, $father = NULL)
+    public function __construct($tagName, $id = NULL, $innerHtml = NULL, $class = NULL,$father = NULL)
     {
-        if (!$domName)
+        parent::__construct($tagName ? $tagName : 'div');
+
+        $owner = $father ? $father : self::getDom();
+
+        if ($owner)
         {
-            throw new \Exception('View sem tipo definido! Id =' . $idName);
+            $owner->appendChild($this);
         }
 
-        parent::__construct($domName);
-
-        if (!self::getDom())
-        {
-            throw new \Exception('Impossível encontrar layout para ' . $domName . ' - ' . get_class($this));
-        }
-
-        if ($father)
-        {
-            $father->append($this);
-        }
-        else
-        {
-            self::getDom()->append($this);
-        }
-
-        $this->setIdAndName($idName);
-        $this->append($innerHtml);
+        $this->setId($id);
         $this->setClass($class);
+        $this->append($innerHtml);
     }
 
     /**
-     * Return the first chield element
+     * Define the id of element
      *
-     * @return \View\DomContainer
+     * @param string $id
      */
-    public function first()
+    public function setId($id)
     {
-        return new \View\DomContainer($this->firstChild);
-    }
-
-    /**
-     * Get the first element of the tag name
-     *
-     * @param string $tag the tag name
-     * @return \View\View the first element of the passed tag or null
-     */
-    public function byTag($tag)
-    {
-        $elements = $this->getElementsByTagName($tag);
-
-        if (isset($elements[0]))
+        if (!$id)
         {
-            return \View\Document::toView($elements[0]);
+            return $this;
         }
 
-        return null;
+        //add support for [
+        if (stripos($id, '[') > 0)
+        {
+            $id = str_replace(array('[', ']'), '', $id);
+        }
+
+        parent::setAttribute('id', $id);
+
+        $dom = \View\View::getDom();
+
+        //add to element list to can be finded in getElementById method
+        if ( $dom && method_exists($dom, 'addToElementList'))
+        {
+            $dom->addToElementList($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Retorna o nome do elemento
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->getAttribute('id');
     }
 
     /**
@@ -94,33 +94,35 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
      *
      * Only set name if element need it
      *
+     * @deprecated since 17/09/2023
+     *
      * @param string $idName
      */
     public function setIdAndName($idName)
     {
-        if ($idName)
+        if (!$idName)
         {
-            $id = $idName;
-            $name = $idName;
+            return $this;
+        }
 
-            //add support for [
-            if (stripos($idName, '[') > 0)
-            {
-                $id = str_replace(array('[', ']'), '', $id);
-            }
+        $id = $idName;
 
-            $tagName = $this->tagName;
+        //add support for [
+        if (stripos($idName, '[') > 0)
+        {
+            $id = str_replace(array('[', ']'), '', $id);
+        }
 
-            $putName[] = 'input';
-            $putName[] = 'textarea';
-            $putName[] = 'select';
+        $this->setId($id);
 
-            if (in_array($tagName, $putName))
-            {
-                $this->setName($name);
-            }
+        $tagName = $this->tagName;
+        $putName[] = 'input';
+        $putName[] = 'textarea';
+        $putName[] = 'select';
 
-            $this->setId($id);
+        if (in_array($tagName, $putName))
+        {
+            $this->setName($idName);
         }
 
         return $this;
@@ -237,6 +239,34 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     }
 
     /**
+     * Return the first chield element
+     *
+     * @return \View\DomContainer
+     */
+    public function first()
+    {
+        return new \View\DomContainer($this->firstChild);
+    }
+
+    /**
+     * Get the first element of the tag name
+     *
+     * @param string $tag the tag name
+     * @return \View\View the first element of the passed tag or null
+     */
+    public function byTag($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if (isset($elements[0]))
+        {
+            return \View\Document::toView($elements[0]);
+        }
+
+        return null;
+    }
+
+    /**
      * Seta o foco no campo
      */
     public function focus()
@@ -282,37 +312,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
     {
         $class = $class ?: get_class($this);
         return $this->setData('server-class', $class);
-    }
-
-    /**
-     * Define o nome do elemento
-     *
-     * @param string $name
-     */
-    public function setId($id)
-    {
-        if ($id)
-        {
-            parent::setAttribute('id', $id);
-
-            //add to element list to can be finded in getElementById method
-            if (\View\View::getDom())
-            {
-                \View\View::getDom()->addToElementList($this);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Retorna o nome do elemento
-     *
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->getAttribute('id');
     }
 
     /**
@@ -493,6 +492,26 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         {
             return $element;
         }
+        //normal dom elements
+        else if ($content instanceof \DOMNode)
+        {
+            //domelement and domdocumentfragment extends dom \DomNode
+            $element->appendChild($content);
+        }
+        //dom container
+        else if ($content instanceof \View\DomContainer)
+        {
+            $element->appendChild($content->getDomElement());
+        }
+        //if is Node list, append it all
+        else if ($content instanceof \DOMNodeList)
+        {
+            for ($i = $content->length; --$i >= 0;)
+            {
+                $field = $content->item($i);
+                $element->appendChild($field);
+            }
+        }
         //if is array call recursive
         else if (is_array($content))
         {
@@ -503,7 +522,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
         else if ($content instanceof \View\Document)
         {
-            $content instanceof \View\Document;
             $firstChild = $content->firstChild;
             $migratedNode = \View\View::getDom()->importNode($firstChild, true);
 
@@ -513,33 +531,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             }
 
             $element->append($migratedNode);
-        }
-        //dom container
-        else if ($content instanceof \View\DomContainer)
-        {
-            $element->appendChild($content->getDomElement());
-        }
-        //normal dom elements
-        else if ($content instanceof \DOMElement)
-        {
-            $element->appendChild($content);
-        }
-        else if ($content instanceof \DOMDocumentFragment)
-        {
-            $element->appendChild($content);
-        }
-        else if ($content instanceof \DOMNode)
-        {
-            $element->appendChild($content);
-        }
-        //if is Node list, append it all
-        else if ($content instanceof \DOMNodeList)
-        {
-            for ($i = $content->length; --$i >= 0;)
-            {
-                $field = $content->item($i);
-                $element->appendChild($field);
-            }
         }
         else if ($content instanceof \Component\Component)
         {
@@ -1422,12 +1413,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             return $element;
         }
 
-        //element need one id, so we can append to it later
-        if (!$element->getAttribute('id'))
-        {
-            $element->setAttribute('id', rand());
-        }
-
         if (function_exists('tidy_repair_string'))
         {
             $config['show-body-only'] = TRUE; //only return what is on body
@@ -1435,11 +1420,19 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
             $htmlText = \tidy_repair_string($htmlText, $config, 'utf8');
         }
 
-        $layout = new \View\Layout(null, false);
+        $htmlText = mb_convert_encoding($htmlText,'HTML-ENTITIES', "UTF-8");
+
+        $layout = new \DOMDocument('1.0', 'UTF-8');
         $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
         libxml_clear_errors();
 
-        \View\View::getDom()->appendLayout($element->getAttribute('id'), $layout);
+        $childs = $layout->childNodes->item(1)->childNodes->item(0)->childNodes;
+
+        foreach ($childs as $child)
+        {
+            $migrated = $element->ownerDocument->importNode($child,true);
+            $element->appendChild($migrated);
+        }
 
         return $element;
     }
