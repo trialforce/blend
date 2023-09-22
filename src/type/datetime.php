@@ -979,6 +979,13 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         return $this->toDb();
     }
 
+    public function __debugInfo()
+    {
+        return [
+            'date' => $this->format(self::MASK_TIMESTAMP_DB)
+        ];
+    }
+
     /**
      * Get value estático.
      * Usado para formatação.
