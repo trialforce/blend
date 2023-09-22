@@ -63,6 +63,7 @@
     padding: 3px 6px;
     border-radius: 2px;
     margin-right: 0 !important;
+    z-index: 9;
 }
 
 .file-visualizer .img-back, .image-container .img-back {
