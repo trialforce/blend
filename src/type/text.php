@@ -105,7 +105,7 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Obtém a string
      *
-     * @return dia
+     * @return string
      */
     public function getValue()
     {
