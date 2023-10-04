@@ -1422,6 +1422,8 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
 
         $htmlText = mb_convert_encoding($htmlText,'HTML-ENTITIES', "UTF-8");
 
+        //disable boring errors of libxml
+        libxml_use_internal_errors(true);
         $layout = new \DOMDocument('1.0', 'UTF-8');
         $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
         libxml_clear_errors();
