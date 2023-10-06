@@ -211,6 +211,7 @@ class UserAgent
         'Google-Ads-Creatives-Assistant', //Google Ads
         'Google Page Speed Insights', //Google pagespeed
         'Google-Site-Verification', //google site verification, developer tools
+        'Chrome Privacy Preserving Prefetch Proxy',//google privacy .well-known/traffic-advice
         'Google-AdWords-Express', //googe adworss
         'Google-Adwords-Instant', //google adwords
         'Google-Structured-Data-Testing-Tool', //google adwords
@@ -449,7 +450,6 @@ class UserAgent
         {
             if (preg_match('/' . $service . '/i', $this->userAgent))
             {
-                $this->platform = self::PLATFORM_BOT;
                 $this->platform = self::PLATFORM_BOT;
                 $this->developer = self::PLATFORM_BOT;
                 $this->completeName = $service;
