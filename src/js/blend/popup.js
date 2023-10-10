@@ -15,6 +15,11 @@ function popup(action, selector)
 
     var element = $('.popup' + selector);
 
+    if (element.length == 0)
+    {
+        return false;
+    }
+
     if (action === 'show' || action === 'open')
     {
         $('.makePopupFade').addClass('popupFaded');
