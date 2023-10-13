@@ -45,7 +45,6 @@
     top: 11px;
     width: 23px;
     height: 12px;
-    background-color: var(--brighterColor);
     background-image: url(../theme/img/search.png);
     text-align: center;
     background-repeat: no-repeat;

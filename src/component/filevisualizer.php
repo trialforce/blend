@@ -126,7 +126,7 @@ class FileVisualizer extends \Component\Component
         }
         else if ($file->isImage())
         {
-            $body[] = new \View\Img('preview-image', $file->getUrl(), '100%', null, $file->getBasename());
+            $body[] = new \View\Img('preview-image', $file->getUrl(), null, null, $file->getBasename());
         }
         else
         {
@@ -221,7 +221,7 @@ class FileVisualizer extends \Component\Component
      * @return \View\Div the holder element
      * @throws \Exception
      */
-    public static function createHolder(\Disk\Folder $folder, $search = '*')
+    public static function createHolder(\Disk\Folder $folder, $search = '*',$title = null)
     {
         $isCkEditor = \DataHandle\Request::get('CKEditor');
         $accept = '*';
@@ -240,7 +240,7 @@ class FileVisualizer extends \Component\Component
         $content[] = new \View\Input('file-visualizer-search', \View\Input::TYPE_HIDDEN, $search);
         $content[] = new \View\Input('file-visualizer-ckeditor', \View\Input::TYPE_HIDDEN, $isCkEditor);
 
-        $content[] = new \View\H1('file-visualizer-title', $folder->getBasename());
+        $content[] = new \View\H1('file-visualizer-title', $title? $title : $folder->getBasename());
         $content[] = $upload = new \View\Input('file-visualizer-upload', \View\Input::TYPE_FILE);
         $upload->attr('accept', $accept)->css('margin-bottom', '30px')->change('p("' . $uploadUrl . '");');
 

@@ -26,7 +26,9 @@ function preparaVer()
     //remove clique duplo
     $('[ondblclick]').removeAttr('ondblclick');
 
-    $('input, select, textarea').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
+    $('input, select, textarea, [contenteditable]').not('[data-see-not-disable=1]').attr('disabled', 'disabled');
+
+    $('[contenteditable]').not('[data-see-not-disable=1]').attr('contenteditable', 'false');
 
     //add support for autocomplete/combo input
     //TODO avoid setimeout
