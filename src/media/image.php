@@ -68,7 +68,7 @@ class Image extends \Disk\File
      * @param type $path
      * @param type $load
      */
-    public function __construct($path=NULL, $load = FALSE)
+    public function __construct($path = NULL, $load = FALSE)
     {
         parent::__construct($path, $load);
     }
@@ -722,6 +722,23 @@ class Image extends \Disk\File
         }
 
         return $found;
+    }
+
+    public static function createFromBytes($bytes)
+    {
+        $gd = imagecreatefromstring($bytes);
+
+        $image = new \Media\Image(null);
+        $image->setContent($gd);
+
+        return $image;
+    }
+
+    public static function createFromBase64($base64)
+    {
+        $bytes = base64_decode($base64);
+
+        return \Media\Image::createFromBytes($bytes);
     }
 
     /**
