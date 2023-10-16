@@ -315,7 +315,7 @@ class QueryBuilder
     /**
      * Define add column to query
      *
-     * @param type $columns
+     * @param array|string $columns
      * @return \Db\QueryBuilder
      */
     public function columns($columns)
