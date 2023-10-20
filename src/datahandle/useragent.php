@@ -211,7 +211,7 @@ class UserAgent
         'Google-Ads-Creatives-Assistant', //Google Ads
         'Google Page Speed Insights', //Google pagespeed
         'Google-Site-Verification', //google site verification, developer tools
-        'Chrome Privacy Preserving Prefetch Proxy',//google privacy .well-known/traffic-advice
+        'Chrome Privacy Preserving Prefetch Proxy', //google privacy .well-known/traffic-advice
         'Google-AdWords-Express', //googe adworss
         'Google-Adwords-Instant', //google adwords
         'Google-Structured-Data-Testing-Tool', //google adwords
@@ -403,6 +403,7 @@ class UserAgent
         'SeekportBot', //Mozilla/5.0 (compatible; SeekportBot; +https://bot.seekport.com)
         'Nikto', //Nikto Webserver Scanner https://github.com/sullo/nikto
         'gptbot', //Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)
+        'Bytespider', //Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)
     );
 
     /**
