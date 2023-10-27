@@ -88,6 +88,21 @@ class Folder
     }
 
     /**
+     * Create the folder recursively if needed
+     */
+    public function createFolderIfNeeded()
+    {
+        if (!$this->exists())
+        {
+            $this->create();
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    /**
      * Return the first file
      *
      * @param type $relativeGlob
@@ -95,7 +110,7 @@ class Folder
      */
     public function findOneFile($relativeGlob)
     {
-        $files = \Disk\File::find($this->path .'/' . $relativeGlob);
+        $files = \Disk\File::find($this->path . '/' . $relativeGlob);
 
         if (isset($files[0]))
         {
