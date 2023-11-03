@@ -94,8 +94,6 @@ class Popup extends Div
 
         $this->append($this->outter);
         $this->generateTitle();
-
-        \View\View::getDom()->byId('content')->append($this);
     }
 
     function getTitle()
@@ -128,6 +126,7 @@ class Popup extends Div
      */
     public function show($param = FALSE)
     {
+        Config::set('responseType', 'append');
         \App::addJs(self::getJs('show', $this->getId()));
 
         return $this;
