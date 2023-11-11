@@ -7,6 +7,7 @@ class JsonTest //extends PHPunit_Framework_Testcase
     public function testEncodeDecode()
     {
         $array['author'] = 'Eduardo Bonfandini';
+        $array['nickName'] = 'Bonfa';
         $array['project'] = 'Blend';
 
         $json = \Disk\Json::encode($array);
