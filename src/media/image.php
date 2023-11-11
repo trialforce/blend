@@ -37,11 +37,6 @@ class Image extends \Disk\File
     const EXT_XBM = 'xbm';
 
     /**
-     * Wbm
-     */
-    const EXT_WBMP = 'wbmp';
-
-    /**
      * Psd
      */
     const EXT_PSD = 'psd';
@@ -129,10 +124,6 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_GIF)
         {
             $this->content = imagecreatefromgif($this->path);
-        }
-        else if ($extension == Image::EXT_WBMP)
-        {
-            $this->content = imagecreatefromwbmp($this->path);
         }
         else if ($extension == Image::EXT_WEBP)
         {
@@ -282,9 +273,9 @@ class Image extends \Disk\File
     /**
      * Output a image to the specified filename
      *
-     * @param type $filename The path to save the file to. If not set or NULL, the raw image stream will be outputted directly.
+     * @param \Media\Image|string $filename The path to save the file to. If not set or NULL, the raw image stream will be outputted directly.
      * @param int $quality 0 to 100
-     * @throws Exception
+     * @throws \Exception
      */
     public function export($filename, $quality = 100)
     {
@@ -353,10 +344,6 @@ class Image extends \Disk\File
                 {
                     self::optimizeJpg($filename);
                 }
-            }
-            else if ($extension == Image::EXT_WBMP)
-            {
-                image2wbmp($this->content, $filename . '', NULL);
             }
             else if ($extension == Image::EXT_XBM)
             {
@@ -697,7 +684,7 @@ class Image extends \Disk\File
         $exts[] = self::EXT_PNG;
         $exts[] = self::EXT_WEBP;
 
-        return in_array($this->getExtension(), $exts);
+        return $exts;
     }
 
     /**
@@ -801,10 +788,6 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
             imagejpeg($this->content);
-        }
-        else if ($extension == Image::EXT_WBMP)
-        {
-            image2wbmp($this->content);
         }
         else if ($extension == Image::EXT_XBM)
         {
