@@ -499,11 +499,9 @@ class Text implements \Type\Generic, \JsonSerializable
     }
 
     /**
-     * Verifica se a string é UTF8
+     * Verify if the string is UTF8
      *
-     * @param o $string
-     *
-     * @internal param \o $string texto a verificar
+     * @param string $string
      * @return boolean
      */
     public static function isUTF8($string)
@@ -568,7 +566,7 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * Only works with portuguese
      *
-     * @param sting $str the plural word
+     * @param string $str the plural word
      * @return string the singular version of this word
      */
     public static function toSingular($str)

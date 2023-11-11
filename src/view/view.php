@@ -8,7 +8,7 @@ use DataHandle\Request;
  * Represent a generic html view/element
  * When you call new \View\View it goes direct to html dom tree
  */
-class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySerialize
+class View extends \DomElement implements \Countable
 {
 
     const REPLACE_SPACE = '_space_';
@@ -1601,15 +1601,6 @@ class View extends \DomElement implements \Countable, \Disk\JsonAvoidPropertySer
         }
 
         return preg_match('/<\s?[^\>]*\/?\s?>/i', $string);
-    }
-
-    public function listAvoidPropertySerialize()
-    {
-        $avoid[] = 'dom';
-        $avoid[] = 'label';
-        $avoid[] = 'contain';
-
-        return $avoid;
     }
 
     /**
