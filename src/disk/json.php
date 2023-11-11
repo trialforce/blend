@@ -9,7 +9,7 @@ class Json
 {
 
     /**
-     * Encode a mixed value to json string
+     * Encode a array/object to json string
      *
      * @param mixed $value
      * @param int $options
@@ -26,11 +26,25 @@ class Json
             return $result;
         }
 
-        throw new \Exception(self::getLastErrorMsg());
+        throw new \Exception(json_last_error_msg());
     }
 
     /**
-     * Decode json string
+     * Stringfy the array/object as a json string
+     * Internally call encode
+     *
+     * @param mixed $value
+     * @param int $options
+     * @return string
+     * @throws \Exception
+     */
+    public static function stringfy($value, $options = false)
+    {
+        return self::encode($value, $options);
+    }
+
+    /**
+     * Decode json string to \stdClass or array
      *
      * @param string $json json string
      * @param bool $assoc associaty array or not
@@ -40,7 +54,7 @@ class Json
      */
     public static function decode($json, $assoc = false)
     {
-        //convert to ut8 if not
+        //convert to utf8 if not
         if (!\Type\Text::isUTF8($json))
         {
             $json = utf8_encode($json);
@@ -59,7 +73,55 @@ class Json
             return $result;
         }
 
-        throw new \Exception(self::getLastErrorMsg());
+        throw new \Exception(json_last_error_msg());
+    }
+
+    /**
+     * Decode a JSON string direct to a PHP Class
+     *
+     * @param string $json  json string
+     * @param string $class php class
+     * @param $onlyDefined TRUE only properties defined in objet OR FALSE all properties
+     * @return object
+     * @throws \ReflectionException
+     */
+    public static function decodeToClass($json, $class, $onlyDefined = false)
+    {
+        $result = self::decode($json);
+
+        if (!class_exists($class))
+        {
+            throw new \Exception('JSON DECODE ERROR: Class '.$class. 'does not exits!');
+        }
+
+        $reflection = new \ReflectionClass($class);
+        $instance = $reflection->newInstanceWithoutConstructor();
+
+        foreach ($result as $property => $value)
+        {
+            try
+            {
+                //if property exists, modify to make fillable
+                $instanceProperty = $reflection->getProperty($property);
+
+                if ($instanceProperty)
+                {
+                    $instanceProperty->setAccessible(true);
+                    $instanceProperty->setValue($instance, $value);
+                }
+            }
+            catch (\Throwable $exception)
+            {
+                //only fill properties defined on objet
+                if (!$onlyDefined)
+                {
+                    //using magic methods
+                    $instance->$property = $value;
+                }
+            }
+        }
+
+        return $instance;
     }
 
     /**
@@ -69,23 +131,11 @@ class Json
      * @param string $json
      * @param bool $assoc
      * @return mixed
+     * @throws \Exception
      */
     public static function parse($json, $assoc = false)
     {
         return self::decode($json, $assoc);
-    }
-
-    /**
-     * Stringfy the array
-     * Internally call encode
-     *
-     * @param mixed $value
-     * @param int $options
-     * @return string
-     */
-    public static function stringfy($value, $options = false)
-    {
-        return self::encode($value, $options);
     }
 
     /**
@@ -112,45 +162,6 @@ class Json
         }
 
         return Json::decode($content, $assoc);
-    }
-
-    /**
-     * Get last json error
-     * add compatibility with old php versions
-     *
-     * @return string
-     */
-    public static function getLastErrorMsg()
-    {
-        if (!function_exists('json_last_error_msg'))
-        {
-            return json_last_error_msg();
-        }
-        else
-        {
-            switch (json_last_error())
-            {
-                default:
-                    return;
-                case JSON_ERROR_DEPTH:
-                    $error = 'Maximum stack depth exceeded';
-                    break;
-                case JSON_ERROR_STATE_MISMATCH:
-                    $error = 'Underflow or the modes mismatch';
-                    break;
-                case JSON_ERROR_CTRL_CHAR:
-                    $error = 'Unexpected control character found';
-                    break;
-                case JSON_ERROR_SYNTAX:
-                    $error = 'Syntax error, malformed JSON';
-                    break;
-                case JSON_ERROR_UTF8:
-                    $error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-                    break;
-            }
-
-            return $error;
-        }
     }
 
 }
