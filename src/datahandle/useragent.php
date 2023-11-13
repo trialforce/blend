@@ -239,7 +239,8 @@ class UserAgent
         'Microsoft Office Protocol Discovery',
         'Microsoft-WebDAV-MiniRedir',
         'Yahoo Link Preview',
-        'Yahoo Ad monitoring'
+        'Yahoo Ad monitoring',
+        'Amazonbot'
     );
 
     /**
