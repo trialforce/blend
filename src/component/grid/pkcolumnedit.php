@@ -50,7 +50,7 @@ class PkColumnEdit extends \Component\Grid\EditColumn
         {
             foreach ($actions as $action)
             {
-                $action instanceof \Component\Action\Action;
+                /** @var \Component\Action\Action $action */
 
                 //don't render group in grid action
                 if (!$action->getRenderInGrid())

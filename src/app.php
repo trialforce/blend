@@ -106,26 +106,9 @@ class App
     public function getCurrentPage()
     {
         $page = $this->getCurrentPageRaw();
-        $page = self::sanitizePage($page);
+        $page = self::getPageClassFromUrl($page);
 
-        if ($page)
-        {
-            //add support for module in old projects
-            $explode = explode('-', $page);
-            $module = $explode[0];
-            array_shift($explode);
-            $modulePage = $module . '\page\\' . implode('\\', $explode);
-
-            if (class_exists($modulePage))
-            {
-                $page = $modulePage;
-            }
-            else
-            {
-                $page = '\page\\' . str_replace('-', '\\', $page);
-            }
-        }
-        else
+        if (!$page)
         {
             $page = \DataHandle\Config::getDefault('defaultPage', \DataHandle\Session::get('user') ? 'Page\Main' : NULL);
         }
@@ -574,6 +557,39 @@ class App
         if ($page != $replaced)
         {
             return '';
+        }
+
+        return $page;
+    }
+
+    /**
+     * Receives one url, and return the complete class with namespaces
+     *
+     * @param $page string page url
+     * @return string the resultant file class
+     */
+    public static function getPageClassFromUrl($page)
+    {
+        $page = self::sanitizePage($page);
+
+        if (!$page)
+        {
+            return '';
+        }
+
+        //add support for module in old projects
+        $explode = explode('-', $page);
+        $module = $explode[0];
+        array_shift($explode);
+        $modulePage = $module . '\page\\' . implode('\\', $explode);
+
+        if (class_exists($modulePage))
+        {
+            $page = $modulePage;
+        }
+        else
+        {
+            $page = '\page\\' . str_replace('-', '\\', $page);
         }
 
         return $page;

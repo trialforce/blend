@@ -13,7 +13,7 @@ class Page extends \Component\Action\Action
 
     public function __construct($page = null, $event = null, $pk = null, $icon = null, $label = null, $class = null)
     {
-        $pageClass = '\page\\' . str_replace(array('/', '-'), '\\', $page);
+        $pageClass = \App::getPageClassFromUrl($page);
 
         if (class_exists($pageClass))
         {
