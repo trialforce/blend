@@ -341,18 +341,7 @@ class Column
 
     public function getReferenceModelClass()
     {
-        //if allready has  "model" in string, use it
-        if (stripos($this->referenceTable, '\model') !== false)
-        {
-            $modelClass = $this->referenceTable;
-        }
-        //if not, put "model" on start
-        else
-        {
-            $modelClass = '\Model\\' . $this->referenceTable;
-        }
-
-        return $modelClass;
+        return self::getModelClassForReference($this->referenceTable);
     }
 
     /**
@@ -974,6 +963,22 @@ class Column
         $result = rtrim(ltrim($result, '`'), '`');
 
         return $result;
+    }
+
+    public static function getModelClassForReference($referenceTable)
+    {
+        //if allready has "model" in string, use it
+        if (stripos($referenceTable, '\model') !== false)
+        {
+            $modelClass = $referenceTable;
+        }
+        //if not, put "model" on start
+        else
+        {
+            $modelClass = '\Model\\' . $referenceTable;
+        }
+
+        return $modelClass;
     }
 
 }

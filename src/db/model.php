@@ -1268,7 +1268,7 @@ class Model implements \JsonSerializable
                 continue;
             }
 
-            $referenceModelClass = '\Model\\' . str_ireplace('\Model\\', '', $referenceModel);
+            $referenceModelClass = \Db\Column\Column::getModelClassForReference($referenceModel);
             $referenceField = $column->getReferenceField();
             $referenceTable = $referenceModelClass::getTableName();
             $sql = $column->getTableName() . '.' . $column->getName() . ' = ' . $referenceTable . '.' . $referenceField;
