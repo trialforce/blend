@@ -233,7 +233,8 @@ class Image extends \Disk\File
     /**
      * imageistruecolor — Finds whether an image is a truecolor image
      *
-     * @return Returns TRUE if the image is truecolor, FALSE otherwise.
+     * @return bool if the image is truecolor, FALSE otherwise.
+     * @throws \Exception
      */
     public function isTrueColor()
     {
@@ -382,7 +383,7 @@ class Image extends \Disk\File
      * browser, e.g. latest Mozilla.
      *
      * @param boolean $saveflag Whether to save the alpha channel or not. Default to FALSE.
-     * @return \Image
+     * @return bool
      */
     public function saveAlpha($saveflag)
     {
@@ -398,7 +399,7 @@ class Image extends \Disk\File
      * http://php.net/manual/en/function.imagecolorallocate.php
      *
      * @param Color $color
-     * @return color identifier ????
+     * @return false|int
      */
     public function allocateColor(Color $color)
     {
@@ -419,9 +420,9 @@ class Image extends \Disk\File
      * Performs a flood fill starting at the given coordinate
      * (top left is 0, 0) with the given color in the image.
      *
-     * @param type $colorIdentifier
      * @param int $x x-coordinate of start point.
      * @param int $y y-coordinate of start point.
+     * @param int $colorIdentifier
      *
      */
     public function fill($x, $y, $colorIdentifier)
@@ -440,8 +441,8 @@ class Image extends \Disk\File
      * This does not work as well as might be hoped.
      * It is usually best to simply produce a truecolor output image
      * instead, which guarantees the highest output quality
-     * @param type $dither Indicates if the image should be dithered - if it is TRUE then dithering will be used which will result in a more speckled image but with better color approximation.
-     * @param type $ncolors Sets the maximum number of colors that should be retained in the palette.
+     * @param bool $dither Indicates if the image should be dithered - if it is TRUE then dithering will be used which will result in a more speckled image but with better color approximation.
+     * @param bool $ncolors Sets the maximum number of colors that should be retained in the palette.
      *
      * http://php.net/manual/en/function.imagetruecolortopalette.php
      *
@@ -496,6 +497,7 @@ class Image extends \Disk\File
      *
      * @param int $width can be null
      * @param int $height can be null
+     * @throws \Exception
      */
     function resize($width = NULL, $height = NULL)
     {
@@ -532,6 +534,7 @@ class Image extends \Disk\File
      * Resize the image to fit a square, adding white letterboxes where needed
      *
      * @param int $maxWidth
+     * @throws \Exception
      */
     function toSquare($maxWidth = null)
     {
@@ -602,7 +605,7 @@ class Image extends \Disk\File
         //get out when don't find things
         if (!$thumb || !$this->content)
         {
-            return;
+            return null;
         }
 
         imagealphablending($thumb, false);
@@ -695,6 +698,7 @@ class Image extends \Disk\File
      * @param $disposition
      * @param $request
      * @return void
+     * @throws \Exception
      */
     public function outputInline($disposition = 'inline', $request = NULL)
     {
@@ -758,7 +762,8 @@ class Image extends \Disk\File
 
     /**
      * Return the image as base64 string
-     * @return type
+     * @return string
+     * @throws \Exception
      */
     public function toBase64()
     {
@@ -773,7 +778,7 @@ class Image extends \Disk\File
             return 'data:' . $this->getMimeType() . ';base64,' . base64_encode($imageData);
         }
 
-        return null;
+        return '';
     }
 
     /**
