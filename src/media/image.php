@@ -8,9 +8,6 @@ namespace Media;
  */
 class Image extends \Disk\File
 {
-    //TODO create constant for image types
-    // 1 = GIF, 2 = JPG, 3 = PNG, 4 = SWF, 5 = PSD, 6 = BMP, 7 = TIFF(intel byte order), 8 = TIFF(motorola byte order), 9 = JPC, 10 = JP2, 11 = JPX, 12 = JB2, 13 = SWC, 14 = IFF, 15 = WBMP, 16 = XBM
-
     /**
      * Png
      */
@@ -32,16 +29,6 @@ class Image extends \Disk\File
     const EXT_GIF = 'gif';
 
     /**
-     * Xbm
-     */
-    const EXT_XBM = 'xbm';
-
-    /**
-     * Psd
-     */
-    const EXT_PSD = 'psd';
-
-    /**
      * ICO image extension
      */
     const EXT_ICO = 'ico';
@@ -52,6 +39,11 @@ class Image extends \Disk\File
     const EXT_WEBP = 'webp';
 
     /**
+     * Vectorial image SVG
+     */
+    const EXT_SVG = 'svg';
+
+    /**
      * Cache for size of the image (getimagesizes)
      *
      * @var array
@@ -60,8 +52,8 @@ class Image extends \Disk\File
 
     /**
      * Construct the images
-     * @param type $path
-     * @param type $load
+     * @param string $path
+     * @param bool $load
      */
     public function __construct($path = NULL, $load = FALSE)
     {
@@ -98,7 +90,7 @@ class Image extends \Disk\File
      * Load the image according his extension
      *
      * @return \Media\Image
-     * @throws Exception
+     * @throws \Exception
      */
     public function load()
     {
@@ -110,7 +102,12 @@ class Image extends \Disk\File
 
         $extension = $this->getExtension();
 
-        if ($extension == Image::EXT_PNG)
+        //SVG extension we do manually
+        if ($extension == Image::EXT_SVG)
+        {
+            $this->content = parent::load();
+        }
+        else if ($extension == Image::EXT_PNG)
         {
             $this->content = imagecreatefrompng($this->path);
             imagesavealpha($this->content, true);
@@ -128,16 +125,6 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_WEBP)
         {
             $this->content = imagecreatefromwebp($this->path);
-        }
-        else if ($extension == Image::EXT_PSD)
-        {
-            if (!\Media\ImageMagick::isInstalled())
-            {
-                throw new \Exception('Imagemagic extension is not installed! Without PSD support!');
-            }
-
-            $this->content = new \Imagick();
-            $this->content->readImage($this->path);
         }
 
         return $this;
@@ -176,16 +163,6 @@ class Image extends \Disk\File
     }
 
     /**
-     * Verify if this image is using image magick extension
-     *
-     * @return boolean
-     */
-    public function isUsingImageMagick()
-    {
-        return $this->content instanceof \Imagick;
-    }
-
-    /**
      * Define the path of the image
      *
      * @param string $path
@@ -204,7 +181,7 @@ class Image extends \Disk\File
      */
     public function getWidth()
     {
-        if ($this->content && !$this->isUsingImageMagick())
+        if ($this->content)
         {
             return imagesx($this->content);
         }
@@ -220,7 +197,7 @@ class Image extends \Disk\File
      */
     public function getHeight()
     {
-        if ($this->content && !$this->isUsingImageMagick())
+        if ($this->content)
         {
             return imagesy($this->content);
         }
@@ -301,62 +278,51 @@ class Image extends \Disk\File
 
         $extension = $filename->getExtension();
 
-        if ($this->isUsingImageMagick())
+        if ($extension == Image::EXT_ICO)
         {
-            $this->content->writeImage($filename);
+            $pngQuality = round(abs(($quality - 100) / 11.111111));
+
+            imageico($this->content, $filename . '', $pngQuality);
         }
-        else
+        else if ($extension == Image::EXT_PNG)
         {
-            if ($extension == Image::EXT_ICO)
-            {
-                $pngQuality = round(abs(($quality - 100) / 11.111111));
+            $pngQuality = round(abs(($quality - 100) / 11.111111));
 
-                imageico($this->content, $filename . '', $pngQuality);
-            }
-            else if ($extension == Image::EXT_PNG)
-            {
-                $pngQuality = round(abs(($quality - 100) / 11.111111));
+            imagepng($this->content, $filename . '', $pngQuality);
+        }
+        else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
+        {
+            //put white background
+            $width = $this->getWidth();
+            $height = $this->getHeight();
+            //create image
+            $output = imagecreatetruecolor($width, $height);
+            //put white color
+            $white = imagecolorallocate($output, 255, 255, 255);
+            //fill background rectangle
+            imagefilledrectangle($output, 0, 0, $width, $height, $white);
+            //copy the image to new
+            imagecopy($output, $this->content, 0, 0, 0, 0, $width, $height);
 
-                imagepng($this->content, $filename . '', $pngQuality);
-            }
-            else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
-            {
-                //put white background
-                $width = $this->getWidth();
-                $height = $this->getHeight();
-                //create image
-                $output = imagecreatetruecolor($width, $height);
-                //put white color
-                $white = imagecolorallocate($output, 255, 255, 255);
-                //fill background rectangle
-                imagefilledrectangle($output, 0, 0, $width, $height, $white);
-                //copy the image to new
-                imagecopy($output, $this->content, 0, 0, 0, 0, $width, $height);
+            //if (!is_writable(dirname($filename . '')))
+            //{
+            //throw new \UserException('Sem permissões para escrever em ' . $filename . '');
+            //}
+            //export the new generate image
+            imagejpeg($output, $filename . '', $quality);
 
-                //if (!is_writable(dirname($filename . '')))
-                //{
-                //throw new \UserException('Sem permissões para escrever em ' . $filename . '');
-                //}
-                //export the new generate image
-                imagejpeg($output, $filename . '', $quality);
-
-                if (\DataHandle\Config::get('optimizeJpeg'))
-                {
-                    self::optimizeJpg($filename);
-                }
-            }
-            else if ($extension == Image::EXT_XBM)
+            if (\DataHandle\Config::get('optimizeJpeg'))
             {
-                imagexbm($this->content, $filename . '', NULL);
+                self::optimizeJpg($filename);
             }
-            else if ($extension == Image::EXT_WEBP)
-            {
-                // Before creating an image in .webp format, needs to convert file to RGB
-                // webp does not support palletes
-                imagepalettetotruecolor($this->content);
+        }
+        else if ($extension == Image::EXT_WEBP)
+        {
+            // Before creating an image in .webp format, needs to convert file to RGB
+            // webp does not support palletes
+            imagepalettetotruecolor($this->content);
 
-                imagewebp($this->content, $filename . '', $quality);
-            }
+            imagewebp($this->content, $filename . '', $quality);
         }
 
         return $this;
@@ -502,26 +468,19 @@ class Image extends \Disk\File
         //make cache
         if (!$this->sizes)
         {
-            if ($this->isUsingImageMagick())
-            {
-                $this->sizes = $this->content->getImageGeometry();
-            }
-            else
-            {
-                $this->sizes['width'] = null;
-                $this->sizes['height'] = null;
+            $this->sizes['width'] = null;
+            $this->sizes['height'] = null;
 
-                if (file_exists($this->path))
+            if (file_exists($this->path))
+            {
+                //works without load the image (read from path)
+                $this->sizes = getimagesize($this->path);
+
+                //padroniz format with image magick
+                if (isset($this->sizes[0]) && isset($this->sizes[1]))
                 {
-                    //works without load the image (read from path)
-                    $this->sizes = getimagesize($this->path);
-
-                    //padroniz format with image magick
-                    if (isset($this->sizes[0]) && isset($this->sizes[1]))
-                    {
-                        $this->sizes['width'] = $this->sizes[0];
-                        $this->sizes['height'] = $this->sizes[1];
-                    }
+                    $this->sizes['width'] = $this->sizes[0];
+                    $this->sizes['height'] = $this->sizes[1];
                 }
             }
         }
@@ -630,37 +589,30 @@ class Image extends \Disk\File
             return $this;
         }
 
-        if ($this->isUsingImageMagick())
+        //support transparent png
+        if ($this->isTrueColor())
         {
-            $this->content->thumbnailImage($dstW, $dstH);
+            $thumb = imagecreatetruecolor($dstW, $dstH);
         }
         else
         {
-            //support transparent png
-            if ($this->isTrueColor())
-            {
-                $thumb = imagecreatetruecolor($dstW, $dstH);
-            }
-            else
-            {
-                $thumb = imagecreate($dstW, $dstH);
-            }
-
-            //get out when don't find things
-            if (!$thumb || !$this->content)
-            {
-                return;
-            }
-
-            imagealphablending($thumb, false);
-            $transparent = imagecolorallocatealpha($thumb, 0, 0, 0, 127);
-            imagefill($thumb, 0, 0, $transparent);
-            imagesavealpha($thumb, true);
-            imagealphablending($thumb, true);
-
-            imagecopyresampled($thumb, $this->content, $dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH);
-            $this->content = $thumb;
+            $thumb = imagecreate($dstW, $dstH);
         }
+
+        //get out when don't find things
+        if (!$thumb || !$this->content)
+        {
+            return;
+        }
+
+        imagealphablending($thumb, false);
+        $transparent = imagecolorallocatealpha($thumb, 0, 0, 0, 127);
+        imagefill($thumb, 0, 0, $transparent);
+        imagesavealpha($thumb, true);
+        imagealphablending($thumb, true);
+
+        imagecopyresampled($thumb, $this->content, $dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH);
+        $this->content = $thumb;
 
         return $this;
     }
@@ -739,6 +691,11 @@ class Image extends \Disk\File
         return in_array($format, self::listImagesTypes());
     }
 
+    /**
+     * @param $disposition
+     * @param $request
+     * @return void
+     */
     public function outputInline($disposition = 'inline', $request = NULL)
     {
         if ($request instanceof \DataHandle\Request)
@@ -789,10 +746,6 @@ class Image extends \Disk\File
         {
             imagejpeg($this->content);
         }
-        else if ($extension == Image::EXT_XBM)
-        {
-            imagexbm($this->content);
-        }
         else if ($extension == Image::EXT_WEBP)
         {
             imagewebp($this->content);
@@ -828,7 +781,7 @@ class Image extends \Disk\File
      */
     public function __destruct()
     {
-        if ($this->content && is_resource($this->content) && !$this->isUsingImageMagick())
+        if ($this->content && is_resource($this->content))
         {
             imagedestroy($this->content);
         }
