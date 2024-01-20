@@ -189,11 +189,11 @@ class Log
     /**
      * Register a log of an \Exception
      *
-     * @param $exception
+     * @param Throwable $exception
      * @return bool|null
      * @throws \PHPMailer\PHPMailer\Exception|ReflectionException
      */
-    public static function exception($exception)
+    public static function exception(Throwable $exception)
     {
         $devel = \DataHandle\Config::get('devel');
 
@@ -222,6 +222,22 @@ class Log
         //put log in default file
         $file = new \Disk\File(ini_get('error_log'));
         $file->append($errorMessage);
+
+        //pass log object to project error handling
+        $logErrorFunction = \DataHandle\Config::get('log-error-function');
+
+        if ($logErrorFunction)
+        {
+            $data = new \stdClass();
+            $data->type = 'exception';
+            $data->message = $exception->getMessage();
+            $data->line = $exception->getLine();
+            $data->file = $exception->getFile();
+            $data->code = $exception->getCode();
+            $data->backtrace = $exception->getTraceAsString();
+
+            $logErrorFunction($data);
+        }
 
         return \Log::sendDevelEmailIfNeeded('Exceção', $exception->getMessage(), $errorMessage);
     }
@@ -414,11 +430,13 @@ class Log
 
         $error = "###############################################" . PHP_EOL;
         $error .= 'Error ' . $type . ' - ' . $message . ' in ' . $file . ' on line ' . $line . PHP_EOL;
+        $backtrace = null;
 
         //controls especial js erro type, used in API
         if (strtolower($type) != 'js')
         {
-            $error .= print_r(debug_backtrace(), 1) . PHP_EOL;
+            $backtrace = debug_backtrace();
+            $error .= print_r($backtrace, 1) . PHP_EOL;
             $error .= '$_POST' . "\n" . print_r($_POST, 1) . PHP_EOL;
             $error .= '$_GET' . "\n" . print_r($_GET, 1) . PHP_EOL;
         }
@@ -433,6 +451,22 @@ class Log
 
         \Log::put($errorFile, $error);
         \Log::sendDevelEmailIfNeeded($type, $message, $error);
+
+        //pass log object to project error handling
+        $logErrorFunction = \DataHandle\Config::get('log-error-function');
+
+        if ($logErrorFunction)
+        {
+            $data = new \stdClass();
+            $data->type = $type;
+            $data->message = $message;
+            $data->line = $line;
+            $data->file = $file;
+            $data->code = '';
+            $data->backtrace = $backtrace;
+
+            $logErrorFunction($data);
+        }
     }
 
     /**
