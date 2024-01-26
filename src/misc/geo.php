@@ -2,22 +2,20 @@
 
 namespace Misc;
 
-//TODO migrate to type
-
 /**
  * Handle Geo Coords
  */
-class Geo extends \Object
+class Geo
 {
 
     /**
      * Converts DMS ( Degrees / minutes / seconds )
      * to decimal format longitude / latitude
      *
-     * @param type $deg
-     * @param type $min
-     * @param type $sec
-     * @return type
+     * @param float $deg
+     * @param float $min
+     * @param float $sec
+     * @return float
      */
     public static function DMStoDEC( $deg, $min, $sec )
     {
@@ -31,8 +29,8 @@ class Geo extends \Object
      * point math we extract the integer part and the float
      * part by using a string function.
      *
-     * @param type $dec
-     * @return type
+     * @param float $dec
+     * @return string
      */
     public static function DECtoDMS( $dec )
     {
@@ -56,6 +54,33 @@ class Geo extends \Object
         $sec = $tempma - ($min * 60);
 
         return $deg . '° ' . $min . '\' ' . $sec . '"';
+    }
+
+    /**
+     * Return the distance between 2 geo coordinates.
+     * Result in kilometers
+     *
+     * @param float $lat1
+     * @param float $lon1
+     * @param float $lat2
+     * @param float $lon2
+     * @return int
+     */
+    public static function distanceLatLong($lat1, $lon1, $lat2, $lon2)
+    {
+        if (($lat1 == $lat2) && ($lon1 == $lon2))
+        {
+            return 0;
+        }
+        else
+        {
+            $theta = $lon1 - $lon2;
+            $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            $dist = acos($dist);
+            $dist = rad2deg($dist);
+            $miles = $dist * 60 * 1.1515;
+            return ($miles * 1.609344);
+        }
     }
 
 }
