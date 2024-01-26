@@ -1,12 +1,23 @@
 var timerTypeWatch = 0;
-var body = $('body')[0];
-//close combos on click outside
-if(body)
+comboStart();
+
+/**
+ * Start the combo script and allow to close combo if clicked outside
+ */
+function comboStart()
 {
+    console.log("comboStart");
+    let body = $('body')[0];
+    //close combos on click outside
+    if(!body)
+    {
+        return;
+    }
+
     body.addEventListener("click", function()
     {
-        var currentElement = $(document.activeElement);
-        var isCombo = currentElement.hasClass('labelValue');
+        let currentElement = $(document.activeElement);
+        let isCombo = currentElement.hasClass('labelValue');
 
         if ( !isCombo)
         {
@@ -14,8 +25,7 @@ if(body)
             $('.dropDownContainer').slideUp(50);
         }
         //comboHideDropdown(id);
-    }
-    , false);
+    }, false);
 }
 
 function comboInputClick(id,eThis)
@@ -46,6 +56,11 @@ function comboToggleDropdown(id)
     }
 }
 
+/**
+ * Show the dropdown table
+ * @param id
+ * @returns {boolean}
+ */
 function comboShowDropdown(id)
 {
     var element = $('#dropDownContainer_' + id);
@@ -62,13 +77,22 @@ function comboShowDropdown(id)
     element.slideDown(30);
 }
 
+/**
+ * Hide the drop down table
+ * @param id
+ */
 function comboHideDropdown(id)
 {
     $('#dropDownContainer_' + id).slideUp(30);
 }
 
+/**
+ * Execute the search url
+ * @param id
+ */
 function comboDoSearch(id)
 {
+    console.log("comboDoSearch="+id);
     eval($('#labelField_' + id).data('change'));
 }
 
@@ -78,25 +102,53 @@ function comboSelectItem(comboId, value, label, eThis)
     $(eThis).parent().find('tr').removeClass('selected');
     //mark this as select
     $(eThis).addClass('selected');
-    
-    //change the value and trigger onchange
-    var element = $('#' + comboId);
-    element.val(value);
-    element.trigger('change');
 
-    //change the value of label field
-    var elementLabel = $('#labelField_' + comboId);
-    elementLabel.val(label);
-    
+    comboValue(comboId, value, label);
+    //trigger onchange
+    $('#' + comboId).trigger('change');
     //open the dropdrown table
     comboHideDropdown(comboId);  
 }
 
+/**
+ * Fill the value on hidden field and label
+ *
+ * @param id string
+ * @param value string
+ * @param label string
+ */
+function comboValue(id, value, label)
+{
+    //change the value of hidden input
+    let element = $('#' + id);
+    element.val(value);
+    element.attr('value', value);
+
+    if ( typeof label != 'undefined' && label)
+    {
+        //change the value of label field
+        let elementLabel = $('#labelField_' + id);
+        elementLabel.val(label);
+    }
+}
+
+/**
+ * Make the typewatch of element
+ * @param element js element
+ * @param event js event
+ * @param callback normally comboDoSearch
+ * @param ms normally 700
+ * @returns {boolean}
+ */
 function comboTypeWatch(element, event, callback, ms)
 {
-    var parente = $(element).parent();
-    var id = parente.find('.inputValue').attr('id');
+    let idCombo = $(element).data('invalid-id');
+    //console.log(idCombo);
+    //let combo = $('#'+idCombo);
+    let parente = $(element).parent();
+    let id = parente.find('.inputValue').attr('id');
 
+    //if is readonly does nothing
     if ($('#labelField_' + id).is('[readonly]'))
     {
         return false;
@@ -114,7 +166,7 @@ function comboTypeWatch(element, event, callback, ms)
     {
         comboShowDropdown(id);
 
-        var next = parente.find('table tr.selected').next();
+        let next = parente.find('table tr.selected').next();
 
         if ( next.length > 0 )
         {
@@ -132,7 +184,7 @@ function comboTypeWatch(element, event, callback, ms)
     else if (event.keyCode === 38)
     {
         comboShowDropdown(id);
-        var prev = parente.find('table tr.selected').prev();
+        let prev = parente.find('table tr.selected').prev();
         parente.find('table tr.selected').removeClass('selected');
         prev.addClass('selected');
 
@@ -149,6 +201,7 @@ function comboTypeWatch(element, event, callback, ms)
     } 
     else
     {
+        comboValue(idCombo, '');
         clearTimeout(timerTypeWatch);
         timerTypeWatch = setTimeout(callback, ms);
     }
@@ -156,26 +209,24 @@ function comboTypeWatch(element, event, callback, ms)
 
 function comboModelClick(idInput)
 {
-    var input = $('#'+idInput);
-    var value = input.val();
-    var page = input.data('model');
+    let input = $('#'+idInput);
+    let value = input.val();
+    let page = input.data('model');
     
     p(page+'/editarpopup/'+value+'&idInput='+idInput);
 }
 
 function comboModelClose(idInput)
 {
-    var iframe = document.getElementById("edit-popup-iframe");
-    var doc = iframe.contentWindow.document;
-    var editEditId = $(doc).find('#id').val();
+    let iframe = document.getElementById("edit-popup-iframe");
+    let doc = iframe.contentWindow.document;
+    let editEditId = $(doc).find('#id').val();
     
     //closes popup
     popup('destroy','#edit-popup');
-    
-    //fill the value on hidden field
-    $('#'+idInput).val(editEditId);
+    comboValue(idInput, editEditId);
     //call the ajax action to fill dropdown, put hideCombo, to make it work properly
-    var code = $('#labelField_'+idInput).data('change');
+    let code = $('#labelField_'+idInput).data('change');
     //run the code fill label value
     eval(code.replace('mountDropDown','fillLabelByValue'));
     //fill dropdown

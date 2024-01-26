@@ -74,15 +74,13 @@ abstract class Combo extends \Component\Component
 
     public function makeDefaultSearch($id)
     {
-        $page = \View\View::getDom()->getPageUrl();
-        $className = str_replace('\\', '-', get_class($this));
         $module = \DataHandle\Config::get('use-module') ? 'component/' : '';
         \App::addJs("p('$module{$this->getClassUrl()}/mountDropDown/{$id}?hideCombo=true');");
     }
 
     public function hideValue()
     {
-        if ($this->getContent())
+        if ($this->getContent() instanceof \View\View)
         {
             $this->getContent()->addClass('hideValue');
         }
@@ -233,6 +231,14 @@ abstract class Combo extends \Component\Component
             $indentificatorColumm = $columns[0];
             $labelColumm = $columns[1];
 
+            //automatically selected the first item, if only has one
+            if (count($data) == 1)
+            {
+                $selected = $data[0];
+                $value = \DataSource\Grab::getUserValue($indentificatorColumm, $selected);
+                \App::addJs("comboValue('{$this->getId()}','{$value}')");
+            }
+
             $tr = array();
 
             foreach ($data as $item)
@@ -299,9 +305,10 @@ abstract class Combo extends \Component\Component
     /**
      * Create a Td element for the select table
      * @param int $row
-     * @param string $column
+     * @param \Db\Column\Column $column
      * @param object $item
      * @return Td
+     * @throws \Exception
      */
     public function createTd($row, $column, $item)
     {

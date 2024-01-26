@@ -21,7 +21,7 @@ class Component
     /**
      * The component content
      *
-     * @var array
+     * @var array|\View\View
      */
     protected $content;
 
@@ -130,7 +130,7 @@ class Component
      */
     private static function getCurrentUrl($params = null)
     {
-        $queryString = null;
+        $queryString = [];
         parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING'), $queryString);
 
         //remove some unnecessary propertys
@@ -173,6 +173,8 @@ class Component
         {
             return $this->$event();
         }
+
+        return false;
     }
 
     /**
@@ -237,17 +239,17 @@ class Component
      */
     public function isCreated()
     {
-        return $this->content ? true : false;
+        return (bool)$this->content;
     }
 
     /**
      * Generate the view/element and put it on html dom tree
      *
-     * @return \View\View
+     * @return \View\View|null
      */
     public function onCreate()
     {
-
+        return null;
     }
 
 }
