@@ -6,7 +6,6 @@ comboStart();
  */
 function comboStart()
 {
-    console.log("comboStart");
     let body = $('body')[0];
     //close combos on click outside
     if(!body)
@@ -92,7 +91,6 @@ function comboHideDropdown(id)
  */
 function comboDoSearch(id)
 {
-    console.log("comboDoSearch="+id);
     eval($('#labelField_' + id).data('change'));
 }
 
@@ -143,8 +141,6 @@ function comboValue(id, value, label)
 function comboTypeWatch(element, event, callback, ms)
 {
     let idCombo = $(element).data('invalid-id');
-    //console.log(idCombo);
-    //let combo = $('#'+idCombo);
     let parente = $(element).parent();
     let id = parente.find('.inputValue').attr('id');
 
