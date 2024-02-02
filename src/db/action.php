@@ -88,7 +88,7 @@ abstract class Action
     /**
      * Simple execute an action now and get it's result
      *
-     * @param \Db\Model $model
+     * @param \Db\Model|mixed $model
      * @return mixed
      */
     public static function executeNow($model)
