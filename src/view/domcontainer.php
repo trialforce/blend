@@ -2,6 +2,12 @@
 
 namespace View;
 
+//use \FastDom\Element as DomElement;
+//use \FastDom\Node as DomNode;
+
+use \DomDocument as DomDocument;
+use \DomNode as DomNode;
+
 /**
  * Dom container.
  *
@@ -13,7 +19,7 @@ class DomContainer implements \Countable
 
     /**
      *
-     * @var \DOMElement
+     * @var DOMElement
      */
     protected $domElement;
 
@@ -173,7 +179,7 @@ class DomContainer implements \Countable
             $this->setAttribute('id', $id);
 
             //add to element list to can be finded in getElementById method
-            if (\View\View::getDom() && $this instanceof \DomElement)
+            if (\View\View::getDom() && $this instanceof DomElement)
             {
                 \View\View::getDom()->addToElementList($this);
             }
@@ -610,7 +616,7 @@ class DomContainer implements \Countable
         return $this->domElement->C14NFile($uri, $exclusive, $with_comments, $xpath, $ns_prefixes);
     }
 
-    public function appendChild(\DOMNode $newnode)
+    public function appendChild(DOMNode $newnode)
     {
         return $this->domElement->appendChild($newnode);
     }
@@ -620,7 +626,7 @@ class DomContainer implements \Countable
         return $this->domElement->cloneNode($deep);
     }
 
-    public function compareDocumentPosition(\DOMNode $other)
+    public function compareDocumentPosition(DOMNode $other)
     {
         return $this->compareDocumentPosition($other);
     }
@@ -695,7 +701,7 @@ class DomContainer implements \Countable
         return $this->domElement->hasChildNodes();
     }
 
-    public function insertBefore(\DOMNode $newnode, \DOMNode $refnode = null)
+    public function insertBefore(DOMNode $newnode, DOMNode $refnode = null)
     {
         $this->domElement->insertBefore($newnode, $refnode);
 
@@ -732,12 +738,12 @@ class DomContainer implements \Countable
         return $this->domElement->isDefaultNamespace($namespaceURI);
     }
 
-    public function isEqualNode(\DOMNode $arg)
+    public function isEqualNode(DOMNode $arg)
     {
         return $this->domElement->isEqualNode($arg);
     }
 
-    public function isSameNode(\DOMNode $node)
+    public function isSameNode(DOMNode $node)
     {
         return $this->domElement->isSameNode($node);
     }
@@ -782,12 +788,12 @@ class DomContainer implements \Countable
         return $this->domElement->removeAttributeNode($oldnode);
     }
 
-    public function removeChild(\DOMNode $oldnode)
+    public function removeChild(DOMNode $oldnode)
     {
         return $this->domElement->removeChild($oldnode);
     }
 
-    public function replaceChild(\DOMNode $newnode, \DOMNode $oldnode)
+    public function replaceChild(DOMNode $newnode, DOMNode $oldnode)
     {
         return $this->domElement->replaceChild($newnode, $oldnode);
     }
@@ -829,7 +835,6 @@ class DomContainer implements \Countable
 
     public function parent()
     {
-
         return new \View\DomContainer($this->parentNode);
     }
 

@@ -183,7 +183,7 @@ class Layout extends \View\Document
             $theme = $this;
         }
 
-        $element = $theme->getElementsByTagName('title')->item(0);
+        $element = $theme->getElementByTagName('title');
 
         if ($element instanceof \DOMElement)
         {
@@ -196,7 +196,6 @@ class Layout extends \View\Document
             \App::addJs("document.title = '{$title}'");
         }
 
-
         return $this;
     }
 
@@ -207,9 +206,9 @@ class Layout extends \View\Document
      */
     public function getTitle()
     {
-        $element = $this->getElementsByTagName('title')->item(0);
+        $element = $this->getElementByTagName('title');
 
-        if ($element instanceof \DOMElement)
+        if ($element instanceof DOMElement)
         {
             return $element->nodeValue;
         }
@@ -265,8 +264,7 @@ class Layout extends \View\Document
      */
     function addStyleShet($id, $href, $media = NULL, $addDefaultPath = TRUE)
     {
-        $heads = $this->getElementsByTagName('head');
-        $head = $heads->item(0);
+        $head = $this->getElementByTagName('head');
 
         if (!$head)
         {
@@ -359,7 +357,7 @@ class Layout extends \View\Document
      */
     function addScript($src = NULL, $content = NULL, $type = \View\Script::TYPE_JAVASCRIPT, $id = NULL, $async = FALSE)
     {
-        $head = $this->getElementsByTagName('head')->item(0);
+        $head = $this->getElementByTagName('head');
         $newSrc = $this->getScriptFile($src);
 
         $script = new \View\Script($newSrc, $content, $type, $async);
@@ -419,26 +417,24 @@ class Layout extends \View\Document
     /**
      * Return the body element
      *
-     * @return \DomElement
+     * @return \View\DomContainer
      */
     public function getBody()
     {
-        $bodys = $this->getElementsByTagName('body');
+        $body = $this->getElementByTagName('body');
 
         // avoid hacking attempts
-        if (!$bodys->item(0))
+        if (!$body)
         {
             throw new \UserException('Sem permissão');
         }
 
-        return new \View\DomContainer($bodys->item(0));
+        return new \View\DomContainer($body);
     }
 
     public function getFooter()
     {
-        $footers = $this->getElementsByTagName('footer');
-
-        return new \View\DomContainer($footers->item(0));
+        return new \View\DomContainer($this->getElementByTagName('footer'));
     }
 
     /**
@@ -448,9 +444,7 @@ class Layout extends \View\Document
      */
     public function getHead()
     {
-        $heads = $this->getElementsByTagName('head');
-
-        return new \View\DomContainer($heads->item(0));
+        return new \View\DomContainer($this->getElementByTagName('head'));
     }
 
     /**
@@ -459,9 +453,7 @@ class Layout extends \View\Document
      */
     public function getHtml()
     {
-        $htmls = $this->getElementsByTagName('html');
-
-        return new \View\DomContainer($htmls->item(0));
+        return new \View\DomContainer($this->getElementByTagName('html'));
     }
 
     /**
@@ -496,8 +488,7 @@ class Layout extends \View\Document
     public function setBaseUrl()
     {
         $server = Server::getInstance();
-        $bases = $this->getElementsByTagName('base');
-        $base = $bases->item(0);
+        $base = $this->getElementByTagName('base');
 
         //if exist
         if ($base)
@@ -508,9 +499,7 @@ class Layout extends \View\Document
         }
 
         $base = new \View\Base(NULL, $server->getHost());
-
-        $heads = $this->getElementsByTagName('head');
-        $head = $heads->item(0);
+        $head = $this->getElementByTagName('head');
 
         if (is_object($head))
         {

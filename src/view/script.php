@@ -2,6 +2,8 @@
 
 namespace View;
 
+use \DomText as DomText;
+
 /**
  * Script html element
  */
@@ -31,7 +33,7 @@ class Script extends \View\View
         }
     }
 
-    protected function appendOne($nodes)
+    public function appendOne($nodes)
     {
         if (is_array($nodes))
         {
@@ -44,7 +46,7 @@ class Script extends \View\View
         {
             if (is_string($nodes))
             {
-                $this->appendChild(new \DOMText($nodes));
+                $this->appendChild(new DOMText($nodes));
             }
             else if ($nodes)
             {

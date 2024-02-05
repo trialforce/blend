@@ -2,10 +2,19 @@
 
 namespace View;
 
+//use \FastDom\Document as DomDocument;
+//use \FastDom\Element as DomElement;
+//use \FastDom\Node as DomNode;
+
+use \DomElement as DomElement;
+use \DomDocument as DomDocument;
+use \DomNode as DomNode;
+use \DomText as DomText;
+
 /**
  * Default layout class
  */
-class Document extends \DomDocument implements \Countable
+class Document extends DomDocument implements \Countable
 {
 
     /**
@@ -93,7 +102,6 @@ class Document extends \DomDocument implements \Countable
      *
      * @param array $nodes
      * @return boolean
-     *
      * @throws \Exception
      */
     public function append(...$nodes): void
@@ -104,13 +112,13 @@ class Document extends \DomDocument implements \Countable
         }
     }
 
-    protected function appendOne($content)
+    public function appendOne($content)
     {
         if (is_array($content))
         {
             foreach ($content as $info)
             {
-                if ($info instanceof \DOMNode || is_string($info) || is_array($info))
+                if ($info instanceof DomNode || is_string($info) || is_array($info))
                 {
                     $this->appendOne($info);
                 }
@@ -124,7 +132,7 @@ class Document extends \DomDocument implements \Countable
         }
 
         //caso não seja instancia de DomElement, cria um elemento de texto
-        if (!$content instanceof \DomElement && !$content instanceof \DOMText && !$content instanceof \DOMDocumentFragment)
+        if (!$content instanceof DomElement && !$content instanceof DOMText && !$content instanceof \DOMDocumentFragment)
         {
             $content = $this->createTextNode($content);
         }
@@ -139,7 +147,7 @@ class Document extends \DomDocument implements \Countable
      * Coloca um layout dentro do outro
      *
      * @param string $primaryElementId
-     * @param \View\Document $domInner \View\DomDocument or string
+     * @param \View\Document $domInner \View\Document or string
      * @throws \Exception
      */
     public function appendLayout($primaryElementId, $domInner)
@@ -264,14 +272,14 @@ class Document extends \DomDocument implements \Countable
         $element = parent::getElementById($elementId);
 
         //caso não encontre pelo getElementById tenta pelo Xpath
-        if (!$element)
+        /*if (!$element)
         {
             $x = new \DOMXPath($this);
             $element = $x->query("//*[@id='{$elementId}']")->item(0);
-        }
+        }*/
 
         //caso não encontre elemento cria um falso para não dar erro e facilitar a programação
-        if (!$element instanceof \DOMElement)
+        if (!$element instanceof DomNode)
         {
             $element = $this->byIdJs($elementId, $serverClass);
         }
@@ -298,10 +306,10 @@ class Document extends \DomDocument implements \Countable
     }
 
     /**
-     * A fast byId but return a \DomElement
+     * A fast byId but return a DomElement
      *
      * @param string $elementId
-     * @return \DomElement
+     * @return DomElement
      */
     public function byIdFast($elementId)
     {
@@ -338,6 +346,26 @@ class Document extends \DomDocument implements \Countable
         return null;
     }
 
+    /**
+     * @param $tag
+     * @return DOMNode|null
+     */
+    public function getElementByTagName($tag)
+    {
+        $elements = $this->getElementsByTagName($tag);
+
+        if ($elements instanceof \DOMNodeList)
+        {
+            return $elements->item(0);
+        }
+        else if (isset($elements[0]))
+        {
+            return $elements[0];
+        }
+
+        return null;
+    }
+
     public function byClass($className)
     {
         //accetps starting with .
@@ -349,12 +377,12 @@ class Document extends \DomDocument implements \Countable
     /**
      * Return an view element if is a dom element
      *
-     * @param mixed $element \DomElement or \View\View
+     * @param mixed $element DomElement or \View\View
      * @return \View\View \View\View or \View\DomContainer
      */
     public static function toView($element)
     {
-        if ($element instanceof \DOMElement && !$element instanceof \View\View)
+        if ($element instanceof DomElement && !$element instanceof \View\View)
         {
             $element = new \View\DomContainer($element);
         }
@@ -397,12 +425,16 @@ class Document extends \DomDocument implements \Countable
      * Adiciona um elemento a lista de elementos.
      * Dessa forma ele pode ser localizado pelo getElementById a qualquer momento
      *
-     * @param \DomElement $element
+     * @param DomElement $element
      */
-    public function addToElementList(\DomElement $element)
+    public function addToElementList(DomElement $element)
     {
-        $id = $element->getAttribute('id');
-        $this->elementList[$id] = $element;
+        $id = $element->getAttribute('id').'';
+
+        if ($id)
+        {
+            $this->elementList[$id] = $element;
+        }
     }
 
     /**

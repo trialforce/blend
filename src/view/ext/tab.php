@@ -25,7 +25,7 @@ class Tab extends \View\View
      *
      * @param string $id
      * @param string $class
-     * @param \DOMElement $father
+     * @param DOMElement $father
      */
     public function __construct($id, $class = NULL, $father = NULL)
     {

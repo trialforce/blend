@@ -3,12 +3,21 @@
 namespace View;
 
 use DataHandle\Request;
+//use \FastDom\Element as DomElement;
+//use \FastDom\Document as DomDocument;
+//use \FastDom\Node as DomNode;
+//use \FastDom\Text as DomText;
+
+use \DomElement as DomElement;
+use \DomDocument as DomDocument;
+use \DomNode as DomNode;
+use \DomText as DomText;
 
 /**
  * Represent a generic html view/element
  * When you call new \View\View it goes direct to html dom tree
  */
-class View extends \DomElement implements \Countable
+class View extends DomElement implements \Countable
 {
 
     const REPLACE_SPACE = '_space_';
@@ -17,7 +26,7 @@ class View extends \DomElement implements \Countable
     /**
      * Documento dom
      *
-     * @var \View\Layout|\DOMDocument|null
+     * @var \View\Layout|DOMDocument|null
      */
     protected static $dom;
     protected $label;
@@ -440,7 +449,7 @@ class View extends \DomElement implements \Countable
      * Append inner elements to current element.
      * You can pass a lot of things here.
      * array, \View\Document,\View\View, \View\DomContainer,
-     * \DOMElement,\DOMDocumentFragment,\DOMNode,\DOMNodeList,\Component\Component
+     * DOMElement,\DOMDocumentFragment,DOMNode,\DOMNodeList,\Component\Component
      *
      * @param mixed ...$nodes
      * @return void
@@ -480,9 +489,9 @@ class View extends \DomElement implements \Countable
     /**
      * Static Append to avoid duplicate code between view and dom container
      *
-     * @param \DomElement $element
+     * @param DomElement $element
      * @param mixed $content
-     * @param \DomElement $treatHtml
+     * @param DomElement $treatHtml
      * @return mixed
      */
     public static function sAppend($element, $content, $treatHtml = TRUE)
@@ -493,7 +502,7 @@ class View extends \DomElement implements \Countable
             return $element;
         }
         //normal dom elements
-        else if ($content instanceof \DOMNode)
+        else if ($content instanceof DOMNode)
         {
             //domelement and domdocumentfragment extends dom \DomNode
             $element->appendChild($content);
@@ -549,7 +558,7 @@ class View extends \DomElement implements \Countable
             }
             else
             {
-                $element->appendChild(new \DOMText($content));
+                $element->appendChild(new DOMText($content));
             }
         }
 
@@ -638,7 +647,14 @@ class View extends \DomElement implements \Countable
     {
         while ($this->hasChildNodes())
         {
-            $this->removeChild($this->firstChild);
+            if ($this instanceof \DOMElement)
+            {
+                $this->removeChild($this->firstChild);
+            }
+            else
+            {
+                $this->removeChild(array_values($this->childNodes)[0]);
+            }
         }
 
         if ($this->getOutputJs())
@@ -948,7 +964,7 @@ class View extends \DomElement implements \Countable
     /**
      * Define todos os filhos do objeto como somente leitura.
      *
-     * A função deve ser estática para suportar \DomElement
+     * A função deve ser estática para suportar DomElement
      *
      * @param boolean $readOnly
      */
@@ -964,7 +980,7 @@ class View extends \DomElement implements \Countable
                 {
                     $childField->setReadOnly($readOnly, TRUE);
                 }
-                else if ($childField instanceof \DOMElement)
+                else if ($childField instanceof DOMElement)
                 {
                     if ($readOnly)
                     {
@@ -1181,7 +1197,7 @@ class View extends \DomElement implements \Countable
 
     /**
      * Retorna o objeto Dom/Layout do elemento
-     * @return \View\Layout|\DOMDocument|null
+     * @return \View\Layout|DOMDocument|null
      */
     public static function getDom()
     {
@@ -1191,10 +1207,10 @@ class View extends \DomElement implements \Countable
     /**
      * Define o objeto Dom/Layot do elemento
      *
-     * @param \DomDocument $dom
+     * @param DomDocument $dom
      *
      */
-    public static function setDom(\DomDocument $dom)
+    public static function setDom(DomDocument $dom)
     {
         self::$dom = $dom;
     }
@@ -1349,11 +1365,11 @@ class View extends \DomElement implements \Countable
     /**
      * Overritgh do make chain
      *
-     * @param \DOMNode $newnode
-     * @param \DOMNode $refnode
+     * @param DomNode $newnode
+     * @param DomNode $refnode
      * @return \View\View
      */
-    public function insertBefore(\DOMNode $newnode, \DOMNode $refnode = null)
+    public function insertBefore(DomNode $newnode, DomNode $refnode = null)
     {
         parent::insertBefore($newnode, $refnode);
 
@@ -1420,20 +1436,28 @@ class View extends \DomElement implements \Countable
             $htmlText = \tidy_repair_string($htmlText, $config, 'utf8');
         }
 
-        $htmlText = mb_convert_encoding($htmlText,'HTML-ENTITIES', "UTF-8");
-
-        //disable boring errors of libxml
-        libxml_use_internal_errors(true);
-        $layout = new \DOMDocument('1.0', 'UTF-8');
-        $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
-        libxml_clear_errors();
-
-        $childs = $layout->childNodes->item(1)->childNodes->item(0)->childNodes;
-
-        foreach ($childs as $child)
+        //if for the \DomNode Case with default DomDocument
+        if ($element instanceof \DOMNode)
         {
-            $migrated = $element->ownerDocument->importNode($child,true);
-            $element->appendChild($migrated);
+            $htmlText = mb_convert_encoding($htmlText, 'HTML-ENTITIES', "UTF-8");
+
+            //disable boring errors of libxml
+            libxml_use_internal_errors(true);
+            $layout = new \DOMDocument('1.0', 'UTF-8');
+            $layout->loadHTML('<html><body>' . $htmlText . '</body></html>');
+            libxml_clear_errors();
+
+            $childs = $layout->childNodes->item(1)->childNodes->item(0)->childNodes;
+
+            foreach ($childs as $child)
+            {
+                $migrated = $element->ownerDocument->importNode($child, true);
+                $element->appendChild($migrated);
+            }
+        }
+        else if ($element instanceof \FastDom\Node)
+        {
+            $element->appendHtml($htmlText);
         }
 
         return $element;
@@ -1555,7 +1579,7 @@ class View extends \DomElement implements \Countable
     /**
      * Count nodes of an element
      *
-     * @param \DOMElement $element
+     * @param DOMElement $element
      * @return int
      */
     public static function countNodes($element)
@@ -1566,7 +1590,7 @@ class View extends \DomElement implements \Countable
         {
             foreach ($element->childNodes as $node)
             {
-                if (!$node instanceof \DOMText)
+                if (!$node instanceof DOMText)
                 {
                     $count += \View\View::countNodes($node);
                 }
@@ -1613,14 +1637,14 @@ class View extends \DomElement implements \Countable
 
         if ($parent)
         {
-            if ($parent instanceof \DOMElement)
+            if ($parent instanceof DOMElement)
             {
                 $parentId = $parent->getAttribute('id');
 
                 return self::getDom()->byId($parentId);
             }
         }
-        else
+        /*else
         {
             //cria um nulo pra não dar pau
             $element = new \View\Div( );
@@ -1628,7 +1652,8 @@ class View extends \DomElement implements \Countable
             $element->remove();
 
             return $element;
-        }
+        }*/
+        return null;
     }
 
 }

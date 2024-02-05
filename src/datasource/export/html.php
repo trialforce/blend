@@ -3,6 +3,8 @@
 namespace DataSource\Export;
 
 use DataHandle\Session;
+//use \FastDom\Document as DomDocument;
+use \DOMDocument as DomDocument;
 
 //big data explode default time
 set_time_limit(0);
@@ -235,12 +237,12 @@ p {
     }
 
     /**
-     * Get title for report, base on some \DomDocument
+     * Get title for report, base on some DomDocument
      *
-     * @param \DOMDocument $dom
+     * @param DOMDocument $dom
      * @return string
      */
-    public static function getReportTitle(\DOMDocument $dom)
+    public static function getReportTitle(DOMDocument $dom)
     {
         $title = '';
 
