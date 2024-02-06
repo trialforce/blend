@@ -3,6 +3,7 @@
 namespace View;
 
 use \DomText as DomText;
+//use \FastDom\Text as DomText;
 
 /**
  * Script html element

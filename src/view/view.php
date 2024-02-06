@@ -3,6 +3,7 @@
 namespace View;
 
 use DataHandle\Request;
+
 //use \FastDom\Element as DomElement;
 //use \FastDom\Document as DomDocument;
 //use \FastDom\Node as DomNode;
@@ -47,7 +48,8 @@ class View extends DomElement implements \Countable
 
         $owner = $father ? $father : self::getDom();
 
-        if ($owner)
+        //only do that with default dom
+        if ($owner && $this instanceof \DomNode)
         {
             $owner->appendChild($this);
         }

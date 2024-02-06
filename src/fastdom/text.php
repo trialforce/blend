@@ -17,4 +17,9 @@ class Text extends \FastDom\Node
     {
         return $this->textContent;
     }
+
+    public function __toString()
+    {
+        return $this->render();
+    }
 }

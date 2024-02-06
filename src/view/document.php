@@ -5,6 +5,7 @@ namespace View;
 //use \FastDom\Document as DomDocument;
 //use \FastDom\Element as DomElement;
 //use \FastDom\Node as DomNode;
+//use \FastDom\Text as DomText;
 
 use \DomElement as DomElement;
 use \DomDocument as DomDocument;
@@ -299,8 +300,13 @@ class Document extends DomDocument implements \Countable
         $serverClass = $serverClass ? $serverClass : '\View\Div';
         $element = new $serverClass(\View\View::REPLACE_SHARP . $elementId);
         $element->setOutputJs(TRUE);
+        $parent = $element->parentNode;
+
         //remove from dom, do avoid duplicates
-        $element->parentNode->removeChild($element);
+        if ($parent)
+        {
+            $parent->removeChild($element);
+        }
 
         return $element;
     }
