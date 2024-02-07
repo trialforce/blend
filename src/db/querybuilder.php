@@ -21,6 +21,7 @@ class QueryBuilder
     protected $limit = null;
     protected $offset = null;
     protected $groupBy = null;
+    protected $having = null;
     protected $orderBy = null;
     protected $logId = null;
 
@@ -50,7 +51,7 @@ class QueryBuilder
 
     public function setConnInfoId($connInfoId = null)
     {
-        $this->connInfoId = $connInfoId ? $connInfoId : 'default';
+        $this->connInfoId = $connInfoId ?? 'default';
         $conn = \Db\Conn::getInstance($this->connInfoId);
         $connInfo = \Db\Conn::getConnInfo($this->connInfoId);
 
@@ -120,7 +121,7 @@ class QueryBuilder
      * You can add a simple string or any object that has __toString method
      * This methods allow that to support SqlServer Outer Apply.
      *
-     * @param \Bb\Join $join
+     * @param \Db\Join $join
      * @return $this
      */
     function addJoin($join)
@@ -220,8 +221,6 @@ class QueryBuilder
 
         foreach ($this->join as $join)
         {
-            $join instanceof \Db\Join;
-
             if ($join->getTableName() == $tableName)
             {
                 return true;
@@ -245,8 +244,6 @@ class QueryBuilder
 
         foreach ($this->join as $join)
         {
-            $join instanceof \Db\Join;
-
             if ($join->getAlias() == $alias)
             {
                 return true;
@@ -421,17 +418,6 @@ class QueryBuilder
         return $this;
     }
 
-    public function getOrderBy()
-    {
-        return $this->orderBy;
-    }
-
-    public function setOrderBy($orderBy)
-    {
-        $this->orderBy = $orderBy;
-        return $this;
-    }
-
     public function getLogId()
     {
         return $this->logId;
@@ -440,6 +426,17 @@ class QueryBuilder
     public function setLogId($logId)
     {
         $this->logId = $logId;
+        return $this;
+    }
+
+    public function getOrderBy()
+    {
+        return $this->orderBy;
+    }
+
+    public function setOrderBy($orderBy)
+    {
+        $this->orderBy = $orderBy;
         return $this;
     }
 
@@ -477,6 +474,24 @@ class QueryBuilder
         }
 
         $this->orderBy[] = $orderBy;
+        return $this;
+    }
+
+    public function having($condition)
+    {
+        $this->having .= $condition;
+
+        return $this;
+    }
+
+    public function getHaving()
+    {
+        return $this->having;
+    }
+
+    public function setHaving($having)
+    {
+        $this->having = $having;
         return $this;
     }
 
@@ -569,7 +584,7 @@ class QueryBuilder
     {
         $catalog = $this->catalogClass;
         $columnName = $catalog::parseTableNameForQuery($columnName);
-        $where = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
+        $where = new \Db\Where($columnName, $param, $value, $condition ?? 'AND');
         $this->where[] = $where;
 
         return $this;
@@ -607,7 +622,7 @@ class QueryBuilder
     {
         $catalog = $this->catalogClass;
         $columnName = $catalog::parseTableNameForQuery($columnName);
-        $where = new \Db\Compare($columnName, $param, $compare, $condition ? $condition : 'AND');
+        $where = new \Db\Compare($columnName, $param, $compare, $condition ?? 'AND');
         $this->where[] = $where;
 
         return $this;
@@ -734,7 +749,7 @@ class QueryBuilder
         $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
         $where = $whereStd->getSqlParam();
 
-        $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, $format);
+        $select = $catalog::mountSelect($this->getTables($format), $this->mountColumns($format), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), $this->getHaving(), $this->mountOrderBy(), NULL, $format);
         return $select;
     }
 
@@ -749,7 +764,7 @@ class QueryBuilder
         $catalog = $this->getCatalogClass();
         $whereStd = \Db\Criteria::createCriteria($this->getParsedWhere());
         $where = $whereStd->getSql();
-        $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), NULL, $this->mountOrderBy(), NULL, TRUE);
+        $sql = $catalog::mountSelect($this->getTables(), $this->mountColumns(TRUE), $where, $this->getLimit(), $this->getOffset(), $this->getGroupBy(), $this->getHaving(), $this->mountOrderBy(), NULL, TRUE);
 
         return $this->getConn()->query($sql, $whereStd->getArgs(), $returnAs, $this->logId);
     }
@@ -771,6 +786,8 @@ class QueryBuilder
         {
             return $result[0];
         }
+
+        return null;
     }
 
     /**
@@ -839,7 +856,7 @@ class QueryBuilder
     public function toCollection()
     {
         //collection by default use objects
-        $modelName = $this->getModelName() ? $this->getModelName() : 'stdClass';
+        $modelName = $this->getModelName() ?? 'stdClass';
         return new \Db\Collection($this->select($modelName));
     }
 
