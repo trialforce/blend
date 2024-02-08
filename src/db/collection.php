@@ -931,4 +931,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return json_encode($this, $options);
     }
 
+    public function __debugInfo()
+    {
+        return $this->data;
+    }
 }
