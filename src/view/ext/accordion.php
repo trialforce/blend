@@ -20,7 +20,7 @@ class Accordion extends \View\Div
 
         $this->head = new \View\Div($id . '-head', [$title, $this->createIcon()], 'accordion-head', $this);
 
-        $this->body = new \View\Div($id . '-body', $content, 'accordion-body', $this);
+        $this->body = new \View\Div($id . '-body', $content, 'accordion-body clearfix', $this);
     }
 
     public function open()
