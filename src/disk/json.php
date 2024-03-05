@@ -125,6 +125,19 @@ class Json
     }
 
     /**
+     * Convert any object of any class to a stdClass using a combination
+     * of encode and decode
+     *
+     * @param object $object the passed object
+     * @return mixed|null the passed object as stdClass
+     * @throws \Exception
+     */
+    public static function decodeToStdClass($object)
+    {
+        return \Disk\Json::decode(\Disk\Json::encode($object));
+    }
+
+    /**
      * Parse json string,same name as JS
      * Internally calls decode
      *
