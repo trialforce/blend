@@ -35,8 +35,8 @@ trait History
     /**
      * Feed the diff object with "description" values
      *
-     * @param $diff diff object/array
-     * @param $className the model class name
+     * @param $diff object|array diff
+     * @param $className string the model class name
      * @return \stdClass
      */
     public static function feed($diff, $className)
@@ -71,7 +71,8 @@ trait History
 
                 if ($column->getReferenceTable() && $column->getReferenceDescription())
                 {
-                    $table = '\Model\\' . $column->getReferenceTable();
+                    $table = $column->getReferenceTable();
+                    $table = \Db\Column\Column::getModelClassForReference($table);
                     /** @var \Db\Repository $repository */
                     $repository = $table::repository();
 
