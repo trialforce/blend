@@ -196,7 +196,7 @@ abstract class Combo extends \Component\Component
     {
         \App::dontChangeUrl();
         $hideCombo = Request::get('hideCombo');
-        $layout = \View\View::getDom();
+
         //TODO verify why the bar comes in the post
         $id = str_replace('/', '', Request::get('v'));
 
@@ -214,7 +214,27 @@ abstract class Combo extends \Component\Component
         }
 
         $dataSource = $this->getDataSource();
-        $searchValue = trim(Request::get('labelField_' . $id));
+        $request = Request::get('labelField_' . $id);
+
+        // avoid hacking
+        if (is_array($request))
+        {
+            $itens[] = new Div(null, 'Nenhum registro encontrado!');
+            $this->mountDropDownResult($id, $itens, $hideCombo);
+            return;
+        }
+
+        $searchValue = trim($request);
+
+        // forbidden characters, avoid sql injection
+        if (stripos($searchValue, '*') !== false ||
+                stripos($searchValue, '\\') !== false)
+        {
+            $itens[] = new Div(null, 'Nenhum registro encontrado!');
+
+            $this->mountDropDownResult($id, $itens, $hideCombo);
+            return;
+        }
 
         $this->filterData($dataSource, $searchValue);
 
@@ -277,6 +297,13 @@ abstract class Combo extends \Component\Component
         {
             $itens[] = new Div(null, 'Nenhum registro encontrado!');
         }
+
+        $this->mountDropDownResult($id, $itens, $hideCombo);
+    }
+
+    protected function mountDropDownResult($id, $itens, $hideCombo)
+    {
+        $layout = \View\View::getDom();
 
         $container = $layout->byId('dropDownContainer_' . $id);
         $container->html($itens);
