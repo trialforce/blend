@@ -70,8 +70,8 @@ class SmartFilter
         //get default model columns if null
         if (is_null($this->columns) || (is_array($this->columns) && count($this->columns) == 0))
         {
-            $name = $this->getModelClass();
-            $this->columns = $name::getColumns();
+            $modelClass = $this->getModelClass();
+            $this->columns = $modelClass ? $modelClass::getColumns() : null;
         }
 
         return $this->columns;
@@ -90,7 +90,7 @@ class SmartFilter
 
     public function setConds($conds)
     {
-        if (!is_array($cons))
+        if (!is_array($conds))
         {
             $conds = (array) $conds;
         }
@@ -107,73 +107,6 @@ class SmartFilter
     }
 
     /**
-     * Detect data type of undefined string
-     *
-     * @param string $indefinedData
-     * @return string
-     */
-    public function detectDataType($indefinedData)
-    {
-        if (!$indefinedData || is_null($indefinedData))
-        {
-            return self::DATA_TYPE_UNKNOWN;
-        }
-        else
-        {
-            $firstLetter = $indefinedData[0];
-
-            $lettersToRemove[] = '"';
-            $lettersToRemove[] = '>';
-            $lettersToRemove[] = '<';
-            $lettersToRemove[] = '#';
-            $lettersToRemove[] = '@';
-
-            //remove first letter to avoid error to detected
-            if (in_array($firstLetter, $lettersToRemove))
-            {
-                $indefinedData = trim(substr($indefinedData, 1));
-            }
-
-            if ($this->isNumber($indefinedData))
-            {
-                return self::DATA_TYPE_NUMBER;
-            }
-            else if ($this->isDate($indefinedData))
-            {
-                return self::DATA_TYPE_DATE;
-            }
-        }
-
-        return self::DATA_TYPE_TEXT;
-    }
-
-    /**
-     * Verify if is an number
-     *
-     * @param string $indefinedData
-     * @return boolean
-     */
-    public function isNumber($indefinedData)
-    {
-        //remove reais
-        $value = \Type\Decimal::treatValue($indefinedData);
-
-        return is_numeric($value);
-    }
-
-    /**
-     * Verify if is a date
-     *
-     * @param string $indefinedData
-     * @return boolean
-     */
-    public function isDate($indefinedData)
-    {
-        $myDate = \Type\DateTime::get($indefinedData);
-        return $myDate->isValid();
-    }
-
-    /**
      * Create filters
      *
      * @return array
@@ -185,9 +118,10 @@ class SmartFilter
         //don't go any further without and data to filter
         if (strlen(trim($queryString)) == 0)
         {
-            return array();
+            return [];
         }
 
+        //smart filters support splitted values by ;
         $preparedFilters = explode(';', $queryString);
 
         foreach ($preparedFilters as $filter)
@@ -203,13 +137,19 @@ class SmartFilter
         return $this->mergeFilters($this->conds);
     }
 
+    /**
+     * Create ONE filter
+     * @param $filter string the filter string
+     * @return void
+     */
     protected function createFilter($filter)
     {
-        $name = $this->getModelClass();
+        $modelClass = $this->getModelClass();
         $columns = $this->getColumns();
         $explode = explode('=', $filter);
         $columnSearch = '';
 
+        //support EQUALS parameter
         if (count($explode) == 2)
         {
             $columnSearch = \Type\Text::get(trim($explode[0]))->toASCII()->toLower();
@@ -218,6 +158,7 @@ class SmartFilter
 
         $dataType = $this->detectDataType($filter);
 
+        //pass trough all columns to make all filters work
         foreach ($columns as $column)
         {
             //if is to search some column, and is not current column, jump for next column
@@ -235,9 +176,9 @@ class SmartFilter
             $firstLetter = $filter[0];
 
             //espefic filter by id
-            if ($firstLetter == '@' && $dataType == self::DATA_TYPE_NUMBER)
+            if ($modelClass && $firstLetter == '@' && $dataType == self::DATA_TYPE_NUMBER)
             {
-                $pk = $name::getPrimaryKey();
+                $pk = $modelClass::getPrimaryKey();
                 $this->conds[] = new \Db\Cond($pk->getName() . ' = ?', substr($filter, 1));
 
                 //if is an id, only make filter by id
@@ -262,7 +203,7 @@ class SmartFilter
 
             if (in_array($type, array(\Db\Column\Column::TYPE_INTEGER)) && $dataType == self::DATA_TYPE_TEXT)
             {
-                if ($column->getReferenceDescription())
+                if ($modelClass && $column->getReferenceDescription())
                 {
                     $this->filterByReferenceDescription($filter, $column);
                 }
@@ -276,9 +217,15 @@ class SmartFilter
 
     protected function getColumnQuery(\Db\Column\Column $column)
     {
-        $className = $this->getModelClass();
-        $catalog = $className::getCatalogClass();
-        $tableName = $catalog::parseTableNameForQuery($className::getTableName());
+        $modelClass = $this->getModelClass();
+        $tableName = '';
+
+        if ($modelClass)
+        {
+            $catalog = $modelClass::getCatalogClass();
+            $tableName = $catalog::parseTableNameForQuery($modelClass::getTableName());
+            $tableName = $tableName.'.';
+        }
 
         $columnQuery = $column->getName();
 
@@ -286,9 +233,9 @@ class SmartFilter
         {
             $columnQuery = '( SELECT ' . $column->getQuery() . ' )';
         }
-        else if ($tableName)
+        else
         {
-            $columnQuery = $tableName . '.' . $column->getName();
+            $columnQuery = $tableName . $column->getName();
         }
 
         return $columnQuery;
@@ -403,9 +350,9 @@ class SmartFilter
     protected function filterByReferenceDescription($filter, \Db\Column\Column $column)
     {
         //reference description
-        $name = $this->getModelClass();
-        $catalog = $name::getCatalogClass();
-        $tableName = $catalog::parseTableNameForQuery($name::getTableName());
+        $modelClass = $this->getModelClass();
+        $catalog = $modelClass::getCatalogClass();
+        $tableName = $catalog::parseTableNameForQuery($modelClass::getTableName());
         $referenceClass = $column->getReferenceModelClass();
         $referenceTable = $catalog::parseTableNameForQuery($referenceClass::getTableName());
 
@@ -456,13 +403,12 @@ class SmartFilter
     /**
      * Merge filters in one \Db\Cond to make extra filters work
      *
-     *
      * @param array $where
      * @return array
      */
     protected function mergeFilters($where)
     {
-        $filters = array();
+        $filters = [];
 
         //force empty query for zero return
         if (( is_array($where) && count($where) == 0 ) || !is_array($where))
@@ -472,14 +418,11 @@ class SmartFilter
         }
 
         $count = 0;
-        $values = array();
-
+        $values = [];
         $whereString = '(';
 
         foreach ($where as $cond)
         {
-            $cond instanceof \Db\Cond;
-
             $whereString .= $cond->getWhere($count === 0);
             $value = $cond->getValue();
             $values = array_merge($values, is_array($value) ? $value : array());
@@ -492,5 +435,73 @@ class SmartFilter
 
         return $filters;
     }
+
+    /**
+     * Detect data type of undefined string
+     *
+     * @param string $indefinedData
+     * @return string
+     */
+    protected static function detectDataType($indefinedData)
+    {
+        if (!$indefinedData || is_null($indefinedData))
+        {
+            return self::DATA_TYPE_UNKNOWN;
+        }
+        else
+        {
+            $firstLetter = $indefinedData[0];
+
+            $lettersToRemove[] = '"';
+            $lettersToRemove[] = '>';
+            $lettersToRemove[] = '<';
+            $lettersToRemove[] = '#';
+            $lettersToRemove[] = '@';
+
+            //remove first letter to avoid error to detected
+            if (in_array($firstLetter, $lettersToRemove))
+            {
+                $indefinedData = trim(substr($indefinedData, 1));
+            }
+
+            if (self::isNumber($indefinedData))
+            {
+                return self::DATA_TYPE_NUMBER;
+            }
+            else if (self::isDate($indefinedData))
+            {
+                return self::DATA_TYPE_DATE;
+            }
+        }
+
+        return self::DATA_TYPE_TEXT;
+    }
+
+    /**
+     * Verify if is an number
+     *
+     * @param string $indefinedData
+     * @return boolean
+     */
+    protected static function isNumber($indefinedData)
+    {
+        //remove reais
+        $value = \Type\Decimal::treatValue($indefinedData);
+
+        return is_numeric($value);
+    }
+
+    /**
+     * Verify if is a date
+     *
+     * @param string $indefinedData
+     * @return boolean
+     */
+    protected static function isDate($indefinedData)
+    {
+        $myDate = \Type\DateTime::get($indefinedData);
+        return $myDate->isValid();
+    }
+
 
 }

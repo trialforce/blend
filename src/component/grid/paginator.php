@@ -40,7 +40,7 @@ class Paginator extends \View\Div
     /**
      * Return a grid
      *
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function getGrid()
     {
@@ -184,7 +184,7 @@ class Paginator extends \View\Div
         if (method_exists($dom, 'getModel'))
         {
             $model = $dom->getModel();
-            $pageName = $model->getLabel();
+            $pageName = $model? $model->getLabel() : '';
         }
 
         return $pageName;
@@ -204,7 +204,7 @@ class Paginator extends \View\Div
         if (method_exists($dom, 'getModel'))
         {
             $model = $dom->getModel();
-            $pageName = $model->getLabelPlural();
+            $pageName = $model ? $model->getLabelPlural() : '';
         }
 
         return $pageName;

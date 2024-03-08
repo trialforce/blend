@@ -405,7 +405,7 @@ class Column
     /**
      * Define if the column is to be rendered in detail
      *
-     * @param v $renderInDetail
+     * @param bool $renderInDetail
      * @return $this
      */
     public function setRenderInDetail($renderInDetail)
