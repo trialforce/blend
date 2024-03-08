@@ -15,7 +15,7 @@ class Page extends \View\Layout
     /**
      * Listagem de grids da páginas
      *
-     * @var array
+     * @var \Component\Grid\SearchGrid|null
      */
     protected $grid;
 
@@ -474,7 +474,8 @@ class Page extends \View\Layout
      */
     public function createGrid()
     {
-        $grid = new \Component\Grid\SearchGrid('grid' . $this->getModel()->getName(), $this->getDataSource());
+        $modelName = $this->getModel() ? $this->getModel()->getName() : '';
+        $grid = new \Component\Grid\SearchGrid('grid' . $modelName, $this->getDataSource());
         $grid->setActions($this->setDefaultActions());
         $this->setGrid($grid);
 
@@ -484,7 +485,7 @@ class Page extends \View\Layout
     /**
      * Create a the default grid for the page
      *
-     * @return \Component\Grid\SearchGrid
+     * @return \Component\Grid\SearchGrid|null
      */
     public function setDefaultGrid()
     {
@@ -494,42 +495,44 @@ class Page extends \View\Layout
             return $this->grid;
         }
 
-        if (method_exists($this, 'getModel'))
+        if (!method_exists($this, 'getModel'))
         {
-            $grid = $this->createGrid();
+            return null;
+        }
 
-            $events = [];
-            $events[] = 'listar';
-            $events[] = 'gridExportData';
-            $events[] = 'exportGridFile';
+        $grid = $this->createGrid();
 
-            if (in_array($this->getEvent(), $events))
+        $events = [];
+        $events[] = 'listar';
+        $events[] = 'gridExportData';
+        $events[] = 'exportGridFile';
+
+        if (in_array($this->getEvent(), $events))
+        {
+            $gridGroupBy = Request::get('grid-groupby-field');
+            $extraColumns = Request::get('grid-addcolumn-field');
+
+            if (is_array($gridGroupBy))
             {
-                $gridGroupBy = Request::get('grid-groupby-field');
-                $extraColumns = Request::get('grid-addcolumn-field');
+                $dataSource = $grid->getDataSource();
+                $dataSource->getColumns(); //forece column mount
+                $dataSource = $this->getGroupedDataSource();
+                $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
 
-                if (is_array($gridGroupBy))
+                $dataSource->setCount($data->count());
+            }
+            else if (is_array($extraColumns))
+            {
+                $userDataSource = $this->getUserDefinedDatasource();
+
+                if ($userDataSource)
                 {
-                    $dataSource = $grid->getDataSource();
-                    $dataSource->getColumns(); //forece column mount
-                    $dataSource = $this->getGroupedDataSource();
-                    $data = \Component\Grid\GroupHelper::parseData($this, $dataSource);
-
-                    $dataSource->setCount($data->count());
-                }
-                else if (is_array($extraColumns))
-                {
-                    $userDataSource = $this->getUserDefinedDatasource();
-
-                    if ($userDataSource)
-                    {
-                        $grid->setDataSource($userDataSource);
-                    }
+                    $grid->setDataSource($userDataSource);
                 }
             }
-
-            return $grid;
         }
+
+        return $grid;
     }
 
     /**
@@ -540,7 +543,7 @@ class Page extends \View\Layout
      */
     public function getDatasource()
     {
-        return new \DataSource\Vector();
+        return new \DataSource\Vector(null);
     }
 
     /**

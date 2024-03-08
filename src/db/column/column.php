@@ -909,6 +909,8 @@ class Column
         $columnName = $sqlForColumn . '';
         //sanity from php private variables
         $columnName = trim(str_replace('*', '', $columnName));
+        //remove multiple lines to work with crazy sqls
+        $columnName = str_replace(["\r","\n","\r\n"], ' ', $columnName);
 
         // columname AS alias
         if (stripos($columnName, ' AS ') > 0)

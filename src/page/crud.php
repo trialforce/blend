@@ -48,7 +48,11 @@ class Crud extends \Page\Page
         if (is_null($model))
         {
             $class = str_replace('Page\\', '\Model\\', get_class($this));
-            $model = new $class();
+
+            if (class_exists($class))
+            {
+                $model = new $class();
+            }
         }
 
         $this->setModel($model);
@@ -110,10 +114,10 @@ class Crud extends \Page\Page
     /**
      * Define o modelo
      *
-     * @param T $model
+     * @param \Db\Model\null $model
      * @return \Page\Crud
      */
-    public function setModel(\Db\Model $model)
+    public function setModel(\Db\Model|null $model)
     {
         $this->model = $model;
         return $this;
@@ -264,6 +268,11 @@ class Crud extends \Page\Page
     public function setDefaultActions()
     {
         $actions = array();
+
+        if (!$this->getModel())
+        {
+            return $actions;
+        }
 
         if ($this->verifyPermission('editar'))
         {
@@ -443,6 +452,11 @@ class Crud extends \Page\Page
 
     public function getTopButtonsSearch()
     {
+        if (!$this->model)
+        {
+            return [];
+        }
+
         $adicionar = 'Adicionar ' . lcfirst($this->model->getLabel());
         $buttons[] = $btnInsert = new \View\Ext\LinkButton('btnInsert', 'plus', $adicionar, $this->getPageUrl() . '/' . $this->getMethodInsert(), 'btn btninserir success');
         $btnInsert->setTitle('Abre a tela para digitação de um novo cadastro!');

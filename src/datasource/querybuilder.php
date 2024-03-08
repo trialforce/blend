@@ -20,6 +20,12 @@ class QueryBuilder extends DataSource
      */
     protected $data;
 
+    /**
+     * Make aggregation function trough PHP
+     * @var bool
+     */
+    protected $aggTroughPhp = false;
+
     public function __construct($queryBuilder = NULL)
     {
         $this->setQueryBuilder($queryBuilder);
@@ -36,10 +42,20 @@ class QueryBuilder extends DataSource
         return $this;
     }
 
+    public function isAggTroughPhp(): bool
+    {
+        return $this->aggTroughPhp;
+    }
+
+    public function setAggTroughPhp(bool $aggTroughPhp)
+    {
+        $this->aggTroughPhp = $aggTroughPhp;
+        return $this;
+    }
+
     public function getQueryBuilderFeeded()
     {
         $qBuilder = clone($this->getQueryBuilder());
-        $qBuilder instanceof \Db\QueryBuilder;
         $qBuilder->orderBy($this->getOrderBy(), $this->getOrderWay())
                 ->limit($this->getLimit(), $this->getOffset())
                 ->addWhere($this->getExtraFilter());
@@ -92,14 +108,22 @@ class QueryBuilder extends DataSource
                 return $column;
             }
         }
+
+        return null;
     }
 
     public function executeAggregator(Aggregator $aggregator)
     {
         $data = $this->getData();
+        $aggTroughPhp = $this->isAggTroughPhp();
+
+        if (!$aggTroughPhp)
+        {
+            $aggTroughPhp = $this->getCount() == count($data);
+        }
 
         //we can execute aggregation trough php
-        if ($this->getCount() == count($data) && $data instanceof \Db\Collection)
+        if ($aggTroughPhp && $data instanceof \Db\Collection)
         {
             $result = $data->aggr($aggregator->getMethod(), $aggregator->getColumnName());
 
@@ -162,6 +186,11 @@ class QueryBuilder extends DataSource
 
     public function getCount()
     {
+        if ($this->isAggTroughPhp())
+        {
+            return $this->getData()->count();
+        }
+
         if (is_null($this->count))
         {
             $qBuilder = $this->getQueryBuilderFeeded();
@@ -205,7 +234,6 @@ class QueryBuilder extends DataSource
 
         foreach ($columns as $idx => $column)
         {
-            $column instanceof \Component\Grid\Column;
             $value = \DataSource\Grab::getUserValue($column, $firstItem);
 
             if (\Type\Integer::isNumeric($value) && !$column->getIdentificator())
