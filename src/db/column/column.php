@@ -676,7 +676,7 @@ class Column
     /**
      * Define a list of validators
      *
-     * @param array|\Validator\Validator $validators
+     * @param array|\Validator\Validator|null $validators
      * @return \Db\Column\Column
      */
     public function setValidators($validators)

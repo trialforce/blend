@@ -203,7 +203,7 @@ class Page extends \View\Layout
     /**
      * Retorna a div principal da página
      *
-     * @param array $fields
+     * @param mixed $fields
      *
      * @return \View\Div
      */

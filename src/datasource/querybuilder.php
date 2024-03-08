@@ -87,11 +87,15 @@ class QueryBuilder extends DataSource
         //workaround to make it work like a default model
         if ($modelName)
         {
-            $smartFilter = new \Db\SmartFilter($modelName, $this->getSelectedModelColumns(), $this->getSmartFilter());
-            return $smartFilter->createFilters();
+            $columns = $this->getSelectedModelColumns();
+        }
+        else
+        {
+            $columns = \DataSource\ColumnConvert::gridToDbAll($this->getColumns());
         }
 
-        return null;
+        $smartFilter = new \Db\SmartFilter($modelName,$columns , $this->getSmartFilter());
+        return $smartFilter->createFilters();
     }
 
     protected function getQueryColumnByRealname($realColumnName)
@@ -250,7 +254,7 @@ class QueryBuilder extends DataSource
         $qBuilder = $this->getQueryBuilder();
         $modelName = $qBuilder->getModelName();
         $columns = $qBuilder->getColumns();
-        $result = array();
+        $result = [];
 
         foreach ($columns as $columnName)
         {
