@@ -24,16 +24,14 @@ class Mssql implements \Db\Catalog\Base
         set_time_limit(0);
         //FIXME só funciona para base padrão
         $schema = \Db\Conn::getConnInfo()->getName();
-        $cache = null;
+        $cacheKey = $table . '.columns.cache';
 
-        if ($makeCache)
+        if($makeCache)
         {
-            $cache = new \Db\Cache($table . '.columns.cache');
-        }
-
-        if (isset($cache) && is_array($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (\Cache\Cache::exists($cacheKey))
+            {
+                return \Cache\Cache::get($cacheKey);
+            }
         }
 
         $sql = "SELECT
@@ -112,10 +110,9 @@ WHERE c.object_id = OBJECT_ID('$table')";
             }
         }
 
-        //faz o cache caso necessário
-        if (isset($cache) && $columns)
+        if($makeCache && $columns)
         {
-            $cache->save($columns);
+            return \Cache\Cache::set($cacheKey, $columns);
         }
 
         return new \Db\Column\Collection($columns);
@@ -192,14 +189,14 @@ ORDER BY name ASC";
 
     public static function tableExists($table, $makeCache = TRUE)
     {
+        $cacheKey = $table . '.table.cache';
+
         if ($makeCache)
         {
-            $cache = new \Db\Cache($table . '.table.cache');
-        }
-
-        if (isset($cache) && is_object($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (\Cache\Cache::exists($cacheKey))
+            {
+                return \Cache\Cache::get($cacheKey);
+            }
         }
 
         $sql = "SELECT
@@ -221,9 +218,9 @@ ORDER BY name ASC;";
 
         if (isset($tableData[0]))
         {
-            if (isset($cache))
+            if ($makeCache)
             {
-                $cache->save($tableData[0]);
+                \Cache\Cache::set($cacheKey, $tableData[0]);
             }
 
             return $tableData[0];

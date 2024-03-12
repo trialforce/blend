@@ -65,9 +65,9 @@ interface Base
     /**
      * Mount SQL update command
      *
-     * @param type $tables table name
-     * @param type $columns columns
-     * @param type $where where criteria
+     * @param string $tables table name
+     * @param string $columns columns
+     * @param string $where where criteria
      */
     public static function mountUpdate($tables, $columns, $where);
 
@@ -75,7 +75,7 @@ interface Base
      * Mount SQL delte command
      *
      * @param string $tables table name
-     * @param strin $where query criteria
+     * @param string $where query criteria
      */
     public static function mountDelete($tables, $where);
 

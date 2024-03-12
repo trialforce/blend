@@ -20,16 +20,14 @@ class PgSql implements \Db\Catalog\Base
 
     public static function listColums($table, $makeCache = TRUE)
     {
-        $cache = null;
+        $cacheKey = $table . '.columns.cache';
 
-        if ($makeCache)
+        if($makeCache)
         {
-            $cache = new \Db\Cache($table . '.columns.cache');
-        }
-
-        if (isset($cache) && is_array($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (\Cache\Cache::exists($cacheKey))
+            {
+                return \Cache\Cache::get($cacheKey);
+            }
         }
 
         $sql = "
@@ -107,7 +105,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
             //converte tipos postgres para padrão
             if ($column->getType() == 'int4' || $column->getType() == 'integer')
             {
-                $column->setType(\Db\Column\Column::TYPE_INT);
+                $column->setType(\Db\Column\Column::TYPE_INTEGER);
             }
 
             if ($column->getExtra() == TRUE)
@@ -116,10 +114,9 @@ LEFT JOIN information_schema.constraint_column_usage ccu
             }
         }
 
-        //faz o cache caso necessário
-        if (isset($cache) && $colums)
+        if($makeCache && $colums)
         {
-            $cache->save($colums);
+            return \Cache\Cache::set($cacheKey, $colums);
         }
 
         return new \Db\Column\Collection($colums);
@@ -129,6 +126,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
      * Retorna listagem de tabelas
      *
      * @return array
+     * @throws \Exception
      */
     public static function listTables()
     {
@@ -147,17 +145,18 @@ LEFT JOIN information_schema.constraint_column_usage ccu
      *
      * @param string $table
      * @return \stdClass
+     * @throws \Exception
      */
     public static function tableExists($table, $makeCache = TRUE)
     {
+        $cacheKey = $table . '.table.cache';
+
         if ($makeCache)
         {
-            $cache = new \Db\Cache($table . '.table.cache');
-        }
-
-        if (isset($cache) && is_array($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (\Cache\Cache::exists($cacheKey))
+            {
+                return \Cache\Cache::get($cacheKey);
+            }
         }
 
         $sql = "SELECT tablename AS table,
@@ -172,9 +171,9 @@ LEFT JOIN information_schema.constraint_column_usage ccu
 
         if (isset($tableData[0]))
         {
-            if (isset($cache))
+            if ($makeCache)
             {
-                $cache->save($tableData[0]);
+                \Cache\Cache::set($cacheKey, $tableData[0]);
             }
 
             return $tableData[0];
@@ -188,7 +187,7 @@ LEFT JOIN information_schema.constraint_column_usage ccu
         //TODO not implemented
         $table = NULL;
         $indexName = NULL;
-        throw new Exception('dbpgsqlcatalog::listTableIndex ainda não implementado');
+        throw new \Exception('dbpgsqlcatalog::listTableIndex ainda não implementado');
     }
 
     public static function mountSelect($tables, $columns, $where = NULL, $limit = NULL, $offset = NULL, $groupBy = NULL, $having = NULL, $orderBy = NULL, $orderWay = NULL, $format = false)

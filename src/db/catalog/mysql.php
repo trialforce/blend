@@ -23,23 +23,21 @@ class Mysql implements \Db\Catalog\Base
         //no table name, no query
         if (!$table)
         {
-            return;
+            return false;
         }
 
         //fazer o cache pode ser um processo demorado
         set_time_limit(0);
         //FIXME só funciona para base padrão
         $schema = \Db\Conn::getConnInfo()->getName();
-        $cache = null;
+        $cacheKey = $table . '.columns.cache';
 
-        if ($makeCache)
+        if($makeCache)
         {
-            $cache = new \Db\Cache($table . '.columns.cache');
-        }
-
-        if (isset($cache) && is_array($cache->getContent()))
-        {
-            return $cache->getContent();
+            if (\Cache\Cache::exists($cacheKey))
+            {
+                return \Cache\Cache::get($cacheKey);
+            }
         }
 
         $sql = "
@@ -89,10 +87,9 @@ ORDER BY t.ORDINAL_POSITION;";
             }
         }
 
-        //faz o cache caso necessário
-        if (isset($cache) && $columns)
+        if($makeCache && $columns)
         {
-            $cache->save($columns);
+            return \Cache\Cache::set($cacheKey, $columns);
         }
 
         return new \Db\Column\Collection($columns);
@@ -118,14 +115,13 @@ ORDER BY t.ORDINAL_POSITION;";
         }
 
         $dbName = \Db\Conn::getConnInfo()->getName();
+        $cacheKey = $table . '.table.cache';
 
         if ($makeCache)
         {
-            $cache = new \Db\Cache($table . '.table.cache');
-
-            if (isset($cache) && is_object($cache->getContent()))
+            if (\Cache\Cache::exists($cacheKey))
             {
-                return $cache->getContent();
+                return \Cache\Cache::get($cacheKey);
             }
         }
 
@@ -140,9 +136,9 @@ ORDER BY t.ORDINAL_POSITION;";
 
         if (isset($tableData[0]))
         {
-            if ($makeCache && isset($cache))
+            if ($makeCache)
             {
-                $cache->save($tableData[0]);
+                \Cache\Cache::set($cacheKey, $tableData[0]);
             }
 
             return $tableData[0];
@@ -339,8 +335,6 @@ WHERE index_name = '{$indexName}'";
                 continue;
             }
 
-            $column instanceof \Db\Column\Column;
-
             if ($column->isPrimaryKey())
             {
                 $pks[] = '`' . $column->getName() . '`';
@@ -427,7 +421,6 @@ $paramStr";
             $operation = 'CHANGE';
         }
 
-        $column instanceof \Db\Column\Column;
         $tableNameParsed = self::parseTableNameForQuery($tableName);
         $columnNameParsed = self::parseTableNameForQuery($column->getName()) . ' ';
 
