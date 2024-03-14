@@ -33,7 +33,7 @@ class Pdf extends Html
         $file->remove();
 
         $reportTool = new \ReportTool\Engine();
-        $reportTool->getLayout()->loadHTML(utf8_encode($layout));
+        $reportTool->getLayout()->loadHTML($layout);
         $reportTool->setPageSize($pageSize ? $pageSize : 'A4');
         $reportTool->setExportFile($file);
         $reportTool->setFooter(' ');

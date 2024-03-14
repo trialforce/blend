@@ -513,7 +513,7 @@ class Column
     {
         if ($this->formatter)
         {
-            return;
+            return $this;
         }
 
         if ($this->getType() == \Db\Column\Column::TYPE_DATETIME || $this->getType() == \Db\Column\Column::TYPE_TIMESTAMP)

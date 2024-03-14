@@ -242,7 +242,9 @@ class QueryBuilder extends DataSource
 
             if (\Type\Integer::isNumeric($value) && !$column->getIdentificator())
             {
+                $columns[$idx]->setType(\Db\Column\Column::TYPE_DECIMAL);
                 $columns[$idx]->setAlign(\Component\Grid\Column::ALIGN_RIGHT);
+                //$columns[$idx]->setFormatterByDataType();
             }
         }
 
@@ -300,20 +302,6 @@ class QueryBuilder extends DataSource
                 $okay = \DataSource\ColumnConvert::dbToGrid($columnModel);
                 $obj = $okay ? $okay : $obj;
             }
-
-            //add support for ..Description column
-            /* if (\Type\Text::get($columnName)->endsWith('Description'))
-              {
-              $originalColumnName = str_replace('Description', '', $columnName);
-
-              if (isset($result[$originalColumnName]))
-              {
-              $result[$originalColumnName]->setRender(false);
-              }
-
-              $columnLabel = str_replace('Description', '', $columnLabel);
-              $obj->setLabel($columnLabel);
-              } */
 
             $result[$columnName] = $obj;
         }

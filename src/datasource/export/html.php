@@ -251,7 +251,14 @@ p {
             $searchTitle = \DataHandle\Request::get('search-title');
             $titleExtra = $searchTitle ? ' - ' . $searchTitle : '';
 
-            $title = 'Listar ' . lcfirst($dom->getModel()->getLabel()) . $titleExtra;
+            if ($dom->getModel())
+            {
+                $title = 'Listar ' . lcfirst($dom->getModel()->getLabel()) . $titleExtra;
+            }
+            else
+            {
+                $title = $dom->getTitle();
+            }
         }
 
         return $title;
