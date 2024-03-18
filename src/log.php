@@ -634,6 +634,17 @@ class Log
     {
         $vars = func_get_args();
 
+        //add support for shell
+        if (\DataHandle\Server::getInstance()->isShell())
+        {
+            foreach ($vars as $var)
+            {
+                var_dump($var);
+            }
+
+            return true;
+        }
+
         ob_start();
 
         foreach ($vars as $var)
