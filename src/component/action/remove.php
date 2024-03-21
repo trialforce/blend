@@ -52,8 +52,8 @@ class Remove extends \Component\Action\Action
     public function getModelNameForLink()
     {
         $modelName = $this->getModelName();
-        $modelName = str_replace('\Model\\', '', $modelName);
         $modelName = str_replace('\\', '-', $modelName);
+        $modelName = strtolower(trim($modelName,'-'));
 
         return $modelName;
     }
@@ -85,7 +85,8 @@ class Remove extends \Component\Action\Action
 
     protected function getPostedModelName()
     {
-        $modelName = '\Model\\' . str_replace('-', '\\', $this->getEvent());
+        $modelName = str_replace('-', '\\', $this->getEvent());
+
         return $modelName;
     }
 
