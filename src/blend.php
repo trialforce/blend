@@ -8,23 +8,15 @@ require 'autoload.php';
  * And beyond that it has some generic purpose functions
  *
  */
-/**
- * Directory separaror
- * @deprecated since version 28/07/2018
- */
-//const DS = '/';
-/**
- * Current timestamp in brazilial format
- * @deprecated since version 28/07/2018
- */
-//define('NOW', date('d/m/Y H:i:s'));
-
 /* Active php gzip */
 ini_set('zlib.output_compression', 'On');
 
+//@todo this is not the right place for it
 //grow session security
 if (session_status() == PHP_SESSION_NONE)
 {
+    //avoid autoload
+    require_once BLEND_PATH.'/datahandle/server.php';
     ini_set('session.cookie_lifetime', 0);
     ini_set('session.sid_length', 48);
     ini_set('session.use_cookies', 1);
