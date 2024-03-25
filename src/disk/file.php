@@ -618,7 +618,7 @@ class File implements \JsonSerializable
         $fileUrl = $this->getUrl();
 
         //skip cache
-        if ($skipCache)
+        if ($skipCache && $this->exists())
         {
             //if has ? don't put it again
             if (stripos($fileUrl, '?') !== FALSE)
@@ -753,7 +753,7 @@ class File implements \JsonSerializable
         if (!$storagePath)
         {
             $server = \DataHandle\Server::getInstance();
-            self::setStoragePath(APP_PATH .  '/storage/');
+            self::setStoragePath(APP_PATH . '/storage/');
             self::setStorageUrl($server->getHost() . '/storage/');
         }
 
