@@ -140,17 +140,38 @@ class Folder
         return \Disk\File::find($this->path . '/*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE);
     }
 
+    public function remove()
+    {
+        return rmdir($this->getPath());
+    }
+
     /**
      * Clear the files of folder
      */
     public function clear()
     {
-        $files = $this->listFiles();
+        return \Disk\Folder::clearRecursive($this);
+    }
+
+    public static function clearRecursive(\Disk\Folder $folder)
+    {
+        $files = $folder->listFiles();
 
         foreach ($files as $file)
         {
-            $file->remove();
+            if ($file->isDir())
+            {
+                $folder = $file->getFolder();
+                \Disk\Folder::clearRecursive($folder);
+                $folder->remove();
+            }
+            else
+            {
+                $file->remove();
+            }
         }
+
+        return true;
     }
 
 }
