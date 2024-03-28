@@ -27,7 +27,7 @@ class Criteria implements \Db\Filter
     /**
      * Construct the criteria
      *
-     * @param array $filters array of filter \Db\Cond or \Db\Where
+     * @param array|null|\Db\Filter $filters array of filter \Db\Cond or \Db\Where
      */
     public function __construct($filters = NULL)
     {
@@ -92,7 +92,7 @@ class Criteria implements \Db\Filter
     /**
      * Define/Overwrite the condition/where array
      *
-     * @param type $filters
+     * @param array|null|\Db\Filter $filters
      * @return $this
      */
     public function setFilters($filters)
@@ -112,7 +112,7 @@ class Criteria implements \Db\Filter
      * Or array of this classes.
      *
      * @param mixed $where
-     * @return \Db\QueryBuilder
+     * @return \Db\Criteria
      */
     public function addWhere($where)
     {
@@ -187,7 +187,7 @@ class Criteria implements \Db\Filter
      * @param string $columnName column name
      * @param string $param the condicition param (=, in, >=)
      * @param string $value the filter value
-     * @return \Db\QueryBuilder
+     * @return \Db\Criteria
      */
     public function and($columnName, $param, $value = NULL)
     {
@@ -200,7 +200,7 @@ class Criteria implements \Db\Filter
      * @param string $columnName column name
      * @param string $param the condicition param (=, in, >=)
      * @param string $value the filter value
-     * @return \Db\QueryBuilder
+     * @return \Db\Criteria
      */
     public function or($columnName, $param, $value)
     {
@@ -244,8 +244,7 @@ class Criteria implements \Db\Filter
      * Mount WHERE criteria based on an array of filters
      * \Db\Cond or \Db\Where
      *
-     * @param array $filters \Db\Cond or \Db\Where
-     * @return \stdClass
+     * @return \Db\Criteria
      * @throws \Exception
      */
     public function execute()
@@ -301,6 +300,7 @@ class Criteria implements \Db\Filter
      *
      * @param array $filters of filters (\Db\Cond or \Db\Where)
      * @return \Db\Criteria
+     * @throws \Exception
      */
     public static function createCriteria($filters)
     {

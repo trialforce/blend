@@ -1093,29 +1093,32 @@ class Model implements \JsonSerializable
     /**
      * Convert a model to an simple array.
      * It works even if model has private methods
+     * @param bool $getValue if is or not to call getvalue (not call is an optmization)
      *
      * @return array
      */
-    public function getArray()
+    public function getArray($getValue = true)
     {
-        $name = self::getName();
         $temp = (array) ($this);
         $array = array();
 
         foreach ($temp as $property => $value)
         {
             $property = preg_match('/^\x00(?:.*?)\x00(.+)/', $property, $matches) ? $matches[1] : $property;
-            $getValue = $this->getValue($property);
-            $value = $getValue ? $getValue : $value;
+
+            if ($getValue)
+            {
+                $gettedValue = $this->getValue($property);
+                $value = $gettedValue ? $gettedValue : $value;
+            }
 
             if ($value instanceof \Type\Generic)
             {
                 $value = $value->toDb();
             }
-
-            if ($value instanceof \Db\Model)
+            else if ($value instanceof \Db\Model)
             {
-                $value = $value->getArray();
+                $value = $value->getArray($getValue);
             }
 
             $array[$property] = $value;

@@ -13,7 +13,7 @@ class Template
 
     /**
      * Params
-     * @var arrray
+     * @var array
      */
     protected $params;
 
@@ -26,7 +26,7 @@ class Template
 
     /**
      * DataSources
-     * @var Array
+     * @var array
      */
     protected $dataSources;
 
@@ -162,6 +162,7 @@ class Template
      * @param \DataSource\DataSource $datasource
      * @param string $section section name
      * @param string $childSection child section name
+     * @param mixed $cond
      *
      * @return $this
      */
@@ -346,6 +347,7 @@ class Template
      * @param string $sectionContent section content
      * @param int $position position in array
      * @return string
+     * @throws \Exception
      */
     protected function replaceOneItem($item, $columns, $sectionContent, $sectionName, $position = null)
     {
@@ -427,7 +429,6 @@ class Template
                             {
                                 //clone for each line
                                 $cond = clone($cond);
-                                $cond instanceof \Db\Cond;
                                 $propertyToReplace = $cond->getValue();
                                 $newValue = null;
 
@@ -541,14 +542,14 @@ class Template
      * Return the value of one property
      *
      * @param \Db\Model $item
-     * @param type $columnName
-     * @return type
+     * @param string $columnName
+     * @return string
      */
     public function getValue($item, $columnName)
     {
         $value = \DataSource\Grab::getDbValue($columnName, $item);
 
-        return nl2br($value) . '';
+        return nl2br($value.'');
     }
 
     /**
@@ -645,7 +646,7 @@ class Template
             $this->setParam($modelName, $model);
         }
 
-        $model = $model->getArray();
+        $model = $model->getArray(false);
 
         foreach ($model as $property => $value)
         {
