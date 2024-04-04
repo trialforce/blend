@@ -47,7 +47,8 @@ class Script extends \View\View
         {
             if (is_string($nodes))
             {
-                $this->appendChild(new DOMText($nodes));
+                $text = str_replace("\r\n", "\n", $nodes);
+                $this->appendChild(new DOMText($text));
             }
             else if ($nodes)
             {
