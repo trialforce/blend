@@ -3,12 +3,10 @@
 namespace View;
 
 use DataHandle\Request;
-
 //use \FastDom\Element as DomElement;
 //use \FastDom\Document as DomDocument;
 //use \FastDom\Node as DomNode;
 //use \FastDom\Text as DomText;
-
 use \DomElement as DomElement;
 use \DomDocument as DomDocument;
 use \DomNode as DomNode;
@@ -42,7 +40,7 @@ class View extends DomElement implements \Countable
      * @param string $class
      * @throws \Exception
      */
-    public function __construct($tagName, $id = NULL, $innerHtml = NULL, $class = NULL,$father = NULL)
+    public function __construct($tagName, $id = NULL, $innerHtml = NULL, $class = NULL, $father = NULL)
     {
         parent::__construct($tagName ? $tagName : 'div');
 
@@ -82,7 +80,7 @@ class View extends DomElement implements \Countable
         $dom = \View\View::getDom();
 
         //add to element list to can be finded in getElementById method
-        if ( $dom && method_exists($dom, 'addToElementList'))
+        if ($dom && method_exists($dom, 'addToElementList'))
         {
             $dom->addToElementList($this);
         }
@@ -446,7 +444,6 @@ class View extends DomElement implements \Countable
         return $this->getAttribute('title');
     }
 
-
     /**
      * Append inner elements to current element.
      * You can pass a lot of things here.
@@ -560,7 +557,8 @@ class View extends DomElement implements \Countable
             }
             else
             {
-                $element->appendChild(new DOMText($content));
+                $text = str_replace("\r\n", "\n", $content);
+                $element->appendChild(new DOMText($text));
             }
         }
 
@@ -801,7 +799,7 @@ class View extends DomElement implements \Countable
      */
     public function addStyle($property, $value = '')
     {
-        $this->removeStyle($property,true);
+        $this->removeStyle($property, true);
         $style = $this->getStyle();
 
         //if not ends with ;
@@ -1646,15 +1644,15 @@ class View extends DomElement implements \Countable
                 return self::getDom()->byId($parentId);
             }
         }
-        /*else
-        {
-            //cria um nulo pra não dar pau
-            $element = new \View\Div( );
-            //remove do dom para não reaparecer
-            $element->remove();
+        /* else
+          {
+          //cria um nulo pra não dar pau
+          $element = new \View\Div( );
+          //remove do dom para não reaparecer
+          $element->remove();
 
-            return $element;
-        }*/
+          return $element;
+          } */
         return null;
     }
 

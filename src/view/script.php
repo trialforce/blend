@@ -3,6 +3,7 @@
 namespace View;
 
 use \DomText as DomText;
+
 //use \FastDom\Text as DomText;
 
 /**
@@ -26,7 +27,7 @@ class Script extends \View\View
      * This class has an special append, to avoid treat
      * @param array $nodes
      */
-    public function append(...$nodes):void
+    public function append(...$nodes): void
     {
         if ($nodes)
         {
