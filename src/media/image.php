@@ -8,6 +8,7 @@ namespace Media;
  */
 class Image extends \Disk\File
 {
+
     /**
      * Png
      */
@@ -287,9 +288,30 @@ class Image extends \Disk\File
         }
         else if ($extension == Image::EXT_PNG)
         {
+            $width = $this->getWidth();
+            $height = $this->getHeight();
+            //create image
+            $dimg = imagecreatetruecolor($width, $height);
+
+            // integer representation of the color black (rgb: 0,0,0)
+            $background = imagecolorallocate($dimg, 0, 0, 0);
+            // removing the black from the placeholder
+            imagecolortransparent($dimg, $background);
+
+            // turning off alpha blending (to ensure alpha channel information
+            // is preserved, rather than removed (blending with the rest of the
+            // image in the form of black))
+            imagealphablending($dimg, false);
+
+            // turning on alpha channel information saving (to ensure the full range
+            // of transparency is preserved)
+            imagesavealpha($dimg, true);
+
+            imagecopy($dimg, $this->content, 0, 0, 0, 0, $width, $height);
+
             $pngQuality = round(abs(($quality - 100) / 11.111111));
 
-            imagepng($this->content, $filename . '', $pngQuality);
+            imagepng($dimg, $filename . '', $pngQuality);
         }
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
