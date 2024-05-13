@@ -300,9 +300,11 @@ class Model implements \JsonSerializable
 
     /**
      * Return the Query builder for this Model
+     * @param bool $tableNameInColumns put table name in columns
+     * @para bool $avoidSearchColumns avoid search columns, to optimize query
      * @return \Db\QueryBuilder<T>
      */
-    public static function query($tableNameInColumns = false)
+    public static function query($tableNameInColumns = false, $avoidSearchColumns = false)
     {
         $name = self::getName();
         $tableName = $name::getTableName();
@@ -316,6 +318,12 @@ class Model implements \JsonSerializable
 
         foreach ($columns as $column)
         {
+            //avoid search columns if is the case
+            if ($avoidSearchColumns && $column instanceof \Db\Column\Search)
+            {
+                continue;
+            }
+
             $line = $column->getSql();
 
             if ($tableNameInColumns && !$column instanceof \Db\Column\Search)
