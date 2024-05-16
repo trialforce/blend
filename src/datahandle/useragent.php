@@ -405,6 +405,7 @@ class UserAgent
         'Nikto', //Nikto Webserver Scanner https://github.com/sullo/nikto
         'gptbot', //Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)
         'Bytespider', //Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)
+        'ClaudeBot' // Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)
     );
 
     /**
