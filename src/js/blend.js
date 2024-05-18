@@ -468,7 +468,7 @@ function getFormDataToPost(formData,type)
         return formData;   
     }
        
-    //4 - this is the the defafult case, blend will post the entire form
+    //4 - this is the the default case, blend will post the entire form
     var hasFiles = $('input[type=file]').length > 0;
 
     //4.1 the post don't has files, make default formData (all forms)
@@ -492,21 +492,36 @@ function getFormDataToPost(formData,type)
 
 function mountHtml5FormData()
 {
-    var formData = new FormData();
+    let formData = new FormData();
 
     //add all files
     jQuery.each($('input[type=file]'), function (i, element)
     {
-        var files = $(element).prop('files');
-        formData.append('file-' + i, files[0]);
+        let files = $(element).prop('files');
+        let name = element.name;
+
+        if (element.multiple)
+        {
+            for (let x = 0; x < this.files.length; x++)
+            {
+                formData.append(name+'-'+x, files[x]);
+            }
+        }
+        else
+        {
+            //todo this is wrong, must use name, but this change will broke a lot of pages
+            formData.append('file-' + i, files[0]);
+        }
     });
 
     //add all form fields
     $('input, select, textarea').each(function ()
     {
-        if (this.type !== 'checkbox' || this.checked === true)
+        let avoidFile = !(this.type == 'file');
+
+        if (avoidFile && (this.type !== 'checkbox' || this.checked === true))
         {
-	    formData.append(this.name, this.value);
+	        formData.append(this.name, this.value);
         }
     });
 

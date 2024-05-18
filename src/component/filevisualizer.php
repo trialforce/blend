@@ -2,6 +2,12 @@
 
 namespace Component;
 
+/**
+ * File Visualizer/Uploader/Explorer
+ * Is a simplified version of Window Explorer
+ * You can upload/download files and navigate trough folders
+ *
+ */
 class FileVisualizer extends \Component\Component
 {
 
@@ -17,6 +23,26 @@ class FileVisualizer extends \Component\Component
         $this->setFile($file);
     }
 
+    /**
+     * Get the relative file
+     * @return \Disk\File
+     */
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    public function setFile($file)
+    {
+        $this->file = $file;
+        return $this;
+    }
+
+    /**
+     * Create one file
+     * @return array|\View\Div|\View\View|null
+     * @throws \Exception
+     */
     public function onCreate()
     {
         if ($this->isCreated())
@@ -47,8 +73,6 @@ class FileVisualizer extends \Component\Component
         $span = new \View\Span(NULL, $this->getFile()->getBasename(FALSE));
         $previewUrl = $this->getLink('preview', null, ['file' => $this->getFile()->getPath()]);
 
-        //$array[] = $this->getImageExtraButton($item);
-
         $link = new \View\A('', array($holder, $span), $this->getFile()->getUrl(), 'file-visualizer-link', \View\A::TARGET_BLANK);
         $link->click("return p('$previewUrl');");
         $link->setTitle($this->getFile()->getUrl());
@@ -60,21 +84,6 @@ class FileVisualizer extends \Component\Component
         $externo = new \View\Div('', $content, 'file-visualizer');
 
         return $externo;
-    }
-
-    /**
-     * Get the relative file
-     * @return \Disk\File
-     */
-    public function getFile()
-    {
-        return $this->file;
-    }
-
-    public function setFile($file)
-    {
-        $this->file = $file;
-        return $this;
     }
 
     public function delete()
@@ -130,7 +139,8 @@ class FileVisualizer extends \Component\Component
         }
         else
         {
-            throw new \UserException('Impossível fazer preview do arquivo!');
+            \App::windowOpen($file->getUrl());
+            return false;
         }
 
         $isCkEditor = \DataHandle\Request::get('file-visualizer-ckeditor');
@@ -155,30 +165,38 @@ class FileVisualizer extends \Component\Component
 
     public function upload()
     {
+        \Log::dump('aqui');
+        \Log::dump($_FILES);
         \App::dontChangeUrl();
+
         if (empty($_FILES))
         {
             return;
         }
 
-        $targetPath = \DataHandle\Request::get('file-visualizer-folder');
-        $tempFile = $_FILES['file-0']['tmp_name'];
-        $file = new \Disk\File($_FILES['file-0']['name']);
-        $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
+        $files = $_FILES;
 
-        $targetFile = new \Disk\File($targetPath . '/' . $fileName);
-        $targetFile->createFolderIfNeeded();
-
-        $ok = move_uploaded_file($tempFile, $targetFile);
-
-        if ($ok && $targetFile->exists())
+        foreach ($files as $uploadedFile)
         {
-            $this->byId('file-visualizer-upload')->val('');
-            $this->mountFolder($targetFile);
-        }
-        else
-        {
-            throw new \UserException('Ops! Problema em enviar arquivo!');
+            $targetPath = \DataHandle\Request::get('file-visualizer-folder');
+            $tempFile = $uploadedFile['tmp_name'];
+            $file = new \Disk\File($uploadedFile['name']);
+            $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
+
+            $targetFile = new \Disk\File($targetPath . '/' . $fileName);
+            $targetFile->createFolderIfNeeded();
+
+            $ok = move_uploaded_file($tempFile, $targetFile);
+
+            if ($ok && $targetFile->exists())
+            {
+                $this->byId('file-visualizer-upload')->val('');
+                $this->mountFolder($targetFile);
+            }
+            else
+            {
+                throw new \UserException('Ops! Problema em enviar arquivo!');
+            }
         }
     }
 
@@ -214,7 +232,7 @@ class FileVisualizer extends \Component\Component
     }
 
     /**
-     * Create a FileVisualizae holder
+     * Create a FileVisualizar holder
      *
      * @param \Disk\Folder $folder the root folder
      * @param string $search the files to search, use glob sintax
@@ -244,7 +262,10 @@ class FileVisualizer extends \Component\Component
 
         $content[] = new \View\H1('file-visualizer-title', $title ? $title : $folder->getBasename());
         $content[] = $upload = new \View\Input('file-visualizer-upload', \View\Input::TYPE_FILE);
-        $upload->attr('accept', $accept)->css('margin-bottom', '30px')->change('p("' . $uploadUrl . '");');
+        $upload->attr('multiple', true)
+            ->attr('accept', $accept)
+            ->css('margin-bottom', '30px')
+            ->change('p("' . $uploadUrl . '");');
 
         $components = [];
         $files = $folder->listFiles($search, null);
