@@ -52,12 +52,12 @@ blend.contentEditable.beforeSubmit = function()
 
 blend.contentEditable.start = function()
 {
-    var nodeList = blend.contentEditable.getNodeList();
+    let nodeList = blend.contentEditable.getNodeList();
     
     for (var i= 0 ; i<nodeList.length; i++)
     {
-        var element = nodeList[i];
-        var parent = element.parentElement;
+        let element = nodeList[i];
+        let parent = element.parentElement;
 
         //menu already created
         if (parent.querySelectorAll('.'+blend.contentEditable.menu.cssClass).length > 0)
@@ -65,11 +65,11 @@ blend.contentEditable.start = function()
             continue;
         }
         
-        var createMenu = element.hasAttribute('data-create-menu');
+        let createMenu = element.hasAttribute('data-create-menu');
         
         if (createMenu == true)
         {
-            var menu = blend.contentEditable.createMenu(element);
+            let menu = blend.contentEditable.createMenu(element);
             parent.appendChild(menu);
         }
     }
@@ -338,118 +338,3 @@ blend.contentEditable.insertText = function(selector, text)
     //inserText
     document.execCommand('inserHtml', false, text)
 }
-
-
-/*function insertTextAtCursor(text) { 
-
-    if($(parentNode).parents().is('#chat_message_text') || $(parentNode).is('#chat_message_text') )
-    {
-        var span = document.createElement('span');              
-        span.innerHTML=text;
-
-        range.deleteContents();        
-        range.insertNode(span);  
-        //cursor at the last with this
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-    }
-    else
-    {
-        msg_text = $("#chat_message_text").html()
-        $("#chat_message_text").html(text+msg_text).focus()                 
-    }
-}*/
-
-/*
-    //array to store canvas objects history
-    canvas_history=[];
-    s_history=true;
-    cur_history_index=0; 
-    DEBUG=true;
-
-//store every modification of canvas in history array
-function save_history(force){
-    //if we already used undo button and made modification - delete all forward history
-    if(cur_history_index<canvas_history.length-1){
-        canvas_history=canvas_history.slice(0,cur_history_index+1);
-        cur_history_index++;
-        jQuery('#text_redo').addClass("disabled");
-    }
-    var cur_canvas=JSON.stringify(jQuery(editor).html());
-    //if current state identical to previous don't save identical states
-    if(cur_canvas!=canvas_history[cur_history_index] || force==1){
-        canvas_history.push(cur_canvas);
-        cur_history_index=canvas_history.length-1;
-    }
-    
-    DEBUG && console.log('saved '+canvas_history.length+" "+cur_history_index);
-    
-    jQuery('#text_undo').removeClass("disabled");        
-}
-
-
-function history_undo(){
-    if(cur_history_index>0)
-    {
-        s_history=false;
-        canv_data=JSON.parse(canvas_history[cur_history_index-1]);
-        jQuery(editor).html(canv_data);
-        cur_history_index--;
-        DEBUG && console.log('undo '+canvas_history.length+" "+cur_history_index);        
-        jQuery('#text_redo').removeClass("disabled");    
-    }
-    else{
-        jQuery('#text_undo').addClass("disabled");         
-    }
-}
-
-function history_redo(){
-    if(canvas_history[cur_history_index+1])
-    {
-        s_history=false;
-        canv_data=JSON.parse(canvas_history[cur_history_index+1]);       
-        jQuery(editor).html(canv_data);
-        cur_history_index++;
-        DEBUG && console.log('redo '+canvas_history.length+" "+cur_history_index); 
-        jQuery('#text_undo').removeClass("disabled"); 
-    }
-    else{
-        jQuery('#text_redo').addClass("disabled");         
-    } 
-}
-jQuery('body').keydown(function(e){
-    save_history();
-});
-jQuery('#text_undo').click(function(e){
-    history_undo();
-});
-jQuery('#text_redo').click(function(e){
-    history_redo();
-}); */
-
-/*paste*/
-/*$("#myDiv").on( 'paste', function(e) {
-    e.preventDefault();
-    var text = e.originalEvent.clipboardData.getData("text/plain");
-    document.execCommand("insertHTML", false, text);
-});*/
-
-/*var div = document.getElementById("mydiv");
-div.addEventListener("input", function(e) {
-  switch(e.inputType){
-    case "historyUndo": alert("You did undo"); break;
-    case "historyRedo": alert("You did redo"); break;
-  }
-});*/
-
-/**
- * var div = document.getElementById("mydiv");
-div.addEventListener("beforeinput", function(e) {
-  switch(e.inputType){
-    case "historyUndo": e.preventDefault(); alert("Undo has been canceled"); break;
-    case "historyRedo": e.preventDefault(); alert("Redo has been canceled"); break;
-  }
-});
- */

@@ -165,8 +165,6 @@ class FileVisualizer extends \Component\Component
 
     public function upload()
     {
-        \Log::dump('aqui');
-        \Log::dump($_FILES);
         \App::dontChangeUrl();
 
         if (empty($_FILES))
@@ -178,9 +176,20 @@ class FileVisualizer extends \Component\Component
 
         foreach ($files as $uploadedFile)
         {
+            $uploadName = $uploadedFile['name'];
             $targetPath = \DataHandle\Request::get('file-visualizer-folder');
             $tempFile = $uploadedFile['tmp_name'];
-            $file = new \Disk\File($uploadedFile['name']);
+
+            $file = new \Disk\File($uploadName);
+            $basename = $file->getBasename(false);
+
+            //add support for pasted images
+            if ($basename == 'image')
+            {
+                $basename = \Type\DateTime::now()->getTimestampUnix().'.'.$file->getExtension();
+                $file->setPath($basename);
+            }
+
             $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
 
             $targetFile = new \Disk\File($targetPath . '/' . $fileName);
