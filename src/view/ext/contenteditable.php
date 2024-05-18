@@ -9,7 +9,14 @@ namespace View\Ext;
 class ContentEditable extends \View\Div
 {
 
+    /**
+     * The real posted content
+     * @var \View\Input
+     */
     protected $input;
+    /**
+     * @var \View\Div the content editable element
+     */
     protected $div;
 
     public function __construct($id = \NULL, $innerHtml = \NULL, $class = \NULL, $father = \NULL)
@@ -24,7 +31,7 @@ class ContentEditable extends \View\Div
         $this->div = new \View\Div($id . '-content', $innerHtml, 'input');
         $this->div->attr('contenteditable', 'true');
 
-        $this->input = new \View\Input($id, \View\Input::TYPE_HIDDEN, $innerHtml);
+        $this->input = new \View\Input($id, \View\Input::TYPE_HIDDEN, self::treatValue($innerHtml));
 
         $content = [];
         $content[] = $this->div;
@@ -36,7 +43,7 @@ class ContentEditable extends \View\Div
     public function setValue($value)
     {
         $this->div->html($value);
-        $this->input->val($value);
+        $this->input->val(self::treatValue($value));
     }
 
     public function getCreateMenu()
@@ -55,6 +62,17 @@ class ContentEditable extends \View\Div
 
             $this->setData('create-menu', 'true');
         }
+    }
+
+    /**
+     * Treat the value to make html work inside html
+     *
+     * @param $value
+     * @return string
+     */
+    private function treatValue($value)
+    {
+        return htmlentities($value);
     }
 
 }
