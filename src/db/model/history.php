@@ -125,6 +125,12 @@ trait History
                     unset($diff[$item]);
                 }
             }
+
+            // some apis send arrays instead of plain values
+            if (is_array($value) || is_object($value))
+            {
+                $diff[$item] = '';
+            }
         }
 
         $className = $modelA::getName();
