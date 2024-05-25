@@ -18,7 +18,7 @@ trait History
     {
         $class = static::getName();
         $oldModel = $class::findOneByPk($this->getId());
-        $this->oldModel = $oldModel ? $oldModel : new $class();
+        $this->oldModel = $oldModel ?: new $class();
     }
 
     /**
@@ -149,13 +149,17 @@ trait History
             }
         }
 
+        //avoid some property defined in historyIgnore method
         $historyIgnore = $className::historyIgnore();
 
-        foreach ($historyIgnore as $property)
+        if (is_array($historyIgnore))
         {
-            if (isset($diff[$property]))
+            foreach ($historyIgnore as $property)
             {
-                unset($diff[$property]);
+                if (isset($diff[$property]))
+                {
+                    unset($diff[$property]);
+                }
             }
         }
 
