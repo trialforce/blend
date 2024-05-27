@@ -208,7 +208,7 @@ table.column-12 {
 }
 
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
 
     .hide-in-desktop {
         display: block !important;
