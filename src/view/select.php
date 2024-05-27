@@ -166,11 +166,11 @@ class Select extends \View\View
     {
         if ($multiple)
         {
-            $this->setAttribute('multiple', 'multiple');
+            $this->setAttribute('size', '2');
         }
         else
         {
-            $this->removeAttribute('multiple');
+            $this->removeAttribute('size');
         }
 
         if (!stripos($this->getId(), '['))
@@ -188,7 +188,7 @@ class Select extends \View\View
      */
     public function getMultiple()
     {
-        return (bool)$this->getAttribute('multiple');
+        return (bool) $this->getAttribute('size');
     }
 
     /**

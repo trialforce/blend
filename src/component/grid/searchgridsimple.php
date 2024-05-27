@@ -30,7 +30,7 @@ class SearchGridSimple extends \Component\Grid\SearchGrid
         $buscar = $this->byId('buscar');
         $this->byId('tab-filter')->append($buscar);
 
-        $this->byId('advancedFiltersList')->removeAttr('multiple');
+        $this->byId('advancedFiltersList')->removeAttr('size');
 
         return $this->content;
     }
@@ -56,8 +56,6 @@ class SearchGridSimple extends \Component\Grid\SearchGrid
     protected function createTabFilter2()
     {
         $tabItem = null;
-
-
 
         return $tabItem;
     }

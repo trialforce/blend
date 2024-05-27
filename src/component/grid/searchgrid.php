@@ -727,7 +727,7 @@ class SearchGrid extends \Component\Grid\Grid
 
         $content[] = new \View\Label(null, null, 'Filtrar por', 'field-label');
         $select = new \View\Select('advancedFiltersList', $optGroup, null, 'column-12 column-list-holder');
-        $select->setAttribute('multiple', 'multiple');
+        $select->setAttribute('size', '2');
 
         $content[] = new \View\Div(null, $select, 'column-12 ');
         $content[] = $btn = new \View\Ext\Button('btnAddAvdFilter', 'plus', 'Adicionar filtro', 'addAdvancedFilter');
@@ -749,7 +749,7 @@ class SearchGrid extends \Component\Grid\Grid
         $left[] = new \View\Label(null, null, 'Adicionar colunas', 'field-label');
 
         $select = new \View\Select('addColumn', $this->createColumnOptions($columns, "$('#btnAddColumn').click();"), null, 'column-12 column-list-holder');
-        $select->setAttribute('multiple', 'multiple');
+        $select->setAttribute('size', '2');
 
         $left[] = new \View\Div(null, $select, 'column-12');
 
@@ -998,7 +998,7 @@ class SearchGrid extends \Component\Grid\Grid
         $columns = $this->getColumnsGroup();
         $left[] = new \View\Label(null, null, 'Colunas do agrupamento', 'field-label');
         $left[] = $select = new \View\Select('gridGroupBy', $this->createColumnOptions($columns, "$('#btnAddGroup').click();"), null, 'column-12 column-list-holder');
-        $select->setAttribute('multiple', 'mulitple');
+        $select->setAttribute('size', '2');
 
         $left[] = $btn = new \View\Ext\Button('btnAddGroup', 'plus', 'Adicionar coluna', 'gridGroupAddGroup');
         $left[] = $this->getSearchButton('buscarGroup');
