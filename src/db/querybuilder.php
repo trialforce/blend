@@ -801,7 +801,7 @@ class QueryBuilder
     {
         $first = $this->first();
 
-        if (!$first)
+        if (!$first && $this->getModelName())
         {
             $className = $this->getModelName();
             $first = new $className();

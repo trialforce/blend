@@ -85,6 +85,8 @@ class ConnInfo
      */
     protected $dsn;
 
+    protected $optional = false;
+
     /**
      * Construct a connection info
      *
@@ -96,8 +98,9 @@ class ConnInfo
      * @param string $password password
      * @param int $port port
      * @param string $charset charset
+     * @param bool $optional if databasbe is optional or not
      */
-    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = 'utf8mb4')
+    public function __construct($id, $type, $host, $name, $username, $password = NULL, $port = NULL, $charset = 'utf8mb4', $optional = false)
     {
         $this->id = $id;
         $this->type = $type;
@@ -107,6 +110,7 @@ class ConnInfo
         $this->password = $password;
         $this->port = $port;
         $this->charset = $charset;
+        $this->optional = $optional;
         $this->makeDsn();
 
         //auto add to connection info list
@@ -288,6 +292,28 @@ class ConnInfo
     public function setDsn($dsn)
     {
         $this->dsn = $dsn;
+        return $this;
+    }
+
+    public function getCharset() : string
+    {
+        return $this->charset;
+    }
+
+    public function setCharset( string $charset)
+    {
+        $this->charset = $charset;
+        return $this;
+    }
+
+    public function getOptional() : bool
+    {
+        return $this->optional;
+    }
+
+    public function setOpcional( bool $optional )
+    {
+        $this->optional = $optional;
         return $this;
     }
 

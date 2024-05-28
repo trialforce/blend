@@ -443,10 +443,17 @@ class Conn
             {
                 self::$conn[$id] = new \Db\Conn($connInfo);
             }
-            catch (\Exception $e)
+            catch (\Throwable $e)
             {
-                \Log::exception($e);
-                throw new \Exception('O sistema não está conseguindo se conectar ao servidor de banco de dados. Por favor tente novamente mais tarde.');
+                if ($connInfo->getOptional())
+                {
+                    self::$conn[$id] = new \Db\ConnFake($connInfo);
+                }
+                else
+                {
+                    \Log::exception($e);
+                    throw new \Exception('O sistema não está conseguindo se conectar ao servidor de banco de dados. Por favor tente novamente mais tarde.');
+                }
             }
         }
 
