@@ -523,6 +523,7 @@ class App
         }
 
         App::addJs($js);
+        return true;
     }
 
     /**

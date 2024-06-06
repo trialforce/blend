@@ -11,7 +11,7 @@ use DataHandle\Session;
  */
 class Page extends \View\Layout
 {
-
+    use \Page\PagePopup;
     /**
      * Listagem de grids da páginas
      *
@@ -643,7 +643,7 @@ class Page extends \View\Layout
     }
 
     /**
-     * Create a constainer with label
+     * Create a container with label
      *
      * @param string $label
      * @param \View\View|\Component\Component $view
@@ -805,6 +805,7 @@ class Page extends \View\Layout
      * Called from grid popup
      *
      * @return boolean
+     * @throws \Exception
      */
     public function addAdvancedFilter()
     {
