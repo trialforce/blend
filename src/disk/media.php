@@ -132,7 +132,7 @@ class Media extends \Disk\File
 
             if (!$ok)
             {
-                throw new \Exception('Missing media folder!');
+                throw new \Exception('Missing media folder! '.self::getMediaPath());
             }
         }
     }
