@@ -3,7 +3,8 @@
 namespace Db;
 
 /**
- * One conection with one database
+ * Manager all the connections with databse
+ * Utilizes PHP PDO
  */
 class Conn
 {
@@ -39,25 +40,6 @@ class Conn
      * @var \PDOStatement|False
      */
     protected static $lastRet;
-
-    /**
-     *
-     * @var string
-     */
-    protected static $lastSql;
-
-    /**
-     * Log all sql, with result and, time
-     *
-     * @var array
-     */
-    protected static $sqlLog = [];
-
-    /**
-     * total sql time
-     * @var float
-     */
-    public static $totalSqlTime;
 
     /**
      * Constroi uma conexão com o banco
@@ -106,59 +88,13 @@ class Conn
     }
 
     /**
-     * Add to sql log list
-     *
-     * @param string $sql
-     * @param mixed $result
-     * @param int $time
-     * @param string $idConn
-     */
-    protected static function addSqlLog($sql, $result, $time, $idConn = NULL, $logId = NULL)
-    {
-        //if not loggind does nothing
-        if (\Log::getLogSql() == 0)
-        {
-            return;
-        }
-
-        //format time
-        $time = str_pad($time, 20, '0', STR_PAD_RIGHT);
-
-        $log = new \stdClass();
-        $log->create = \Type\DateTime::now()->toDb();
-        $log->sql = $sql;
-        $log->result = $result;
-        $log->time = $time;
-        $log->idConn = $idConn;
-        $log->logId = $logId;
-
-        self::$sqlLog[] = $log;
-
-        \Log::sql($sql, $time, $idConn, $logId);
-    }
-
-    public static function getSqlLog()
-    {
-        return self::$sqlLog;
-    }
-
-    /**
-     * Retorna o última prepareStatament a ser utilizado
+     * Return the last statament to be used
      *
      * @return \PDOStatement|false
      */
     public static function getLastRet()
     {
         return self::$lastRet;
-    }
-
-    /**
-     * Retorna a última sql executada
-     * @return string
-     */
-    public static function getLastSql()
-    {
-        return self::$lastSql;
     }
 
     /**
@@ -172,7 +108,7 @@ class Conn
     public function execute($sql, $args = NULL, $logId = null)
     {
         $timer = new \Misc\Timer();
-        self::$lastSql = \Db\Conn::interpolateQuery($sql, $args);
+        $lastSql = \Db\SqlLog::interpolateQuery($sql, $args);
 
         $ret = $this->pdo->prepare($sql);
         self::$lastRet = $ret;
@@ -182,8 +118,7 @@ class Conn
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
-        self::addSqlLog(self::$lastSql, $ok, $diffTime, $this->id, $logId);
-        self::$totalSqlTime += $diffTime;
+        \Db\SqlLog::add($lastSql, $ok, $diffTime, $this->id, $logId);
 
         return $ok;
     }
@@ -244,14 +179,7 @@ class Conn
 
                 if (is_null($value) || strlen($value) == 0) //empty
                 {
-                    if (\DataHandle\Config::get('forceEmptyString'))
-                    {
-                        $ret->bindValue($arg, $value . '', \PDO::PARAM_STR);
-                    }
-                    else
-                    {
-                        $ret->bindValue($arg, NULL, \PDO::PARAM_NULL);
-                    }
+                    $ret->bindValue($arg, NULL, \PDO::PARAM_NULL);
                 }
                 else if (is_int($value))
                 {
@@ -279,9 +207,9 @@ class Conn
     public function query($sql, $args = array(), $class = NULL, $logId = null)
     {
         $timer = new \Misc\Timer();
-        self::$lastSql = \Db\Conn::interpolateQuery($sql, $args);
+        $lastSql = \Db\SqlLog::interpolateQuery($sql, $args);
 
-        //adiciona suporte "manual" a campos de final de select
+        /*//adiciona suporte "manual" a campos de final de select
         if (isset($args['orderBy']))
         {
             $sql = str_replace(':orderBy', $args['orderBy'], $sql);
@@ -304,7 +232,7 @@ class Conn
         {
             $sql = str_replace(':offset', $args['offset'], $sql);
             unset($args['offset']);
-        }
+        }*/
 
         $ret = $this->pdo->prepare($sql);
         $this->makeArgs($args, $ret);
@@ -335,8 +263,7 @@ class Conn
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
-        self::addSqlLog(self::$lastSql, count($result), $diffTime, $this->id, $logId);
-        self::$totalSqlTime += $diffTime;
+        \Db\SqlLog::add($lastSql, count($result), $diffTime, $this->id, $logId);
 
         return $result;
     }
@@ -366,66 +293,7 @@ class Conn
     }
 
     /**
-     * Replaces any parameter placeholders in a query with the value of that
-     * parameter. Useful for debugging. Assumes anonymous parameters from
-     * $params are are in the same order as specified in $query
-     *
-     * @param string $query The sql query with parameter placeholders
-     * @param array $params The array of substitution parameters
-     * @return string The interpolated query
-     */
-    public static function interpolateQuery($query, $params)
-    {
-        if (!is_array($params))
-        {
-            return $query;
-        }
-
-        $keys = array();
-        $values = $params;
-
-        # build a regular expression for each parameter
-        foreach ($params as $key => $value)
-        {
-            if (is_string($key))
-            {
-                $keys[] = '/:' . $key . '/';
-            }
-            else
-            {
-                $keys[] = '/[?]/';
-            }
-
-            if (is_array($value))
-            {
-                $values[$key] = implode(',', $value);
-            }
-
-            if (is_null($value))
-            {
-                $values[$key] = 'NULL';
-            }
-        }
-
-        // Walk the array to see if we can add single-quotes to strings
-        array_walk($values, function (&$v, $k)
-        {
-            if (!is_numeric($v) && $v != "NULL")
-            {
-                $v = "'" . $v . "'";
-            }
-        });
-
-        return preg_replace($keys, $values, $query, 1);
-    }
-
-    public static function addConnInfo(\Db\ConnInfo $info)
-    {
-        self::$connInfo[$info->getId()] = $info;
-    }
-
-    /**
-     * Obtém uma instancia da conexão
+     * Get one instance of some database connection
      *
      * @param string $id
      *
@@ -457,6 +325,17 @@ class Conn
         }
 
         return self::$conn[$id];
+    }
+
+    /**
+     * Add one ConnInfo to current available list
+     *
+     * @param ConnInfo $info
+     * @return void
+     */
+    public static function addConnInfo(\Db\ConnInfo $info)
+    {
+        self::$connInfo[$info->getId()] = $info;
     }
 
     /**

@@ -78,7 +78,7 @@ function blend_shutdown()
 
     if (\Log::getLogSql() > 0)
     {
-        \Log::sql('TOTAL SQL TIME ' . \Db\Conn::$totalSqlTime . ' seg');
+        \Log::sql('TOTAL SQL TIME ' . \Db\SqlLog::getTotalSqlTime() . ' seg');
     }
 }
 
@@ -380,8 +380,8 @@ class Log
 
         if ($exception instanceof \PDOException)
         {
-            Log::sql('ERROR:' . \Db\Conn::getLastSql());
-            $error .= 'SQL ERROR:' . \Db\Conn::getLastSql();
+            Log::sql('ERROR:' . \Db\SqlLog::getLastSql());
+            $error .= 'SQL ERROR:' . \Db\SqlLog::getLastSql();
         }
 
         return $error;

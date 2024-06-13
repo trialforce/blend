@@ -103,7 +103,7 @@ class Data
     public function __construct($complete = false)
     {
         $serverTime = \Misc\Timer::getGlobalTimer()->stop()->diff();
-        $sqlTime = \Db\Conn::$totalSqlTime;
+        $sqlTime = \Db\SqlLog::getTotalSqlTime();
         $server = \DataHandle\Server::getInstance();
         $userAgent = $server->getUserAgent();
 
@@ -128,7 +128,7 @@ class Data
         $this->timeServer = \Type\Decimal::get($serverTime)->setDecimals(4);
         $this->timeSql = \Type\Decimal::get($sqlTime)->setDecimals(4);
         $this->timePhp = \Type\Decimal::get($serverTime - $sqlTime)->setDecimals(4);
-        $this->sqlCount = count(\Db\Conn::getSqlLog());
+        $this->sqlCount = \Db\SqlLog::count();
 
         $this->userAgent = $userAgent->getUserAgent();
         $this->browser = $userAgent->getCompleteName();
@@ -150,7 +150,7 @@ class Data
     {
         if (!$this->sqlLog)
         {
-            $this->sqlLog = \Db\Conn::getSqlLog();
+            $this->sqlLog = \Db\SqlLog::getAll();
             $logIds = [];
 
             foreach ($this->sqlLog as $idx => $log)
