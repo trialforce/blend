@@ -433,8 +433,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Index this Collection by property and add distinct values from 'other' param.
      *
-     * @param string $property
-     * @param mixed $other
+     * @param string $property the property to verify the unique/distinct
+     * @param mixed $other the object/model
      */
     public function addDistinct($property, $other)
     {
