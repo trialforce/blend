@@ -47,6 +47,26 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Gener
     }
 
     /**
+     * Return an array with value -> description
+     * But description is converted to camelCase
+     * @return int[]|string[]
+     */
+    public function getArrayCamelCase()
+    {
+        $reflectionClass = new \ReflectionClass($this);
+        $variables = array_flip($reflectionClass->getConstants());
+
+        foreach ($variables as $key => $value)
+        {
+            $value = strtolower($value);
+            $label =  lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $value))));
+            $variables[$key] = $label;
+        }
+
+        return $variables;
+    }
+
+    /**
      * Return the an array of object with id and value property
      *
      * @return array of \stdClass
