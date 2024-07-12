@@ -246,6 +246,7 @@ table.column-12 {
 
     .col-m-4 {
         width: calc(100% / 3) !important;
+        display: inline-block;
     }
 
     .col-m-5 {
