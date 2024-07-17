@@ -115,12 +115,10 @@ class EditPopupGrid extends \Component\Grid\Grid
         return $id;
     }
 
-    public function createCsv()
+    public function exportFile($type = 'CSV', $columns = NULL, $pageSize = NULL)
     {
         $this->addFilterToDataSource();
-        $result = parent::createCsv();
-
-        return $result;
+        return parent::exportFile($type, $columns, $pageSize);
     }
 
     protected function addFilterToDataSource()
