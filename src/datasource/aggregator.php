@@ -46,7 +46,7 @@ class Aggregator
 
     public function getMethod()
     {
-        return $this->method;
+        return strtolower($this->method);
     }
 
     public function setMethod($method)

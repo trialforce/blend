@@ -8,5 +8,5 @@ namespace Page;
 interface AfterGridCreateCell
 {
 
-    public function afterGridCreateCell( \Component\Grid\Column $column, \Db\Model $item, $line, \View\Tr $tr, \View\Td $td );
+    public function afterGridCreateCell( \Component\Grid\Column $column, \Db\Model|\stdClass|array $item, $line, \View\Tr $tr, \View\Td $td );
 }
