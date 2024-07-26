@@ -20,6 +20,8 @@ class Manager
      */
     protected $folder = '';
 
+    protected $currentVersion;
+
     public function __construct($connInfoId = NULL, $folder = '')
     {
         $this->setConnInfoId($connInfoId);
@@ -49,8 +51,9 @@ class Manager
     }
 
     /**
-     *
+     * Get the connection where migration table is created
      * @return \Db\Conn
+     * @throws \Exception
      */
     public function getConn()
     {
@@ -60,6 +63,7 @@ class Manager
     /**
      *
      * @return string
+     * @throws \Exception
      */
     public function getCatalogClass()
     {
@@ -157,7 +161,6 @@ class Manager
 
     public function executeVersionPhp(\Disk\File $file)
     {
-        //require $file->getPath();
         $className = str_replace('/', '\\', str_replace('.php', '', $file->getPath()));
 
         if (!class_exists($className))
@@ -170,12 +173,27 @@ class Manager
         return $versionObj->execute();
     }
 
+    /**
+     * @param \Disk\File $file
+     * @return string
+     * @throws \Exception
+     */
+    public function getCurrentConnInfoId(\Disk\File $file)
+    {
+        $explode = explode('_',$file->getPath());
+        $connInfoId = $explode[1];
+        $connInfo = \Db\Conn::getConnInfo($connInfoId,false);
+        return $connInfo ? $connInfo->getId() : $this->getConnInfoId();
+    }
+
     public function executeVersionSql(\Disk\File $file)
     {
+        \Log::debug($file);
         $file->load();
         $content = $file->getContent();
         $queries = explode(';', $content);
-        $conn = $this->getConn();
+        $connInfo = $this->getCurrentConnInfoId($file);
+        $conn =  \Db\Conn::getInstance($connInfo);
 
         $result = true;
 
@@ -316,6 +334,8 @@ ENGINE=InnoDB
                 }
             }
         }
+
+        return null;
     }
 
 }
