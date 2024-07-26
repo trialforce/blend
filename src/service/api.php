@@ -57,14 +57,14 @@ class Api
         //verifica se modelo existe
         if (!class_exists($modelClass))
         {
-            throw new \Exception('Modelo API inexistente! '.$modelClass);
+            throw new \Exception('Modelo API inexistente! ' . $modelClass);
         }
 
         $obj = new $modelClass();
 
-        if (!method_exists($obj, $metodo)) 
+        if (!method_exists($obj, $metodo))
         {
-            throw new \Exception('Método inexistente: "' . $metodo . '" na API: "'.get_class($obj).'"');
+            throw new \Exception('Método inexistente: "' . $metodo . '" na API: "' . get_class($obj) . '"');
         }
 
         //begin and commit to avoid erros
@@ -118,7 +118,7 @@ class Api
 
         \Log::error('Error', $message, $line, $file, 'api.txt');
 
-        echo json_encode(
+        return json_encode(
                 array(
                     'error' => \View\Script::treatStringToJs($message),
                     'code' => $code,
