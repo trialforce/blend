@@ -8,8 +8,8 @@
 }
 
 .timeline .timeline-item .timeline-item-right-outter {
-    border-left: solid 2px #bbb;
     padding: var(--paddingDefault);
+    border-left: solid 2px #bbb;
     padding-top: 0;
     width: 100%;
 }
@@ -22,8 +22,9 @@
     box-shadow: var(--boxShadowDefault);
     border-top: var(--iconColor);
     margin-left: var(--paddingDefault);
-    border-top-width: 2px;
     border-top-style: solid;
+    border-top-width: 2px;
+    overflow: hidden;
     width: 400px;
     max-width: calc(100% - 102px);
 }
