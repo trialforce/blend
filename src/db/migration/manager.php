@@ -183,12 +183,17 @@ class Manager
         $explode = explode('_',$file->getPath());
         $connInfoId = $explode[1];
         $connInfo = \Db\Conn::getConnInfo($connInfoId,false);
-        return $connInfo ? $connInfo->getId() : $this->getConnInfoId();
+
+        if ($connInfo)
+        {
+            return $connInfoId;
+        }
+
+        throw new \Exception('Impossível encontrar connInfo para "'.$connInfoId.'"');
     }
 
     public function executeVersionSql(\Disk\File $file)
     {
-        \Log::debug($file);
         $file->load();
         $content = $file->getContent();
         $queries = explode(';', $content);
@@ -209,7 +214,7 @@ class Manager
             $start = substr($query, 0, 2);
 
             //dont run commented query
-            if ($start == '/*' || $start == '*/' || $start == "//")
+            if ($start == '/*' || $start == '*/' || $start == "//" || $start == '--')
             {
                 continue;
             }
