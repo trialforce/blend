@@ -500,6 +500,18 @@ class View extends DomElement implements \Countable
         {
             return $element;
         }
+        else if ($content instanceof \View\Document)
+        {
+            $firstChild = $content->firstChild;
+            $migratedNode = \View\View::getDom()->importNode($firstChild, true);
+
+            if (!($element instanceof \View\View || $element instanceof \View\DomContainer))
+            {
+                $element = new \View\DomContainer($element);
+            }
+
+            $element->append($migratedNode);
+        }
         //normal dom elements
         else if ($content instanceof DOMNode)
         {
@@ -527,18 +539,6 @@ class View extends DomElement implements \Countable
             {
                 self::sAppend($element, $info);
             }
-        }
-        else if ($content instanceof \View\Document)
-        {
-            $firstChild = $content->firstChild;
-            $migratedNode = \View\View::getDom()->importNode($firstChild, true);
-
-            if (!($element instanceof \View\View || $element instanceof \View\DomContainer))
-            {
-                $element = new \View\DomContainer($element);
-            }
-
-            $element->append($migratedNode);
         }
         else if ($content instanceof \Component\Component)
         {
