@@ -791,6 +791,25 @@ class QueryBuilder
     }
 
     /**
+     * Return the first register or throw an exception
+     * @param \Throwable|null $exception
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function firstOrThrow(\Throwable|null $exception = null)
+    {
+        $first = $this->first();
+
+        if (!$first)
+        {
+            $exception = $exception ?: new \Exception('Registro não encontrado!');
+            throw $exception;
+        }
+
+        return $first;
+    }
+
+    /**
      * Return the first register or a new one
      *
      * @param boolean $fillDataInWhere if is to fill data in where
