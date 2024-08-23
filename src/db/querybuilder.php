@@ -742,6 +742,7 @@ class QueryBuilder
      *
      * @param bool $format formated or in one line
      * @return \Type\Text the select for the query
+     * @throws \Exception
      */
     public function getSelectSql($format = false)
     {
@@ -758,6 +759,7 @@ class QueryBuilder
      *
      * @param string $returnAs array, stdClass or any class you want
      * @return array array of $returnAs
+     * @throws \Exception
      */
     public function select($returnAs)
     {
@@ -774,6 +776,7 @@ class QueryBuilder
      * the first element of the result
      *
      * @return T|null
+     * @throws \Exception
      */
     public function first()
     {
@@ -792,6 +795,7 @@ class QueryBuilder
 
     /**
      * Return the first register or throw an exception
+     *
      * @param \Throwable|null $exception
      * @return mixed
      * @throws \Throwable
@@ -815,6 +819,7 @@ class QueryBuilder
      * @param boolean $fillDataInWhere if is to fill data in where
      *
      * @return T
+     * @throws \Exception
      */
     public function firstOrCreate($fillDataInWhere = false)
     {
@@ -871,6 +876,7 @@ class QueryBuilder
      * Return a collection of the defined model name
      *
      * @return \Db\Collection<T> the collection with the resulted data
+     * @throws \Exception
      */
     public function toCollection()
     {
@@ -881,6 +887,7 @@ class QueryBuilder
 
     /**
      * @return \Db\Collection<\stdClass>
+     * @throws \Exception
      */
     public function toCollectionStdClass()
     {
@@ -890,6 +897,7 @@ class QueryBuilder
     /**
      * Return data as an array of array
      * @return array<T> array of array
+     * @throws \Exception
      */
     public function toArray()
     {
@@ -900,6 +908,7 @@ class QueryBuilder
      * Return data as array of stdClass
      *
      * @return array array of stdClass
+     * @throws \Exception
      */
     public function toArrayStdClass()
     {
@@ -913,6 +922,7 @@ class QueryBuilder
      * @param string $method
      * @param string $property
      * @return int
+     * @throws \Exception
      */
     public function aggr($method, $property)
     {
@@ -924,6 +934,7 @@ class QueryBuilder
      *
      * @param string $aggr the aggregation, Ex.: SUM(price)
      * @return mixed
+     * @throws \Exception
      */
     public function aggregation($aggr)
     {
@@ -946,6 +957,7 @@ class QueryBuilder
      * Simple method that return the count of all registers in query
      *
      * @return int
+     * @throws \Exception
      */
     public function count($column = '*')
     {
@@ -957,6 +969,7 @@ class QueryBuilder
      *
      * @param array $values the key indexed values array
      * @return int 1 for okay
+     * @throws \Exception
      */
     public function update(array $values)
     {
@@ -996,6 +1009,7 @@ class QueryBuilder
      * Bulk delete register in database.
      *
      * @return int 1 for okay
+     * @throws \Exception
      */
     public function delete()
     {
