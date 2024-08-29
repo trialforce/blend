@@ -260,7 +260,7 @@ class App
         return true;
     }
 
-    protected function handleResultOutput(\View\Layout $theme, $content,$page404 = false)
+    protected function handleResultOutput(\View\Layout $theme, $content, $page404 = false)
     {
         $defaultResponse = Config::getDefault('response', 'content');
 
@@ -314,6 +314,12 @@ class App
         if ($echoed)
         {
             return $echoed;
+        }
+
+        // anti hacking attempt check
+        if (is_object($html) && !method_exists($html, '__toString'))
+        {
+            return '';
         }
 
         $cmds = [];
@@ -398,7 +404,7 @@ class App
      */
     public static function isUrlChanged()
     {
-        if ( \DataHandle\Server::getInstance()->isAjax() )
+        if (\DataHandle\Server::getInstance()->isAjax())
         {
             return Config::get('pushState') != 'undefined';
         }
