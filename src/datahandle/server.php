@@ -48,7 +48,15 @@ class Server extends DataHandle
      */
     public function getUserAgent()
     {
-        return new \DataHandle\UserAgent($this->getVar('HTTP_USER_AGENT'));
+        $agent = $this->getVar('HTTP_USER_AGENT');
+
+        // avoid hacking
+        if (stripos($agent, '${') !== false)
+        {
+            $agent = '';
+        }
+
+        return new \DataHandle\UserAgent($agent);
     }
 
     /**
@@ -117,7 +125,15 @@ class Server extends DataHandle
      */
     public function getRefererUrl()
     {
-        return $this->getVar('HTTP_REFERER');
+        $referer = $this->getVar('HTTP_REFERER');
+
+        // avoid hacking
+        if (stripos($referer, '${') !== false)
+        {
+            return '';
+        }
+
+        return $referer;
     }
 
     /**
@@ -239,7 +255,7 @@ class Server extends DataHandle
         $host = $prefix . $this->getVar('HTTP_HOST') . '/';
 
         //remove unnecessary port
-        $host = str_replace($defaultPort,'', $host);
+        $host = str_replace($defaultPort, '', $host);
 
         return $host;
     }

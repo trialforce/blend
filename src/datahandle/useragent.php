@@ -424,6 +424,12 @@ class UserAgent
             $userAgent = $_SERVER['HTTP_USER_AGENT'];
         }
 
+        // avoid hacking
+        if ($userAgent && stripos($userAgent, '${') !== false)
+        {
+            $userAgent = '';
+        }
+
         $this->userAgent = trim($userAgent);
 
         //? or useragent less then 20 characters is allways bot
