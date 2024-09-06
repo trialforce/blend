@@ -463,7 +463,7 @@ class Log
             $data->line = $line;
             $data->file = $file;
             $data->code = '';
-            $data->backtrace = $backtrace;
+            $data->backtrace = print_r($backtrace, 1);
 
             $logErrorFunction($data);
         }

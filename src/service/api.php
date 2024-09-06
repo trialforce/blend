@@ -96,6 +96,12 @@ class Api
             $result = (object) $result->getArray();
         }
 
+        //controle de erro para bases opcionais
+        if ($result==null)
+        {
+            $result = [];
+        }
+
         //log if needed
         if (self::$log)
         {
@@ -114,9 +120,7 @@ class Api
     {
         http_response_code(200);
         //sometimes we get an stdClass, nobody knows why
-        $message = is_object($message) ? print_r($message, 1) : $message;
-
-        \Log::error('Error', $message, $line, $file, 'api.txt');
+        $message = is_iterable($message) ? print_r($message, 1) : $message;
 
         return json_encode(
                 array(
