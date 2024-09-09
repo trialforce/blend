@@ -181,6 +181,7 @@ if (!function_exists('toast'))
 
         $messageParsed = \View\Script::treatStringToJs($message);
         \App::addJs("toast('$messageParsed', '$type', $duration )");
+        return false;
     }
 
 }
