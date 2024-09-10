@@ -714,8 +714,6 @@ class View extends DomElement implements \Countable
      * Sobreescreve o atributo.
      * Use css instead
      *
-     * @deprecated since version 20/2/2014
-     *
      * @param string $style
      * @param string $value
      * @return \View\View
