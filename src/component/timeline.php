@@ -73,7 +73,7 @@ class Timeline extends \Component\Component
             $items[] = new \View\H3(null, $this->getTitle());
         }
 
-        if ( $data->length() ==0 )
+        if ( count($data) ==0 )
         {
             $items[] = $this->onCreateEmpty();
         }
