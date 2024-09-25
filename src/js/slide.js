@@ -82,7 +82,7 @@ function slide(selector)
     var dataDragDisable = group.data('drag-disabled');
     
     //copy outter width to inner
-    var outterWidth = wrapper.width();
+    var outterWidth = wrapper.width()+1; //strange +1 is needed
     var outterHeight = parseInt(group.height());
 
     //if the height it not loaded yet, wait a little
