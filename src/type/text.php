@@ -168,6 +168,7 @@ class Text implements \Type\Generic, \JsonSerializable
         $content = str_replace('®', '', $content);
         $content = str_replace('<', '', $content);
         $content = str_replace('>', '', $content);
+        $content = str_replace('™', '', $content);
 
         $this->string = $content;
 
