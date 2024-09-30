@@ -96,12 +96,6 @@ class Api
             $result = (object) $result->getArray();
         }
 
-        //controle de erro para bases opcionais
-        if ($result==null)
-        {
-            $result = [];
-        }
-
         //log if needed
         if (self::$log)
         {
