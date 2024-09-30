@@ -62,6 +62,14 @@ class Image extends \Disk\File
     }
 
     /**
+     * @return \GdImage|Resource
+     */
+    public function getContent()
+    {
+        return parent::getContent();
+    }
+
+    /**
      * Construct a new blank image
      *
      * @param boolean $trueColor
@@ -609,11 +617,6 @@ class Image extends \Disk\File
             return $this;
         }
 
-        if ($dstW == 0 || $dstH == 0)
-        {
-            return $this;
-        }
-
         //support transparent png
         if ($this->isTrueColor())
         {
@@ -642,9 +645,55 @@ class Image extends \Disk\File
         return $this;
     }
 
-    public function crop($srcX, $srcY, $dstW, $dstH, $srcW, $srcH)
+    /**
+     * Crop an image automatically using one of the available modes
+     *
+     * @param int $mode
+     * @param $threshold
+     * @param $color
+     * @return \Media\Image;
+     * @throws \Exception
+     */
+    public function cropAuto($mode = IMG_CROP_SIDES,$threshold= 0.5, $color = -1)
     {
-        $this->copyresampled(0, 0, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH);
+        $this->load();
+        $image = imagecropauto($this->getContent(), $mode, $threshold, $color);
+
+        if($image)
+        {
+            $this->setContent($image);
+        }
+        else
+        {
+            throw new \Exception('Impossível cortar automaticamente a imagem!');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Faz o crop da imagem
+     * @param $x
+     * @param $y
+     * @param $width
+     * @param $height
+     * @return $this
+     * @throws \Exception
+     */
+    public function crop($x, $y, $width, $height)
+    {
+        $array = ['x' => $x, 'y' => $y, 'width' => $width, 'height' => $height];
+        $image = imagecrop($this->getContent(),$array);
+
+        if ($image)
+        {
+            $this->setContent($image);
+        }
+        else
+        {
+            throw new \Exception('Impossível fazer crop da imagem.');
+        }
+
         return $this;
     }
 
@@ -717,9 +766,10 @@ class Image extends \Disk\File
     }
 
     /**
+     * Make an output inline
      * @param $disposition
      * @param $request
-     * @return void
+     * @return $this
      * @throws \Exception
      */
     public function outputInline($disposition = 'inline', $request = NULL)
@@ -735,24 +785,13 @@ class Image extends \Disk\File
             }
         }
 
-        $this->load();
-
-        header('Content-Description: File Transfer');
-        header("Content-Type: " . $this->getMimeType());
-        header('Cache-Control: public, must-revalidate, max-age=0');
-        header('Pragma: no-cache');
-        header('Accept-Ranges: bytes');
-        header('Content-Length:' . $this->getSize());
-        header('Content-Disposition: ' . $disposition . '; filename="' . $this->getBasename(TRUE) . '"');
-        header("Content-Transfer-Encoding: binary\n");
-        header("Last-Modified: " . $this->getMTime());
-        header('Connection: close');
-
-        $this->outputBrowser();
+        parent::outputInline($disposition, $request);
+        return $this;
     }
 
     protected function outputBrowser()
     {
+        $this->load();
         $extension = $this->getExtension();
 
         if (!$this->content)
@@ -907,6 +946,24 @@ class Image extends \Disk\File
         ImageCopyMerge($this->getContent(), $watermark->getContent(), $left, $top, 0, 0, $watermark->getWidth(), $watermark->getHeight(), $opacity);
 
         $this->export($this->getPath());
+    }
+
+    /**
+     * Remove the background color
+     * It's a very simple aprouch, very dummy
+     *
+     * @return $this
+     */
+    public function removeBackground()
+    {
+        $image = $this->getContent();
+        imagealphablending($image, false);
+        $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
+        imagefill($image, 0, 0, $transparent);
+        imagesavealpha($image, true);
+        imagealphablending($image, true);
+
+        return $this;
     }
 
 }

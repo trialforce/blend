@@ -88,7 +88,7 @@ class File implements \JsonSerializable
 
     /**
      * Return the content
-     * @return string
+     * @return mixed
      */
     public function getContent()
     {
@@ -156,7 +156,7 @@ class File implements \JsonSerializable
 
     /**
      * Return the file size
-     * @return string
+     * @return int|false
      */
     public function getSize()
     {
@@ -203,10 +203,8 @@ class File implements \JsonSerializable
         {
             $folder->create();
         }
-        else
-        {
-            return true;
-        }
+
+        return $this;
     }
 
     /**
@@ -218,6 +216,8 @@ class File implements \JsonSerializable
         {
             return unlink($this->path);
         }
+
+        return false;
     }
 
     /**
@@ -378,7 +378,7 @@ class File implements \JsonSerializable
     /**
      * Return modification time
      *
-     * @return string modification time
+     * @return int|false modification time
      */
     public function getMTime()
     {
@@ -426,7 +426,7 @@ class File implements \JsonSerializable
      * Make a find in files
      *
      * @param string $glob
-     * @return \Disk\File
+     * @return \Disk\File[]
      */
     public static function find($glob, $flags = 0, $recursive = FALSE)
     {
@@ -508,11 +508,6 @@ class File implements \JsonSerializable
         {
             //default case
             $filePath = str_replace('/', "/", str_replace(APP_PATH, '', $this->getPath()));
-
-            if ($type == 2)
-            {
-                $filePath = \DataHandle\Server::getInstance()->getHost() . $filePath;
-            }
         }
 
         return $filePath;
@@ -522,9 +517,11 @@ class File implements \JsonSerializable
      * move file to another place.
      *
      * @see rename http://php.net/rename
-     * @param \Disk\File $filePath
-     * @return \Disk\File file with new path
+     * @param \Disk\File $file
+     * @param bool $createIfNotExists
+     * @return bool
      *
+     * @throws \Exception
      */
     public function move(\Disk\File $file, $createIfNotExists = FALSE)
     {
@@ -553,7 +550,7 @@ class File implements \JsonSerializable
      * Copy file to another place, on success returns true.
      *
      * @see  http://php.net/copy
-     * @param string $filePath
+     * @param \Disk\File $newFile
      * @return boolean
      */
     public function copy(\Disk\File $newFile)
@@ -592,7 +589,7 @@ class File implements \JsonSerializable
 
     /**
      * Verify if file is a text file (by extension)
-     * @return type
+     * @return bool
      */
     public function isText()
     {
@@ -656,6 +653,8 @@ class File implements \JsonSerializable
      * http://greenbytes.de/tech/tc2231/#inlwithasciifilenamepdf
      *
      * @param string $disposition
+     * @return $this
+     * @throws \Exception
      */
     public function outputInline($disposition = 'inline', $request = NULL)
     {
@@ -663,7 +662,7 @@ class File implements \JsonSerializable
         {
             $image = new \Media\Image($this->path);
             $image->outputInline($disposition, $request);
-            return;
+            return $this;
         }
 
         header('Content-Description: File Transfer');
@@ -677,6 +676,12 @@ class File implements \JsonSerializable
         header("Last-Modified: " . $this->getMTime());
         header('Connection: close');
 
+        $this->outputBrowser();
+        return $this;
+    }
+
+    protected function outputBrowser()
+    {
         readfile($this->getPath());
     }
 
@@ -732,7 +737,7 @@ class File implements \JsonSerializable
      * Define storage path
      *
      * @param string $storagePath
-     * @return string
+     *
      */
     public static function setStoragePath($storagePath)
     {
@@ -780,7 +785,7 @@ class File implements \JsonSerializable
      * Define storage url
      *
      * @param string $storageUrl
-     * @return string
+     *
      */
     public static function setStorageUrl($storageUrl)
     {
