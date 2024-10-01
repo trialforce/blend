@@ -67,7 +67,8 @@ class A extends \View\View
         }
         else
         {
-            return $this->removeAttribute('data-ajax');
+            $this->removeAttribute('data-ajax');
+            return $this;
         }
     }
 

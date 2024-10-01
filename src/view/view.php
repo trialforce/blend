@@ -1273,21 +1273,21 @@ class View extends DomElement implements \Countable
     }
 
     /**
-     * Extends to make it chain
+     * Extens to make it work with js
      *
-     * @param string $name
-     * @return \View\View
+     * @param string $qualifiedName
+     * @return bool
      */
-    public function removeAttribute($name)
+    public function removeAttribute($qualifiedName):bool
     {
-        parent::removeAttribute($name);
+        $result = parent::removeAttribute($qualifiedName);
 
         if ($this->getOutputJs())
         {
-            \App::addJs($this->getSelector() . ".removeAttr('$name')");
+            \App::addJs($this->getSelector() . ".removeAttr('$qualifiedName')");
         }
 
-        return $this;
+        return $result;
     }
 
     /**
@@ -1543,7 +1543,7 @@ class View extends DomElement implements \Countable
      *
      * @return int
      */
-    public function count()
+    public function count():int
     {
         return \View\View::countNodes($this);
     }

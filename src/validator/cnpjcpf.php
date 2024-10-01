@@ -40,7 +40,7 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
         return self::unmask($this->value);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->toDb();
     }

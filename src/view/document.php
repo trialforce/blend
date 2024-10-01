@@ -231,7 +231,7 @@ class Document extends DomDocument implements \Countable
         return $this;
     }
 
-    public function getElementById($elementId)
+    public function getElementById($elementId) : ?DOMElement
     {
         return $this->getElementByIdServer($elementId);
     }
@@ -461,7 +461,7 @@ class Document extends DomDocument implements \Countable
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         $count = $this->childNodes->length;
         $childNodes = $this->childNodes;

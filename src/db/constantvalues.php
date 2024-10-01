@@ -109,56 +109,56 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Gener
         return NULL;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) :void
     {
         //readonly
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
         //readonly
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset) :bool
     {
         $array = $this->getArray();
         return isset($array[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset) :mixed
     {
         $array = $this->getArray();
 
         return isset($array[$offset]) ? $array[$offset] : null;
     }
 
-    public function count()
+    public function count():int
     {
         return count($this->getArray());
     }
 
-    public function current()
+    public function current() : mixed
     {
         $array = $this->getArray();
         return $array[$this->position];
     }
 
-    public function key()
+    public function key() : mixed
     {
         return $this->position;
     }
 
-    public function next()
+    public function next() :void
     {
         ++$this->position;
     }
 
-    public function rewind()
+    public function rewind() : void
     {
         $this->position = 0;
     }
 
-    public function valid()
+    public function valid() : bool
     {
         $array = $this->getArray();
         return isset($array[$this->position]);

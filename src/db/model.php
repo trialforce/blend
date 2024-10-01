@@ -421,9 +421,9 @@ class Model implements \JsonSerializable
         $catalog = $name::getCatalogClass();
 
         //if has ASC or DESC in order BY don't treat then, let it be
-        if (!( stripos($orderBy, 'ASC') > 0 || stripos($orderBy, 'DESC') > 0))
+        if (!( stripos($orderBy.'', 'ASC') > 0 || stripos($orderBy.'', 'DESC') > 0))
         {
-            $orderBy = implode(',', $catalog::parseTableNameForQuery(explode(',', $orderBy)));
+            $orderBy = implode(',', $catalog::parseTableNameForQuery(explode(',', $orderBy.'')));
         }
 
         $table = $catalog::parseTableNameForQuery($name::getTableName());
@@ -1150,7 +1150,7 @@ class Model implements \JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->getArray();
     }

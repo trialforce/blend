@@ -26,22 +26,22 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         $this->setColumns($columns);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize() : mixed
     {
         return $this->columns;
     }
 
-    public function count()
+    public function count() : int
     {
         return count($this->columns);
     }
 
-    public function current()
+    public function current() :mixed
     {
         return current($this->columns);
     }
 
-    public function key()
+    public function key() : mixed
     {
         if (!is_array($this->columns))
         {
@@ -51,22 +51,22 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return key($this->columns);
     }
 
-    public function next()
+    public function next() : void
     {
-        return next($this->columns);
+        next($this->columns);
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset) :bool
     {
         return isset($this->columns[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset):mixed
     {
         return isset($this->columns[$offset]) ? $this->columns[$offset] : null;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (is_null($offset))
         {
@@ -78,27 +78,27 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         }
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
         unset($this->columns[$offset]);
     }
 
-    public function rewind()
+    public function rewind():void
     {
         if (!is_array($this->columns))
         {
             $this->columns = array();
-            return null;
+            return;
         }
 
-        return reset($this->columns);
+        reset($this->columns);
     }
 
-    public function valid()
+    public function valid() : bool
     {
         if (!is_array($this->columns))
         {
-            return null;
+            return false;
         }
 
         return key($this->columns) !== null;

@@ -361,7 +361,7 @@ class File implements \JsonSerializable
      */
     public function getBasename($withExtension = TRUE)
     {
-        $suffix = $withExtension ? NULL : '.' . $this->getExtension();
+        $suffix = $withExtension ? '' : '.' . $this->getExtension();
         return basename($this->path, $suffix);
     }
 
@@ -799,7 +799,7 @@ class File implements \JsonSerializable
         return $encode;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize() : mixed
     {
         $result = new \stdClass();
         $result->path = $this->getPath();

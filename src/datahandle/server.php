@@ -18,7 +18,7 @@ class Server extends DataHandle
      * Store "calculate" host
      * @var string
      */
-    protected static $host;
+    protected static $host = '';
 
     /**
      * Construct server super global
