@@ -47,7 +47,7 @@ class Grid extends \Component\Component
     /**
      * Título da tabela
      *
-     * @var \View\Vieww
+     * @var \View\View
      */
     protected $title;
 
@@ -800,6 +800,7 @@ class Grid extends \Component\Component
      * Gera um arquivo CSV baseado no momento atual da grid
      *
      * @return \Disk\File
+     * @throws \Exception
      */
     public function exportFile($type = 'CSV', $columns = NULL, $pageSize = NULL)
     {
@@ -1043,7 +1044,14 @@ class Grid extends \Component\Component
         $dataSource = $this->getDataSource();
         $this->addFiltersToDataSource($dataSource);
         $type = str_replace("/", '', Request::get('format'));
-        $reportColumns = array_keys(Request::get('reportColumns'));
+        $columns = Request::get('reportColumns');
+
+        if (is_null($columns) || is_countable($columns) && count($columns) == 0)
+        {
+            throw new \UserException("É necessário selecionar ao menos 1 coluna!");
+        }
+
+        $reportColumns = array_keys($columns);
 
         //save selected filter in file, to restore
         $fileReportColumns = $this->getReportColumnsFile();
