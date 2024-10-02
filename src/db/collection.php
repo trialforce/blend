@@ -38,7 +38,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return int
      */
-    public function count()
+    public function count() : int
     {
         if (!is_array($this->data))
         {
@@ -69,7 +69,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     /**
      * Define all data inside collection
      *
-     * @param Array $array
+     * @param mixed $array
      */
     public function setData($array)
     {
@@ -130,7 +130,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $new = array();
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as $item)
         {
             if ($function($item))
             {
@@ -251,7 +251,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $total = 0;
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as  $item)
         {
             $info = self::getPropertyFromItem($item, $property);
             $regexpResult = [];
@@ -286,7 +286,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         $total = 0;
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as $item)
         {
             $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toDb();
         }
@@ -304,7 +304,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $min = 0;
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as $item)
         {
             $value = self::getPropertyFromItem($item, $property);
 
@@ -327,7 +327,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
     {
         $min = 0;
 
-        foreach ($this->data as $idx => $item)
+        foreach ($this->data as $item)
         {
             $value = self::getPropertyFromItem($item, $property);
 
@@ -494,7 +494,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         if (is_array($item))
         {
-            $result = isset($item[$property]) ? $item[$property] : null;
+            $result = $item[$property] ?? null;
         }
         else if (is_object($item))
         {
@@ -506,7 +506,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             //simple object
             else
             {
-                $result = isset($item->$property) ? $item->$property : 0;
+                $result = $item->$property ?? 0;
             }
         }
 
@@ -618,6 +618,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             foreach ($array as $item)
             {
+                $vKey = null;
+
                 //array
                 if (is_array($item))
                 {
@@ -651,7 +653,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         $data = $this->getData();
         $result = [];
 
-        foreach ($data as $idx => $item)
+        foreach ($data as $item)
         {
             $myValue = self::getPropertyFromItem($item, $columnName);
 
@@ -703,6 +705,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         {
             return $this->where($columnName, $param, $value);
         }
+
+        return $this;
     }
 
     public function and($columnName, $param = NULL, $value = NULL)
@@ -752,7 +756,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param int $offset
      * @param T $value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) : void
     {
         if (is_null($offset))
         {
@@ -772,7 +776,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param int $offset
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         return isset($this->data[$offset]);
     }
@@ -784,7 +788,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param bool $offset
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->data[$offset]);
     }
@@ -797,9 +801,9 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param T $offset
      * @return T
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset) :mixed
     {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+        return $this->data[$offset] ?? null;
     }
 
     /**
@@ -809,15 +813,15 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return T
      */
-    public function rewind()
+    public function rewind() : void
     {
         if (!is_array($this->data))
         {
             $this->data = array();
-            return null;
+            return;
         }
 
-        return reset($this->data);
+        reset($this->data);
     }
 
     /**
@@ -827,7 +831,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return T
      */
-    function current()
+    function current() : mixed
     {
         return current($this->data);
     }
@@ -839,7 +843,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return int|null|string
      */
-    public function key()
+    public function key() :mixed
     {
         if (!is_array($this->data))
         {
@@ -854,11 +858,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \Iterator (foreach)
      *
-     * @return bool
+     * @return void
      */
-    public function next()
+    public function next() : void
     {
-        return next($this->data);
+        next($this->data);
     }
 
     /**
@@ -868,11 +872,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return bool
      */
-    public function valid()
+    public function valid() : bool
     {
         if (!is_array($this->data))
         {
-            return null;
+            return false;
         }
 
         return key($this->data) !== null;
@@ -921,7 +925,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return print_r($this->data, TRUE);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->data;
     }
