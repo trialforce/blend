@@ -204,7 +204,7 @@ class Log
             return false;
         }
         //don't make any log if it is an UserException
-        else if ($exception instanceof \UserException)
+        else if ($exception instanceof \UserException || $exception instanceof \ResponseCodeException)
         {
             return false;
         }
@@ -245,7 +245,7 @@ class Log
     /**
      * This method verify common mysql erros and improve the message to user
      *
-     * @param \Error $exception
+     * @param \Throwable $exception
      * @return boolean
      * @throws ReflectionException
      */
@@ -355,7 +355,7 @@ class Log
     /**
      * Generate a full log message based on a exception
      *
-     * @param \Exception $exception
+     * @param \Throwable $exception
      * @return string
      */
     protected static function generateErrorLog($exception)
