@@ -102,11 +102,11 @@ class Server extends DataHandle
      */
     public function getUserIp()
     {
-        if (strlen($this->getVar('HTTP_CLIENT_IP')) > 0)
+        if (strlen($this->getVar('HTTP_CLIENT_IP').'') > 0)
         {
             $ip = $this->getVar('HTTP_CLIENT_IP');
         }
-        elseif (strlen($this->getVar('HTTP_X_FORWARDED_FOR')) > 0)
+        elseif (strlen($this->getVar('HTTP_X_FORWARDED_FOR').'') > 0)
         {
             $ip = $this->getVar('HTTP_X_FORWARDED_FOR');
         }

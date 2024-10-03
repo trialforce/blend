@@ -601,7 +601,7 @@ class DomContainer implements \Countable
         return $this->C14N(TRUE);
     }
 
-    public function count()
+    public function count():int
     {
         return \View\View::countNodes($this->domElement);
     }

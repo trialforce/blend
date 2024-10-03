@@ -87,7 +87,7 @@ class Vector implements \Type\Generic, \JsonSerializable
         return \Type\Vector::get($value, $type, $separator)->value();
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->toDb();
     }

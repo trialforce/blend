@@ -449,7 +449,7 @@ class Text implements \Type\Generic, \JsonSerializable
         return $this->__toString();
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->toDb();
     }

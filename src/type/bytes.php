@@ -175,7 +175,7 @@ class Bytes implements \Type\Generic, \JsonSerializable
         return \Type\Bytes::get($value)->getValue();
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize() :mixed
     {
         return $this->toDb();
     }

@@ -63,13 +63,14 @@ class A extends \View\View
     {
         if ($ajax)
         {
-            return $this->setData('ajax', $ajax);
+            $this->setData('ajax', $ajax);
         }
         else
         {
             $this->removeAttribute('data-ajax');
-            return $this;
         }
+
+        return $this;
     }
 
     /**

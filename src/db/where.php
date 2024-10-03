@@ -37,9 +37,9 @@ class Where implements \Db\Filter
 
     public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and')
     {
-        $param = trim($param);
+        $param = trim($param.'');
         $haveIs = stripos($param, 'IS') === 0;
-        $hasValue = $value || trim($value) === '0' || trim($value) === 0;
+        $hasValue = $value || trim($value.'') === '0' || trim($value.'') === 0;
 
         //support two parameters
         if (!$hasValue && $param && !$haveIs)

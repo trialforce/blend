@@ -165,7 +165,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
         return number_format($this->value, $this->decimals, '.', '');
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->toDb();
     }

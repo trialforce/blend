@@ -144,7 +144,7 @@ class Integer extends \Validator\Validator implements \JsonSerializable
         return $error;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize():mixed
     {
         return $this->toDb();
     }

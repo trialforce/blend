@@ -224,7 +224,7 @@ abstract class Combo extends \Component\Component
             return;
         }
 
-        $searchValue = trim($request);
+        $searchValue = trim($request.'');
 
         // forbidden characters, avoid sql injection
         if (stripos($searchValue, '*') !== false ||

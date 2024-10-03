@@ -204,7 +204,7 @@ class View extends DomElement implements \Countable
             $value = $value[0];
         }
 
-        parent::setAttribute('value', $value);
+        parent::setAttribute('value', $value.'');
 
         if ($this->getOutputJs())
         {
