@@ -148,7 +148,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
     public static function treatValue($value)
     {
         //remove reais
-        $value = str_replace('R$', '', $value);
+        $value = str_replace('R$', '', $value.'');
 
         //support brazilian format
         if (stripos($value, ','))

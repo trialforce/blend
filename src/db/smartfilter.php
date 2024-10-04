@@ -45,7 +45,7 @@ class SmartFilter
 
     public function getQueryString()
     {
-        return $this->queryString;
+        return $this->queryString.'';
     }
 
     public function setQueryString($queryString)

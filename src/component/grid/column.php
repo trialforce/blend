@@ -691,7 +691,7 @@ class Column
         {
             $property = trim(str_replace('*', '', $property));
             $val = \DataSource\Grab::getDbValue($property, $item);
-            $string = str_replace(':' . $property . '?', $val, $string);
+            $string = str_replace(':' . $property . '?', $val.'', $string);
         }
 
         return $string;

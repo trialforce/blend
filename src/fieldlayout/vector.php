@@ -378,7 +378,7 @@ class Vector
             $label->data('required', '1');
         }
 
-        if ($this->getCreateQuestion() && strlen(trim($column->getDescription())) > 0)
+        if ($this->getCreateQuestion() && strlen(trim($column->getDescription().'')) > 0)
         {
             $pageUrl = \View\View::getDom()->getPageUrl();
             $url = "p('{$pageUrl}/columnQuestion/{$column->getName()}');";

@@ -189,6 +189,8 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
      */
     public static function mask($value)
     {
+        $value = $value.'';
+
         if (mb_strlen(trim($value)) > 10)
         {
             $value = self::unmask($value);
