@@ -152,7 +152,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return $this;
     }
 
-    public function addColumns(array $columns)
+    public function addColumns($columns)
     {
         foreach ($columns as $column)
         {
