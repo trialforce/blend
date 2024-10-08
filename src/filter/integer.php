@@ -76,7 +76,7 @@ class Integer extends \Filter\Text
         $filterValue = $this->getFilterValue($index);
         $filterFinalValue = $this->getFilterValueFinal($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
-        $isFiltered = (strlen(trim($filterValue)) > 0);
+        $isFiltered = (strlen(trim($filterValue.'')) > 0);
 
         if ($conditionValue)
         {

@@ -629,7 +629,7 @@ class Column
             $newOrderWay = '';
         }
 
-        $orderFromPost = urldecode(\DataHandle\Request::get('orderBy'));
+        $orderFromPost = urldecode(\DataHandle\Request::get('orderBy').'');
         $orders = $dataSource->getOrderByParsed($orderFromPost);
 
         if ($newOrderWay)

@@ -12,7 +12,7 @@ class ModelApi extends \Db\Model
 
     /**
      * The id uses im mobile/offline device
-     * @var type
+     * @var string
      */
     protected $idMobile;
 
@@ -94,7 +94,7 @@ class ModelApi extends \Db\Model
 
     public static function createUniqueIdMobile()
     {
-        $t = microtime(true);
+        $t = intval(microtime(true));
         $micro = sprintf("%06d", ($t - floor($t)) * 1000000);
         $d = new \DateTime(date('Y-m-d H:i:s.' . $micro, $t));
 

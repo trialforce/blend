@@ -197,7 +197,7 @@ class Reference extends \Filter\Collection
         $filterName = $this->getValueName();
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
-        $wasFiltered = strlen($filterValue) > 0 || $filterValue == '0';
+        $wasFiltered = strlen($filterValue.'') > 0 || $filterValue == '0';
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
         $sql = $dbColumn && $dbColumn->getReferenceSql(FALSE) ? $dbColumn->getReferenceSql(FALSE) : $this->getFilterSql();
 

@@ -78,7 +78,7 @@ class Collection extends \Filter\Text
         $conditionValue = $this->getConditionValue($index);
         $filterValue = $this->getFilterValue($index);
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
-        $hasFilter = (strlen($filterValue) > 0);
+        $hasFilter = (strlen($filterValue.'') > 0);
         $sql = $this->getFilterSql() ? $this->getFilterSql() : $columnName;
 
         //no condition selected, does nothing

@@ -438,6 +438,8 @@ class File implements \JsonSerializable
             $flags = $flags | GLOB_BRACE;
         }
 
+        $flags = $flags == null ? 0 : $flags;
+
         if ($recursive)
         {
             $globs = globRecursive($glob, $flags);

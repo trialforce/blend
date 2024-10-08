@@ -318,7 +318,7 @@ class Validator implements \Type\Generic
             return '';
         }
 
-        return preg_replace("/[^0-9]/", "", $value);
+        return preg_replace("/[^0-9]/", "", $value.'');
     }
 
     /**
