@@ -150,7 +150,17 @@ class Image extends \Disk\File
             return;
         }
 
-        $exif = @exif_read_data($this->path, 'EXIF');
+        $info = [];
+
+        // check if APP1 exists
+        $this->sizes = getimagesize($this->path, $info);
+
+        $exif = [];
+
+        if (function_exists('exif_read_data') && isset($info['APP1']))
+        {
+            $exif = @exif_read_data($this->path, 'EXIF');
+        }
 
         if (!empty($exif['Orientation']))
         {
@@ -654,12 +664,12 @@ class Image extends \Disk\File
      * @return \Media\Image;
      * @throws \Exception
      */
-    public function cropAuto($mode = IMG_CROP_SIDES,$threshold= 0.5, $color = -1)
+    public function cropAuto($mode = IMG_CROP_SIDES, $threshold = 0.5, $color = -1)
     {
         $this->load();
         $image = imagecropauto($this->getContent(), $mode, $threshold, $color);
 
-        if($image)
+        if ($image)
         {
             $this->setContent($image);
         }
@@ -683,7 +693,7 @@ class Image extends \Disk\File
     public function crop($x, $y, $width, $height)
     {
         $array = ['x' => $x, 'y' => $y, 'width' => $width, 'height' => $height];
-        $image = imagecrop($this->getContent(),$array);
+        $image = imagecrop($this->getContent(), $array);
 
         if ($image)
         {
