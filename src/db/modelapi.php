@@ -67,13 +67,13 @@ class ModelApi extends \Db\Model
         return parent::update($columns);
     }
 
-	public static function getTableName()
+    public static function getTableName()
     {
         $tableName = parent::getTableName();
 
         if (stripos($tableName, 'api') === 0)
         {
-            $tableName = lcfirst(str_replace(['apiRunmore','api'], '', $tableName));
+            $tableName = lcfirst(str_replace(['apiRunmore', 'api'], '', $tableName));
         }
 
         return $tableName;
@@ -86,7 +86,7 @@ class ModelApi extends \Db\Model
 
         if (stripos($name, 'api') === 0)
         {
-            $name = 'Model\\' . str_replace(['Api\\Runmore\\','Api\\'], '', $name);
+            $name = 'Model\\' . str_replace(['Api\\Runmore\\', 'Api\\'], '', $name);
         }
 
         return $name;
@@ -94,7 +94,7 @@ class ModelApi extends \Db\Model
 
     public static function createUniqueIdMobile()
     {
-        $t = intval(microtime(true));
+        $t = microtime(true);
         $micro = sprintf("%06d", ($t - floor($t)) * 1000000);
         $d = new \DateTime(date('Y-m-d H:i:s.' . $micro, $t));
 
