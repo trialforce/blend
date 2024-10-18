@@ -970,7 +970,7 @@ class Column
     public static function getModelClassForReference($referenceTable)
     {
         //if allready has "model" in string, use it
-        if (stripos($referenceTable, '\model') !== false)
+        if (stripos($referenceTable.'', '\model') !== false)
         {
             $modelClass = $referenceTable;
         }

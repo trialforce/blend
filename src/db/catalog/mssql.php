@@ -241,16 +241,16 @@ ORDER BY name ASC;";
         $lineEnding = $format ? "\r\n" : ' ';
         $sql = 'SELECT' . $lineEnding . $top . $columns;
         $sql .= $tables ? $lineEnding . 'FROM ' . $tables : '';
-        $sql .= strlen(trim($where)) > 0 ? $lineEnding . 'WHERE ' . $where : '';
-        $sql .= strlen(trim($groupBy)) > 0 ? $lineEnding . 'GROUP BY ' . $groupBy : '';
-        $sql .= strlen(trim($having)) > 0 ? $lineEnding . 'HAVING ' . $having : '';
-        $sql .= strlen(trim($orderBy)) > 0 ? $lineEnding . 'ORDER BY ' . $orderBy : '';
-        $sql .= strlen(trim($orderWay)) > 0 ? ' ' . $orderWay : '';
+        $sql .= strlen(trim($where.'')) > 0 ? $lineEnding . 'WHERE ' . $where : '';
+        $sql .= strlen(trim($groupBy.'')) > 0 ? $lineEnding . 'GROUP BY ' . $groupBy : '';
+        $sql .= strlen(trim($having.'')) > 0 ? $lineEnding . 'HAVING ' . $having : '';
+        $sql .= strlen(trim($orderBy.'')) > 0 ? $lineEnding . 'ORDER BY ' . $orderBy : '';
+        $sql .= strlen(trim($orderWay.'')) > 0 ? ' ' . $orderWay : '';
 
         //avoid negative offset error
-        $offset = ( is_numeric(trim($offset)) && trim($offset) < 0) ? 0 : trim($offset);
+        $offset = ( is_numeric(trim($offset.'')) && trim($offset.'') < 0) ? 0 : trim($offset.'');
 
-        $sql .= ( strlen(trim($limit)) > 0 && strlen($offset) > 0 ) ? ' OFFSET ' . $offset : '';
+        $sql .= ( strlen(trim($limit.'')) > 0 && strlen($offset.'') > 0 ) ? ' OFFSET ' . $offset : '';
 
         return $sql;
     }

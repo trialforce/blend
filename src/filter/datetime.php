@@ -86,7 +86,7 @@ class DateTime extends \Filter\Text
         $conditionType = $index > 0 ? \Db\Cond::COND_OR : \Db\Cond::COND_AND;
 
         //add support for clean value
-        $filterValue = str_replace('__/__/____', '', $filterValue);
+        $filterValue = str_replace('__/__/____', '', $filterValue.'');
         $isFiltered = (strlen(trim($filterValue)) > 0);
 
         if ($conditionValue == self::COND_BIRTH_MONTH)

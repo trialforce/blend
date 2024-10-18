@@ -1307,7 +1307,7 @@ class View extends DomElement implements \Countable
      * Caso o value seja passado a função trabalha como get
      * Caso contrário é um set.
      *
-     * @param string $name
+     * @param string $attribute
      * @param string $value
      */
     public function attr($attribute, $value = NULL)
