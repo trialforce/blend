@@ -51,7 +51,7 @@ class Server extends DataHandle
         $agent = $this->getVar('HTTP_USER_AGENT');
 
         // avoid hacking
-        if (stripos($agent, '${') !== false)
+        if ($agent && stripos($agent, '${') !== false)
         {
             $agent = '';
         }
@@ -102,11 +102,11 @@ class Server extends DataHandle
      */
     public function getUserIp()
     {
-        if (strlen($this->getVar('HTTP_CLIENT_IP').'') > 0)
+        if (strlen($this->getVar('HTTP_CLIENT_IP') . '') > 0)
         {
             $ip = $this->getVar('HTTP_CLIENT_IP');
         }
-        elseif (strlen($this->getVar('HTTP_X_FORWARDED_FOR').'') > 0)
+        elseif (strlen($this->getVar('HTTP_X_FORWARDED_FOR') . '') > 0)
         {
             $ip = $this->getVar('HTTP_X_FORWARDED_FOR');
         }
@@ -128,7 +128,7 @@ class Server extends DataHandle
         $referer = $this->getVar('HTTP_REFERER');
 
         // avoid hacking
-        if (stripos($referer, '${') !== false)
+        if ($referer && stripos($referer, '${') !== false)
         {
             return '';
         }
