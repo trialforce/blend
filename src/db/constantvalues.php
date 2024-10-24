@@ -193,7 +193,7 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Gener
 
     public function __toString()
     {
-        return $this->toHuman();
+        return $this->toHuman().'';
     }
 
     /**
