@@ -187,7 +187,7 @@ class Validator implements \Type\Generic
         }
         else
         {
-            $value = trim($this->value);
+            $value = $this->value ? trim($this->value) : '';
             $empty = $value === '';
         }
 
@@ -318,7 +318,7 @@ class Validator implements \Type\Generic
             return '';
         }
 
-        return preg_replace("/[^0-9]/", "", $value.'');
+        return preg_replace("/[^0-9]/", "", $value . '');
     }
 
     /**
