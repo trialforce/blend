@@ -7,6 +7,7 @@ namespace Cache;
  */
 class Storage implements \Cache\Service
 {
+
     protected \Cache\ConnInfo $info;
 
     public function __construct(ConnInfo $info)
@@ -24,12 +25,12 @@ class Storage implements \Cache\Service
 
     public function getFolder()
     {
-        return new \Disk\Folder(\Disk\File::getStoragePath() . '/'.$this->info->getFolder());
+        return new \Disk\Folder(\Disk\File::getStoragePath() . '/' . $this->info->getFolder());
     }
 
     public function getFile($key)
     {
-        return new \Disk\File( \Disk\File::getStoragePath() . '/'.$this->info->getFolder().'/' . $key, TRUE );
+        return new \Disk\File(\Disk\File::getStoragePath() . '/' . $this->info->getFolder() . '/' . $key, TRUE);
     }
 
     public function set($key, $value)
@@ -42,7 +43,8 @@ class Storage implements \Cache\Service
 
     public function get($key)
     {
-        return unserialize($this->getFile($key)->getContent());
+        $content = $this->getFile($key)->getContent();
+        return $content ? unserialize($content) : false;
     }
 
     public function del($key)
@@ -59,4 +61,5 @@ class Storage implements \Cache\Service
     {
         throw new \Exception('Method ALL in \Cache\Storage not implemented!');
     }
+
 }
