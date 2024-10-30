@@ -2,8 +2,6 @@
 
 namespace DataHandle;
 
-use DataHandle\Request;
-
 /**
  * Class to handle with Server Super global
  */
@@ -44,7 +42,7 @@ class Server extends DataHandle
     /**
      * Retorna o browser do cliente
      *
-     * @return string
+     * @return \DataHandle\UserAgent
      */
     public function getUserAgent()
     {
@@ -223,18 +221,14 @@ class Server extends DataHandle
      */
     protected function mountHostUrl()
     {
-        $folder = '';
+        //adds slash to avoid final url without
+        $folder = '/';
         $requestURI = $this->getVar('REQUEST_URI'); //folder
         $parts = array_values(array_filter(explode('/', $requestURI)));
 
         if (count($parts) > 0 && Request::get('e') != $parts[0])
         {
             $folder = '/' . $parts[0] . '/';
-        }
-        else
-        {
-            //adds slash to avoid final url without
-            $folder = '/';
         }
 
         $prefix = $this->isHttps() ? 'https://' : 'http://';
