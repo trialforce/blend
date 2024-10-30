@@ -23,6 +23,16 @@ abstract class Task
     }
 
     /**
+     * If is or not to register log, defaut true.
+     * Overwrite in your task
+     * @return true
+     */
+    public function isRegisterLog()
+    {
+        return true;
+    }
+
+    /**
      * Return the related data of the task
      *
      * @return array
