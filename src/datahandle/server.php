@@ -210,7 +210,9 @@ class Server extends DataHandle
      */
     public function isHttps()
     {
-        return mb_strtolower($this->getVar('HTTPS')) == 'on' || $this->getVar('HTTP_X_HTTPS');
+        $varHttps = $this->getVar('HTTPS');
+
+        return ($varHttps && mb_strtolower($varHttps) == 'on') || $this->getVar('HTTP_X_HTTPS');
     }
 
     /**
