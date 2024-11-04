@@ -187,7 +187,7 @@ class Validator implements \Type\Generic
         }
         else
         {
-            $value = $this->value ? trim($this->value) : '';
+            $value = trim($this->value . '');
             $empty = $value === '';
         }
 
