@@ -214,7 +214,7 @@ class File implements \JsonSerializable
     {
         if ($this->exists())
         {
-            return unlink($this->path);
+            return @unlink($this->path);
         }
 
         return false;
@@ -801,7 +801,7 @@ class File implements \JsonSerializable
         return $encode;
     }
 
-    public function jsonSerialize() : mixed
+    public function jsonSerialize(): mixed
     {
         $result = new \stdClass();
         $result->path = $this->getPath();
