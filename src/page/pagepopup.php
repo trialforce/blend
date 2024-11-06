@@ -29,6 +29,10 @@ trait PagePopup
         return $url;
     }
 
+    /**
+     * @return true|\View\Blend\Popup
+     * @throws \Exception
+     */
     public function listarPopup()
     {
         \App::dontChangeUrl();
@@ -39,22 +43,20 @@ trait PagePopup
         if (!$isAjax)
         {
             \App::redirect($url, true);
-            return false;
+            return true;
         }
 
         $url .= '&iframe=true&rand=' . rand();
 
         $title = isset($this->model) ? ucfirst($this->model->getLabel()) : 'Listar';
-        $this->crudEditPopup($url, $title);
-
-        return true;
+        return $this->crudEditPopup($url, $title);
     }
 
     /**
      * Open a popup of this crud.
      * It uses a internal iframe soluction to avoind mixing the forms post and values.
      *
-     * @return bool
+     * @return \View\Blend\Popup|true
      * @throws \Exception
      */
     public function editarPopup()
@@ -77,12 +79,11 @@ trait PagePopup
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
-        $this->crudEditPopup($url, $title, $idInput);
-        return true;
+        return $this->crudEditPopup($url, $title, $idInput);
     }
 
     /**
-     * @return bool
+     * @return \View\Blend\Popup|true
      * @throws \Exception
      */
     public function verPopup()
@@ -103,14 +104,14 @@ trait PagePopup
         $url .= '&iframe=true&rand=' . rand();
 
         $title = ucfirst('Ver ' . lcfirst($this->model->getLabel()));
-        $this->crudEditPopup($url, $title, $idInput);
-
-        return true;
+        return $this->crudEditPopup($url, $title, $idInput);
     }
 
     /**
      * Open a popup of this crud, to add while referencing parent.
      * It uses a internal iframe solution to avoid mixing the forms post and values.
+     * @return \View\Blend\Popup|true
+     * @throws \Exception
      */
     public function adicionarPopup()
     {
@@ -132,14 +133,14 @@ trait PagePopup
 
         $title = ucfirst('adicionar' . ' ' . lcfirst($this->model->getLabel()));
 
-        $this->crudEditPopup($url, $title, $idInput);
+        return $this->crudEditPopup($url, $title, $idInput);
     }
 
     /**
      * @param $url
      * @param $title
      * @param $idInput
-     * @return void
+     * @return \View\Blend\Popup
      * @throws \Exception
      */
     public function crudEditPopup($url, $title, $idInput = null)
@@ -151,7 +152,12 @@ trait PagePopup
         $titleLink = new \View\A('popup-title', $title, $this->getPageUrl(), null, null);
         $titleLink->setTitle($title);
 
-        $popup = new \View\Blend\Popup('edit-popup', $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
+        $explode = explode('/',$url);
+        $pageName = $explode[0];
+
+        $idPopup = 'edit-popup-'.$pageName;
+
+        $popup = new \View\Blend\Popup($idPopup, $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
         $popup->setIcon($this->icon);
         $popup->footer->remove();
         $popup->show();
@@ -165,12 +171,14 @@ trait PagePopup
         {
             if (stripos($url, 'ver') > 0)
             {
-                $this->byId('btbClosePopup')->click("popup('destroy','#edit-popup');");
+                $this->byId('btbClosePopup')->click("popup('destroy','#$idPopup');");
             }
             else
             {
-                $this->byId('btbClosePopup')->click("p(window.location.href); popup('destroy','#edit-popup');");
+                $this->byId('btbClosePopup')->click("p(window.location.href); popup('destroy','#$idPopup');");
             }
         }
+
+        return $popup;
     }
 }
