@@ -219,7 +219,7 @@ function comboModelClose(idInput)
     let editEditId = $(doc).find('#id').val();
     
     //closes popup
-    popup('destroy','#edit-popup');
+    popup('destroy','.popup.form');
     comboValue(idInput, editEditId);
     //call the ajax action to fill dropdown, put hideCombo, to make it work properly
     let code = $('#labelField_'+idInput).data('change');
