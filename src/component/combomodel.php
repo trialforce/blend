@@ -27,7 +27,6 @@ abstract class ComboModel extends \Component\Combo
 
         if ($this->getModelName())
         {
-
             $btn = new \View\Ext\Button('btn-combo-edit-' . $this->getId(), $this->getIconClass(), null, 'return comboModelClick(\'' . $this->getId() . '\')', 'icon-only combo-edit-btn primary');
 
             $view->append($btn);
