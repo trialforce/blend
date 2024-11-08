@@ -196,7 +196,7 @@ class Popup extends Div
 
         $this->header->append($close);
 
-        return parent::setTitle($this->title);
+        return parent::setTitle(strip_tags($this->title));
     }
 
     /**
