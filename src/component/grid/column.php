@@ -609,7 +609,7 @@ class Column
             return $this->getLabel();
         }
 
-        $postedOrderBy = urldecode(\DataHandle\Request::get('orderBy'));
+        $postedOrderBy = urldecode(\DataHandle\Request::get('orderBy').'');
 
         $safeName = $this->getSafeName();
         $grid = $this->getGrid();
