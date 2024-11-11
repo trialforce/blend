@@ -174,7 +174,7 @@ abstract class DataSource
     {
         $result = [];
 
-        if (trim($orderBy) == '')
+        if (trim($orderBy . '') == '')
         {
             return $result;
         }
@@ -546,4 +546,5 @@ abstract class DataSource
      * Get the data from datasource, executes the search on "database"
      */
     public abstract function getData();
+
 }
