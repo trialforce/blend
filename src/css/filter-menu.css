@@ -300,6 +300,7 @@ i.fa-layer-group.filter-menu {
 
 #tab-filters-left, #columns-definition, #left, #right,#bookmark-holder {
     margin-top: 0;
+    margin-left: 0;
 }
 
 .btn.small.btn-search-bookmark {
