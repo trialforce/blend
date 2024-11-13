@@ -14,7 +14,7 @@
 }
 
 .accordion-open .accordion-head {
-    border-bottom: solid 1px #cfcfcf;
+    border-bottom: solid 1px var(--detailColor);
 }
 
 .accordion-icon {
