@@ -2,6 +2,7 @@
 
 namespace Filter;
 
+use Component\Grid\Column;
 use DataHandle\Request;
 
 /**
@@ -26,10 +27,11 @@ class Collection extends \Filter\Text
     /**
      * Create a \Filter\Collection, similar to page->createExtraFilter
      *
-     * @param \Component\Grid\Column $column
+     * @param Column $column
      * @param \Db\Collection $collection
      * @param array $defaultValue
-     * @return \Filter\Collection
+     * @param null $defaultCondition
+     * @return Collection
      */
     public static function create(\Component\Grid\Column $column, $collection, $defaultValue, $defaultCondition = NULL)
     {
@@ -151,6 +153,8 @@ class Collection extends \Filter\Text
         {
             return new \Db\Cond($sql . ' = ?', $filterValue . '', $conditionType);
         }
+
+        return null;
     }
 
 }

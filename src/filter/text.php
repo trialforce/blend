@@ -125,9 +125,7 @@ class Text
             return $this;
         }
 
-        $column instanceof \Component\Grid\Column;
         $this->column = $column;
-
         $this->setFilterName(\Db\Column\Column::getRealColumnName($this->getColumn()->getName()));
 
         return $this;
@@ -302,6 +300,7 @@ class Text
     /**
      * Create and return all the input of the filter
      * @return \View\Div
+     * @throws \Exception
      */
     public function getInput()
     {
@@ -348,6 +347,7 @@ class Text
      * Create the label that goes inside the input
      *
      * @return \View\Label
+     * @throws \Exception
      */
     public function getInputLabel()
     {
@@ -365,6 +365,7 @@ class Text
      * Create and return the value part of input
      *
      * @return \View\Input
+     * @throws \Exception
      */
     public function getInputValue($index = 0)
     {
@@ -378,6 +379,7 @@ class Text
      * Create Input condition
      *
      * @return \View\Select
+     * @throws \Exception
      */
     public function getInputCondition($index = 0)
     {
@@ -467,7 +469,7 @@ class Text
     /**
      * Return filter value, controls default value
      *
-     * @return the filter value, controls default value
+     * @return string filter value, controls default value
      */
     public function getFilterValues()
     {
@@ -520,7 +522,7 @@ class Text
     /**
      * Return filter final value, controls default value
      *
-     * @return the filter final value, controls default value
+     * @return string filter final value, controls default value
      */
     public function getFilterValuesFinal()
     {
@@ -556,7 +558,7 @@ class Text
     /**
      * Create the \Db\Where need to apply filter o \Db\Model or \Db\QueryBuilder
      *
-     * @return \Db\Where
+     * @return \Db\Filter
      */
     public function getDbCond()
     {

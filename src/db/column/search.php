@@ -22,6 +22,7 @@ class Search extends \Db\Column\Column
      * @param string $name the name of the colum (the AS of the select
      * @param string $type the column type
      * @param string $query the column subselect
+     * @throws \Exception
      */
     public function __construct($label = NULL, $name = NULL, $type = NULL, $query = NULL)
     {
@@ -44,6 +45,7 @@ class Search extends \Db\Column\Column
      * Define the query (subselect)
      *
      * @param string $query
+     * @throws \Exception
      */
     public function setQuery($query)
     {
@@ -72,15 +74,16 @@ class Search extends \Db\Column\Column
     /**
      * Return the query to use in sql
      *
-     * @return string
+     * @param bool $withAlias
+     * @return array
      */
-    public function getSql($withAs = TRUE)
+    public function getSql($withAlias = TRUE)
     {
         $columnName = $this->getName();
         $columnQuery = $this->getQuery();
         $sql = "( SELECT $columnQuery )";
 
-        if ($withAs)
+        if ($withAlias)
         {
             $sql .= " AS $columnName";
         }

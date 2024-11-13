@@ -176,7 +176,7 @@ class Column
     /**
      * Define if column has a array of defined values
      *
-     * @var array
+     * @var \Db\ConstantValues|array
      */
     protected $constantValues = NULL;
 
@@ -201,6 +201,12 @@ class Column
      * @var array of Validator
      */
     protected $validators = NULL;
+
+    /**
+     * Class name of the filter
+     * @var null
+     */
+    protected $filterClassName = NULL;
 
     /**
      * Create a column
@@ -432,7 +438,7 @@ class Column
             $limit = ' LIMIT 1 ';
         }
 
-        $referencedColumn = $referencedColumn ? $referencedColumn : $tableName . '.' . $this->getName();
+        $referencedColumn = $referencedColumn ?: $tableName . '.' . $this->getName();
 
         $sql = '( SELECT ' . $top . $this->getReferenceDescription() . ' FROM ' . $referenceTable . ' A WHERE A.' . $this->getReferenceField() . '=' . $referencedColumn . $limit . ')';
 
@@ -624,7 +630,7 @@ class Column
      */
     public function getProperty()
     {
-        return $this->property ? $this->property : $this->getName();
+        return $this->property ?: $this->getName();
     }
 
     /**
@@ -719,7 +725,6 @@ class Column
     public function getPHPType()
     {
         $dbType = $this->type;
-        $phpType = 'String';
 
         if ($dbType == \Db\Column\Column::TYPE_BOOL || $dbType == \Db\Column\Column::TYPE_TINYINT)
         {
@@ -863,7 +868,43 @@ class Column
         return $this->name;
     }
 
+    /**
+     * Define the class name of the filter
+     *
+     * @param $filterClassName
+     * @return $this
+     */
+    public function setFilterClassName($filterClassName)
+    {
+        $this->filterClassName = $filterClassName;
+        return $this;
+    }
+
+    /**
+     * Return the class name of the filter
+     * Try to calculate it automatecally if not informed
+     *
+     * @return string|null
+     */
     public function getFilterClassName()
+    {
+        //if filter already exists or is calculated
+        if ($this->filterClassName)
+        {
+            return $this->filterClassName;
+        }
+
+        $this->filterClassName = $this->calculateFilterClassName();
+
+        return $this->filterClassName;
+    }
+
+    /**
+     * Calculate the automatically filter, based on data type
+     *
+     * @return string
+     */
+    protected function calculateFilterClassName()
     {
         if ($this->getReferenceTable() || $this->getConstantValues())
         {

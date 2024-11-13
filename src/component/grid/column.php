@@ -715,6 +715,15 @@ class Column
         return \Db\Column\Column::getRealColumnName($this->getName());
     }
 
+    public function __debugInfo()
+    {
+        $vars = get_object_vars($this);
+        //remove grid from var_dump avoiding recursion
+        unset($vars['grid']);
+
+        return $vars;
+    }
+
     /**
      * Return the value of the column, the simple value, without magic
      *
