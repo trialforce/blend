@@ -28,7 +28,7 @@ trait History
     public function historyPos()
     {
         $action = $this->oldModel->getId() ? 'Atualizar' : 'Inserir';
-        $diff = \Db\Model\History::diffModel($this, $this->oldModel);
+        $diff = self::diffModel($this, $this->oldModel);
         $this->historyReg($this::getName(), $this->getId(), $action, $diff);
     }
 
