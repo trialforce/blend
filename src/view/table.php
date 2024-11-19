@@ -11,11 +11,12 @@ class Table extends \View\View
     /**
      * Construct the html table element
      *
-     * @param string $id the id of element, can be null
+     * @param null $id the id of element, can be null
      * @param mixed $innerHtml content of element, can be null
-     * @param string $class html class attribute, used in css, can be null
-     * @param string $caption table caption
-     * @param string $summar table summary
+     * @param null $class html class attribute, used in css, can be null
+     * @param null $caption table caption
+     * @param null $summary
+     * @throws \Exception
      */
     public function __construct( $id = \NULL, $innerHtml = \NULL, $class = \NULL, $caption = NULL, $summary = NULL )
     {
@@ -38,6 +39,7 @@ class Table extends \View\View
      * @param string $caption table caption
      *
      * @return \View\Table
+     * @throws \Exception
      */
     public function addCaption( $caption )
     {
