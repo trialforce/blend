@@ -37,6 +37,12 @@ class Where implements \Db\Filter
 
     public function __construct($filter = NULL, $param = NULL, $value = NULL, $condition = 'and')
     {
+        //add support to add a model to where
+        if ($value instanceof \Db\Model)
+        {
+            $value = $value->getOptionValue();
+        }
+
         $param = trim($param.'');
         $haveIs = stripos($param, 'IS') === 0;
         $hasValue = $value || trim($value.'') === '0' || trim($value.'') === 0;
