@@ -141,20 +141,21 @@ blend.contentEditable.createOptions = function(element, options, action, title)
     //create "null element
     if ( options.length == 0)
     {
-        var element = document.createElement('div');
+        let element = document.createElement('div');
         element.style.display= "none";
         return element;
     }
     
-    var select = document.createElement('select');
+    let select = document.createElement('select');
+    select.id = slug(title);
     select.title= title;
     select.classList.add(blend.contentEditable.menu.selectCssClass);
     select.setAttribute('onchange','blend.contentEditable.actions.'+action+'(\'#'+element.id+'\',this)');
     
-    for (var i=0; i<options.length; i++)
+    for (let i=0; i<options.length; i++)
     {
-        var option = options[i];
-        var opt = document.createElement('option');
+        let option = options[i];
+        let opt = document.createElement('option');
         opt.value = option.value;
         opt.innerHTML = option.label;
         select.appendChild(opt);

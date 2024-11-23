@@ -175,7 +175,7 @@ class Vector
     {
         if (!is_array($array))
         {
-            return;
+            return false;
         }
 
         $model = $this->getModel();
@@ -269,9 +269,10 @@ class Vector
      * Create the container
      *
      * @param \View\View $input
-     * @param \View\Lanel $label
+     * @param \View\Label|string $label
      * @param string $weight
      * @return \View\Div
+     * @throws \Exception
      */
     public function getContain($input, $label, $weight)
     {
@@ -300,10 +301,10 @@ class Vector
      *
      * @param \Db\Column\Column $column
      * @return \View\View
+     * @throws \Exception
      */
     public function getInputField($column, $weight = NULL)
     {
-        $dom = \View\View::getDom();
         $type = $column->getType();
         $class = $column->getClass();
         $referenceTable = $column->getReferenceTable();
@@ -381,7 +382,7 @@ class Vector
         if ($this->getCreateQuestion() && strlen(trim($column->getDescription().'')) > 0)
         {
             $pageUrl = \View\View::getDom()->getPageUrl();
-            $url = "p('{$pageUrl}/columnQuestion/{$column->getName()}');";
+            $url = "p('$pageUrl/columnQuestion/{$column->getName()}');";
             $icon = new \View\Ext\Icon('question', 'question-' . $column->getName(), $url, 'column-question');
             $label->append($icon);
         }
@@ -391,9 +392,9 @@ class Vector
 
     /**
      * Trata algumas condições especiais para o campo
-     * @param Input $field
+     * @param \View\Input $field
      * @param \Db\Column\Column $column
-     * @return Input
+     * @return \View\Input
      */
     public function treatField($field, \Db\Column\Column $column)
     {
