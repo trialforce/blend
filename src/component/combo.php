@@ -26,11 +26,31 @@ abstract class Combo extends \Component\Component
      */
     protected $labelValue;
 
+    /**
+     * If is to create header or not
+     * @var bool
+     */
+    protected bool $createHeader = false;
+
     public function __construct($id = null)
     {
         parent::__construct($id);
     }
 
+    public function isCreateHeader(): bool
+    {
+        return $this->createHeader;
+    }
+
+    public function setCreateHeader(bool $createHeader): void
+    {
+        $this->createHeader = $createHeader;
+    }
+
+    /**
+     * @return array|Div|\View\View|null
+     * @throws \Exception
+     */
     public function onCreate()
     {
         //avoid double creation
@@ -191,6 +211,7 @@ abstract class Combo extends \Component\Component
 
     /**
      * Mount dropdown on change
+     * @throws \Exception
      */
     public function mountDropDown()
     {
@@ -261,6 +282,11 @@ abstract class Combo extends \Component\Component
 
             $tr = array();
 
+            if ($this->createHeader)
+            {
+                $tr[] = $this->mountTableHeader($columns);
+            }
+
             foreach ($data as $item)
             {
                 $i = 0;
@@ -301,6 +327,24 @@ abstract class Combo extends \Component\Component
         $this->mountDropDownResult($id, $itens, $hideCombo);
     }
 
+    protected function mountTableHeader($columns)
+    {
+        $th = NULL;
+        $link = $this->createTr(0, null);
+
+        foreach ($columns as $column)
+        {
+            if (!$column->getIdentificator())
+            {
+                $th[] = new \View\Th($column->getName(), $column->getLabel());
+            }
+        }
+
+        $link->html($th);
+
+        return $link;
+    }
+
     protected function mountDropDownResult($id, $itens, $hideCombo)
     {
         $layout = \View\View::getDom();
@@ -320,8 +364,8 @@ abstract class Combo extends \Component\Component
 
     /**
      * Create a Tr element for the select table
-     * @param int $row
-     * @param object $item
+     * @param ?int $row
+     * @param mixed $item
      * @return Tr
      */
     public function createTr($row, $item)
