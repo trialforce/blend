@@ -12,8 +12,9 @@ class Smart extends \Filter\Text
 
     public function getInput()
     {
-
+        $iframe = \DataHandle\Request::get('iframe');
         $pageUrl = \View\View::getDom()->getPageUrl();
+        $pageUrl = $iframe ? $pageUrl.'?iframe=true' : $pageUrl;
         $idQuestion = $this->getFilterName() ? $this->getFilterName() : 'q';
         $idBtn = 'buscar';
         $search = new \View\Input($idQuestion, \View\Input::TYPE_SEARCH, Request::get($idQuestion), '');
