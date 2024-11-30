@@ -125,7 +125,7 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Remove os espaços no inicio e fim do texto
      *
-     * @return String
+     * @return $this
      */
     public function trim()
     {
