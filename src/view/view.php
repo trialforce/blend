@@ -374,6 +374,12 @@ class View extends DomElement implements \Countable
      */
     public function removeClass($classToRemove)
     {
+        if ($this->getOutputJs())
+        {
+            \App::addJs($this->getSelector() . ".removeClass('{$classToRemove}')");
+            return $this;
+        }
+
         $class = $this->getClass();
         $classes = func_get_args();
 
@@ -392,11 +398,6 @@ class View extends DomElement implements \Countable
         else
         {
             $this->removeAttribute('class');
-        }
-
-        if ($this->getOutputJs())
-        {
-            \App::addJs($this->getSelector() . ".removeClass('{$classToRemove}')");
         }
 
         return $this;
