@@ -423,6 +423,11 @@ class QueryBuilder
         return $this->logId;
     }
 
+    /**
+     * 
+     * @param string $logId
+     * @return \Db\QueryBuilder
+     */
     public function setLogId($logId)
     {
         $this->logId = $logId;
