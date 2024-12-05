@@ -59,7 +59,7 @@ class Phone extends \Validator\Validator
         $error = parent::validate($value);
 
         //não valida telefones vazios okay?
-        if (mb_strlen($this->value) == 0)
+        if (mb_strlen($this->value . '') == 0)
         {
             return;
         }
