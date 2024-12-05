@@ -559,7 +559,7 @@ class App
 
     public static function sanitizePage($page)
     {
-        $replaced = preg_replace("/[^a-zA-Z0-9_\-@]/", "", $page.'');
+        $replaced = preg_replace("/[^a-zA-Z0-9_\-@\/]/", "", $page.'');
 
         if ($page != $replaced)
         {
@@ -589,6 +589,7 @@ class App
         $module = $explode[0];
         array_shift($explode);
         $modulePage = $module . '\page\\' . implode('\\', $explode);
+        $modulePage = str_replace('/','\\', $modulePage);
 
         if (class_exists($modulePage))
         {
@@ -596,7 +597,7 @@ class App
         }
         else
         {
-            $page = '\page\\' . str_replace('-', '\\', $page);
+            $page = '\page\\' . str_replace(['-','/'], '\\', $page);
         }
 
         return $page;
