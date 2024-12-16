@@ -232,7 +232,11 @@ function slide(selector)
     //auto slide
     if (Number.isInteger(autoSlide) && slidesLength > 1) 
     {
-        timerInterval = setInterval(function(){shiftSlide(1)}, autoSlide);
+        //wait 3 second to start the banner movement to avoid problems with pagespeed
+        setTimeout(function()
+        {
+            timerInterval = setInterval(function(){shiftSlide(1)}, autoSlide);
+        },3000);
     }
     
     //start position/index
