@@ -72,7 +72,7 @@ abstract class Combo extends \Component\Component
         $input[] = new Div('dropDownContainer_' . $id, null, 'dropDownContainer');
         $input[] = $this->labelValue = new \View\InputText('labelField_' . $id, NULL, 'labelValue');
 
-        $this->labelValue->setAttribute('autocomplete', 'fake-auto-complete-to-avoid-fill');
+        $this->labelValue->setAttribute('autocomplete', 'off');
         $this->labelValue->setData('change', "p('" . $this->getLink('mountDropDown', $id) . "');");
         $this->labelValue->setAttribute('onclick', "comboInputClick('$id', this)");
         $this->labelValue->setAttribute('onKeyUp', "comboTypeWatch( this, event, function(){ comboDoSearch('{$id}'); }, 700 );");
