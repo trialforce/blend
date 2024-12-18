@@ -602,7 +602,7 @@ class Grid extends \Component\Component
     /**
      * Define paginator
      *
-     * @param \View\View $paginator
+     * @param \View\View|string $paginator
      * @return \Component\Grid\Grid
      */
     public function setPaginator($paginator)
