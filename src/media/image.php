@@ -123,7 +123,7 @@ class Image extends \Disk\File
         }
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
-            $this->content = imagecreatefromjpeg($this->path);
+            $this->content = @imagecreatefromjpeg($this->path);
 
             @$this->fixOrientation();
         }
