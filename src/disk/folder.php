@@ -96,16 +96,13 @@ class Folder
         {
             $this->create();
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 
     /**
      * Return the first file
      *
-     * @param type $relativeGlob
+     * @param string $relativeGlob
      * @return \Disk\File
      */
     public function findOneFile($relativeGlob)

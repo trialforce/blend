@@ -3,7 +3,7 @@
 namespace Misc;
 
 /**
- * Simple timer
+ * Simple timer to allow time measurment
  */
 class Timer
 {
@@ -30,9 +30,9 @@ class Timer
     /**
      * Construct and starts the timer
      */
-    public function __construct()
+    public function __construct($initialValue = NULL)
     {
-        $this->start = microtime(TRUE);
+        $this->start = $initialValue ?: microtime(TRUE);
     }
 
     /**
@@ -61,13 +61,14 @@ class Timer
      */
     public function diff()
     {
+        $this->stop();
         return $this->end - $this->start;
     }
 
     /**
      * Get the diference between start and stop in formated time
      *
-     * @return type
+     * @return string
      */
     public function diffFormat()
     {
@@ -90,7 +91,7 @@ class Timer
     /**
      * Show diff
      *
-     * @return int
+     * @return string
      */
     public function __toString()
     {
@@ -104,24 +105,38 @@ class Timer
 
     public static function getGlobalTimer()
     {
+        if (!self::$global)
+        {
+            self::activeGlobalTimerRequest();
+        }
+
         return self::$global;
     }
 
+    /**
+     * Active global timer with current timer
+     * @return \Misc\Timer
+     */
     public static function activeGlobalTimer()
     {
         self::$global = new \Misc\Timer();
+        return self::$global;
+    }
+
+    /**
+     * Active the global timer with the time php script started
+     * @return \Misc\Timer
+     */
+    public static function activeGlobalTimerRequest()
+    {
+        $request = \DataHandle\Server::getInstance()->getVar('REQUEST_TIME_FLOAT');
+        self::$global = new \Misc\Timer($request);
+        return self::$global;
     }
 
     public static function debug($message)
     {
-        $global = self::getGlobalTimer();
-
-        if (!$global)
-        {
-            return;
-        }
-
-        $global->diffDebug($message);
+        $global = self::getGlobalTimer()->diffDebug($message);
     }
 
 }
