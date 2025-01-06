@@ -1,3 +1,6 @@
+:root {
+    --actionListWidth: 220px;
+}
 
 .blend-floating-menu-holder {
     position: relative;
@@ -75,7 +78,7 @@
 
 .action-list-open .action-list, .blend-floating-menu.open {
     display: block;
-    width: 260px;
+    width: var(--actionListWidth);
     opacity: 1;
     transition: 0.1s ease-in-out width;
 }

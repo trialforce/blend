@@ -26,7 +26,7 @@
 
 .info {
     background-color: #009bdb;
-    color: white;
+    color: #fff;
     background-image: none;
 }
 
@@ -44,4 +44,12 @@
 
 .clean:hover {
     box-shadow: 2px 2px 3px RGBA(0,0,0,0.1);
+}
+
+.primary a, .danger a, .minor-alert a, .minor-danger a, .info a, .success a {
+    color: #fff;
+}
+
+.primary i, .danger i, .minor-alert i, .minor-danger i, .info i, .success i {
+    color: #fff;
 }
