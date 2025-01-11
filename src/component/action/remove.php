@@ -13,7 +13,7 @@ class Remove extends \Component\Action\Action
 
     public function __construct($modelName = null, $pk = null)
     {
-        if (class_exists($modelName))
+        if (class_exists($modelName . ''))
         {
             $label = lcfirst($modelName::getLabel());
             parent::__construct('btnRemover', 'trash', 'Remover ' . $label, 'remover', 'danger', 'Remove o registro atual do banco de dados!');

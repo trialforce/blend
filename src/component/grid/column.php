@@ -680,7 +680,7 @@ class Column
         $idValue = \DataSource\Grab::getDbValue($identificator, $item);
 
         //make pk more simple
-        $string = str_replace(':?', $idValue, $string);
+        $string = str_replace(':?', $idValue . '', $string . '');
 
         if (is_object($item))
         {
