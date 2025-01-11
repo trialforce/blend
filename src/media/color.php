@@ -5,40 +5,53 @@ namespace Media;
 /**
  * Represents a simple color
  */
-class Color
+class Color implements \Type\Generic
 {
 
     /**
      * Red part of the color
-     *
-     * @var int
-     *
+     * @var int|null
      */
-    protected $red;
+    protected int|null $red = null;
 
     /**
      * Green part of the color
      *
-     * @var int
+     * @var int|null
      */
-    protected $green;
+    protected int|null $green = null;
 
     /**
      * Blue part of the color
-     * @var int
+     * @var int|null
      */
-    protected $blue;
+    protected int|null $blue = null;
 
     /**
      * Alpha part of the color
-     *
-     * @var int
+     * @var int|null
      */
-    protected $alpha;
+    protected int|null $alpha = null;
 
+    /**
+     * Create the color by passing a value
+     * If the first value is passed, and green, blue a alpha are de default ones it consider as hex value
+     *
+     * @param $red
+     * @param $green
+     * @param $blue
+     * @param $alpha
+     */
     public function __construct($red = NULL, $green = NULL, $blue = NULl, $alpha = 255)
     {
-        $this->setColor($red, $green, $blue, $alpha);
+        if ($red && !$green && !$blue && $alpha == 255)
+        {
+            $this->setHex($red);
+        }
+        else
+        {
+            $this->setColor($red, $green, $blue, $alpha);
+        }
     }
 
     /**
@@ -49,9 +62,17 @@ class Color
      */
     public function setRed($red)
     {
-        $this->red = intval(trim($red));
-        $this->red = $this->red < 255 ? $this->red : 255;
-        $this->red = $this->red > 0 ? $this->red : 0;
+
+        if ($red === null || $red === '')
+        {
+            $this->red = null;
+        }
+        else
+        {
+            $this->red = intval(trim($red));
+            $this->red = min($this->red, 255);
+            $this->red = max($this->red, 0);
+        }
 
         return $this;
     }
@@ -74,9 +95,17 @@ class Color
      */
     public function setGreen($green)
     {
-        $this->green = intval(trim($green));
-        $this->green = $this->green < 255 ? $this->green : 255;
-        $this->green = $this->green > 0 ? $this->green : 0;
+        if ($green === null || $green === '')
+        {
+            $this->green = null;
+        }
+        else
+        {
+            $this->green = intval(trim($green));
+            $this->green = min($this->green, 255);
+            $this->green = max($this->green, 0);
+        }
+
         return $this;
     }
 
@@ -98,9 +127,17 @@ class Color
      */
     public function setBlue($blue)
     {
-        $this->blue = intval(trim($blue));
-        $this->blue = $this->blue < 255 ? $this->blue : 255;
-        $this->blue = $this->blue > 0 ? $this->blue : 0;
+        if ($blue === null || $blue === '')
+        {
+            $this->blue = null;
+        }
+        else
+        {
+            $this->blue = intval(trim($blue));
+            $this->blue = min($this->blue, 255);
+            $this->blue = max($this->blue, 0);
+        }
+
         return $this;
     }
 
@@ -122,13 +159,21 @@ class Color
      */
     public function setAlpha($alpha)
     {
-        $this->alpha = intval(trim($alpha));
+        if ($alpha === null || $alpha === '')
+        {
+            $this->alpha = null;
+        }
+        else
+        {
+            $this->alpha = intval(trim($alpha));
+        }
+
         return $this;
     }
 
     /**
      * Return the alpha portion of color
-     * @return type
+     * @return int
      */
     public function getAlpha()
     {
@@ -163,6 +208,12 @@ class Color
         $this->setRed($red);
         $this->setGreen($green);
         $this->setBlue($blue);
+
+        //for a complete null color, even passing alpha 255 (that is the default value)
+        if ($this->getRed() === null && $this->getGreen() === null && $this->getBlue() === null)
+        {
+            $alpha = null;
+        }
 
         if ($alpha)
         {
@@ -210,14 +261,15 @@ class Color
         $gray = ($this->getRed() + $this->getGreen() + $this->getBlue()) / 3;
         $this->setRed($gray);
         $this->setGreen($gray);
-        $this->getBlue($gray);
+        $this->setBlue($gray);
+
         return $this;
     }
 
     /**
      * Based on  http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
-     * @param type $hex
-     * @return type
+     * @param string $hex
+     * @return $this
      */
     public function setHex($hex)
     {
@@ -234,6 +286,10 @@ class Color
             {
                 $this->setAlpha(hexdec(substr($hex, 3, 1) . substr($hex, 3, 1)));
             }
+            else
+            {
+                $this->setAlpha(255);
+            }
         }
         else
         {
@@ -244,6 +300,10 @@ class Color
             if (strlen($hex) == 8)
             {
                 $this->setAlpha(hexdec(substr($hex, 6, 2)));
+            }
+            else
+            {
+                $this->setAlpha(255);
             }
         }
 
@@ -273,6 +333,11 @@ class Color
      */
     public function getHex()
     {
+        if ($this->getRed() === null && $this->getBlue() === null && $this->getBlue() === null)
+        {
+            return null;
+        }
+
         return sprintf("#%02x%02x%02x", $this->getRed(), $this->getGreen(), $this->getBlue());
     }
 
@@ -281,7 +346,7 @@ class Color
      *
      * RGB values:    0-255, 0-255, 0-255
      * HSV values:    0-360, 0-100, 0-100
-     * @return type
+     * @return \stdClass
      */
     public function getHSV()
     {
@@ -386,57 +451,87 @@ class Color
             $alphaPhp = 255 - ( $alphaGd / 127) * 255;
         }
 
-        return new Color($array['red'], $array['green'], $array['blue'], $alphaPhp);
+        return new \Media\Color($array['red'], $array['green'], $array['blue'], $alphaPhp);
+    }
+
+    public function setValue($value)
+    {
+        $this->setHex($value);
+    }
+
+    public function getValue()
+    {
+        return $this->getHex();
+    }
+
+    public function toHuman()
+    {
+        return $this->getHex();
+    }
+
+    public function toDb()
+    {
+        return $this->getHex();
+    }
+
+    public static function get($value)
+    {
+        return \Media\Color::fromHex($value);
+    }
+
+    public static function value($value)
+    {
+        return \Media\Color::fromHex($value)->getValue();
     }
 
     /**
      * Return default transparent color
      *
-     * @return \Color
+     * @return \Media\Color
      */
     public static function transparent()
     {
-        return new Color(0, 0, 0, 127);
+        return new \Media\Color(0, 0, 0, 127);
     }
 
     /**
      * Return default white color
      *
-     * @return \Color
+     * @return \Media\Color
      */
     public static function white()
     {
-        return new Color(255, 255, 255);
+        return new \Media\Color(255, 255, 255);
     }
 
     /**
      * Return default red color
      *
-     * @return \Color
+     * @return \Media\Color
      */
     public static function red()
     {
-        return new Color(255, 0, 0);
+        return new \Media\Color(255, 0, 0);
     }
 
     /**
      * Return default blue
      *
-     * @return \Color
+     * @return \Media\Color
      */
     public static function blue()
     {
-        return new Color(0, 0, 255);
+        return new \Media\Color(0, 0, 255);
     }
 
     /**
      * Return default green color
      *
-     * @return \Color
+     * @return \Media\Color
      */
     public static function green()
     {
-        return new Color(0, 255, 0);
+        return new \Media\Color(0, 255, 0);
     }
 
     /**
@@ -446,9 +541,8 @@ class Color
      */
     public static function rand()
     {
-        return new Color(rand(0, 255), rand(0, 255), rand(0, 255));
+        return new \Media\Color(rand(0, 255), rand(0, 255), rand(0, 255));
     }
-
 }
 
 /*
