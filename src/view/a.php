@@ -42,7 +42,7 @@ class A extends \View\View
         $this->setId($id)->setHref($href);
 
         //if href starts with tel:// it's not ajax
-        if (!(stripos($href, 'tel://') === 0))
+        if (!(stripos($href.'', 'tel://') === 0))
         {
             $this->setAjax(TRUE);
         }

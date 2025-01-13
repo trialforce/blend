@@ -92,7 +92,7 @@ class LinkColumn extends \Component\Grid\Column
 
         $value[] = strip_tags($originalValue);
 
-        if (strlen($this->getIcon()) > 0)
+        if (strlen($this->getIcon().'') > 0)
         {
             $value[] = new \View\Ext\Icon($this->getIcon());
         }
