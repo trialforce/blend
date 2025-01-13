@@ -53,6 +53,12 @@ class Where implements \Db\Filter
             $value = $param;
             $param = is_array($value) ? 'IN' : '=';
         }
+        //specific case for IS NULL
+        else if ($param === '=' && ($value === 'NULL' || $value == 'IS NULL'))
+        {
+            $param = 'IS NULL';
+            $value = NULL;
+        }
 
         $this->condition = $condition ? $condition : 'and';
         $this->param = $param;
