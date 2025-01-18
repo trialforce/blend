@@ -82,7 +82,14 @@ function comboShowDropdown(id)
  */
 function comboHideDropdown(id)
 {
-    $('#dropDownContainer_' + id).slideUp(30);
+    if ( id )
+    {
+        $('#dropDownContainer_' + id).slideUp(30);
+    }
+    else
+    {
+        $('.dropDownContainer').slideUp(30);
+    }
 }
 
 /**
@@ -150,10 +157,11 @@ function comboTypeWatch(element, event, callback, ms)
         return false;
     }
 
-    //TAB, is called when enter input, will make work normally, and clear timeout
-    if (event.keyCode == 9)
+    //TAB or ESC is called when enter input, will make work normally, and clear timeout
+    if (event.keyCode == 9 || event.keyCode == 27)
     {
         clearTimeout(timerTypeWatch);
+        comboHideDropdown();
         return true;
     }
 

@@ -144,16 +144,16 @@ var b = function(selector)
     
     nodeList.isVisible = function()
     {
-        for (var i in this)
+        for (let i in this)
         {
-            var element  = this[i];
-            var length = typeof element.getClientRects == 'function' ? element.getClientRects().length : null;
+            let element  = this[i];
+            let length = typeof element.getClientRects == 'function' ? element.getClientRects().length : null;
             
             if ( !!( element.offsetWidth || element.offsetHeight || length ))
             {
                 return parseInt(i);
             }
-        };
+        }
         
         return -1;
     }
@@ -219,12 +219,20 @@ window.onload = function ()
     {
         if(e.key=='Escape'||e.key=='Esc'||e.keyCode==27)
         {
-            return escape();
+            if (escape())
+            {
+                e.preventDefault();
+                return false;
+            }
         }
     }, true)
     
 };
 
+/**
+ * @todo convert to plugin method
+ * @returns {boolean}
+ */
 function escape()
 {
     //main menu
@@ -250,6 +258,11 @@ function escape()
            popup('destroy');
         }
         
+        return true;
+    }
+    else if ( b('.dropDownContainer').isVisible() >= 0)
+    {
+        comboHideDropdown();
         return true;
     }
     //calendar
