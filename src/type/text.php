@@ -2,6 +2,8 @@
 
 namespace Type;
 
+use mysql_xdevapi\Exception;
+
 /**
  * Classe to deal with String
  *
@@ -31,11 +33,11 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Define a string
      *
-     * @param $string
+     * @param string $value
      */
-    public function setValue($string)
+    public function setValue($value)
     {
-        $this->string = $string;
+        $this->string = $value;
     }
 
     /**
@@ -82,7 +84,7 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Converte o texto para maisculas
      *
-     * @return String
+     * @return \Type\Text
      */
     public function toUpper()
     {
@@ -95,7 +97,7 @@ class Text implements \Type\Generic, \JsonSerializable
      * Retorna o caracter solicitado pelo parametro index
      *
      * @param integer $index indice do caracter a obter
-     * @return char retorna o caracter solicitado
+     * @return string retorna o caracter solicitado
      */
     public function charAt($index)
     {
@@ -115,7 +117,7 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Retorna o tamnho da string
      *
-     * @return tamanho da string
+     * @return int string length
      */
     public function length()
     {
@@ -182,7 +184,7 @@ class Text implements \Type\Generic, \JsonSerializable
      */
     public function toFile($space = '_')
     {
-        $space = $space ? $space : '_';
+        $space = $space ?: '_';
         // replace invisible space characters
         $this->string = str_replace("\xc2\xa0", $space, $this->string);
         $this->toASCII();
@@ -229,8 +231,8 @@ class Text implements \Type\Generic, \JsonSerializable
      * Se a string for maior que o $size (tamanho passado)
      * corta-a para o tamanho do $size e coloca $ellipsisText ao fim.
      *
-     * @param type $size o tamanho que a string ficará.
-     * @param type $ellipsisText o texto que será colocado ao final da string para dar o efeito de ellipsis (...)
+     * @param int $size o tamanho que a string ficará.
+     * @param string $ellipsisText o texto que será colocado ao final da string para dar o efeito de ellipsis (...)
      * @return \Type\Text Retorna a string com o tamanho do $size se ela for maior que o parametro passado.
      */
     public function ellipsis($size, $ellipsisText = '...')
@@ -361,7 +363,6 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Padronize line ending
      *
-     * @param string $content
      * @return \Type\Text
      */
     public function padronizeLineEnding()
@@ -390,7 +391,6 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Verify if some text has html
      *
-     * @param string $string
      * @return boolean
      */
     public function isHtml()
@@ -411,12 +411,11 @@ class Text implements \Type\Generic, \JsonSerializable
     /**
      * Get a simple text and convert it to html
      *
-     * @param string $string
      * @return \Type\Text
      */
     public function toHtml()
     {
-        if (self::isHtml($this->string))
+        if ($this->isHtml())
         {
             return $this;
         }
@@ -458,14 +457,14 @@ class Text implements \Type\Generic, \JsonSerializable
      * Contrutor estático usado para que possa se utilizar
      * o construtor e chamar a função necessária na mesma linha.
      *
-     * @param string $string
+     * @param string $value
      * @return \Type\Text
      *
      * @example Text::get( $string )->toLower() = retorna a string em formato de usuário
      */
-    public static function get($string = NULL)
+    public static function get($value = NULL)
     {
-        return new Text($string);
+        return new Text($value);
     }
 
     /**
@@ -476,7 +475,7 @@ class Text implements \Type\Generic, \JsonSerializable
      */
     public static function value($value)
     {
-        return String::get($value)->getValue();
+        return \Type\Text::get($value)->getValue();
     }
 
     /**
@@ -484,6 +483,7 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * @param int $length
      * @return string
+     * @throws \Exception
      */
     public static function rand($length = 10)
     {
@@ -540,26 +540,25 @@ class Text implements \Type\Generic, \JsonSerializable
     {
         $encList = array('UTF-8', 'ISO-8859-1');
 
-        if (is_array($encList))
+        foreach ($encList as $enc)
         {
-            foreach ($encList as $enc)
+            if ($enc == 'UTF-8')
             {
-                if ($enc == 'UTF-8')
+                if (iconv('ISO-8859-1//IGNORE', 'UTF-8//IGNORE', iconv('UTF-8//IGNORE', 'ISO-8859-1//IGNORE', $string)) === $string)
                 {
-                    if (iconv('ISO-8859-1//IGNORE', 'UTF-8//IGNORE', iconv('UTF-8//IGNORE', 'ISO-8859-1//IGNORE', $string)) === $string)
-                    {
-                        return 'UTF-8';
-                    }
+                    return 'UTF-8';
                 }
-                else
+            }
+            else
+            {
+                if (iconv('UTF-8', $enc, iconv($enc, 'UTF-8', $string)) === $string)
                 {
-                    if (iconv('UTF-8', $enc, iconv($enc, 'UTF-8', $string)) === $string)
-                    {
-                        return $enc;
-                    }
+                    return $enc;
                 }
             }
         }
+
+        return '';
     }
 
     /**
@@ -619,6 +618,7 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * @param string $data
      * @return string uuid with 36 characters
+     * @throws RandomException
      */
     public static function generateUUID($data = null)
     {
