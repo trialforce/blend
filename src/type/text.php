@@ -2,8 +2,6 @@
 
 namespace Type;
 
-use mysql_xdevapi\Exception;
-
 /**
  * Classe to deal with String
  *
@@ -618,7 +616,7 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * @param string $data
      * @return string uuid with 36 characters
-     * @throws RandomException
+     * @throws \Exception
      */
     public static function generateUUID($data = null)
     {
