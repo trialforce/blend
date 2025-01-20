@@ -310,7 +310,7 @@ abstract class Combo extends \Component\Component
                 $value = \DataSource\Grab::getUserValue($indentificatorColumm, $item);
                 $label = \DataSource\Grab::getUserValue($labelColumm, $item);
                 //resolve " bug, with new js system, this will not be necessary
-                $label = str_replace("\"","", $label);
+                $label = str_replace("\"","", $label.'');
 
                 $link->html($td);
                 $link->click("comboSelectItem('{$id}', '{$value}', \"{$label}\", this );")->setTabIndex(0);

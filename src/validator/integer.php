@@ -84,7 +84,7 @@ class Integer extends \Validator\Validator implements \JsonSerializable
      */
     public static function onlyNumbers($value)
     {
-        return intval(preg_replace("/[^0-9]/", "", $value));
+        return intval(preg_replace("/[^0-9]/", "", $value.''));
     }
 
     /**
