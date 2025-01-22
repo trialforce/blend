@@ -96,7 +96,7 @@ class Integer extends \Validator\Validator implements \JsonSerializable
     public static function isNumeric($value)
     {
         //desconsidera valores brasileiros
-        $value = trim(str_replace(array(',', '.', 'R$'), '', strtoupper($value)));
+        $value = trim(str_replace(array(',', '.', 'R$'), '', strtoupper($value.'')));
         return is_numeric($value);
     }
 
