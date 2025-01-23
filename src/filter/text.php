@@ -223,7 +223,7 @@ class Text
 
         $this->defaultCondition[] = $defaultCondition;
 
-        if ($defaultValue || strlen($defaultValue) > 0)
+        if ($defaultValue || strlen($defaultValue.'') > 0)
         {
             $this->defaultValue[] = $defaultValue;
         }
