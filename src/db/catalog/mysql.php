@@ -255,7 +255,7 @@ WHERE index_name = '{$indexName}'";
         }
 
         //add support for 'table.field'
-        $explode = explode('.', $table);
+        $explode = explode('.', $table . '');
         $result = null;
 
         foreach ($explode as $table)
