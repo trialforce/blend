@@ -2,7 +2,6 @@
 
 namespace Page;
 
-use DataHandle\Get;
 use DataHandle\Request;
 
 /**
@@ -68,6 +67,7 @@ class Crud extends \Page\Page
      * Return the form title element
      *
      * @return \View\Span
+     * @throws \Exception
      */
     public function getFormTitle()
     {
@@ -114,7 +114,7 @@ class Crud extends \Page\Page
     /**
      * Define o modelo
      *
-     * @param \Db\Model\null $model
+     * @param \Db\Model|null $model
      * @return \Page\Crud
      */
     public function setModel(\Db\Model|null $model)
@@ -146,16 +146,23 @@ class Crud extends \Page\Page
     /**
      * Define the model based id from url or posted
      * @return T Description
+     * @throws \UserException
      */
     public function setModelFromIdUrl($throw = TRUE)
     {
+        //cache to avoid multiple databse calls
+        if ($this->model instanceof \Db\Model && $this->model->getValue('id'))
+        {
+            return $this->model;
+        }
+
         $pkValue = $this->getPkValue();
 
         $this->model = $this->model->findOneByPk($pkValue);
 
         if (!$this->model && $throw)
         {
-            throw new \UserException('Impossível encontrar registro!');
+            throw new \UserException(_('Impossível encontrar registro!'));
         }
 
         return $this->model;
@@ -212,6 +219,8 @@ class Crud extends \Page\Page
             $fielLayouts = array($fielLayouts);
         }
 
+        $fields = [];
+
         foreach ($fielLayouts as $layout)
         {
             $fields[] = $layout->onCreate();
@@ -248,9 +257,9 @@ class Crud extends \Page\Page
 
     public function ver()
     {
-        $campos = $this->editar();
+        $this->editar();
         \App::addJs("preparaVer();");
-        return $campos;
+        return $this;
     }
 
     public function createFloatingMenu()
@@ -309,8 +318,6 @@ class Crud extends \Page\Page
 
         foreach ($actions as $action)
         {
-            $action instanceof \Component\Action;
-
             if ($action->getRenderInEdit())
             {
                 $result[] = $action;
@@ -342,7 +349,7 @@ class Crud extends \Page\Page
         if ($this->isUpdate())
         {
             $extraLabel = $this->model->getTitleLabel();
-            $extraLabel = $extraLabel ? $extraLabel = ' - ' . $extraLabel : '';
+            $extraLabel = $extraLabel ? ' - ' . $extraLabel : '';
         }
 
         return ucfirst($this->getEvent()) . ' ' . $this->getLcModelLabel() . $extraLabel;
@@ -392,6 +399,7 @@ class Crud extends \Page\Page
      * Return top buttons
      *
      * @return array
+     * @throws \Exception
      */
     public function getTopButtons()
     {
@@ -563,6 +571,8 @@ class Crud extends \Page\Page
                 throw $exc;
             }
         }
+
+        return true;
     }
 
     /**
@@ -611,7 +621,7 @@ class Crud extends \Page\Page
         $model = $this->setModelFromIdUrl();
         $model->duplicate();
 
-        \App::redirect($this->getPageUrl() . '/editar/' . $model->getId(), true);
+        \App::redirect($this->getPageUrl() . '/editar/' . $model->getValue('id'), true);
 
         toast('Registro duplicado com sucesso !');
     }
@@ -734,7 +744,7 @@ class Crud extends \Page\Page
             {
                 if (is_array($value))
                 {
-                    foreach ($value as $idx => $valuex)
+                    foreach ($value as $valuex)
                     {
                         if (strlen($valuex) > 0)
                         {
@@ -804,12 +814,7 @@ class Crud extends \Page\Page
 
     public function openTrDetail()
     {
-        $grid = $this->getGrid();
-
-        if ($grid)
-        {
-            return $grid->openTrDetail();
-        }
+        return $this->getGrid()?->openTrDetail();
     }
 
     /**

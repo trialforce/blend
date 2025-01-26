@@ -186,6 +186,14 @@ if (!function_exists('toast'))
 
 }
 
+if (!function_exists('_'))
+{
+    function _($text)
+    {
+        return $text;
+    }
+}
+
 /**
  * Exception to user, do not log in file
  */
