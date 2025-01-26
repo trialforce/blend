@@ -363,7 +363,7 @@ class Grid extends \Component\Component
     /**
      * Simple function that make the grid a simple table
      *
-     * @return \Component\Grid
+     * @return \Component\Grid\Grid
      */
     public function makeSimple()
     {
