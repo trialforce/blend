@@ -90,7 +90,7 @@ class LinkColumn extends \Component\Grid\Column
         $line = \NULL;
         $originalValue = parent::getValue($item, $line, $tr, $td);
 
-        $value[] = strip_tags($originalValue);
+        $value[] = strip_tags($originalValue.'');
 
         if (strlen($this->getIcon().'') > 0)
         {

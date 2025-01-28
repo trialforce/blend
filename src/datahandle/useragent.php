@@ -430,6 +430,8 @@ class UserAgent
             $userAgent = '';
         }
 
+        //convert to string when null
+        $userAgent = $userAgent.'';
         $this->userAgent = trim($userAgent);
 
         //? or useragent less then 20 characters is allways bot
