@@ -13,7 +13,7 @@ class EmailColumn extends Column
         $value = parent::getValue( $item, $line );
         $url = $value;
 
-        if ( stripos( $value, '@' ) > 0 )
+        if ( stripos( $value.'', '@' ) > 0 )
         {
             $url = 'mailto:' . $value;
         }
