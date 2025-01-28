@@ -171,7 +171,7 @@ class Server extends DataHandle
      */
     public function isShell()
     {
-        return defined("STDIN");
+        return PHP_SAPI === 'cli';
     }
 
     /**
