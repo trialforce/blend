@@ -73,7 +73,7 @@ class Timer
     public function diffFormat()
     {
         $diff = $this->diff();
-        return gmdate("H:i:s", $diff);
+        return gmdate("H:i:s", intval($diff));
     }
 
     /**
