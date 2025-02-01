@@ -578,11 +578,9 @@ class Template
                 $origim[] = '%7B%24param%5B\'' . $param . '\'%5D%7D';
                 $origim[] = '{$param[' . "'" . $param . '\']}';
 
-                $content = str_replace($origim, $value, $content);
+                $content = str_replace($origim, $value.'', $content);
             }
         }
-
-
 
         return $content;
     }
