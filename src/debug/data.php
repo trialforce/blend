@@ -117,7 +117,7 @@ class Data
             $this->requestUri = $server->get('REDIRECT_URL');
         }
 
-        $this->requestUri = trim($this->requestUri, '/');
+        $this->requestUri = trim($this->requestUri.'', '/');
 
         $this->dateTime = \Type\DateTime::now();
 
