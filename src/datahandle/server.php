@@ -131,7 +131,7 @@ class Server extends DataHandle
             return '';
         }
 
-        return $referer;
+        return $referer.'';
     }
 
     /**
