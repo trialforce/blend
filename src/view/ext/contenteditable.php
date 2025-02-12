@@ -72,7 +72,7 @@ class ContentEditable extends \View\Div
      */
     private function treatValue($value)
     {
-        return htmlentities($value);
+        return htmlentities($value . '');
     }
 
 }

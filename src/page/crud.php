@@ -130,7 +130,13 @@ class Crud extends \Page\Page
      */
     public function getPkValue()
     {
-        $pkValue = str_replace('/', '', Request::get('v'));
+        $v = Request::get('v');
+        $pkValue = '';
+        
+        if (!is_null($v))
+        {
+            $pkValue = str_replace('/', '', $v);
+        }
 
         //if not catch in 'v', try get from posted pk
         if (!($pkValue || $pkValue === 0 || $pkValue === '0'))
