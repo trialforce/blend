@@ -241,7 +241,10 @@ class Template
                     }
                 }
 
-                $this->content = str_replace($sectionContentReplace, $result, $this->content);
+                if ($sectionContentReplace)
+                {
+                    $this->content = str_replace($sectionContentReplace, $result, $this->content);
+                }
             }
         }
 
@@ -333,7 +336,7 @@ class Template
             $value = implode(',', $value);
         }
 
-        $result = str_replace('{$' . $var . '}', $value.'', $content);
+        $result = str_replace('{$' . $var . '}', $value.'', $content . '');
         $result = str_replace('%7B%24' . $var . '%7D', $value.'', $result);
 
         return $result;
