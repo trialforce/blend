@@ -110,7 +110,7 @@ class Script extends \View\View
         $valuesPHP = array(PHP_EOL, "\r\n", "\r", "\n", "\t");
         $valuesJS = array('\n', '\n', '\n', '\n', '  ');
 
-        return str_replace($valuesPHP, $valuesJS, addslashes($var));
+        return str_replace($valuesPHP, $valuesJS, addslashes($var . ''));
     }
 
 }
