@@ -963,7 +963,7 @@ class Grid extends \Component\Component
         //get selected columns from file
         $fileReportColumns = $this->getReportColumnsFile();
         $fileReportColumns->load();
-        $selectedColumns = json_decode($fileReportColumns->getContent());
+        $selectedColumns = json_decode($fileReportColumns->getContent().'');
 
         if (is_array($columns))
         {
