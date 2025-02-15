@@ -243,7 +243,7 @@ class Template
 
                 if ($sectionContentReplace)
                 {
-                    $this->content = str_replace($sectionContentReplace, $result, $this->content);
+                    $this->content = str_replace($sectionContentReplace.'', $result, $this->content);
                 }
             }
         }
