@@ -126,6 +126,23 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         return null;
     }
 
+    /**
+     * Get the last result of the Collection
+     * @return T|null
+     */
+    public function last()
+    {
+        $result = array_values($this->data);
+        $last = count($result) - 1;
+
+        if (isset($result[$last]))
+        {
+            return $result[$last];
+        }
+
+        return null;
+    }
+
     public function filter($function)
     {
         $new = array();
