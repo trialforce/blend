@@ -40,7 +40,7 @@
     height: 36px;
     line-height: 36px;
     font-size: 14px;
-    box-sizing: border-box;
+    box-sizing: initial;
 }
 
 .blend-floating-menu-title {
