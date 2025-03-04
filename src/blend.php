@@ -16,6 +16,7 @@ ini_set('zlib.output_compression', 'On');
 if (session_status() == PHP_SESSION_NONE)
 {
     //avoid autoload
+    require_once BLEND_PATH.'/datahandle/datahandle.php';
     require_once BLEND_PATH.'/datahandle/server.php';
     ini_set('session.cookie_lifetime', 0);
     ini_set('session.sid_length', 48);
