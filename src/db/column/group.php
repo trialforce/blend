@@ -75,7 +75,7 @@ class Group extends \Db\Column\Column
      *
      * @return string
      */
-    public function getSql()
+    public function getSql($withAlias = true)
     {
         if (!$this->getAgg() || $this->getAgg() == self::METHOD_GROUP)
         {

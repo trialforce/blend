@@ -15,7 +15,7 @@ class Check extends \Filter\Text
         return NULL;
     }
 
-    public function getInputValue($index)
+    public function getInputValue($index=0)
     {
         $columnValue = $this->getValueName();
 
