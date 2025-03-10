@@ -1,9 +1,0 @@
-<html>
-    <body>
-        <div>
-            <?php
-                //phpinfo();
-            ?>
-        </div>
-    </body>
-</html>

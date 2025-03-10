@@ -2,7 +2,7 @@
 
 namespace FastDom;
 
-class Parser
+class ParserRegExp
 {
     const HTML_REGEX_PATTERN = '/<([a-zA-Z]+)(?:\s([a-zA-Z]+(?:=(?:".+")|(?:[0-9]+))))*(?:(?:\s\/>)|(?:>(.*)<\/\1>))/';
 

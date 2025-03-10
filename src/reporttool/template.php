@@ -202,21 +202,9 @@ class Template
 
     public function execute()
     {
+        //\Misc\Timer::getGlobalTimer()->reset();
         //pass trough datasource to put the default _count parameters
         $dataSources = $this->getDataSources();
-
-        if (isIterable($dataSources) && count($dataSources) > 0)
-        {
-            foreach ($dataSources as $sectionName => $dataSource)
-            {
-                $data = $dataSource->getData();
-
-                $countData = isCountable($data) ? count($data) : 0;
-
-                $this->setParam($sectionName . '_count', $countData);
-            }
-        }
-
         $this->content = $this->replaceContentParams($this->content);
         $originalContent = $this->content;
 
@@ -225,6 +213,9 @@ class Template
             foreach ($dataSources as $sectionName => $dataSource)
             {
                 $data = $dataSource->getData();
+                //create the default _count parameter
+                $countData = isCountable($data) ? count($data) : 0;
+                $this->setParam($sectionName . '_count', $countData);
 
                 //stores for further use
                 $this->data[$sectionName] = $data;
@@ -386,14 +377,9 @@ class Template
                 {
                     $valueDescription = $array[$value];
                 }
+                //make replace even it's empty
+                $myResult = $this->replaceVariable($columnName . 'Description', $valueDescription, $myResult);
             }
-            else
-            {
-                $valueDescription = $this->getValue($item, $columnName . 'Description');
-            }
-
-            //make replace even it's empty
-            $myResult = $this->replaceVariable($columnName . 'Description', $valueDescription, $myResult);
         }
 
         //after all collumn values, make simple replace by public propertys
@@ -405,7 +391,17 @@ class Template
             }
         }
 
+        if ($sectionName)
+        {
+            $myResult = $this->makeChild($item, $sectionContent, $sectionName, $myResult);
+        }
 
+        return $myResult;
+    }
+
+    public function makeChild($item, $sectionContent, $sectionName, $myResult)
+    {
+        $childContent = '';
         //make the child replace
         if ($sectionName)
         {

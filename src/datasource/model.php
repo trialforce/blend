@@ -86,15 +86,27 @@ class Model extends DataSource
             }
             else
             {
-                $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+                $filters = $this->mountDefaultFilters();
             }
 
             $this->count = $model->count($filters);
         }
 
         return $this->count;
+    }
+
+    /**
+     * Mount the default filters for datasource, can be called inside mount callback filters
+     * @return array
+     */
+    public function mountDefaultFilters()
+    {
+        $model = $this->model;
+        $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
+        $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
+        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+
+        return $filters;
     }
 
     protected function mountCallBackFilters()

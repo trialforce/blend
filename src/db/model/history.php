@@ -113,6 +113,24 @@ trait History
         unset($arrayB['oldModel']);
         unset($arrayA['oldModel']);
 
+        //remove inner arrays because array_diff_assoc do not accepted it
+        foreach ($arrayA as $key =>$value)
+        {
+            if (is_array($value))
+            {
+                unset($arrayA[$key]);
+            }
+        }
+
+        //remove inner arrays because array_diff_assoc do not accepted it
+        foreach ($arrayB as $key =>$value)
+        {
+            if (is_array($value))
+            {
+                unset($arrayB[$key]);
+            }
+        }
+
         $diff = array_diff_assoc($arrayA, $arrayB);
 
         //remove all description fields

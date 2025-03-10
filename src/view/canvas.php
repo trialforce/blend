@@ -28,7 +28,7 @@ class Canvas extends \View\View
      * @param int $height
      * @return \View\Canvas
      */
-    public function setHeight( $height )
+    public function setHeight( $height, $unit = 'px' )
     {
         return $this->setAttribute( 'height', intval( $height ) );
     }
@@ -49,7 +49,7 @@ class Canvas extends \View\View
      * @param int $width
      * @return \View\Canvas
      */
-    public function setWidth( $width )
+    public function setWidth( $width , $unit = 'px' )
     {
         return $this->setAttribute( 'width', intval( $width ) );
     }

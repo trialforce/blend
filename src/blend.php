@@ -16,6 +16,7 @@ ini_set('zlib.output_compression', 'On');
 if (session_status() == PHP_SESSION_NONE)
 {
     //avoid autoload
+    require_once BLEND_PATH.'/datahandle/datahandle.php';
     require_once BLEND_PATH.'/datahandle/server.php';
     ini_set('session.cookie_lifetime', 0);
     ini_set('session.sid_length', 48);
@@ -127,8 +128,9 @@ if (!function_exists('filePath'))
 
     function filePath($class, $extension = 'php')
     {
-        $class = strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $class));
-        return (defined('ADM_PATH') ? ADM_PATH : APP_PATH) . DIRECTORY_SEPARATOR . $class . '.' . $extension;
+        $classParsed = strtolower(str_replace('\\', '/', $class));
+        $admPath = defined('ADM_PATH') ? ADM_PATH : APP_PATH;
+        return $admPath. '/' . $classParsed . '.' . $extension;
     }
 
 }

@@ -177,4 +177,32 @@ class Json
         return Json::decode($content, $assoc);
     }
 
+    /**
+     * Forma a json to a beutifull html formated result
+     *
+     * @param $json
+     * @param string $stringColor
+     * @param string $numberColor
+     * @param string $boolColor
+     * @param string $keyColor
+     * @return array|string|string[]|null
+     * @throws \Exception
+     */
+    public static function formatToHtml($json, $stringColor = '#080', $numberColor = '#f90', $boolColor = '#b18', $keyColor = '#06d' )
+    {
+        $json = \Disk\Json::encode(\Disk\Json::decode($json),JSON_PRETTY_PRINT);
+        $json = nl2br($json);
+        $json = str_replace(" ", '&nbsp;', $json);
+        //Strings em verde
+        $json = preg_replace('/:(.*?)"([^"]*)"/', ': <span style="color:'.$stringColor.';">"$2"</span>', $json);
+        // Números inteiros e de ponto flutuante em laranja
+        $json = preg_replace('/:(.*?)([0-9]+\.[0-9]+)/', ': <span style="color:'.$numberColor.';">$2</span>', $json);
+        // Chaves em azul
+        $json = preg_replace('/"(.*?)":/', '<span style="color:'.$keyColor.';">"$1"</span>:', $json);
+        // Booleanos e null em rosa
+        $json = preg_replace('/\b(true|false|null)\b/', '<span style="color:'.$boolColor.';">$1</span>', $json);
+
+        return $json;
+    }
+
 }

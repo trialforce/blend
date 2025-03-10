@@ -57,7 +57,7 @@ class DataHandle
                     $value = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $value);
                 }
 
-                $this->setVar($var, $value);
+                $this->$var = $value;
             }
         }
         else if ($data instanceof \SimpleXMLElement)
@@ -66,7 +66,7 @@ class DataHandle
 
             foreach ($attributes as $var => $value)
             {
-                $this->setVar($var, $value . "");
+                $this->$var = $value.'';
             }
         }
     }

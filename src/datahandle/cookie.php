@@ -14,15 +14,7 @@ class Cookie extends DataHandle
      */
     public function __construct()
     {
-        parent::__construct();
-
-        //avoid setData and setVar to not messing with cookies
-        $cookies = $_COOKIE;
-
-        foreach ($cookies as $key => $value)
-        {
-            $this->$key = $value;
-        }
+        parent::__construct($_COOKIE);
     }
 
     /**

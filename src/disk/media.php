@@ -23,6 +23,7 @@ class Media extends \Disk\File
      *
      * @param string $path
      * @param boolean $load
+     * @throws \Exception
      */
     public function __construct($path, $load = FALSE)
     {
@@ -43,6 +44,7 @@ class Media extends \Disk\File
      *
      * @param boolean $complete
      * @return string
+     * @throws \Exception
      */
     public function getUrl($complete = TRUE)
     {
@@ -62,6 +64,7 @@ class Media extends \Disk\File
      * Return media path
      *
      * @return string
+     * @throws \Exception
      */
     public static function getMediaPath()
     {
@@ -80,13 +83,18 @@ class Media extends \Disk\File
     /**
      * Define media path
      *
-     * @param string $mediaPath
+     * @param string $mediaPath media pth
+     * @param bool $verifyFolderExists if is to verify folder exist, avoi to optimize
+     * @throws \Exception
      */
-    public static function setMediaPath($mediaPath)
+    public static function setMediaPath($mediaPath, bool $verifyFolderExists = true)
     {
         self::$mediaPath = $mediaPath;
 
-        self::createMediaFolderIfNeeded();
+        if ($verifyFolderExists)
+        {
+            self::createMediaFolderIfNeeded();
+        }
     }
 
     /**
@@ -157,6 +165,7 @@ class Media extends \Disk\File
      * Return media folder
      *
      * @return \Disk\Folder
+     * @throws \Exception
      */
     public static function getMediaFolder()
     {
