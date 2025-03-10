@@ -153,7 +153,7 @@ class Time implements \Type\Generic, \JsonSerializable
     public function treatValue($value)
     {
         //parse milesecond, or decimal hour value
-        if (stripos($value, '.'))
+        if (stripos($value . '', '.'))
         {
             $explode = explode('.', $value);
 
