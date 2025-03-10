@@ -169,7 +169,7 @@ class Time implements \Type\Generic, \JsonSerializable
         }
 
         //parse hour, minute, second
-        if (stripos($value, ':'))
+        if (stripos($value . '', ':'))
         {
             $explode = explode(':', $value);
             $this->hour = intval(ltrim($explode[0], '0'));

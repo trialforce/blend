@@ -15,7 +15,7 @@ trait CrudDropZone
         }
 
         \App::addJs(\View\Blend\Popup::getJs('close'));
-        $id = strlen(Request::get('v')) > 0 ? Request::get('v') : $this->getFormValue('id');
+        $id = strlen(Request::get('v') . '') > 0 ? Request::get('v') : $this->getFormValue('id');
         $images = $this->listImages($id);
         $content = NULL;
 

@@ -1607,7 +1607,7 @@ class View extends DomElement implements \Countable
      */
     public static function treatStringToJs($var)
     {
-        return addslashes(str_replace(array(PHP_EOL, "\r", "\n", "\t"), ' ', $var));
+        return addslashes(str_replace(array(PHP_EOL, "\r", "\n", "\t"), ' ', $var . ''));
     }
 
     /**
