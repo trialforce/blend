@@ -56,7 +56,7 @@ class Csv
 
                 foreach ($exportColumns as $column)
                 {
-                    $value = strip_tags(\DataSource\Grab::getUserValue($column, $model));
+                    $value = strip_tags(\DataSource\Grab::getUserValue($column, $model) . '');
                     $columsLine[] = '"' . $value . '"';
                 }
 
