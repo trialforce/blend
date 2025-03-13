@@ -425,7 +425,7 @@ class Text
     {
         if (!$this->filterLabel)
         {
-            $this->filterLabel = trim(ucfirst($this->getFilterName().''));
+            $this->filterLabel = trim(ucfirst($this->getFilterName()));
         }
 
         return $this->filterLabel;

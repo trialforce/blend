@@ -812,7 +812,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         \App::setResponse('NULL'); //for grid
         //support columns with description in name
-        $value = str_replace('Description', '', Request::get('advancedFiltersList'));
+        $value = str_replace('Description', '', Request::get('advancedFiltersList') . '');
         $grid = $this->setDefaultGrid();
 
         if (!$grid instanceof \Component\Grid\Grid)
