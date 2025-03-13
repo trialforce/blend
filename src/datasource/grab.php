@@ -257,11 +257,11 @@ class Grab
     {
         if (!$column)
         {
-            return NULL;
+            return '';
         }
 
         $item = self::standarlizeItem($item);
-        $value = NULL;
+        $value = '';
 
         if ($item instanceof \Db\Model)
         {
