@@ -190,7 +190,21 @@ class Json
      */
     public static function formatToHtml($json, $stringColor = '#080', $numberColor = '#f90', $boolColor = '#b18', $keyColor = '#06d' )
     {
-        $json = \Disk\Json::encode(\Disk\Json::decode($json),JSON_PRETTY_PRINT);
+        //optimization
+        if (!$json)
+        {
+            return null;
+        }
+
+        try
+        {
+            $json = \Disk\Json::encode(\Disk\Json::decode($json),JSON_PRETTY_PRINT);
+        }
+        catch (\Throwable $exception)
+        {
+            return $json;
+        }
+
         $json = nl2br($json);
         $json = str_replace(" ", '&nbsp;', $json);
         //Strings em verde
