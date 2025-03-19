@@ -68,7 +68,7 @@ abstract class DataSource
 
     /**
      * Page/Dom
-     * @var \View\Dom
+     * @var \View\Layout|\DOMDocument|null
      */
     protected $page;
 
@@ -155,7 +155,7 @@ abstract class DataSource
 
     public function getOrderByParsedForColumn($columName, $passedOrderBy = null)
     {
-        $orderBy = $passedOrderBy ? $passedOrderBy : $this->orderBy;
+        $orderBy = $passedOrderBy ?: $this->orderBy;
         $orders = $this->getOrderByParsed($orderBy);
 
         if (isset($orders[$columName]))
@@ -312,7 +312,7 @@ abstract class DataSource
      */
     public function where($columnName, $param = NULL, $value = NULL, $condition = 'AND')
     {
-        $filter = new \Db\Where($columnName, $param, $value, $condition ? $condition : 'AND');
+        $filter = new \Db\Where($columnName, $param, $value, $condition ?: 'AND');
         $this->addExtraFilter($filter);
 
         return $this;
@@ -368,7 +368,7 @@ abstract class DataSource
     /**
      * Define a list of aggregators
      *
-     * @param type $aggregator
+     * @param \DataSource\Aggregator $aggregator
      * @return \DataSource\DataSource
      */
     public function setAggregator($aggregator)
@@ -418,7 +418,7 @@ abstract class DataSource
 
     /**
      *
-     * @return type
+     * @return int
      */
     public function getCount()
     {
@@ -444,7 +444,7 @@ abstract class DataSource
      * Return some column based on his name
      *
      * @param string $columName column name
-     * @return \Component\Grid\Column the grid column object
+     * @return \Component\Grid\Column|null
      */
     public function getColumn($columName)
     {
@@ -454,12 +454,14 @@ abstract class DataSource
         {
             return $columns[$columName];
         }
+
+        return null;
     }
 
     /**
      * Add a collumn to datasource
      *
-     * @param \Component\Grid\Column $column
+     * @param ?\Component\Grid\Column $column
      * @return $this
      */
     public function addColumn(\Component\Grid\Column $column = null)

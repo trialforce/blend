@@ -72,6 +72,7 @@ class Model extends DataSource
      * Count the total data without limits and offsets
      *
      * @return int
+     * @throws \Exception
      */
     public function getCount()
     {
@@ -98,6 +99,7 @@ class Model extends DataSource
     /**
      * Mount the default filters for datasource, can be called inside mount callback filters
      * @return array
+     * @throws \Exception
      */
     public function mountDefaultFilters()
     {
@@ -128,6 +130,7 @@ class Model extends DataSource
      * Return the datasource data, execute sql if needed
      *
      * @return array
+     * @throws \Exception
      */
     public function getData()
     {
@@ -142,9 +145,7 @@ class Model extends DataSource
             else
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
-
-                $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+                $filters = $this->mountDefaultFilters();
                 $this->data = $model->search($columns, $filters, $this->getLimit(), $this->getOffset(), $this->getOrderBy(), $this->getOrderWay());
             }
         }
@@ -159,7 +160,6 @@ class Model extends DataSource
 
         foreach ($columns as $column)
         {
-            $column instanceof \Db\Column\Column;
             $dsColumn = isset($dsColumns[$column->getName()]) ? $dsColumns[$column->getName()] : null;
 
             if ($dsColumn instanceof \Component\Grid\Column && $dsColumn->getSmartFilter())
@@ -175,6 +175,7 @@ class Model extends DataSource
      * Return the list of \Db\Column\Column that represents the datasource columns
      *
      * @return array of \Db\Column\Column
+     * @throws \Exception
      */
     public function getDbColumns()
     {
@@ -184,7 +185,6 @@ class Model extends DataSource
 
         foreach ($dsColumns as $dsColumn)
         {
-            $dsColumn instanceof \Component\Grid\Column;
             $dbColumn = $model->getColumn($dsColumn->getName());
 
             if ($dbColumn instanceof \Db\Column\Column)
@@ -199,8 +199,9 @@ class Model extends DataSource
     /**
      * Execute multiple aggregators in one time
      *
-     * @param Array $aggregators
+     * @param array $aggregators
      * @return array
+     * @throws \Exception
      */
     public function executeAggregators($aggregators)
     {
@@ -222,11 +223,6 @@ class Model extends DataSource
             $referenceSql = $column->getSql(FALSE);
             $subquery = $method . '( ' . $referenceSql[0] . ' )';
 
-            if (!$column)
-            {
-                throw new \UserException('Column ' . $sqlColumn . ' não encontrada na agregação de dados!');
-            }
-
             if ($method == Aggregator::METHOD_SUM && $column->getType() == \Db\Column\Column::TYPE_TIME && $connInfoType == \Db\ConnInfo::TYPE_MYSQL)
             {
                 $subquery = 'SEC_TO_TIME( SUM( TIME_TO_SEC( (' . $referenceSql[0] . ') )))';
@@ -245,7 +241,7 @@ class Model extends DataSource
         if (!empty($querys))
         {
             //programatelly callback
-            $filters = NULL;
+            $filters = [];
 
             if ($this->getSmartFilterCallback())
             {
@@ -288,6 +284,7 @@ class Model extends DataSource
      * @param \DataSource\Aggregator $aggregator
      *
      * @return mixed
+     * @throws \Exception
      */
     public function executeAggregator(Aggregator $aggregator)
     {

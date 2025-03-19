@@ -311,7 +311,7 @@ class SmartFilter
             $this->conds[] = new \Db\Cond("($where)", $args, \Db\Cond::COND_OR);
 
             //if singular filter is diferent from plural ones
-            if ($filtersingular && $filter != $filtersingular)
+            if ($filtersingular && trim($filter) != trim($filtersingular))
             {
                 $whereSingular = '';
                 $argsSingular = [];
