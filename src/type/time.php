@@ -278,6 +278,16 @@ class Time implements \Type\Generic, \JsonSerializable
     }
 
     /**
+     * Total time in seconds
+     *
+     * @return \Type\Decimal
+     */
+    public function getTotalSeconds()
+    {
+        return new \Type\Decimal($this->hour * 3600 + ($this->minute * 60) + $this->second);
+    }
+
+    /**
      * To hour (int)
      *
      * @return \Type\Decimal
