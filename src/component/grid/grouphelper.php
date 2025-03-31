@@ -17,7 +17,7 @@ class GroupHelper
      */
     public static function safeName($name)
     {
-        return \Type\Text::get(strip_tags($name))->toFile() . '';
+        return \Type\Text::get(strip_tags($name . ''))->toFile() . '';
     }
 
     /**
