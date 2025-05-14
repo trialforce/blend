@@ -213,10 +213,17 @@ window.onload = function ()
 {
     pluginsCallMethod('register');
     dataAjax();
+    updateUrl(window.location.href);
     
     //destroy popup on esc
     document.addEventListener('keydown', function(e)
     {
+        //avoid holding button bug
+        if (e.repeat)
+        {
+            return;
+        }
+
         if(e.key=='Escape'||e.key=='Esc'||e.keyCode==27)
         {
             if (escape())
