@@ -299,6 +299,16 @@ class Model implements \JsonSerializable
     }
 
     /**
+     * Create a new query builder.
+     * Method used when you need to extend querybuilder class
+     * @return QueryBuilder
+     */
+    public static function createNewQueryBuilder()
+    {
+        return new \Db\QueryBuilder(static::getTableName(), static::getConnId());
+    }
+
+    /**
      * Return the Query builder for this Model
      * @param bool $tableNameInColumns put table name in columns
      * @para bool $avoidSearchColumns avoid search columns, to optimize query
@@ -309,7 +319,7 @@ class Model implements \JsonSerializable
         $name = self::getName();
         $tableName = $name::getTableName();
 
-        $queryBuilder = new \Db\QueryBuilder($name::getTableName(), $name::getConnId());
+        $queryBuilder = static::createNewQueryBuilder();
         $queryBuilder->setCatalogClass($name::getCatalogClass());
         $queryBuilder->setLogId($name);
 
