@@ -41,14 +41,6 @@ class Check implements \Type\Generic
     {
         if ($this->value <= 0)
         {
-            $conn = \Db\Conn::getConnInfo();
-
-            //alternativa para o mysql
-            if ($conn->getType() == \Db\ConnInfo::TYPE_MYSQL)
-            {
-                return '0.0';
-            }
-
             return 0;
         }
 
