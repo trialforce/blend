@@ -206,7 +206,7 @@ class Popup extends Div
      */
     public function addMaximizeButton()
     {
-        $maximize = new \View\Ext\Icon('square-o', 'black');
+        $maximize = new \View\Ext\Icon('window-maximize', 'black');
         $maximize->setId('btbMaximizePopup')
                 ->css('float', 'right')
                 ->click(self::getJs('maximize', $this->getId()))

@@ -159,6 +159,8 @@ trait PagePopup
 
         $popup = new \View\Blend\Popup($idPopup, $titleLink, $body, $buttons, 'popup-full-body form ' . $this->getPageUrl());
         $popup->setIcon($this->icon);
+        //cria variavel extra pra poder acessar o iFrame fora da função
+        $popup->iFrame = $body;
         $popup->footer->remove();
         $popup->show();
 

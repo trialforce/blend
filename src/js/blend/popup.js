@@ -79,7 +79,7 @@ function popup(action, selector)
             height: "100%",
         }, 500, function () 
         {
-            element.find('.body').addClass('maximized');
+            element.addClass('maximized');
         });
     }
 
