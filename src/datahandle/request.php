@@ -125,4 +125,31 @@ class Request extends DataHandle
         return NULL;
     }
 
+    /**
+     * Get the raw post data OR the body of an request
+     *
+     * @return false|string
+     */
+    public static function getBody()
+    {
+        return file_get_contents('php://input');
+    }
+
+    /**
+     * Get the body json decoded
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public static function getBodyJson($throwOnNull = false)
+    {
+        $raw = self::getBody();
+
+        if (!$raw && $throwOnNull)
+        {
+            throw new \UserException('Body JSON is not provided!');
+        }
+
+        return \Disk\Json::decode($raw);
+    }
+
 }
