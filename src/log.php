@@ -190,13 +190,11 @@ class Log
      * Register a log of an \Exception
      *
      * @param Throwable $exception
-     * @param bool $avoidEcho avoid echo even if is in devel (usefull when you need to log and error, but avoid show to the user)
      * @return bool|null
      * @throws \PHPMailer\PHPMailer\Exception|ReflectionException
      */
-    public static function exception(Throwable $exception, $avoidEcho = false)
+    public static function exception(Throwable $exception)
     {
-        $devel = \DataHandle\Config::get('devel');
         $mysqlError = \Log::parseMysqlErrors($exception);
 
         if ($mysqlError)
@@ -207,12 +205,6 @@ class Log
         else if ($exception instanceof \UserException || $exception instanceof \ResponseCodeException)
         {
             return false;
-        }
-        else if ($devel && !$avoidEcho)
-        {
-            $log = $exception->getCode() . ' - <b>' . $exception->getMessage() . '</b> - ' . $exception->getFile() . ' on line ' . $exception->getLine() . '</br></br>';
-            $log .= $exception->getTraceAsString();
-            echo $log;
         }
 
         $errorMessage = \Log::generateErrorLog($exception);
@@ -229,7 +221,7 @@ class Log
         if ($logErrorFunction)
         {
             $data = new \stdClass();
-            $data->type = 'exception';
+            $data->type = 'EXCEPTION';
             $data->message = $exception->getMessage();
             $data->line = $exception->getLine();
             $data->file = $exception->getFile();
