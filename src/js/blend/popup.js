@@ -66,21 +66,33 @@ function popup(action, selector)
     } 
     else if (action === 'maximize')
     {
-        element.find('.inner')
-                .css('position', 'fixed')
-                .css('left', '50%')
-                .css('marginLeft', ($('.inner').width() / 2) * -1);
+        element.find('.inner').css('left', 0);
 
-        element.find('.inner').animate({
-            top: 0,
-            left: 0,
-            margin: 0,
-            width: "100%",
-            height: "100%",
-        }, 500, function () 
+        //if is minimized only restore
+        if (element.hasClass('minimized'))
         {
-            element.addClass('maximized');
-        });
+            element.removeClass('minimized')
+        }
+        else
+        {
+            element.removeClass('minimized')
+            element.toggleClass('maximized');
+        }
+    }
+    else if (action === 'minimize')
+    {
+        element.removeClass('maximized')
+        element.toggleClass('minimized');
+
+        //add left margin
+        let extraStep = $('.popup.minimized').length - 1;
+
+        if (extraStep > 0)
+        {
+            let extraWidth = $('.popup.minimized').eq(0).find('.header').width();
+            let extraWidthPx = (extraWidth * extraStep) + 'px';
+            element.find('.inner').css('left', extraWidthPx);
+        }
     }
 
     return false;

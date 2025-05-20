@@ -69,6 +69,7 @@ class Popup extends Div
      * @param \View\View $body
      * @param \View\View $footer
      * @param string $class
+     * @throws \Exception
      */
     public function __construct($id = NULL, $title = NULL, $body = NULL, $footer = NULL, $class = NULL)
     {
@@ -206,13 +207,31 @@ class Popup extends Div
      */
     public function addMaximizeButton()
     {
-        $maximize = new \View\Ext\Icon('window-maximize', 'black');
+        $maximize = new \View\Ext\Icon('window-maximize', 'maximize');
         $maximize->setId('btbMaximizePopup')
                 ->css('float', 'right')
                 ->click(self::getJs('maximize', $this->getId()))
-                ->setTitle('Aumentar');
+                ->setTitle('Maximizar');
 
         $this->header->append($maximize);
+
+        return $this;
+    }
+
+    /**
+     * Add maximize button to popup
+     *
+     * @return \View\Blend\Popup
+     */
+    public function addMinimizeButton()
+    {
+        $icon = new \View\Ext\Icon('window-minimize', 'minimize');
+        $icon->setId('btbMimimizePopup')
+            ->css('float', 'right')
+            ->click(self::getJs('minimize', $this->getId()))
+            ->setTitle('Minimizar');
+
+        $this->header->append($icon);
 
         return $this;
     }
@@ -243,6 +262,7 @@ class Popup extends Div
      * Create a simple prompt popup
      *
      * @return \View\Blend\Popup
+     * @throws \Exception
      */
     public static function prompt($title, $question, $okAction, $cancelAction = NULL, $class = NULL)
     {
@@ -266,6 +286,7 @@ class Popup extends Div
      * Create a simple confirm popup
      *
      * @return \View\Blend\Popup
+     * @throws \Exception
      */
     public static function confirm($title, $question, $okAction, $cancelAction = NULL, $class = NULL)
     {
@@ -292,6 +313,7 @@ class Popup extends Div
      * @param mixed $content
      * @param string $closeAction
      * @return \View\Blend\Popup
+     * @throws \Exception
      */
     public static function alert($title, $content, $closeAction = NULL)
     {
@@ -302,9 +324,7 @@ class Popup extends Div
 
         $buttons[] = new \View\Ext\Button('close', 'cancel', 'Fechar', $closeAction);
 
-        $popup = new \View\Blend\Popup('alert', $title, $content, $buttons);
-
-        return $popup;
+        return new \View\Blend\Popup('alert', $title, $content, $buttons);
     }
 
     /**
@@ -314,6 +334,7 @@ class Popup extends Div
      * @param string $okAction
      * @param string $closeAction
      * @return \View\Blend\Popup
+     * @throws \Exception
      */
     public static function fieldLayoutDialog(\FieldLayout\Vector $layout, $okAction, $closeAction = NULL)
     {
