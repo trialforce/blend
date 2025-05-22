@@ -168,7 +168,7 @@ class Crud extends \Page\Page
 
         if (!$this->model && $throw)
         {
-            throw new \UserException(_('Impossível encontrar registro!'));
+            throw new \UserException(('Impossível encontrar registro!'));
         }
 
         return $this->model;
