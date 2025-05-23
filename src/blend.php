@@ -226,7 +226,7 @@ class UserException extends Exception
 }
 
 /**
- * Exception to register on response code, util on API's
+ * Exception to register on response code, usefull on API's
  */
 class ResponseCodeException extends \Exception
 {
