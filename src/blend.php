@@ -188,11 +188,32 @@ if (!function_exists('toast'))
 
 }
 
+//create the internacionalization function
 if (!function_exists('_'))
 {
     function _($text)
     {
         return $text;
+    }
+}
+
+//create the function that don't exists on php-fpm/shell
+if (!function_exists('getallheaders'))
+{
+    function getallheaders()
+    {
+        $headers = [];
+
+        foreach ($_SERVER as $name => $value)
+        {
+            if (str_starts_with($name, 'HTTP_'))
+            {
+                $property = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                $headers[$property] = $value;
+            }
+        }
+
+        return $headers;
     }
 }
 
