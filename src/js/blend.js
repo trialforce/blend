@@ -959,8 +959,8 @@ function slug(str)
     str = str.toLowerCase();
 
     // remove accents, swap ñ for n, etc
-    var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;";
-    var to = "aaaaaeeeeeiiiiooooouuuunc-@_---";
+    var from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/&,:;%";
+    var to = "aaaaaeeeeeiiiiooooouuuunc-@_----";
 
     for (var i=0, l=from.length ; i<l ; i++) 
     {
