@@ -158,9 +158,9 @@ class Text implements \Type\Generic, \JsonSerializable
         $content = mb_ereg_replace("[ñ]", "n", $content);
         $content = mb_ereg_replace("[Ç]", "C", $content);
         $content = mb_ereg_replace("[ç]", "c", $content);
-        $content = mb_ereg_replace("²", "2", $content);
-        $content = mb_ereg_replace("³", "3", $content);
         $content = mb_ereg_replace("[´‘`^~¨]", "", $content);
+        $content = str_replace("²", "2", $content);
+        $content = str_replace("³", "3", $content);
         $content = str_replace('º', 'o', $content);
         $content = str_replace('•', 'o', $content);
         $content = str_replace('°', 'o', $content);
