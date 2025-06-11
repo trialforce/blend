@@ -192,7 +192,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
             }
             else
             {
-                return strcmp($valueA, $valueB);
+                return strcmp($valueA . '', $valueB . '');
             }
         });
 
