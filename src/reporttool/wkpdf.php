@@ -20,7 +20,7 @@ class WkPdf extends \mikehaertl\wkhtmlto\Pdf
         $orientation = 'P';
         //$this->wk = $this->constructWk('UTF-8', 5, 5, 5, 5);
 
-        $mode = $mode ? $mode : 'UFT-8';
+        $mode = $mode ?: 'UFT-8';
 
         parent::__construct(array(
             'binary' => \DataHandle\Config::get('wkpdf-path'),
@@ -32,6 +32,7 @@ class WkPdf extends \mikehaertl\wkhtmlto\Pdf
             'margin-bottom' => $mgb,
             // Default page options
             'disable-smart-shrinking',
+            'enable-local-file-access'
                 //'user-style-sheet' => '/path/to/pdf.css',
         ));
     }
@@ -45,14 +46,14 @@ class WkPdf extends \mikehaertl\wkhtmlto\Pdf
 
     public function setHtmlHeader($headerHtml, $align = 'right')
     {
-        $align = $align ? $align : 'right';
+        $align = $align ?: 'right';
         $this->addOption('header-' . $align, trim(strip_tags($headerHtml)));
         $this->addOption('header-font-size', '8');
     }
 
     public function setHtmlFooter($footerHtml, $align = 'right')
     {
-        $align = $align ? $align : 'right';
+        $align = $align ?: 'right';
         $this->addOption('footer-' . $align, trim(strip_tags($footerHtml)));
         $this->addOption('footer-font-size', '8');
     }
