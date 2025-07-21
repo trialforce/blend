@@ -692,6 +692,8 @@ class Column
             $property = trim(str_replace('*', '', $property));
             $val = \DataSource\Grab::getDbValue($property, $item);
             $string = str_replace(':' . $property . '?', $val.'', $string);
+            //new solution to avoid erros with pk replace
+            $string = str_replace('{' . $property . '}', $val.'', $string);
         }
 
         return $string;
