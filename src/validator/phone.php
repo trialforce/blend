@@ -133,13 +133,14 @@ class Phone extends \Validator\Validator
     /**
      * Fix brasilian phone number
      *
-     * @param string $number
+     * @param ?string $number
      * @param string $defaultPrefix
      * @param boolean $format
      * @return string
      */
     public static function fixNumber($number, $defaultPrefix = 51, $format = false)
     {
+        $number = $number . '';
         //caso for um número internacional a gente nem mexe com ele
         if (substr($number, 0, 1) == '+')
         {
