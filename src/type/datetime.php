@@ -782,7 +782,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         {
             if ($this->getHour() == 0 && $this->getMinute() == 0 && $this->getSecond())
             {
-                return 'Hoje'; //$this->getValue( self::MASK_DATE_USER );
+                return 'Hoje';
             }
 
             return $this->getValue(self::MASK_HOUR);
@@ -790,11 +790,10 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
         //other day
         else
         {
-            $date = $this->strftime('%d %b');
-            $search = array('01', '02', '03', '04', '05', '06', '07', '08', '09');
-            $replace = array('1', '2', '3', '4', '5', '6', '7', '8', '9');
+            // format date to day without zero and month name
+            $formattedDate = $this->format('j M');
 
-            return self::correctMonthNames(str_replace($search, $replace, $date));
+            return self::correctMonthNames($formattedDate);
         }
     }
 
