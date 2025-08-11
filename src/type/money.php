@@ -97,6 +97,16 @@ class Money implements \Type\Generic, \JsonSerializable
         return number_format($this->value, $this->decimals, '.', '');
     }
 
+    /**
+     * Return a FLOAT version of toDb
+     *
+     * @return float
+     */
+    public function toFloat() : float
+    {
+        return floatval($this->toDb());
+    }
+
     public function jsonSerialize() : mixed
     {
         return $this->toDb();
