@@ -97,8 +97,13 @@ class Timeline extends \Component\Component
         return new \View\Div(null, 'Ops, nenhuma movimentação encontrada.','timeline-item-empty');
     }
 
-    protected function onCreateItem(\Component\Timeline\DataItem $item )
+    protected function onCreateItem(?\Component\Timeline\DataItem $item )
     {
+        if (is_null($item))
+        {
+            return null;
+        }
+
         $dateTime = $item->getTimelineDateTime();
         $link = $item->getTimelineLink();
 
