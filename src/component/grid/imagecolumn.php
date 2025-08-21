@@ -131,7 +131,7 @@ class ImageColumn extends \Component\Grid\Column
 
             if ($this->getUseThumb())
             {
-                $thumb = str_replace('media', 'thumb/w40/', $result);
+                $thumb = str_replace('media', 'thumb/s100/', $result);
             }
 
             $img = new \View\Img(null, $thumb, $this->width);
