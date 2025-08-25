@@ -610,7 +610,7 @@ class Image extends \Disk\File
 
         $color = $this->allocateColor($this->getColorAt(0, 0));
         imagefill($thumb, 0, 0, $color);
-        imagecopyresampled($thumb, $this->content, $pos_x, $pos_y, 0, 0, $x, $y, $width, $height);
+        imagecopyresampled($thumb, $this->content, intval($pos_x), intval($pos_y), 0, 0, $x, $y, $width, $height);
 
         $this->content = $thumb;
 
