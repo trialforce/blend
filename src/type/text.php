@@ -413,9 +413,9 @@ class Text implements \Type\Generic, \JsonSerializable
      *
      * @return \Type\Text
      */
-    public function toHtml()
+    public function toHtml($verify = true)
     {
-        if ($this->isHtml())
+        if ($verify && $this->isHtml())
         {
             return $this;
         }
