@@ -20,7 +20,7 @@ class Table extends \View\View
      */
     public function __construct( $id = \NULL, $innerHtml = \NULL, $class = \NULL, $caption = NULL, $summary = NULL )
     {
-        parent::__construct( 'table', $id, $innerHtml, $class );
+        parent::__construct( 'table', $id, null, $class );
 
         if ( $caption )
         {
@@ -31,6 +31,8 @@ class Table extends \View\View
         {
             $this->setSummary( $summary );
         }
+
+        $this->append($innerHtml);
     }
 
     /**

@@ -19,7 +19,8 @@ class THead extends \View\View
      * Convert some text in innertHtml to th
      *
      * @param \View\Td $innerHtml
-     * @return \View\Td
+     * @return \View\View
+     * @throws \Exception
      */
     public static function arrayToTh( $innerHtml )
     {
