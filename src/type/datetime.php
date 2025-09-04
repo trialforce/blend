@@ -641,7 +641,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     {
         if ($this->month && $this->day && $this->year)
         {
-            return mktime($this->hour, $this->minute, $this->second, $this->month, $this->day, $this->year);
+            return mktime($this->hour ?? 0, $this->minute, $this->second, $this->month, $this->day, $this->year);
         }
         else
         {
