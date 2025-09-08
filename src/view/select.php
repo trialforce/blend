@@ -53,10 +53,6 @@ class Select extends \View\View
      */
     public static function defineValue($element, $value)
     {
-        if ($value instanceof \Type\VectorKeys)
-        {
-            $value = $value->getValue();
-        }
         //convert to array case not
         if (!is_array($value))
         {
@@ -189,6 +185,25 @@ class Select extends \View\View
     public function getMultiple()
     {
         return (bool) $this->getAttribute('size');
+    }
+
+    /**
+     * Remove empty value
+     *
+     * @return void
+     */
+    public function removeEmptyValue()
+    {
+        if ($this->hasChildNodes())
+        {
+            foreach ($this->childNodes as $option)
+            {
+                if ($option && $option->getAttribute('id') == 'select-null-option')
+                {
+                    $option->remove();
+                }
+            }
+        }
     }
 
     /**
