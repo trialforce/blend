@@ -90,6 +90,14 @@ var b = function(selector)
             element.classList.add(cssClass);
         });
     };
+
+    nodeList.remove = function()
+    {
+        this.forEach(function(element)
+        {
+            element.remove();
+        });
+    };
     
     nodeList.removeClass = function(cssClass)
     {
