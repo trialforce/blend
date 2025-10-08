@@ -70,10 +70,11 @@ class JSMin
     /**
      * Minify Javascript
      *
-     * @uses __construct()
-     * @uses min()
      * @param string $js Javascript to be minified
      * @return string
+     * @throws \Exception
+     * @uses min()
+     * @uses __construct()
      */
     public static function optimize($js)
     {
@@ -104,7 +105,7 @@ class JSMin
      *
      * @uses next()
      * @uses get()
-     * @throws JSMinException If parser errors are found:
+     * @throws \Exception If parser errors are found:
      *         - Unterminated string literal
      *         - Unterminated regular expression set in regex literal
      *         - Unterminated regular expression literal
@@ -137,7 +138,7 @@ class JSMin
 
                         if (ord($this->a) <= self::ORD_LF)
                         {
-                            throw new JSMinException('Unterminated string literal.');
+                            throw new \Exception('Unterminated string literal.');
                         }
 
                         if ($this->a === '\\')
@@ -187,7 +188,7 @@ class JSMin
                                 }
                                 elseif (ord($this->a) <= self::ORD_LF)
                                 {
-                                    throw new JSMinException('Unterminated regular expression set in regex literal.');
+                                    throw new \Exception('Unterminated regular expression set in regex literal.');
                                 }
                             }
                         }
@@ -202,7 +203,7 @@ class JSMin
                         }
                         elseif (ord($this->a) <= self::ORD_LF)
                         {
-                            throw new JSMinException('Unterminated regular expression literal.');
+                            throw new \Exception('Unterminated regular expression literal.');
                         }
 
                         $this->output .= $this->a;
@@ -256,17 +257,19 @@ class JSMin
      */
     protected function isAlphaNum($c)
     {
+        $c = is_null($c) ? '' : $c; //evit erro de null no preg_match
         return ord($c) > 126 || $c === '\\' || preg_match('/^[\w\$]$/', $c) === 1;
     }
 
     /**
      * Perform minification, return result
      *
-     * @uses action()
-     * @uses isAlphaNum()
+     * @return string
+     * @throws \Exception
      * @uses get()
      * @uses peek()
-     * @return string
+     * @uses action()
+     * @uses isAlphaNum()
      */
     protected function min()
     {
@@ -378,7 +381,7 @@ class JSMin
      *
      * @uses get()
      * @uses peek()
-     * @throws JSMinException On unterminated comment.
+     * @throws \Exception On unterminated comment.
      * @return string
      */
     protected function next()
@@ -416,7 +419,7 @@ class JSMin
                                 break;
 
                             case null:
-                                throw new JSMinException('Unterminated comment.');
+                                throw new \Exception('Unterminated comment.');
                         }
                     }
 
@@ -439,10 +442,4 @@ class JSMin
         $this->lookAhead = $this->get();
         return $this->lookAhead;
     }
-
-}
-
-class JSMinException extends \Exception
-{
-
 }
