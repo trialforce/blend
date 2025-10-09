@@ -276,12 +276,12 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
             if (count($regexpResult) > 0)
             {
-                $total += \Type\Time::get($info)->toDecimal()->toDb();
+                $total += \Type\Time::get($info)->toDecimal()->toFloat();
             }
             else
             {
 
-                $total += \Type\Decimal::get($info)->toDb();
+                $total += \Type\Decimal::get($info)->toFloat();
             }
         }
 
@@ -305,7 +305,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
 
         foreach ($this->data as $item)
         {
-            $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toDb();
+            $total += \Type\Decimal::get(self::getPropertyFromItem($item, $property))->toFloat();
         }
 
         return $total / $this->count();
@@ -571,6 +571,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * @param string $key the key of new array
      * @param string $value the value of new array
      * @return $this
+     * @throws \Exception
      */
     public function toKeyValue($key, $value)
     {
@@ -625,6 +626,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param string $property
      * @return $this
+     * @throws \Exception
      */
     public function getValues($property)
     {
@@ -858,7 +860,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * For implements \Iterator  (foreach)
      *
-     * @return int|null|string
+     * @return int|string|null
      */
     public function key() :mixed
     {
