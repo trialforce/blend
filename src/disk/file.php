@@ -138,6 +138,15 @@ class File implements \JsonSerializable
     }
 
     /**
+     * Return if the file is loaded or not
+     * @return bool
+     */
+    public function isLoaded()
+    {
+        return (bool)$this->content;
+    }
+
+    /**
      * Save the file content to path
      *
      * @return bool
@@ -794,6 +803,10 @@ class File implements \JsonSerializable
         self::$storageUrl = $storageUrl;
     }
 
+    /**
+     * Return the base64 string representating the currente image/file
+     * @return string
+     */
     public function getBase64()
     {
         $byteArray = file_get_contents($this->getPath());
@@ -801,6 +814,10 @@ class File implements \JsonSerializable
         return $encode;
     }
 
+    /**
+     * Json serializado
+     * @return mixed
+     */
     public function jsonSerialize(): mixed
     {
         $result = new \stdClass();

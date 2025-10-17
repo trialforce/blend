@@ -976,6 +976,91 @@ class Image extends \Disk\File
         return $this;
     }
 
+    /**
+     * Return the base64 string representating the currente image/file
+     * @return string
+     * @throws \Exception
+     */
+    public function getBase64()
+    {
+        //caso tenha sido carrega, pega a versão na memória
+        if ($this->isLoaded())
+        {
+            ob_start();
+
+            if ($this->getExtension() == self::EXT_PNG )
+            {
+                imagepng($this->getContent());
+            }
+            else if ($this->getExtension() == self::EXT_JPG || $this->getExtension() == self::EXT_JPEG)
+            {
+                imagejpeg($this->getContent());
+            }
+            else if ($this->getExtension() == self::EXT_WEBP)
+            {
+                imagewebp($this->getContent());
+            }
+            else if ($this->getExtension() == self::EXT_ICO)
+            {
+                imageico($this->getContent());
+            }
+
+            return base64_encode(ob_get_clean());
+        }
+
+        $byteArray = file_get_contents($this->getPath());
+        $encode = base64_encode($byteArray);
+        return $encode;
+    }
+
+    /**
+     * This static function converts a image from a file to an SVG
+     * With a desired with.
+     * To be true, it only generate a SVG/XML with the embebed image inside
+     * IT does not do trace or anything
+     *
+     * @param string $filePath
+     * @param int $width
+     * @return string
+     * @throws \Exception
+     */
+    public static function imageToSVG(string $filePath, int $width)
+    {
+        $image = new \Media\Image($filePath);
+
+        if ($width == 0) //keep
+        {
+            $width = $image->getWidth();
+        }
+
+        $extension = $image->getExtension();
+        $ratio = $width / $image->getWidth();
+        $height = intval($image->getHeight() * $ratio);
+        $image->load();
+        $base64 = $image->getBase64();
+
+        $svgString = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="'.$width.'"
+   height="'.$height.'"
+   viewBox="0 0 '.$width.' '.$height.'"
+   version="1.1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   >
+	<image
+       width="'.$width.'"
+       height="'.$height.'"
+       preserveAspectRatio="none"
+       xlink:href="data:image/'.$extension.';base64,'.$base64.'"
+       x="0"
+       y="0"
+	   />
+</svg>';
+
+        return $svgString;
+    }
+
 }
 
 /**
