@@ -61,13 +61,13 @@ class Phone extends \Validator\Validator
         //não valida telefones vazios okay?
         if (mb_strlen($this->value . '') == 0)
         {
-            return;
+            return null;
         }
 
         //caso for um número internacional a gente nem mexe com ele
-        if (substr($this->value, 0, 1) == '+')
+        if (str_starts_with($this->value, '+'))
         {
-            return;
+            return null;
         }
 
         if (!$this->validaCaracteres($value))
@@ -92,7 +92,7 @@ class Phone extends \Validator\Validator
         }
         else
         {
-            if (substr($this->value, 0, 1) == '0')
+            if (str_starts_with($this->value, '0'))
             {
                 return $error;
             }
@@ -141,8 +141,15 @@ class Phone extends \Validator\Validator
     public static function fixNumber($number, $defaultPrefix = 51, $format = false)
     {
         $number = $number . '';
+
+        //tira o +55 da frente caso aconteça
+        if (str_starts_with($number, '+55'))
+        {
+            $number = substr($number, 3, strlen($number));
+        }
+
         //caso for um número internacional a gente nem mexe com ele
-        if (substr($number, 0, 1) == '+')
+        if (str_starts_with($number, '+'))
         {
             return $number;
         }
@@ -161,7 +168,7 @@ class Phone extends \Validator\Validator
             return '';
         }
 
-        if (substr($number800, 0, 1) == '0')
+        if (str_starts_with($number800, '0'))
         {
             if ($format && strlen($number800) == 11)
             {
