@@ -118,7 +118,7 @@ class Conn
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
-        \Db\SqlLog::add($lastSql, $ok, $diffTime, $this->id, $logId);
+        \Db\SqlLog::add($lastSql, $ok, $diffTime, $this->id, $logId?: ' ');
 
         return $ok;
     }
@@ -208,34 +208,9 @@ class Conn
     {
         $timer = new \Misc\Timer();
         $lastSql = \Db\SqlLog::interpolateQuery($sql, $args);
-
-        /*//adiciona suporte "manual" a campos de final de select
-        if (isset($args['orderBy']))
-        {
-            $sql = str_replace(':orderBy', $args['orderBy'], $sql);
-            unset($args['orderBy']);
-        }
-
-        if (isset($args['orderWay']))
-        {
-            $sql = str_replace(':orderWay', $args['orderWay'], $sql);
-            unset($args['orderWay']);
-        }
-
-        if (isset($args['limit']))
-        {
-            $sql = str_replace(':limit', $args['limit'], $sql);
-            unset($args['limit']);
-        }
-
-        if (isset($args['offset']))
-        {
-            $sql = str_replace(':offset', $args['offset'], $sql);
-            unset($args['offset']);
-        }*/
-
         $ret = $this->pdo->prepare($sql);
         $this->makeArgs($args, $ret);
+
         $ret->execute();
 
         if ($class === 'array')
@@ -263,6 +238,8 @@ class Conn
         unset($ret);
 
         $diffTime = $timer->stop()->diff();
+        //$end = microtime(true);
+        //$diffTime = ($end - $start);
         \Db\SqlLog::add($lastSql, count($result), $diffTime, $this->id, $logId);
 
         return $result;

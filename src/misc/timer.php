@@ -32,7 +32,7 @@ class Timer
      */
     public function __construct($initialValue = NULL)
     {
-        $this->start = $initialValue ?: microtime(TRUE);
+        $this->start = $initialValue ?: hrtime(true);
     }
 
     /**
@@ -40,7 +40,7 @@ class Timer
      */
     public function reset()
     {
-        $this->start = microtime(TRUE);
+        $this->start = hrtime(true);
 
         return $this;
     }
@@ -50,7 +50,7 @@ class Timer
      */
     public function stop()
     {
-        $this->end = microtime(TRUE);
+        $this->end = hrtime(true);
         return $this;
     }
 
@@ -62,7 +62,7 @@ class Timer
     public function diff()
     {
         $this->stop();
-        return $this->end - $this->start;
+        return ($this->end - $this->start) / 1e9;
     }
 
     /**
@@ -107,10 +107,15 @@ class Timer
     {
         if (!self::$global)
         {
-            self::activeGlobalTimerRequest();
+            self::activeGlobalTimer();
         }
 
         return self::$global;
+    }
+
+    public static function isGlobalTimerActive()
+    {
+        return (bool) self::$global;
     }
 
     /**
@@ -120,17 +125,6 @@ class Timer
     public static function activeGlobalTimer()
     {
         self::$global = new \Misc\Timer();
-        return self::$global;
-    }
-
-    /**
-     * Active the global timer with the time php script started
-     * @return \Misc\Timer
-     */
-    public static function activeGlobalTimerRequest()
-    {
-        $request = \DataHandle\Server::getInstance()->getVar('REQUEST_TIME_FLOAT');
-        self::$global = new \Misc\Timer($request);
         return self::$global;
     }
 

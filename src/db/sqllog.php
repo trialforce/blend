@@ -44,13 +44,13 @@ class SqlLog
         }
 
         //format time
-        $time = str_pad($time, 20, '0', STR_PAD_RIGHT);
+        $timeFormated = str_pad($time, 20, '0', STR_PAD_RIGHT);
 
         $log = new \stdClass();
         $log->create = \Type\DateTime::now()->toDb();
         $log->sql = $sql;
         $log->result = $result;
-        $log->time = $time;
+        $log->time = $timeFormated;
         $log->idConn = $idConn;
         $log->logId = $logId;
 

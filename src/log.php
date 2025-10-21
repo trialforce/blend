@@ -16,6 +16,20 @@ function blend_shutdown()
     $error = error_get_last();
     $friendlyType = isset($error['type']) ? FriendlyErrorType($error['type']) : 'E_UNKNOWN';
 
+    if (\Log::getLogSql() > 0 || \Db\SqlLog::getTotalSqlTime() > 0 )
+    {
+        $sqlTime = \Db\SqlLog::getTotalSqlTime();
+        \Log::sql('TOTAL SQL TIME: ' . $sqlTime . ' seg');
+
+        if (\Misc\Timer::isGlobalTimerActive())
+        {
+            $totalTime = \Misc\Timer::getGlobalTimer()->stop()->diff();
+            $phpTime = $totalTime - $sqlTime;
+            \Log::sql('TOTAL PHP TIME: '. $phpTime .' sec');
+            \Log::sql('TOTAL FULL TIME: '.$totalTime. ' sec');
+        }
+    }
+
     if (isset($error) && is_array($error))
     {
         //avoid send buggy error on some instalations
@@ -74,11 +88,6 @@ function blend_shutdown()
 
             echo '<html><head><title>Error</title></head><body>Ops! Algo inesperado aconteceu, mas não se preocupe já avisamos a equipe!' . $msg . '</body></html>';
         }
-    }
-
-    if (\Log::getLogSql() > 0)
-    {
-        \Log::sql('TOTAL SQL TIME ' . \Db\SqlLog::getTotalSqlTime() . ' seg');
     }
 }
 
@@ -498,6 +507,19 @@ class Log
     }
 
     /**
+     * Only debug if global timer if activated
+     * @param $msg
+     * @return void
+     */
+    public static function debugIfTimer($msg = null)
+    {
+        if (\Misc\Timer::isGlobalTimerActive())
+        {
+            \Log::debug($msg. ' = '.\Misc\Timer::getGlobalTimer()->stop()->diff());
+        }
+    }
+
+    /**
      * Register backtrace on log::debug
      */
     public static function debugBackTrace()
@@ -592,7 +614,7 @@ class Log
         }
         else
         {
-            $message = $msg;
+            $message = trim($msg). PHP_EOL;
         }
 
         $userFolder = Session::get('user') ? Session::get('user') .'/'  : '';
