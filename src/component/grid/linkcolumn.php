@@ -91,17 +91,14 @@ class LinkColumn extends \Component\Grid\Column
         $originalValue = parent::getValue($item, $line, $tr, $td);
 
         $value[] = strip_tags($originalValue.'');
-
+        
         if (strlen($this->getIcon().'') > 0)
         {
             $value[] = new \View\Ext\Icon($this->getIcon());
         }
         else
         {
-            if (count($value) == 0)
-            {
-                $value[] = $this->getLabel();
-            }
+            $value[] = $this->getLabel();
         }
 
         $url = $this->replaceDataInString($this->getUrl(), $item);
