@@ -25,6 +25,12 @@ class Cep extends \Validator\Validator
     public function validate($value = NULL)
     {
         $error = parent::validate($value);
+        
+        if (is_null($this->value))
+        {
+            $this->value = '';
+        }
+        
         //remove unnecessary characters
         $this->value = str_replace(['-', '.'], '', $this->value);
 
