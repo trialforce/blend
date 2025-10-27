@@ -292,7 +292,7 @@ class Log
                 self::setExceptionMessage($exception, 'Registro duplicado!');
             }
         }
-        else if ($exception->errorInfo[1] == 1451)
+        else if (isset($exception->errorInfo[1]) && $exception->errorInfo[1] == 1451)
         {
             $explode = explode('`', $message);
 
