@@ -274,10 +274,11 @@ class Log
         else if (stripos($message, ': 1062'))
         {
             //var_dump($message, $explode);
-            $idxName = $explode[3];
 
             if (isset($explode[3]) && $explode[3])
             {
+                $idxName = $explode[3];
+                
                 $message = \Log::getIndexData()->getIndex($idxName);
 
                 if ($message)
@@ -288,7 +289,28 @@ class Log
             }
             else
             {
-                self::setExceptionMessage($exception, 'Registro duplicado! ' . $idxName);
+                self::setExceptionMessage($exception, 'Registro duplicado!');
+            }
+        }
+        else if ($exception->errorInfo[1] == 1451)
+        {
+            $explode = explode('`', $message);
+
+            if (isset($explode[5]) && $explode[5])
+            {
+                $idxName = $explode[5];
+                
+                $message = \Log::getIndexData()->getIndex($idxName);
+
+                if ($message)
+                {
+                    self::setExceptionMessage($exception, $message);
+                    return false;
+                }
+            }
+            else
+            {
+                self::setExceptionMessage($exception, 'Registro vinculado!');
             }
         }
 
