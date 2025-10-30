@@ -30,9 +30,10 @@ class Words extends \Validator\Validator
         }
 
         $error = parent::validate($this->value);
-        $words = explode(' ', $this->value);
 
-        if (count($words) < $this->wordCount)
+        preg_match_all('/\p{L}+/u', $this->value, $matches);
+
+        if (count($matches[0]) < $this->wordCount)
         {
             $error[] = 'É necessário preencher ao menos ' . $this->wordCount . ' palavras.';
         }
