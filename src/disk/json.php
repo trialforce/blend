@@ -17,9 +17,9 @@ class Json
      *
      * @throws \Exception
      */
-    public static function encode($value, $options = 0)
+    public static function encode($value, $options = 0, $depth = 512)
     {
-        $result = json_encode($value, $options);
+        $result = json_encode($value, $options,$depth);
 
         if ($result)
         {
@@ -128,13 +128,13 @@ class Json
      * Convert any object of any class to a stdClass using a combination
      * of encode and decode
      *
-     * @param object $object the passed object
+     * @param mixed $object the passed object
      * @return mixed|null the passed object as stdClass
      * @throws \Exception
      */
     public static function decodeToStdClass($object)
     {
-        return \Disk\Json::decode(\Disk\Json::encode($object));
+        return \Disk\Json::decode(\Disk\Json::encode($object,null,1024));
     }
 
     /**
