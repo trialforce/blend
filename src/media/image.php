@@ -119,7 +119,12 @@ class Image extends \Disk\File
         else if ($extension == Image::EXT_PNG)
         {
             $this->content = imagecreatefrompng($this->path);
-            imagesavealpha($this->content, true);
+
+            //avoid some warning
+            if ($this->content instanceof \GdImage)
+            {
+                imagesavealpha($this->content, true);
+            }
         }
         else if ($extension == Image::EXT_JPEG || $extension == Image::EXT_JPG)
         {
