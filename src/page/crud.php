@@ -566,16 +566,13 @@ class Crud extends \Page\Page
             toast($exc->getMessage(), 'danger');
             return false;
         }
+        catch (\PDOException $exc)
+        {
+            toast('Problemas ao remover o registro! <br>Verifique se não existe algum registro que depende deste cadastro!', 'danger');
+        }
         catch (\Exception $exc)
         {
-            if ($exc instanceof \PDOException)
-            {
-                toast('Problemas ao remover o registro! <br>Verifique se não existe algum registro que depende deste cadastro!', 'danger');
-            }
-            else
-            {
-                throw $exc;
-            }
+            throw $exc;
         }
 
         return true;
@@ -693,7 +690,21 @@ class Crud extends \Page\Page
         $input = $fieldLayout->getInputField($column);
         $input->setValue($model->getValue($columnName));
         $pageUrl = $this->getPageUrl();
-        $input->blur("p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');");
+
+        if ($input instanceof \View\View)
+        {
+            $input->blur("p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');");
+        }
+        else if ($input instanceof \Component\Combo)
+        {
+            $input->onCreate();
+            $inner = $input->getInputValue();
+            $inner->change("p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');");
+        }
+        else
+        {
+            throw new \UserException('Impossível tornar campo editável!');
+        }
 
         $elementId = 'gridColumn-' . $columnName . '-' . trim($pkValue);
         $this->byId($elementId)->html($input);

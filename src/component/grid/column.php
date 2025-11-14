@@ -150,7 +150,7 @@ class Column
     /**
      * Grid
      *
-     * @var \Component\Grid\Simple
+     * @var \Component\Grid\Grid
      */
     protected $grid;
 
@@ -319,7 +319,7 @@ class Column
     /**
      * Get indentificator
      *
-     * @return string
+     * @return bool
      */
     public function getIdentificator()
     {
@@ -483,10 +483,10 @@ class Column
     /**
      * Define the column type formatter
      *
-     * @param \Type\Generic $formatter
+     * @param ?\Type\Generic $formatter
      * @return $this
      */
-    public function setFormatter(\Type\Generic $formatter = null)
+    public function setFormatter(?\Type\Generic $formatter)
     {
         $this->formatter = $formatter;
         return $this;
@@ -548,10 +548,10 @@ class Column
 
     /**
      * Define the Db column
-     * @param \Db\Column\Column $dbColumn
+     * @param ?\Db\Column\Column $dbColumn
      * @return $this
      */
-    public function setDbColumn(\Db\Column\Column $dbColumn = null)
+    public function setDbColumn(?\Db\Column\Column $dbColumn = null)
     {
         $this->dbColumn = $dbColumn;
         return $this;
@@ -563,10 +563,11 @@ class Column
      * @param object $item
      *
      * @return mixed
+     * @throws \Exception
      */
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
-        $value = \DataSource\Grab::getUserValue($this, $item, $line);
+        $value = \DataSource\Grab::getUserValue($this, $item);
         $this->makeEditable($item, $line, $tr, $td);
 
         if ($this->getFixedHeight())
@@ -645,9 +646,9 @@ class Column
 
         $orderSql = [];
 
-        foreach ($orders as $order)
+        foreach ($orders as $orderInner)
         {
-            $orderSql[] = $order->orderBy . ' ' . $order->orderWay;
+            $orderSql[] = $orderInner->orderBy . ' ' . $orderInner->orderWay;
         }
 
         $orderTxt = implode(', ', $orderSql);
@@ -681,6 +682,7 @@ class Column
 
         //make pk more simple
         $string = str_replace(':?', $idValue . '', $string . '');
+        $itemArray = [];
 
         if (is_object($item))
         {

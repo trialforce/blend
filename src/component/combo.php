@@ -47,6 +47,16 @@ abstract class Combo extends \Component\Component
         $this->createHeader = $createHeader;
     }
 
+    public function getInputLabel()
+    {
+        return $this->labelValue;
+    }
+
+    public function getInputValue()
+    {
+        return $this->inputValue;
+    }
+
     /**
      * @return array|Div|\View\View|null
      * @throws \Exception
