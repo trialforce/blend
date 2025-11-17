@@ -251,7 +251,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Obtém a hora
      *
-     * @return hora
+     * @return int
      */
     public function getHour()
     {
@@ -262,6 +262,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Soma horas na data
      *
      * @param $hour
+     * @return DateTime
      */
     public function addHour($hour)
     {
