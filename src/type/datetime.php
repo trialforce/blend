@@ -1030,7 +1030,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Retorna o mês port extenso
      *
-     * @param int $mes
+     * @param int|string $mes
      * @return string
      */
     public static function getMonthExt($mes)
