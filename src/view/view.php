@@ -42,7 +42,7 @@ class View extends DomElement implements \Countable
      */
     public function __construct($tagName, $id = NULL, $innerHtml = NULL, $class = NULL, $father = NULL)
     {
-        parent::__construct($tagName ? $tagName : 'div');
+        parent::__construct($tagName ?: 'div');
 
         $owner = $father ? $father : self::getDom();
 

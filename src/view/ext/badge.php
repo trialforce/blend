@@ -16,6 +16,7 @@ class Badge extends \View\Span
      * @param string $id the attr id from html
      * @param mixed $innerHtml content of the badge
      * @param string $class extras css class, can be color or size
+     * @throws \Exception
      */
     public function __construct($id = \NULL, $innerHtml = \NULL, $class = \NULL)
     {
@@ -28,6 +29,7 @@ class Badge extends \View\Span
      * @param \Db\ConstantValues $cValues the constant values
      * @param string $value the selected value
      * @return \View\Ext\Badge the created badge
+     * @throws \Exception
      */
     public static function createFromConstantValues(\Db\ConstantValues $cValues, $value)
     {
