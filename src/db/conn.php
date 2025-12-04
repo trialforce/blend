@@ -177,7 +177,7 @@ class Conn
                     $arg = $arg + 1;
                 }
 
-                if (!is_bool($value ) && (is_null($value) || strlen($value) == 0)) //empty
+                if (!is_bool($value ) && (is_null($value) || (is_string($value) && strlen($value) == 0)) ) //empty
                 {
                     $ret->bindValue($arg, NULL, \PDO::PARAM_NULL);
                 }
