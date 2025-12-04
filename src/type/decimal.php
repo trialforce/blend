@@ -35,6 +35,9 @@ class Decimal implements \Type\Generic, \JsonSerializable
 
     public function __construct($value = NULL, $decimals = 2)
     {
+        //avoid hack attempts
+        $value = is_array($value) ? null : $value;
+
         if ($value instanceof \Type\Generic)
         {
             $value = $value->toDb();
@@ -194,7 +197,7 @@ class Decimal implements \Type\Generic, \JsonSerializable
 
     public static function get($value = null)
     {
-        return new \Type\Decimal($value . '');
+        return new \Type\Decimal($value );
     }
 
     public static function value($value)

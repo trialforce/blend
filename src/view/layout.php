@@ -85,10 +85,17 @@ class Layout extends \View\Document
      * Return the current event
      *
      * @return string
+     * @throws \UserException
      */
     public function getEvent()
     {
         $event = Request::get('e');
+
+        //evita tentativa hacker
+        if (is_array($event))
+        {
+            throw new \UserException('Acesso inválido!');
+        }
 
         if (!$event)
         {

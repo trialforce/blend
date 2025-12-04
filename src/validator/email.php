@@ -12,6 +12,13 @@ class Email extends \Validator\Validator
     {
         $error = parent::validate($value);
 
+        //avoid hacker attempt
+        if (!is_string($this->value))
+        {
+            $error[] = 'E-mail inválido.';
+            return $error;
+        }
+
         if (mb_strlen($this->value.'') > 0 && !$this->validaEmail())
         {
             $error[] = 'E-mail inválido.';
