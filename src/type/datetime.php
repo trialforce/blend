@@ -84,7 +84,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Soma dias na data
      *
      * @param $day
-     * @return Date para funcionar em uma linha
+     * @return \Type\DateTime para funcionar em uma linha
      */
     public function addDay($day)
     {
@@ -99,7 +99,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      *
      * @param $month
      *
-     * @return \Date;
+     * @return \Type\DateTime;
      */
     public function setMonth($month)
     {
