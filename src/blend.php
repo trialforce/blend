@@ -217,18 +217,3 @@ if (!function_exists('getallheaders'))
     }
 }
 
-/**
- * Exception to user, do not log in file
- */
-class UserException extends Exception
-{
-
-}
-
-/**
- * Exception to register on response code, usefull on API's
- */
-class ResponseCodeException extends \Exception
-{
-
-}

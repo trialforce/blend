@@ -91,7 +91,7 @@ class Json
 
         if (!class_exists($class))
         {
-            throw new \Exception('JSON DECODE ERROR: Class '.$class. 'does not exits!');
+            return $result;
         }
 
         $reflection = new \ReflectionClass($class);
