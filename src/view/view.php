@@ -144,7 +144,7 @@ class View extends DomElement implements \Countable
      */
     public function setName($name)
     {
-        parent::setAttribute('name', $name);
+        parent::setAttribute('name', $name . '');
 
         return $this;
     }
