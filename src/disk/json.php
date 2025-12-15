@@ -9,7 +9,7 @@ class Json
 {
 
     /**
-     * Encode a array/object to json string
+     * Encode an array/object to json string
      *
      * @param mixed $value
      * @param int $options
@@ -27,6 +27,20 @@ class Json
         }
 
         throw new \Exception(json_last_error_msg());
+    }
+
+    /**
+     * Encode an array/object to a json string (but formatted)
+     * @param $value
+     * @param $options
+     * @param $depth
+     * @return string
+     * @throws \Exception
+     */
+    public static function encodeFormatted($value, $options, $depth = 512)
+    {
+        $options |= JSON_PRETTY_PRINT;
+        return self::encode($value, $options, $depth);
     }
 
     /**
