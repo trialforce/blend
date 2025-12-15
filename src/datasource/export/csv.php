@@ -30,12 +30,16 @@ class Csv
         $dataSource = self::filterColumns($dataSource, $reportColumns);
         $columns = $dataSource->getColumns();
         $exportColumns = array();
+        $labels = [];
 
         //list only exportation columns
-        foreach ($columns as $column)
+        if (isIterable($columns))
         {
-            $exportColumns[$column->getName()] = $column;
-            $labels[$column->getName()] = '"' . strip_tags($column->getLabel()) . '"';
+            foreach ($columns as $column)
+            {
+                $exportColumns[$column->getName()] = $column;
+                $labels[$column->getName()] = '"' . strip_tags($column->getLabel()) . '"';
+            }
         }
 
         $data = $dataSource->getData();
@@ -100,7 +104,7 @@ class Csv
                 }
             }
         }
-        else //only limit to exported columns
+        elseif ($columns) //only limit to exported columns
         {
             foreach ($columns as $column)
             {
