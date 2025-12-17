@@ -37,7 +37,7 @@ class Json
      * @return string
      * @throws \Exception
      */
-    public static function encodeFormatted($value, $options, $depth = 512)
+    public static function encodeFormatted($value, $options = 0 , $depth = 512)
     {
         $options |= JSON_PRETTY_PRINT;
         return self::encode($value, $options, $depth);
