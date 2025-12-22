@@ -93,7 +93,7 @@ class Json
     /**
      * Decode a JSON string direct to a PHP Class
      *
-     * @param string $json  json string
+     * @param mixed $json  json string
      * @param string $class php class
      * @param $onlyDefined TRUE only properties defined in objet OR FALSE all properties
      * @return object
@@ -101,17 +101,18 @@ class Json
      */
     public static function decodeToClass($json, $class, $onlyDefined = false)
     {
-        $result = self::decode($json);
+        //add suport for json in string or object
+        $original = is_string($json) ? self::decode($json) : $json;
 
         if (!class_exists($class))
         {
-            return $result;
+            return $original;
         }
 
         $reflection = new \ReflectionClass($class);
-        $instance = $reflection->newInstanceWithoutConstructor();
+        $instance = $reflection->newInstance();
 
-        foreach ($result as $property => $value)
+        foreach ($original as $property => $value)
         {
             try
             {
@@ -121,7 +122,21 @@ class Json
                 if ($instanceProperty)
                 {
                     $instanceProperty->setAccessible(true);
-                    $instanceProperty->setValue($instance, $value);
+                    $currentValue = $instanceProperty->getValue($instance);
+
+                    if (is_object($currentValue) && !$currentValue instanceof \stdClass)
+                    {
+                        $objValue = \Disk\Json::decodeToClass($value, $currentValue::class, $onlyDefined);
+                        $instance->{$property} = $objValue;
+                    }
+                    else
+                    {
+                        $instanceProperty->setValue($instance, $value);
+                    }
+                }
+                else
+                {
+                    $instance->{$property} = $value;
                 }
             }
             catch (\Throwable $exception)
