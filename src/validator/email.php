@@ -11,9 +11,10 @@ class Email extends \Validator\Validator
     public function validate($value = NULL)
     {
         $error = parent::validate($value);
+        $typeOkay = is_string($value) || is_null($value);
 
         //avoid hacker attempt
-        if (!is_string($this->value))
+        if (!$typeOkay)
         {
             $error[] = 'E-mail inválido.';
             return $error;
