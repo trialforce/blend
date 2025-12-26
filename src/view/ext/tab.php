@@ -25,7 +25,8 @@ class Tab extends \View\View
      *
      * @param string $id
      * @param string $class
-     * @param DOMElement $father
+     * @param \DOMElement $father
+     * @throws \Exception
      */
     public function __construct($id, $class = NULL, $father = NULL)
     {
@@ -34,6 +35,16 @@ class Tab extends \View\View
 
         $this->head = new Div($id . 'Head', NULL, 'tabHead clearfix', $this);
         $this->body = new Div($id . 'Body', NULL, 'tabBody clearfix', $this);
+
+        if ($this->getSelectedTab())
+        {
+            $this->select($this->getSelectedTab());
+        }
+    }
+
+    public function getSelectedTab()
+    {
+        return \DataHandle\Request::get('selectedTab');
     }
 
     /**
@@ -42,6 +53,7 @@ class Tab extends \View\View
      * @param string $id id
      * @param string $label Label
      * @param mixed $innerHtml content
+     * @throws \Exception
      */
     public function add($id, $label, $innerHtml = NULL, $makeSelect = true, $icon = null)
     {
@@ -69,7 +81,7 @@ class Tab extends \View\View
         $this->body->append($bodyItem);
 
         //auto select first tab
-        if (!$this->getOutputJs() && $this->tabCount == 0 && $makeSelect)
+        if (!$this->getOutputJs() && $this->tabCount == 0 && $makeSelect && !$this->getSelectedTab())
         {
             $this->select($id);
         }
