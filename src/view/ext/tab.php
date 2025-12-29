@@ -51,7 +51,7 @@ class Tab extends \View\View
      * Add and tab item to tab
      *
      * @param string $id id
-     * @param string $label Label
+     * @param string|array $label Label
      * @param mixed $innerHtml content
      * @throws \Exception
      */
