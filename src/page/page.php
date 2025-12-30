@@ -757,13 +757,7 @@ class Page extends \View\Layout
 
     public function updateGrid($id)
     {
-        //add support for old \Grid and new \Component\Grid
-        $gridClass = '\Grid\\' . str_replace('-', '\\', $id);
-
-        if (!class_exists($gridClass))
-        {
-            $gridClass = '\Component\Grid\\' . str_replace('-', '\\', $id);
-        }
+        $gridClass = '\Component\Grid\\' . str_replace('-', '\\', $id);
 
         //FIXME this started to be a mess
         if (!class_exists($gridClass))
@@ -782,8 +776,8 @@ class Page extends \View\Layout
 
         if (\DataHandle\Server::getInstance()->isAjax())
         {
-            //\App::addJs($gridClass)
-            $gridId = substr($gridClass, 1);
+            //tira a primeira barra
+            $gridId = ltrim($id, '\\');
             $gridId = str_replace('\\', '\\\\', $gridId);
             \App::setResponse($gridId, 'html');
         }
