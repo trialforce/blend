@@ -210,8 +210,8 @@ class Log
         {
             return false;
         }
-        //don't make any log if it is an UserException
-        else if ($exception instanceof \UserException || $exception instanceof \ResponseCodeException)
+        //don't make any log if it is an UserException or similar
+        else if ($exception instanceof \BlendException && !$exception->getDefaultLog() )
         {
             return false;
         }
@@ -229,13 +229,23 @@ class Log
 
         if ($logErrorFunction)
         {
+            $data = '';
+
+            //if is a blend exception can have extra info
+            if ($exception instanceof \BlendException)
+            {
+                $data = $exception->getData();
+                $data = is_string($data) ? $data : \Disk\Json::encodeFormatted($data);
+            }
+
             $data = new \stdClass();
-            $data->type = 'EXCEPTION';
+            $data->type = strtoupper($exception::class);
             $data->message = $exception->getMessage();
             $data->line = $exception->getLine();
             $data->file = $exception->getFile();
             $data->code = $exception->getCode();
             $data->backtrace = $exception->getTraceAsString();
+            $data->data = $data;
 
             $logErrorFunction($data);
         }
@@ -485,8 +495,9 @@ class Log
             $data->message = $message;
             $data->line = $line;
             $data->file = $file;
-            $data->code = '';
             $data->backtrace = print_r($backtrace, 1);
+            $data->code = '';
+            $data->data = '';
 
             $logErrorFunction($data);
         }
