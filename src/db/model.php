@@ -992,7 +992,7 @@ class Model implements \JsonSerializable
      *
      * @param string $property
      *
-     * @return string
+     * @return ?mixed
      * @throws \Exception
      */
     public function getValue($property)
