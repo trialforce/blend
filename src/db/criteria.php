@@ -202,7 +202,7 @@ class Criteria implements \Db\Filter
      * @param string $value the filter value
      * @return \Db\Criteria
      */
-    public function or($columnName, $param, $value)
+    public function or($columnName, $param, $value = NULL)
     {
         return $this->where($columnName, $param, $value, 'OR');
     }
