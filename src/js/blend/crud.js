@@ -10,7 +10,7 @@ function preparaVer()
     //esconde botão de salvar
     $('#btnSalvar').hide().data('hide-by-see');
 
-    $('.fa-trash-o,.fa-trash,.fa-edit').each(
+    $('.fa-trash-o,.fa-trash,.fa-edit,.lucide-trash').each(
             function ()
             {
                 var parent = $(this).parent();

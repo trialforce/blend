@@ -895,7 +895,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         $this->byId('tab-column')->html($this->getGrid()->createColumns());
         $this->byId('tab-columnLabel')->attr('onclick', "return selectTab('tab-column');");
-        \App::addJs("return selectTab('tab-column');");
+        \App::addJs("selectTab('tab-column')");
     }
 
     public function gridGroupGroupment()
@@ -903,7 +903,7 @@ class Page extends \View\Layout
         \App::dontChangeUrl();
         $this->byId('tab-group')->html($this->getGrid()->createGroupment());
         $this->byId('tab-groupLabel')->attr('onclick', "return selectTab('tab-group');");
-        \App::addJs("return selectTab('tab-group');");
+        \App::addJs("selectTab('tab-group')");
     }
 
 }
