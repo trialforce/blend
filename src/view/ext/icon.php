@@ -31,7 +31,7 @@ class Icon extends \View\I
             $icon = 'fa fa-' . $icon;
         }
 
-        parent::__construct($id, null, $iconAwesome ? $icon : null);
+        parent::__construct($id, null, $iconLib == $iconAwesome? $icon : null);
         $this->addClass($extraClass);
         $this->setTitle($title);
         
