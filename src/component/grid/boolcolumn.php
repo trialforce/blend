@@ -15,12 +15,12 @@ class BoolColumn extends \Component\Grid\EditColumn
 
         if (!$value)
         {
-            $value = new \View\I(NULL, '', 'fa fa-square-o');
+            $value = new \View\Ext\Icon('fa fa-square-o');
             $value->setTitle('Não');
         }
         else
         {
-            $value = new \View\I(NULL, '', 'fa fa-check-square-o');
+            $value = new \View\Ext\Icon('fa fa-check-square-o');
             $value->setTitle('Sim');
         }
 

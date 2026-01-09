@@ -299,7 +299,7 @@ class Paginator extends \View\Div
         $urlExtra['page'] = 0;
         $url = $this->grid->getLink('listar', '', $urlExtra);
 
-        $firts = new \View\A('first', '<i class="fa fa-angle-double-left">&nbsp;</i>', $url, 'btn clean first no-print-screen');
+        $firts = new \View\A('first', '<i class="fa fa-angle-double-left" data-lucide="chevrons-left">&nbsp;</i>', $url, 'btn clean first no-print-screen');
 
         return $firts;
     }
@@ -311,7 +311,7 @@ class Paginator extends \View\Div
         $urlExtra['page'] = $this->getPrevPage();
         $url = $this->grid->getLink('listar', '', $urlExtra);
 
-        return new \View\A('prev', '<i class="fa fa-angle-left">&nbsp;</i>', $url, 'btn clean prev no-print-screen');
+        return new \View\A('prev', '<i class="fa fa-angle-left" data-lucide="chevron-left">&nbsp;</i>', $url, 'btn clean prev no-print-screen');
     }
 
     protected function getBtnCurrent()
@@ -339,7 +339,7 @@ class Paginator extends \View\Div
 
         $url = $this->grid->getLink('listar', '', $urlExtra);
 
-        return new \View\A('next', '<i class="fa fa-angle-right">&nbsp;</i>', $url, 'btn clean next no-print-screen');
+        return new \View\A('next', '<i class="fa fa-angle-right" data-lucide="chevron-right">&nbsp;</i>', $url, 'btn clean next no-print-screen');
     }
 
     protected function getBtnLast()
@@ -350,7 +350,7 @@ class Paginator extends \View\Div
 
         $url = $this->grid->getLink('listar', '', $urlExtra);
 
-        return new \View\A('last', '<i class="fa fa-angle-double-right">&nbsp;</i>', $url, 'btn clean last no-print-screen');
+        return new \View\A('last', '<i class="fa fa-angle-double-right" data-lucide="chevrons-right">&nbsp;</i>', $url, 'btn clean last no-print-screen');
     }
 
     public function onCreate()

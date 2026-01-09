@@ -54,6 +54,8 @@ class Icon extends \View\I
         
         $icon = str_replace('layer-group', 'layers', $icon);
         $icon = str_replace('undo', 'undo-2', $icon);
+        $icon = str_replace('fa fa-square-o', 'square', $icon);
+        $icon = str_replace('fa fa-check-square-o', 'square-check-big', $icon);
         $icon = str_replace('times remove', 'x', $icon);
         $icon = str_replace('times', 'x', $icon);
         $icon = str_replace('cancel', 'x', $icon);
