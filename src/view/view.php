@@ -1141,7 +1141,10 @@ class View extends DomElement implements \Countable
         }
         else
         {
-            \App::addJs($this->getSelector() . ".click()");
+            if ($this->getSelector())
+            {
+                \App::addJs($this->getSelector() . ".click()");
+            }
         }
 
         return $this;
