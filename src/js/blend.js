@@ -234,7 +234,7 @@ window.onload = function ()
 
         if(e.key=='Escape'||e.key=='Esc'||e.keyCode==27)
         {
-            if (escape())
+            if (blendEscape())
             {
                 e.preventDefault();
                 return false;
@@ -248,7 +248,7 @@ window.onload = function ()
  * @todo convert to plugin method
  * @returns {boolean}
  */
-function escape()
+function blendEscape()
 {
     //main menu
     if ( b('body').hasClass('menu-open') )
