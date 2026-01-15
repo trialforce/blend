@@ -5,9 +5,9 @@
  */
 class UserException extends BlendException
 {
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, mixed $data = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $previous, $data);
         $this->setDefaultLog(false);
     }
 }

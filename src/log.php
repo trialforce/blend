@@ -229,23 +229,26 @@ class Log
 
         if ($logErrorFunction)
         {
-            $data = '';
+            $extraInfo = '';
 
             //if is a blend exception can have extra info
             if ($exception instanceof \BlendException)
             {
-                $data = $exception->getData();
-                $data = is_string($data) ? $data : \Disk\Json::encodeFormatted($data);
+                $extraInfo = $exception->getData();
+                $extraInfo = is_string($extraInfo) ? $extraInfo : \Disk\Json::encodeFormatted($extraInfo);
             }
 
+            //var_dump($data);
+            //die();
+
             $data = new \stdClass();
-            $data->type = strtoupper($exception::class);
+            $data->type = str_replace("BLEND",'', strtoupper($exception::class));
             $data->message = $exception->getMessage();
             $data->line = $exception->getLine();
             $data->file = $exception->getFile();
             $data->code = $exception->getCode();
             $data->backtrace = $exception->getTraceAsString();
-            $data->data = $data;
+            $data->data = $extraInfo;
 
             $logErrorFunction($data);
         }

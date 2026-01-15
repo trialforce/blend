@@ -17,6 +17,12 @@ class BlendException extends \Exception
      */
     protected mixed $data;
 
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, mixed $data = null)
+    {
+        parent::__construct($message, $code, $previous);
+        $this->setData($data);
+    }
+
     /**
      * Return if it to make the defautl log
      * @return bool
