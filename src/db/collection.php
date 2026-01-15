@@ -197,7 +197,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
         });
 
         //apply the order
-        if (strtolower($orderWay) == 'desc')
+        if (strtolower($orderWay . '') == 'desc')
         {
             $this->data = array_reverse($this->data);
         }
