@@ -18,30 +18,10 @@ class Template
     protected $params;
 
     /**
-     * Replace simple param
-     *
-     * @var string
-     */
-    protected $replaceSimpleParam = FALSE;
-
-    /**
      * DataSources
      * @var array
      */
     protected $dataSources;
-
-    /**
-     * Child Datasources
-     *
-     * @var array
-     */
-    protected $childDataSources;
-
-    /**
-     * Child conditions
-     * @var array
-     */
-    protected $childCond;
 
     /**
      * Report data
@@ -109,18 +89,6 @@ class Template
         return $this;
     }
 
-    function getReplaceSimpleParam()
-    {
-        return $this->replaceSimpleParam;
-    }
-
-    function setReplaceSimpleParam($replaceSimpleParam)
-    {
-        $this->replaceSimpleParam = $replaceSimpleParam;
-
-        return $this;
-    }
-
     /**
      * Return the list of datasources
      *
@@ -154,50 +122,6 @@ class Template
     {
         $this->dataSources[$section] = $datasource;
         return $this;
-    }
-
-    /**
-     * Add a child datasource
-     *
-     * @param \DataSource\DataSource $datasource
-     * @param string $section section name
-     * @param string $childSection child section name
-     * @param mixed $cond
-     *
-     * @return $this
-     */
-    public function addChildDataSource(\DataSource\DataSource $datasource, $section, $childSection, $cond = null)
-    {
-        //convert to array
-        if ($cond)
-        {
-            $cond = is_array($cond) ? $cond : array($cond);
-        }
-
-        $this->childDataSources[$section][$childSection] = $datasource;
-        $this->childCond[$section][$childSection] = $cond;
-
-        return $this;
-    }
-
-    /**
-     * Return all the child datasources
-     *
-     * @return array
-     */
-    public function getChildDataSources($sectionName = null)
-    {
-        if ($sectionName)
-        {
-            if (isset($this->childDataSources[$sectionName]))
-            {
-                return $this->childDataSources[$sectionName];
-            }
-
-            return null;
-        }
-
-        return $this->childDataSources;
     }
 
     public function execute()
@@ -287,37 +211,7 @@ class Template
             $sectionContent = $matches[0][0];
         }
 
-        if ($sectionContent)
-        {
-            $this->getContentForChildren($sectionContent, 'item');
-        }
-
         return $sectionContent;
-    }
-
-    /**
-     * Return the content of a children
-     *
-     * @param string $sectionContent section content
-     * @param string $childName child name
-     * @return string
-     */
-    private function getContentForChildren($sectionContent, $childName)
-    {
-        $pattern = '/<!--\*' . $childName . '-->.*<!--\*!' . $childName . '-->/uis';
-        $matches = '';
-
-        //locate the part of content of this child
-        preg_match_all($pattern, $sectionContent, $matches);
-
-        $childContent = NULL;
-
-        if (isset($matches[0]) && isset($matches[0][0]))
-        {
-            $childContent = $matches[0][0];
-        }
-
-        return $childContent;
     }
 
     protected function replaceVariable($var, $value, $content)
@@ -349,7 +243,7 @@ class Template
         //add support for position in array variable
         $myResult = $this->replaceVariable('position', $position, $myResult);
         $item->position = $position;
-        $myResult = $this->makeExpressions($item, null, $sectionContent);
+        $myResult = $this->makeExpressions($item, $sectionContent);
 
         //passes trough each column of model
         foreach ($columns as $columnName => $column)
@@ -391,82 +285,10 @@ class Template
             }
         }
 
-        if ($sectionName)
-        {
-            $myResult = $this->makeChild($item, $sectionContent, $sectionName, $myResult);
-        }
-
         return $myResult;
     }
 
-    public function makeChild($item, $sectionContent, $sectionName, $myResult)
-    {
-        $childContent = '';
-        //make the child replace
-        if ($sectionName)
-        {
-            $childsDs = $this->getChildDataSources($sectionName);
-
-            if (is_array($childsDs))
-            {
-                $childResult = '';
-
-                foreach ($childsDs as $childName => $childDs)
-                {
-                    $childContent = $this->getContentForChildren($sectionContent, $childName);
-                    //clone for each line has its' conditions
-                    $childDs = clone($childDs);
-
-                    //extra filters from child cond
-                    if (isset($this->childCond[$sectionName][$childName]))
-                    {
-                        $conds = $this->childCond[$sectionName][$childName];
-
-                        if (is_array($conds))
-                        {
-                            foreach ($conds as $cond)
-                            {
-                                //clone for each line
-                                $cond = clone($cond);
-                                $propertyToReplace = $cond->getValue();
-                                $newValue = null;
-
-                                if (isIterable($propertyToReplace))
-                                {
-                                    foreach ($propertyToReplace as $myProp)
-                                    {
-                                        $newValue[] = $this->getValue($item, $myProp);
-                                    }
-                                }
-
-                                $cond->setValue($newValue);
-                                $childDs->addExtraFilter($cond);
-                            }
-                        }
-                    }
-
-                    $columns = $childDs->getColumns();
-                    $childData = $childDs->getData();
-
-                    if (count($childData) > 0)
-                    {
-                        foreach ($childData as $position => $itemChild)
-                        {
-                            $myChildResult = $this->replaceOneItem($itemChild, $columns, $childContent, NULL, $position);
-                            $myChildResult = $this->makeExpressions($item, $itemChild, $myChildResult);
-                            $childResult .= $myChildResult;
-                        }
-                    }
-                }
-
-                $myResult = str_replace($childContent, $childResult, $myResult);
-            }
-        }
-
-        return $myResult;
-    }
-
-    public function makeExpressions($item, $itemChild, $content)
+    public function makeExpressions($item, $content)
     {
         if (!$content)
         {
@@ -475,7 +297,7 @@ class Template
         global $rGlobal;
         $matches = null;
 
-        $regexp = $itemChild ? '/\$\*{(.*)}/uUmi' : '/\${(.*)}/uUmi';
+        $regexp = '/\${(.*)}/uUmi';
         preg_match_all($regexp, $content, $matches);
 
         if (is_array($matches[0]))
@@ -506,19 +328,6 @@ class Template
                     $$prop = $value;
                     //fill father props, in case chield has same names
                     $father[$prop] = $value;
-                }
-            }
-
-            if ($itemChild instanceof \Db\Model)
-            {
-                $itemChild = $itemChild->getArray();
-            }
-
-            if (isIterable($itemChild))
-            {
-                foreach ($itemChild as $prop => $value)
-                {
-                    $$prop = $value;
                 }
             }
 
@@ -557,29 +366,61 @@ class Template
      * @param string $content
      * @return string
      */
+    public function replaceContentParamsNew($content)
+    {
+        $matches = null;
+        //{$site_url}
+        $regexp = '/(?<!\$){\$(.*)}/uUmi';
+        preg_match_all($regexp, $content, $matches);
+
+        if (is_array($matches[0]))
+        {
+            $params = $this->params;
+            //create param as public variables
+            foreach ($params as $prop => $value)
+            {
+                $$prop = $value;
+            }
+
+            foreach ($matches[0] as $idx => $item)
+            {
+                $original = $item;
+                $param = htmlspecialchars_decode(html_entity_decode($matches[1][$idx]), ENT_QUOTES);
+                $value = $this->getParam($param);
+
+                $origim[] = '%7B%24' . $param . '%7D';
+                $origim[] = '{$' . $param . '}';
+
+                $content = str_replace($origim, $value.'', $content);
+            }
+        }
+
+        return $content;
+    }
+
+    /**
+     * Replace global parametros
+     *
+     * @param string $content
+     * @return string
+     */
     public function replaceContentParams($content)
     {
         $params = $this->getParams();
+        $replaces = [];
 
         //generic params
         if (count($params) > 0)
         {
             foreach ($params as $param => $value)
             {
-                $origim = array();
-
-                if ($this->replaceSimpleParam)
-                {
-                    $origim[] = '%7B%24' . $param . '%7D';
-                    $origim[] = '{$' . $param . '}';
-                }
-
-                $origim[] = '%7B%24param%5B\'' . $param . '\'%5D%7D';
-                $origim[] = '{$param[' . "'" . $param . '\']}';
-
-                $content = str_replace($origim, $value.'', $content);
+                $replaces['%7B%24' . $param . '%7D'] = $value;
+                $replaces['{$' . $param . '}'] = $value ;
             }
         }
+
+        //$content = str_replace(array_keys($replaces), $replaces, $content);
+        $content = strtr($content, $replaces);
 
         return $content;
     }
