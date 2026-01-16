@@ -46,7 +46,7 @@ class Grab
         $grid = null;
         $dom = \View\View::getDom();
 
-        if (method_exists($dom, 'getGrid'))
+        if ($dom && method_exists($dom, 'getGrid'))
         {
             $grid = $dom->getGrid();
         }

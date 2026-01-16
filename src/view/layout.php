@@ -183,13 +183,7 @@ class Layout extends \View\Document
     public function setTitle($title)
     {
         //try to get base theme, to change title in html, not js
-        $theme = \App::getTheme();
-
-        if (!$theme)
-        {
-            $theme = $this;
-        }
-
+        $theme = \App::getTheme() ?: $this;
         $element = $theme->getElementByTagName('title');
 
         if ($element instanceof \DOMElement)
