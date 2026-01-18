@@ -260,7 +260,7 @@ class App
         return true;
     }
 
-    protected function handleResultOutput(\View\Layout $theme, $content, $page404 = false)
+    protected function handleResultOutput( $theme, $content, $page404 = false)
     {
         $defaultResponse = Config::getDefault('response', 'content');
 

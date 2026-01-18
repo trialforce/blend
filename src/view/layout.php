@@ -24,6 +24,7 @@ class Layout extends \View\Document
      *
      * @param string $layout relative to layout folder
      * @param boolean $setDom set this as default layout
+     * @throws \Exception
      */
     public function __construct($layout = NULL, $setDom = FALSE)
     {
@@ -39,10 +40,10 @@ class Layout extends \View\Document
      * Return the textual content of some layout
      *
      * @param string $layout
-     * @return mixed
+     * @return string
      * @throws \Exception
      */
-    public function getLayoutContent($layout)
+    public function getLayoutContent($layout) :string
     {
         $htmlFile = filePath($layout, 'html');
 
@@ -68,6 +69,7 @@ class Layout extends \View\Document
      * Load layout from file
      *
      * @param string $layout
+     * @throws \Exception
      */
     public function loadFromFile($layout)
     {
@@ -209,7 +211,7 @@ class Layout extends \View\Document
     {
         $element = $this->getElementByTagName('title');
 
-        if ($element instanceof DOMElement)
+        if ($element instanceof \DOMElement)
         {
             return $element->nodeValue;
         }
@@ -221,6 +223,7 @@ class Layout extends \View\Document
      *
      * @param string $content
      * @return string
+     * @throws \Exception
      */
     protected function parseIncludes($content)
     {
@@ -246,6 +249,7 @@ class Layout extends \View\Document
      * Define um arquivo html padrão para este layout
      *
      * @param string $layout caminho relativo
+     * @throws \Exception
      */
     public function setLayoutFile($layout)
     {
@@ -355,6 +359,7 @@ class Layout extends \View\Document
      *
      * @param string $src used when is a external script
      * @param string $content used when is a inline script
+     * @throws \Exception
      */
     function addScript($src = NULL, $content = NULL, $type = \View\Script::TYPE_JAVASCRIPT, $id = NULL, $async = FALSE)
     {
@@ -383,6 +388,7 @@ class Layout extends \View\Document
      * @param string $id script id
      * @param boolean $async async or not
      * @return \View\Script
+     * @throws \Exception
      */
     function addScriptEnd($src, $id = NULL, $async = TRUE)
     {
@@ -419,6 +425,7 @@ class Layout extends \View\Document
      * Return the body element
      *
      * @return \View\DomContainer
+     * @throws \UserException
      */
     public function getBody()
     {
@@ -461,6 +468,7 @@ class Layout extends \View\Document
      * Add class to navigator in body
      *
      * @return \View\Layout
+     * @throws \UserException
      */
     public function setBodyDefaultClass()
     {
@@ -485,6 +493,7 @@ class Layout extends \View\Document
      * If base not exist it is created
      *
      * @return \View\Layout
+     * @throws \Exception
      */
     public function setBaseUrl()
     {

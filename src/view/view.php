@@ -701,7 +701,8 @@ class View extends DomElement implements \Countable
     /**
      * Define o container relacionado ao elemento atual
      *
-     * @param \View\View $contain
+     * @param View $contain
+     * @return View
      */
     public function setContain(\View\View $contain)
     {
@@ -1209,10 +1210,10 @@ class View extends DomElement implements \Countable
     /**
      * Define o objeto Dom/Layot do elemento
      *
-     * @param DomDocument $dom
+     * @param mixed $dom
      *
      */
-    public static function setDom(DomDocument $dom)
+    public static function setDom($dom)
     {
         self::$dom = $dom;
     }
@@ -1574,7 +1575,8 @@ class View extends DomElement implements \Countable
         }
         else
         {
-            return $this->removeAttribute('autofocus');
+            $this->removeAttribute('autofocus');
+            return $this;
         }
     }
 
