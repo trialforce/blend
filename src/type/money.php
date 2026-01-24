@@ -33,13 +33,15 @@ class Money implements \Type\Generic, \JsonSerializable
             return '';
         }
 
+        $symbol = \DataHandle\Server::getInstance()->isShell() ? 'R$' : '<small>R$</small>';
+
         if ($this->value < 0)
         {
-            return '- <small>R$</small> ' . number_format(abs($this->value), $this->decimals, ',', '.');
+            return '- '.$symbol.' '. number_format(abs($this->value), $this->decimals, ',', '.');
         }
         else
         {
-            return '<small>R$</small> ' . number_format($this->value, $this->decimals, ',', '.');
+            return $symbol.' ' . number_format($this->value, $this->decimals, ',', '.');
         }
     }
 
