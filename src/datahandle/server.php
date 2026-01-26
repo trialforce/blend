@@ -189,7 +189,7 @@ class Server extends DataHandle
 
         $host = '';
 
-        if (strlen(Config::get('serverUrl')) > 0)
+        if (strlen(Config::getDefault('serverUrl','')) > 0)
         {
             $host = Config::get('serverUrl');
         }
