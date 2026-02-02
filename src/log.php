@@ -551,7 +551,9 @@ class Log
     {
         if (\Misc\Timer::isGlobalTimerActive())
         {
-            \Log::debug($msg. ' = '.\Misc\Timer::getGlobalTimer()->stop()->diff());
+            $diff = \Misc\Timer::getGlobalTimer()->stop()->diff();
+            $pad = str_pad($diff,12,'0',STR_PAD_RIGHT);
+            \Log::debug($pad .' = '.$msg);
         }
     }
 
