@@ -260,13 +260,14 @@ function blendEscape()
     else if ( b('.popup').isVisible() >= 0 )
     {
         //try to call the close action of the popup
-        var list= b('#btbClosePopup');
+        var list = b('#btbClosePopup');
         var index = list.isVisible();
-        var jsText= list[index].onclick;
+        var jsText = list[index].onclick;
         
-        if (jsText)
+        if (jsText && typeof jsText === 'function')
         {
-            list[index].click();
+            // Lucide creates a svg and a simulated click() doesn't work
+            list[index].onclick();
         }
         else
         {

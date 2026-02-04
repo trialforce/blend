@@ -312,7 +312,8 @@ class Model implements \JsonSerializable
      * Return the Query builder for this Model
      * @param bool $tableNameInColumns put table name in columns
      * @para bool $avoidSearchColumns avoid search columns, to optimize query
-     * @return \Db\QueryBuilder<T>
+     * @return \Db\QueryBuilder
+     * @phpstan-return \Db\QueryBuilder<T>
      */
     public static function query($tableNameInColumns = false, $avoidSearchColumns = false)
     {
