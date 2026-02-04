@@ -105,11 +105,6 @@ class Phone extends \Validator\Validator
 
             $numero = substr($this->value, 2, 9);
 
-            if (strlen($numero) == 9 && $numero[0] != 9)
-            {
-                $error[] = 'Celular deve iniciar com 9.';
-            }
-
             if (strlen($numero) < 8)
             {
                 $error[] = 'Número incompleto.';
