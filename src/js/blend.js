@@ -14,6 +14,9 @@ blend.ajax = {};
 blend.ajax.timeout = 200;
 blend.ajax.timer = null;
 blend.isBack = false;
+blend.last = {};
+blend.last.url = '';
+blend.last.scroll = 0;
 
 var b = function(selector)
 {
@@ -222,6 +225,11 @@ window.onload = function ()
     pluginsCallMethod('register');
     dataAjax();
     updateUrl(window.location.href);
+
+    if ('scrollRestoration' in history)
+    {
+        history.scrollRestoration = 'manual';
+    }
     
     //destroy popup on esc
     document.addEventListener('keydown', function(e)
@@ -344,14 +352,15 @@ function updateUrl(page)
         return false;
     }
     
-    var urlToRegister = correctUrl(page);
+    let urlToRegister = correctUrl(page);
+    blend.last.url = urlToRegister;
     
     //don't register same url twice (simplifies back)
     if (urlToRegister == window.location.href)
     {
         return false;
     }
-    
+
     window.history.pushState({url: urlToRegister}, "", urlToRegister);
     avoidUrlRegister = false;
     return true;
@@ -636,6 +645,7 @@ function r(type, page, formData, callBack)
         {
             //enable the focused element
             focused.removeAttr('disabled');
+            let currentScroll = $(window).scrollTop();
 
             if (!data)
             {
@@ -673,6 +683,16 @@ function r(type, page, formData, callBack)
             if ( typeof callBack == 'function')
             {
                 callBack();
+            }
+
+            //restore scroll
+            if (blend.isBack)
+            {
+                window.scrollTo( { top: blend.last.scroll, behavior: 'smooth'} );
+            }
+            else
+            {
+                blend.last.scroll = currentScroll;
             }
             
             blend.isBack = false;
@@ -952,6 +972,11 @@ function runScriptOnce(content,callback)
  */
 function scrollTop()
 {
+    if (blend.isBack)
+    {
+        return false;
+    }
+
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
