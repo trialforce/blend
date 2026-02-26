@@ -131,7 +131,7 @@ class Component
     private static function getCurrentUrl($params = null)
     {
         $queryString = [];
-        parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING'), $queryString);
+        parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING') ?? '', $queryString);
 
         //remove some unnecessary propertys
         unset($queryString['p']);

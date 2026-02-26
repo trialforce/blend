@@ -653,7 +653,7 @@ class Grid extends \Component\Component
 
         if ($putUrl)
         {
-            parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING'), $queryString);
+            parse_str(\DataHandle\Server::getInstance()->get('QUERY_STRING') ?? '', $queryString);
             unset($queryString['p']);
             unset($queryString['selectFilters']);
             unset($queryString['selectGroups']);
