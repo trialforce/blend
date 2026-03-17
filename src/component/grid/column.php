@@ -279,7 +279,7 @@ class Column
      */
     public function getLabel()
     {
-        return ucfirst($this->label);
+        return ucfirst($this->label ?? '');
     }
 
     /**
