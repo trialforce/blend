@@ -47,21 +47,21 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Contrutor estático usado para que possa se utilizar
      * o construtor e chamar a função necessária na mesma linha.
      *
-     * @param string $date
-     * @return Date
+     * @param string $value
+     * @return DateTime
      *
      * @example \Type\DateTime::get( $date ) = retorna a data em formato de usuário
      */
-    public static function get($date = null, $column = NULL)
+    public static function get($value = null, $column = NULL)
     {
-        return new \Type\DateTime($date);
+        return new \Type\DateTime($value);
     }
 
     /**
      * Seta o dia
      *
      * @param $day
-     * @return Date
+     * @return DateTime
      */
     public function setDay($day)
     {
@@ -73,7 +73,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Obtém o dia
      *
-     * @return dia
+     * @return int
      */
     public function getDay()
     {
@@ -111,7 +111,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Obtém o mês
      *
-     * @return mês
+     * @return int
      */
     public function getMonth()
     {
@@ -173,7 +173,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Soma anos na data
      *
-     * @param $year
+     * @param int $year
      */
     public function addYear($year = 1)
     {
@@ -276,7 +276,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Seta o minuto
      *
      * @param $minute
-     * @return Date;
+     * @return \Type\Datetime;
      */
     public function setMinute($minute)
     {
@@ -288,7 +288,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Obtém o minuto
      *
-     * @return minuto
+     * @return int
      */
     public function getMinute()
     {
@@ -326,7 +326,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Obtém o segundo
      *
-     * @return segundo
+     * @return int
      */
     public function getSecond()
     {
@@ -336,7 +336,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Soma segundos na data
      *
-     * @param $second
+     * @param int $second
      */
     public function addSecond($second)
     {
@@ -349,25 +349,25 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Define the entire date
      *
-     * @param string $date the date in any kwon format
+     * @param string $value the date in any kwon format
      */
-    public function setValue($date = null)
+    public function setValue($value = null)
     {
-        if ($date instanceof \Type\DateTime)
+        if ($value instanceof \Type\DateTime)
         {
-            $this->setDay($date->getDay());
-            $this->setMonth($date->getMonth());
-            $this->setYear($date->getYear());
-            $this->setTime($date->getHour(), $date->getMinute(), $date->getSecond());
+            $this->setDay($value->getDay());
+            $this->setMonth($value->getMonth());
+            $this->setYear($value->getYear());
+            $this->setTime($value->getHour(), $value->getMinute(), $value->getSecond());
 
             return $this;
         }
 
         $this->clean();
 
-        if (!is_null($date))
+        if (!is_null($value))
         {
-            $this->explodeDate($date);
+            $this->explodeDate($value);
         }
 
         return $this;
@@ -391,7 +391,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Função chamada automaticamente pelo PHP quando precisa converter dado para String
      *
-     * @return a data no formato do usuário
+     * @return string data no formato do usuário
      */
     public function __toString()
     {
@@ -401,8 +401,8 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Retorna a diferença entre a data do objeto e a data do objeto do parametro.
      *
-     * @param Object Date
-     * @return timestamp unix da diferença
+     * @param $date object
+     * @return int timestamp unix da diferença
      */
     public function subtractDate($date)
     {
@@ -636,7 +636,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Retorna o timestamp unix da data
      *
-     * @return long int
+     * @return int
      */
     public function getTimestampUnix()
     {
@@ -653,7 +653,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Compara dois objetos Date
      *
-     * @param (object) Date
+     * @param (object) $date
      * @param string $operation
      * @return boolean
      */
@@ -681,9 +681,9 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Método privado para arredondar valores
      *
-     * @param número
-     * @param arredondamento
-     * @return valor arredondado
+     * @param $number
+     * @param $round
+     * @return float valor arredondado
      */
     private function roundNumber($number, $round)
     {
@@ -706,7 +706,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Retorna o dia da semana de 1 a 7
      *
-     * @return integer
+     * @return int
      */
     public function getDayOfWeek()
     {
@@ -728,7 +728,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     /**
      * Set the last day of current month in date
      *
-     * @return Date;
+     * @return \Type\DateTime;
      */
     public function setLastDayOfMonth()
     {
@@ -860,6 +860,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Convert datetime to UTC (both format and value).
      *
      * @return string
+     * @throws \Throwable
      */
     public function getUtcTimezone()
     {
@@ -871,28 +872,11 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Return a PHP Date instance
      * Return a instance of PHP DateTime
      * @return \DateTime
+     * @throws \Exception
      */
     public function getPhpDatetime()
     {
         return new \DateTime($this->format(self::MASK_TIMESTAMP_DB) . '.000000 UTC');
-    }
-
-    /**
-     * Put the date in the next DAY OF WEEK
-     * Note dayname linha int this table
-     * http://www.php.net/manual/en/datetime.formats.relative.php
-     *
-     * Example :
-     * 1 - 01/11/2013 - Friday
-     * 2 - Send to next SUNDAY
-     * 3 - New date is 04/11/2013
-     *
-     * @param int $diaSemana
-     */
-    public function setNextDayOfWeek($diaSemana)
-    {
-        $this->setDate(strtotime($this->getTimestampUnix() . ' NEXT ' . $diaSemana));
-        return $this;
     }
 
     /**
@@ -955,7 +939,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
      * Validate passed date
      *
      * @param string $value
-     * @return string
+     * @return array
      */
     public function validate($value = NULL)
     {
@@ -1193,12 +1177,10 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
 
 class DiffDate
 {
-
-    public $days,
-            $months,
-            $years,
-            $hours,
-            $minutes,
-            $seconds;
-
+    public $days;
+    public $months;
+    public $years;
+    public $hours;
+    public $minutes;
+    public $seconds;
 }
