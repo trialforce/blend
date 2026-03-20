@@ -163,7 +163,7 @@ class Json
      */
     public static function decodeToStdClass($object)
     {
-        return \Disk\Json::decode(\Disk\Json::encode($object,null,1024));
+        return \Disk\Json::decode(\Disk\Json::encode($object,0,1024));
     }
 
     /**
