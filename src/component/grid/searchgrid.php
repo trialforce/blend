@@ -388,7 +388,7 @@ class SearchGrid extends \Component\Grid\Grid
      * @param type $page
      * @param type $parameters
      */
-    public function addBookmark($title, $parameters = null)
+    public function addBookmark($title, $parameters = null, $id= null)
     {
         $url = is_array($parameters) ? http_build_query($parameters) : $parameters;
 
@@ -396,6 +396,7 @@ class SearchGrid extends \Component\Grid\Grid
         $bookmark->title = $title;
         $bookmark->page = \View\View::getDom()->getPageUrl();
         $bookmark->url = $url;
+        $bookmark->id = $id;
 
         $this->bookmarks [] = $bookmark;
     }

@@ -1,55 +1,66 @@
+:root {
+    --color-primary : #009bdb;
+    --color-alert : rgb(255,130,0);
+    --color-minor-alert: #ffd400;
+    --color-danger : #f00;
+    --color-minor-danger : #f76464;
+    --color-info : #009bdb;
+    --color-success : rgb(111,191,0);
+    --color-clean: #fff;
+    --color-text-alt: #fff;
+}
 
 .primary {
-    background: #009bdb;
-    border: solid 1px #009bdb;
-    color: #fff;
+    background: var(--color-primary);
+    border: solid 1px var(--color-primary);
+    color: var(--color-text-alt);
 }
 
 .alert {
-    background: rgb(255,130,0);
-    color: #fff;
+    background: var(--color-alert);
+    color: var(--color-text-alt);
 }
 
 .minor-alert {
-    background: #ffd400;
+    background: var(--color-minor-alert);
 }
 
 .danger, .table tr.danger {
-    background-color: #f00;
-    color: #fff;
+    background-color: var(--color-danger);
+    color: var(--color-text-alt);
 }
 
 .minor-danger {
-    background-color: #f76464;
-    color: #fff;
+    background-color: var(--color-minor-danger);
+    color: var(--color-text-alt);
 }
 
 .info {
-    background-color: #009bdb;
-    color: #fff;
+    background-color: var(--color-info);
+    color: var(--color-text-alt);;
     background-image: none;
 }
 
 .clean {
     border: solid 1px #ddd;
-    background-color: #fff;
+    background-color: var(--color-clean);
     background-image: none;
     box-shadow: none;
-}
-
-.success, .table tr.success {
-    background: rgb(111,191,0);
-    color: #fff;
 }
 
 .clean:hover {
     box-shadow: 2px 2px 3px RGBA(0,0,0,0.1);
 }
 
+.success, .table tr.success {
+    background: var(--color-success);
+    color: var(--color-text-alt);
+}
+
 .primary a, .danger a, .minor-alert a, .minor-danger a, .info a, .success a {
-    color: #fff;
+    color: var(--color-text-alt);
 }
 
 .primary i, .danger i, .minor-alert i, .minor-danger i, .info i, .success i {
-    color: #fff;
+    color: var(--color-text-alt);
 }
