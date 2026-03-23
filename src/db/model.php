@@ -1164,7 +1164,15 @@ class Model implements \JsonSerializable
      */
     public function jsonSerialize():mixed
     {
-        return $this->getArray();
+        $result =  $this->getArray();
+
+        //avoid oldmodel from history
+        if (isset($result['oldModel']))
+        {
+            unset($result['oldModel']);
+        }
+
+        return $result;
     }
 
     /**
