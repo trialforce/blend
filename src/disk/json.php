@@ -234,12 +234,12 @@ class Json
             return $json;
         }
 
-        $json = nl2br($json);
         $json = str_replace(" ", '&nbsp;', $json);
+        //$json = nl2br($json);
         //Strings em verde
         $json = preg_replace('/:(.*?)"([^"]*)"/', ': <span style="color:'.$stringColor.';">"$2"</span>', $json);
         // Números inteiros e de ponto flutuante em laranja
-        $json = preg_replace('/:(.*?)([0-9]+\.[0-9]+)/', ': <span style="color:'.$numberColor.';">$2</span>', $json);
+        //$json = preg_replace('/:(.*?)([0-9]+\.[0-9]+)/', ': <span style="color:'.$numberColor.';">$2</span>', $json);
         // Chaves em azul
         $json = preg_replace('/"(.*?)":/', '<span style="color:'.$keyColor.';">"$1"</span>:', $json);
         // Booleanos e null em rosa
