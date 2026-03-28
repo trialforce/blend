@@ -11,8 +11,9 @@ class Console
     /**
      * Make a log do javascript console.
      *
-     * @param mixed $var
-     * @return Console
+     * @param mixed $vars
+     * @param string $type
+     * @return true
      */
     protected static function generateLog($vars, $type = 'log')
     {
@@ -45,25 +46,11 @@ class Console
         return TRUE;
     }
 
-    public static function dir($var)
-    {
-        $vars = func_get_args();
-
-        foreach ($vars as $var)
-        {
-            //$var = json_encode( $var );
-            //$var = "{  \"Mail\": {$var}}";
-            //$var =\View\Script::treatStringToJs( $var );
-            //\App::addJs( "console.log(JSON.parse('{$var}'));" );
-            //\App::addJs( "console.dir(JSON.parse('$var'));" );
-        }
-    }
-
     /**
      * Writes a message to the console.
      *
      * @param mixed $var
-     * @return Console
+     * @return true
      */
     public static function log($var = NULL)
     {
@@ -75,7 +62,7 @@ class Console
      * and color coding and a hyperlink to the line where it was called.
      *
      * @param mixed $var
-     * @return Console
+     * @return true
      */
     public static function info($var)
     {
@@ -86,7 +73,7 @@ class Console
      * Writes a message to the console, including a hyperlink to the line where it was called.
      *
      * @param mixed $var
-     * @return Console
+     * @return true
      */
     public static function debug($var)
     {
@@ -98,7 +85,7 @@ class Console
      * and color coding and a hyperlink to the line where it was called.
      *
      * @param mixed $var
-     * @return Console
+     * @return true
      */
     public static function warn($var)
     {
@@ -110,7 +97,7 @@ class Console
      * and color coding and a hyperlink to the line where it was called.
      *
      * @param mixed $var
-     * @return Console
+     * @return true
      *
      */
     public static function error($var)
@@ -121,7 +108,7 @@ class Console
     /**
      * Clears the console.
      *
-     * @return Console
+     * @return true
      */
     public static function clear()
     {
