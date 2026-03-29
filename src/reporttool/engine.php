@@ -59,6 +59,7 @@ class Engine extends Template
 
     public function __construct($layoutPath = NULL)
     {
+        parent::__construct();
         $this->layout = new \View\Layout(NULL, TRUE);
 
         if (!$layoutPath)
@@ -265,6 +266,7 @@ class Engine extends Template
      * Generate the report (make the replaces)
      *
      * @return string
+     * @throws \Exception
      */
     public function generate()
     {
@@ -306,7 +308,9 @@ class Engine extends Template
     /**
      * Generate the file in disk
      *
+     * @param $type
      * @return \Disk\File
+     * @throws \Throwable
      */
     public function generateFile($type)
     {
@@ -351,18 +355,14 @@ class Engine extends Template
      *
      * Commonly used to control page margin, and other mpdf needs to report
      *
-     * @return \mPDF
+     * @return \Mpdf\Mpdf|\ReportTool\WkPdf
+     * @throws \Throwable
      */
     public function getMpdfObj()
     {
         if (\DataHandle\Config::get('wkpdf-path'))
         {
             return new \ReportTool\WkPdf('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
-        }
-        //mpdf 6
-        else if (class_exists('mPDF'))
-        {
-            return new \mPDF('utf-8', $this->getPageSize(), 0, '', $this->margin['left'], $this->margin['right'], $this->margin['top'], $this->margin['bottom'], 0, 0);
         }
         //mpdf 8
         else if (class_exists('Mpdf\Mpdf'))
@@ -388,6 +388,7 @@ class Engine extends Template
      * Make the output of the report
      *
      * @param string $type
+     * @throws \Throwable
      */
     public function output($type = 'html')
     {
@@ -400,16 +401,17 @@ class Engine extends Template
      */
     public function outputInline($type = NULL)
     {
-        $type = $type ? $type : 'pdf';
+        $type = $type ?: 'pdf';
         $type = \DataHandle\Request::get('type') ? \DataHandle\Request::get('type') : $type;
 
         $file = $this->generateFile($type);
         $file->outputInline();
+        $file->remove();
     }
 
     /**
      * Add a custom font to mpdf
-     * @param Mpdf $mpdf mpdf object
+     * @param \Mpdf\Mpdf $mpdf mpdf object
      * @param array $fonts_list array
      */
     public static function addCustomFontList($mpdf, $fonts_list)
@@ -444,7 +446,7 @@ class Engine extends Template
 
     /**
      * Add a custom font to mpdf
-     * @param Mpdf $mpdf mpdf object
+     * @param \Mpdf\Mpdf $mpdf mpdf object
      * @param array $fonts_list array
      */
     protected function addCustomFont($mpdf, $fonts_list)
