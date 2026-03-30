@@ -945,7 +945,7 @@ class DateTime extends \Validator\Validator implements \JsonSerializable
     {
         $error = parent::validate($value);
 
-        if (mb_strlen($this->value) > 0)
+        if ($this->value && mb_strlen($this->value) > 0)
         {
             list($dia, $mes, $ano) = explode('/', $this->getValue());
 
