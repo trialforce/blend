@@ -53,6 +53,7 @@ class Icon extends \View\I
         }
         
         $icon = str_replace('layer-group', 'layers', $icon);
+        $icon = str_replace('accordion-icon', 'circle-chevron-down', $icon);
         $icon = str_replace('undo', 'undo-2', $icon);
         $icon = str_replace('fa fa-square-o', 'square', $icon);
         $icon = str_replace('fa fa-check-square-o', 'square-check-big', $icon);
