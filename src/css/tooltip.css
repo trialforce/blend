@@ -7,7 +7,7 @@
 }
 
 td.tooltip {
-    position: relative;;
+    position: relative;
 }
 
 .tooltip .tooltiptext {
@@ -40,7 +40,7 @@ td.tooltip {
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #555 transparent transparent transparent;
+    border-color: #323232e6 transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext, .tooltip .tooltiptext.active{
