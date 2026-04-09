@@ -30,30 +30,6 @@ blend.ckeditor.beforeSubmit = function ()
  */
 function updateEditors()
 {
-    var editor;
-
-    if (typeof nicEditors !== 'undefined' && typeof nicEditors.editors[0] !== 'undefined' && typeof nicEditors.editors[0].nicInstances !== 'undefined')
-    {
-        for (var i = 0; i < nicEditors.editors[0].nicInstances.length; i++)
-        {
-            editor = $(nicEditors.editors[0].nicInstances[i].e);
-            editor.html(nicEditors.editors[0].nicInstances[i].getContent());
-        }
-    }
-
-    $('textarea').each(function ()
-    {
-        if (typeof (nicEditors) !== 'undefined')
-        {
-            var editor = nicEditors.findEditor($(this).attr('id'));
-
-            if (editor !== undefined && editor !== null)
-            {
-                $(this).html(editor.getContent());
-            }
-        }
-    });
-
     //add support for ckeditor 4
     if (typeof CKEDITOR == 'object')
     {
