@@ -11,6 +11,16 @@ blend.menu.start = function ()
     seletMenuItem();
 };
 
+blend.menu.isOpen = function()
+{
+    return b('body').hasClass('menu-open')
+}
+
+blend.menu.isPinned = function()
+{
+    return b('html').hasClass('pinned-menu')
+}
+
 function seletMenuItem()
 {
     var currentPage = getCurrentPage();
@@ -36,14 +46,12 @@ function seletMenuItem()
  */
 function menuToggle()
 {
-    if ( $('html').hasClass('pinned-menu') )
+    if ( blend.menu.isPinned() )
     {
-        pinMenu();
-        menuClose();
-        return;
+        return false;
     }
 
-    if ( $('body').hasClass('menu-open'))
+    if ( blend.menu.isOpen())
     {
         menuClose();
     }
@@ -90,7 +98,7 @@ function menuClose()
 
 function pinMenu()
 {
-    if ( $('html').hasClass('pinned-menu') )
+    if ( blend.menu.isPinned() )
     {
         $('html').removeClass('pinned-menu');
         localStorage.setItem('pinned-menu','0');
