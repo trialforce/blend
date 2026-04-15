@@ -688,6 +688,8 @@ class Crud extends \Page\Page
         }
 
         $input = $fieldLayout->getInputField($column);
+        $input->setId($columnName . '_' . $pkValue);
+        $input->setName($columnName . '_' . $pkValue);
         $input->setValue($model->getValue($columnName));
         $pageUrl = $this->getPageUrl();
 
@@ -726,10 +728,10 @@ class Crud extends \Page\Page
         $model = $this->getModel();
         //get column from model
         $column = $model->getColumn($columnName);
-        //get the column property (alias for columna name)
+        //get the column property (alias for column name)
         $columnProperty = $column->getProperty();
         //get the posted edited value
-        $value = Request::get($columnProperty);
+        $value = Request::get($columnProperty . '_' . $model->getId());
         //define the modified value in current model
         $model->setValue($columnName, $value);
 
