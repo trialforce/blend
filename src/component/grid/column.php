@@ -37,6 +37,11 @@ class Column
      * ALign icon
      */
     const ALIGN_ICON = 'alignIcon';
+    
+    /**
+     * Set as editable inline and always show the input element
+     */
+    const COLUMN_EDIT_FIXED = 2;
 
     /**
      * Name
@@ -568,7 +573,12 @@ class Column
     public function getValue($item, $line = NULL, \View\View $tr = NULL, \View\View $td = NULL)
     {
         $value = \DataSource\Grab::getUserValue($this, $item);
-        $this->makeEditable($item, $line, $tr, $td);
+        $input = $this->makeEditable($item, $line, $tr, $td);
+        
+        if ($input)
+        {
+            return $input;
+        }
 
         if ($this->getFixedHeight())
         {
@@ -587,16 +597,27 @@ class Column
         //not used in this case
         $line = NULL;
         $tr = NULL;
-
-        if ($this->getEdit() && $td)
+        
+        if (!$td || !$this->getEdit())
         {
-            $dom = \View\View::getDom();
-            $pageUrl = $dom->getPageUrl();
-            $columName = $this->getName();
-            $pkValue = \DataSource\Grab::getUserValue($this->getGrid()->getIdentificatorColumn(), $item);
-            $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
-            $td->click("p('{$pageUrl}/gridEdit/$pkValue/?columnName={$columName}');");
+            return false;
         }
+        
+        $dom = \View\View::getDom();
+        $pageUrl = $dom->getPageUrl();
+        $columnName = $this->getName();
+        $pkValue = \DataSource\Grab::getUserValue($this->getGrid()->getIdentificatorColumn(), $item);
+        $td->setId('gridColumn-' . $this->getName() . '-' . $pkValue);
+
+        //return input to be fixed to td
+        if ($this->getEdit() === \Component\Grid\Column::COLUMN_EDIT_FIXED)
+        {
+            return $this->makeInlineInput($item, $pageUrl, $columnName, $pkValue);
+        }
+
+        $td->click("p('{$pageUrl}/gridEdit/$pkValue/?columnName={$columnName}');");
+
+        return false;
     }
 
     /**
@@ -756,6 +777,46 @@ class Column
     public static function getColumnValue($column, $item)
     {
         return \DataSource\Grab::getUserValue($column, $item);
+    }
+    
+    /**
+     * 
+     * @param \Db\Model $model
+     * @param string $pageUrl
+     * @param string $columnName
+     * @param string $pkValue
+     * @return \View\View | \Component\Combo
+     * @throws \UserException
+     */
+    protected function makeInlineInput($model, $pageUrl, $columnName, $pkValue)
+    {
+        $column = $model->getColumn($columnName);
+
+        $fieldLayout = new \FieldLayout\Vector(null, $model);
+
+        $input = $fieldLayout->getInputField($column);
+        $input->setId($columnName . '_' . $pkValue);
+        $input->setName($columnName . '_' . $pkValue);
+        $input->setValue($model->getValue($columnName));
+
+        $event = "p('{$pageUrl}/saveGridEdit/$pkValue/?columnName={$columnName}');";
+
+        if ($input instanceof \View\View)
+        {
+            $input->blur($event);
+        }
+        else if ($input instanceof \Component\Combo)
+        {
+            $input->onCreate();
+            $inner = $input->getInputValue();
+            $inner->change($event);
+        }
+        else
+        {
+            throw new \UserException('Impossível tornar campo editável!');
+        }
+
+        return $input;
     }
 
 }
