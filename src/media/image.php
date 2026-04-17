@@ -109,7 +109,7 @@ class Image extends \Disk\File
             return $this;
         }
 
-        $extension = $this->getExtension();
+        $extension = $this->getRealExtension();
 
         //SVG extension we do manually
         if ($extension == Image::EXT_SVG)
@@ -142,6 +142,24 @@ class Image extends \Disk\File
         }
 
         return $this;
+    }
+
+    /**
+     * Return the real extension, based on mime type
+     * OR return actual image type
+     * @return string
+     */
+    public function getRealExtension() :string
+    {
+        $mime = mime_content_type($this->getPath());
+        $extension = str_replace('image/','', $mime);
+
+        if ($this->isExtensionSupported($extension))
+        {
+            return $extension;
+        }
+
+        return $this->getExtension();
     }
 
     /**
