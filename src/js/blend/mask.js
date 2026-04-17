@@ -24,8 +24,6 @@ var maskCNPJCPF = function (input, e, currentField, options)
 {
     //tira os caracters estranhos para funcionar a contagem
     var str = input.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    
-    console.log(str);
 
     if (str.length > 11)
     {
