@@ -107,7 +107,25 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
             return true;
         }
     }
-
+    
+    public static function unmask($value)
+    {
+        if (is_array($value))
+        {
+            return '';
+        }
+        
+        $firstPass = preg_replace('/[^A-Za-z0-9]/', '', $value . '');
+        
+        if (mb_strlen($firstPass) == 14)
+        {
+            // alfanumeric cnpj, convert to uppercase
+            return strtoupper($firstPass);
+        }
+        
+        return preg_replace("/[^0-9]/", "", $value . '');
+    }
+    
     /**
      * Faz a validação do CNPJ
      *
@@ -115,48 +133,43 @@ class CnpjCpf extends \Validator\Validator implements \JsonSerializable
      */
     public static function validaCNPJ($cnpj)
     {
-        if (mb_strlen($cnpj) <> 14 || self::contaRepeteNumero($cnpj, 14))
+        if (strlen($cnpj) !== 14)
         {
-            return FALSE;
+            return false;
         }
 
+        if (self::todosIguais($cnpj))
+        {
+            return false;
+        }
+
+        $digito1 = self::calculaDigito($cnpj, [5,4,3,2,9,8,7,6,5,4,3,2]);
+        $digito2 = self::calculaDigito($cnpj, [6,5,4,3,2,9,8,7,6,5,4,3,2]);
+
+        return ($cnpj[12] == $digito1 && $cnpj[13] == $digito2);
+    }
+
+    private static function charToValor($char)
+    {
+        return ord($char) - 48;
+    }
+
+    private static function calculaDigito(string $cnpj, array $pesos)
+    {
         $soma = 0;
 
-        $soma += ($cnpj[0] * 5);
-        $soma += ($cnpj[1] * 4);
-        $soma += ($cnpj[2] * 3);
-        $soma += ($cnpj[3] * 2);
-        $soma += ($cnpj[4] * 9);
-        $soma += ($cnpj[5] * 8);
-        $soma += ($cnpj[6] * 7);
-        $soma += ($cnpj[7] * 6);
-        $soma += ($cnpj[8] * 5);
-        $soma += ($cnpj[9] * 4);
-        $soma += ($cnpj[10] * 3);
-        $soma += ($cnpj[11] * 2);
+        foreach ($pesos as $i => $peso)
+        {
+            $soma += self::charToValor($cnpj[$i]) * $peso;
+        }
 
-        $digito1 = $soma % 11;
-        $digito1 = $digito1 < 2 ? 0 : 11 - $digito1;
+        $resto = $soma % 11;
+        return ($resto < 2) ? 0 : 11 - $resto;
+    }
 
-        $soma = 0;
-        $soma += ($cnpj[0] * 6);
-        $soma += ($cnpj[1] * 5);
-        $soma += ($cnpj[2] * 4);
-        $soma += ($cnpj[3] * 3);
-        $soma += ($cnpj[4] * 2);
-        $soma += ($cnpj[5] * 9);
-        $soma += ($cnpj[6] * 8);
-        $soma += ($cnpj[7] * 7);
-        $soma += ($cnpj[8] * 6);
-        $soma += ($cnpj[9] * 5);
-        $soma += ($cnpj[10] * 4);
-        $soma += ($cnpj[11] * 3);
-        $soma += ($cnpj[12] * 2);
-
-        $digito2 = $soma % 11;
-        $digito2 = $digito2 < 2 ? 0 : 11 - $digito2;
-
-        return ( $cnpj[12] == $digito1 && $cnpj[13] == $digito2 );
+    private static function todosIguais($cnpj)
+    {
+        return preg_match('/^([A-Z0-9])\1{13}$/', $cnpj);
     }
 
     /**
