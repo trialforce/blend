@@ -23,7 +23,7 @@ class Cnpj extends \Validator\Validator
     public function validate($value = NULL)
     {
         $error = parent::validate($value);
-        $this->value = parent::unmask($this->value);
+        $this->value = \Validator\CnpjCpf::unmask($this->value);
 
         if (mb_strlen($this->value) == 0)
         {

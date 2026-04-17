@@ -22,21 +22,22 @@ blend.mask.start = function ()
  */
 var maskCNPJCPF = function (input, e, currentField, options)
 {
-    //tira os caracters estranhos para fazer funcionar a contagm
-    var str = input.replace(/[\.\-]/g, '');
+    //tira os caracters estranhos para funcionar a contagem
+    var str = input.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    
+    console.log(str);
 
     if (str.length > 11)
     {
-        return '99.999.999/9999-99';
+        // alfanumérico
+        return 'AA.AAA.AAA/AAAA-AA';
     }
     else if (str.length > 8)
     {
-        return '999.999.999-999999';
-    } 
-    else
-    {
-        return '999999999999999999';
+        return 'AAA.AAA.AAA-AAAAAA';
     }
+    
+    return 'AAAAAAAAAAAAAAAAAA';
 };
 
 var maskDateTime = function (input, e, currentField, options)
@@ -85,10 +86,10 @@ function applyAllMasks()
     });
 
     //mask functions
-    $("input[data-mask-function]").each(function () 
+    $("input[data-mask-function]").each(function ()
     {
         var maskVar = window[$(this).attr("data-mask-function")];
-        
+
         $(this).mask(maskVar, {onKeyPress: function (input, e, currentField, options) 
         {
             $(currentField).mask(maskVar(input), options);
