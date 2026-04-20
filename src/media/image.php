@@ -103,8 +103,8 @@ class Image extends \Disk\File
      */
     public function load()
     {
-        //if loaded or file don't exist exit
-        if ($this->content || !$this->exists())
+        //if loaded or file don't exist exists
+        if ($this->content || !$this->exists() || $this->getSize() == 0)
         {
             return $this;
         }
