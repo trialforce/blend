@@ -217,12 +217,15 @@ class Log
         }
 
         $errorMessage = \Log::generateErrorLog($exception);
-        //put log in user file
-        Log::put(Log::ERROR_FILE, $errorMessage);
 
-        //put log in default file
-        $file = new \Disk\File(ini_get('error_log'));
-        $file->append($errorMessage);
+        //put log in user file
+        if ($errorMessage)
+        {
+            Log::put(Log::ERROR_FILE, $errorMessage);
+            //put log in default file
+            $file = new \Disk\File(ini_get('error_log'));
+            $file->append($errorMessage);
+        }
 
         //pass log object to project error handling
         $logErrorFunction = \DataHandle\Config::get('log-error-function');
@@ -396,9 +399,17 @@ class Log
      */
     protected static function generateErrorLog($exception)
     {
+        $message = $exception->getMessage();
+
+        //avoid register this message to avoid full hd
+        if (stripos($message, 'too many connections') !== false)
+        {
+            return '';
+        }
+
         $error = "###############################################" . PHP_EOL;
         $error .= 'Exception in ' . date('d/m/y G:i:s:u') . ' = ' . $exception->getFile() . ' on line ' . $exception->getLine() . "\n";
-        $error .= $exception->getMessage() . PHP_EOL;
+        $error .= $message . PHP_EOL;
         $error .= $exception->getTraceAsString() . PHP_EOL;
         $error .= PHP_EOL . PHP_EOL;
         $error .= '$_REQUEST:' . PHP_EOL;

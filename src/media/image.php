@@ -164,21 +164,21 @@ class Image extends \Disk\File
 
     /**
      * Fixes image 'fake' orientation in jpg files produced by mobile phone cameras.
-     * This solution uses GD.
+     *
+     * @return bool
      */
     public function fixOrientation()
     {
-        if (!$this->path)
+        if (!$this->path || !file_exists($this->path) || filesize($this->path) == 0)
         {
-            return;
+            return false;
         }
 
+        $exif = [];
         $info = [];
 
         // check if APP1 exists
         $this->sizes = getimagesize($this->path, $info);
-
-        $exif = [];
 
         if (function_exists('exif_read_data') && isset($info['APP1']))
         {
@@ -202,6 +202,8 @@ class Image extends \Disk\File
                     break;
             }
         }
+
+        return true;
     }
 
     /**
