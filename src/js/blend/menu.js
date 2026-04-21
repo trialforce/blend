@@ -96,16 +96,18 @@ function menuClose()
     return false;
 }
 
-function pinMenu()
+function pinMenu(axct)
 {
     if ( blend.menu.isPinned() )
     {
         $('html').removeClass('pinned-menu');
+        $('html').removeClass('action-list-open');
         localStorage.setItem('pinned-menu','0');
         setCookie('pinned-menu', '0');
     }
     else
     {
+        $('html').addClass('action-list-open');
         $('body').removeClass('menu-open')
         $('html').addClass('pinned-menu');
         localStorage.setItem('pinned-menu','1');
