@@ -534,10 +534,10 @@ class Image extends \Disk\File
         //make cache
         if (!$this->sizes)
         {
-            $this->sizes['width'] = null;
-            $this->sizes['height'] = null;
+            $this->sizes['width'] = 0;
+            $this->sizes['height'] = 0;
 
-            if (file_exists($this->path))
+            if (file_exists($this->path) && $this->getSize() > 0 )
             {
                 //works without load the image (read from path)
                 $this->sizes = getimagesize($this->path);
