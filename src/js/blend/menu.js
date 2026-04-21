@@ -96,7 +96,7 @@ function menuClose()
     return false;
 }
 
-function pinMenu(axct)
+function pinMenu()
 {
     if ( blend.menu.isPinned() )
     {
