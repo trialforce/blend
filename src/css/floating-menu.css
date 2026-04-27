@@ -37,8 +37,8 @@
     padding: 2px 14px;
     cursor: pointer;
     text-align: left;
-    height: 36px;
-    line-height: 36px;
+    height: var(--menuItemHeight);
+    line-height: var(--menuItemHeight);
     font-size: 14px;
     box-sizing: initial;
 }
@@ -57,8 +57,8 @@
 
 .blend-floating-menu a {
     float:left;
-    font-size: 14px;
-    line-height: 36px;
+    font-size: var(--fontSize);
+    line-height: var(--menuItemHeight);
     text-decoration: none;
     color: #555;
     margin-left: 0;
