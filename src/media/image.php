@@ -179,8 +179,9 @@ class Image extends \Disk\File
 
         // check if APP1 exists
         $this->sizes = getimagesize($this->path, $info);
+        $isExif = isset($info['APP1']) && str_starts_with($info['APP1'], 'Exif');
 
-        if (function_exists('exif_read_data') && isset($info['APP1']))
+        if (function_exists('exif_read_data') && $isExif)
         {
             $exif = @exif_read_data($this->path, 'EXIF');
         }
