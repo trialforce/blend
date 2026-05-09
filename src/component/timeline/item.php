@@ -13,6 +13,7 @@ class Item implements DataItem
     public $content = null;
     public $link = null;
     public $color = null;
+    public $extra = null;
 
     public function getTimelineDateTime()
     {
@@ -42,5 +43,10 @@ class Item implements DataItem
     public function getTimelineColor()
     {
         return $this->color;
+    }
+
+    public function getTimelineExtra()
+    {
+        return $this->extra;
     }
 }

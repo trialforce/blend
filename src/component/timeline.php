@@ -129,6 +129,7 @@ class Timeline extends \Component\Component
         $right = [];
         $right[] = new \View\Div(null, $title, 'timeline-item-title');
         $right[] = new \View\Div(null, $item->getTimelineContent(), 'timeline-item-content');
+        $right[] = new \View\Div(null, $item->getTimelineExtra(), 'timeline-item-extra');
 
         $rightOutter = new \View\Div(null, $right,'timeline-item-right');
 

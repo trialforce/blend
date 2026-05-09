@@ -19,4 +19,5 @@ interface DataItem
 
     public function getTimelineColor();
 
+    public function getTimelineExtra();
 }

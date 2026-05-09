@@ -23,7 +23,7 @@ blend.menu.isPinned = function()
 
 function seletMenuItem()
 {
-    var currentPage = getCurrentPage();
+    let currentPage = getCurrentPage();
     //remove class seleted from all items from menu
     $('nav *').removeClass('selected');
 
@@ -101,13 +101,13 @@ function pinMenu()
     if ( blend.menu.isPinned() )
     {
         $('html').removeClass('pinned-menu');
-        $('html').removeClass('action-list-open');
+        //$('html').removeClass('action-list-open');
         localStorage.setItem('pinned-menu','0');
         setCookie('pinned-menu', '0');
     }
     else
     {
-        $('html').addClass('action-list-open');
+        //$('html').addClass('action-list-open');
         $('body').removeClass('menu-open')
         $('html').addClass('pinned-menu');
         localStorage.setItem('pinned-menu','1');
@@ -161,10 +161,9 @@ function menuSearch(term)
     
     $('.main-menu a').each( function()
     {
-        var element = $(this);
-        var text = toAscii( element.text().toLocaleLowerCase())+"";
-        
-        var find = text.indexOf(term) >= 0;
+        let element = $(this);
+        let text = toAscii( element.text().toLocaleLowerCase())+"";
+        let find = text.indexOf(term) >= 0;
         
         if ( find)
         {
@@ -180,7 +179,7 @@ function menuSearch(term)
 
 function floatingMenuToggle()
 {
-    var focused = $(document.activeElement);
+    let focused = $(document.activeElement);
      
     if (focused.hasClass('advanced-filter-menu-group'))
     {
@@ -197,7 +196,7 @@ function floatingMenuToggle()
 
 function floatingMenuSubToggle()
 {
-    var focused = $(document.activeElement);
+    let focused = $(document.activeElement);
      
     if (focused.hasClass('advanced-filter-menu-group'))
     {
