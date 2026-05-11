@@ -798,7 +798,7 @@ class Page extends \View\Layout
      * Add advanced filter
      * Called from grid popup
      *
-     * @return boolean
+     * @return $this
      * @throws \Exception
      */
     public function addAdvancedFilter()
@@ -811,15 +811,14 @@ class Page extends \View\Layout
 
         if (!$grid instanceof \Component\Grid\Grid)
         {
-            return false;
+            throw new \UserException('Imposssível encontrar listagem ao adicionar filtro!');
         }
 
         $filter = $grid->getFilter($value);
 
         if (!$filter->getFilterLabel())
         {
-            toast('Impossível encontrar filtro selecionado: ' . $value, 'danger');
-            return;
+            throw new \UserException('Impossível encontrar filtro selecionado: ' . $value);
         }
 
         $this->byId('advancedFiltersList')->val('');
@@ -828,7 +827,7 @@ class Page extends \View\Layout
         if ($filter->getFilterValue(0))
         {
             \App::addJs("setTimeout(function(){ $('#{$filter->getFilterName()}Filter .addFilter').click() }, 300);");
-            return;
+            return $this;
         }
 
         $input = $filter->getInput();
