@@ -101,7 +101,7 @@ class ConstantValues implements \ArrayAccess, \Iterator, \Countable, \Type\Gener
     {
         $array = $this->getArray();
 
-        if (isset($array[$key]))
+        if ($key && isset($array[$key]))
         {
             return $array[$key];
         }
