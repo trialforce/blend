@@ -216,7 +216,7 @@ p {
 }
 
 a, .link , .btn.link {
-    color: #009bdb;
+    color: var(--color-primary);
     text-decoration: none;
     background: transparent;
 }
