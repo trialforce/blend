@@ -711,7 +711,7 @@ class Page extends \View\Layout
         $fileUpload = new \Disk\FileUpload($file);
         $fileUpload->verifyExtension(array('php', 'html', 'js'), TRUE);
 
-        $uploadFile = $uploadFile ? $uploadFile : new \Disk\Media($fileUpload->getUploadFileName());
+        $uploadFile = $uploadFile ?: new \Disk\Media($fileUpload->getUploadFileName());
 
         if ($fileUpload->upload($uploadFile))
         {
