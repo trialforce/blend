@@ -407,6 +407,21 @@ class Log
             return '';
         }
 
+        if (stripos($message, 'connection refused') !== false)
+        {
+            return '';
+        }
+
+        if (stripos($message, 'MySQL server has gone away') !== false)
+        {
+            return '';
+        }
+
+        if (stripos($message, 'O sistema não está conseguindo se conectar ao servidor de banco de dados') !== false)
+        {
+            return '';
+        }
+
         $error = "###############################################" . PHP_EOL;
         $error .= 'Exception in ' . date('d/m/y G:i:s:u') . ' = ' . $exception->getFile() . ' on line ' . $exception->getLine() . "\n";
         $error .= $message . PHP_EOL;
