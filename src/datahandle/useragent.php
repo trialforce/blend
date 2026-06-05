@@ -304,7 +304,7 @@ class UserAgent
         'CRAZYWEBCRAWLER', //custom webcrawler network
         'Dispatch', //don't know
         'KickFire', //news bot
-        'archive.org_bot', //web archive
+        'archive.org', //web archive
         'Leikibot', //don't know seen germany
         'oBot',
         'MixrankBot',
@@ -424,7 +424,7 @@ class UserAgent
         'Nikto', //Nikto Webserver Scanner https://github.com/sullo/nikto
         'gptbot', //Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)
         'ChatGPT-User', // Navegação do ChatGPT
-        'openai.com/bot', // outra forma de pegar
+        'openai.com', // outra forma de pegar
         'Bytespider', //Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)
         'ClaudeBot', // Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)
         'Claude-User', //Anthropic
@@ -468,9 +468,9 @@ class UserAgent
         'Arquivo Web Crawler', //AI
         'archive.org_bot', //AI
         'Anchor Browser', //AI
-        'Plesk (fetch_url utility)',
+        'Plesk',
         'GeedoShopProductFinder',
-        '(Lanai)', //robo sem vergonha que faz de conta que é Apple
+        'Lanai', //robo sem vergonha que faz de conta que é Apple
         'UptimeRobot', //robo de ferramenta de update
         'BluePex' //https://bluepex.com.br/ Blue Pex Security Platform
     );
@@ -540,6 +540,7 @@ class UserAgent
 
         foreach (self::$botList as $bot)
         {
+            //\Log::debug('/' . $bot . '/i');
             if (preg_match('/' . $bot . '/i', $this->userAgent))
             {
                 $this->platform = self::PLATFORM_BOT;
