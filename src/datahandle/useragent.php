@@ -155,6 +155,12 @@ class UserAgent
     protected $platform = UserAgent::BROWSER_UNKNOWN;
 
     /**
+     * Navigator
+     * @var string
+     */
+    protected $navigator = '';
+
+    /**
      * Complete name
      *
      * @var string
@@ -198,7 +204,7 @@ class UserAgent
     /**
      * Browser developer
      *
-     * @var developer
+     * @var string
      */
     protected $developer = UserAgent::BROWSER_UNKNOWN;
 
@@ -209,6 +215,8 @@ class UserAgent
     public static $serviceList = array(
         'Google_Analytics_Snippet_Validator', //Google analycts
         'Google-Ads-Creatives-Assistant', //Google Ads
+        'AdsBot-Google',
+        'Google-InspectionTool',
         'Google Page Speed Insights', //Google pagespeed
         'Google-Site-Verification', //google site verification, developer tools
         'Chrome Privacy Preserving Prefetch Proxy', //google privacy .well-known/traffic-advice
@@ -249,6 +257,7 @@ class UserAgent
      */
     public static $botList = array(
         'AhrefsBot',
+        'SemrushBot',
         'ltx71',
         'WebIndex',
         'Googlebot',
@@ -256,7 +265,6 @@ class UserAgent
         'python', //python default user agent
         'php', //php default user agent
         'Go-http-client', //go default user agent (google)
-        'dotbot',
         'bingbot',
         'VB Project',
         'spbot',
@@ -289,6 +297,8 @@ class UserAgent
         'www.ru', //www.ru strange russian bot
         'TwengaBot', //TwengaBot http://www.twenga.com/bot.html e-commerce webcrawler
         'rogerbot', //https://moz.com/help/guides/moz-procedures/what-is-rogerbot
+        'dotbot', //mozila
+        'opensiteexplorer.org', //mozzila
         'Pulsepoint', //marketing platform //http://www.pulsepoint.com/
         'CheckMarkNetwork', //http://www.checkmarknetwork.com/ brand protection
         'CRAZYWEBCRAWLER', //custom webcrawler network
@@ -366,6 +376,15 @@ class UserAgent
         'masscan',
         'fasthttp',
         'crawler',
+        'headless',
+        'wget',
+        'curl',
+        'python-requests',
+        'aiohttp',
+        'httpclient',
+        'crawl',
+        'java',
+        'libwww-perl',
         'scanner',
         'Qwantify',
         'serpstatbot',
@@ -396,7 +415,7 @@ class UserAgent
         'Cloud mapping experiment',
         'BDCbot',
         'applebot',
-        'petalbot',
+        'petalbot', //Huawei
         'CensysInspect',
         'expanseinc.com',
         'Embarcadero',
@@ -404,8 +423,56 @@ class UserAgent
         'SeekportBot', //Mozilla/5.0 (compatible; SeekportBot; +https://bot.seekport.com)
         'Nikto', //Nikto Webserver Scanner https://github.com/sullo/nikto
         'gptbot', //Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)
+        'ChatGPT-User', // Navegação do ChatGPT
+        'openai.com/bot', // outra forma de pegar
         'Bytespider', //Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)
-        'ClaudeBot' // Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)
+        'ClaudeBot', // Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)
+        'Claude-User', //Anthropic
+        'Claude-SearchBot',
+        'OAI-SearchBot',           // OpenAI Search
+        'anthropic-ai',
+        'PerplexityBot',           // Perplexity
+        'Perplexity-User',
+        'Bytespider',              // TikTok / ByteDance
+        'Bytespider-render',
+        'GoogleOther',             // Google AI
+        'Google-Extended',         // Gemini treinamento
+        'GoogleOther-Image',
+        'GoogleOther-Video',
+        'Google-CloudVertexBot',
+        'GoogleAssociationService',
+        'CCBot',                   // Common Crawl
+        'Diffbot',
+        'Amazonbot',
+        'meta-externalagent',      // Meta AI
+        'meta-externalfetcher',
+        'FacebookBot',
+        'facebookexternalhit',
+        'Applebot',
+        'YouBot',                  // You.com
+        'cohere-ai',
+        'Omgilibot',
+        'FriendlyCrawler',
+        'ImagesiftBot',
+        'TelegramBot',
+        'Slackbot',
+        'DuckDuckBot',
+        'DuckAssistBot',
+        'Timpibot', //AI
+        'Terracotta', //AI
+        'ProRata', //AI
+        'Novellum', //AI
+        'MistralAI-User', //AI
+        'Manus Bot', //AI
+        'Manus Bot', //AI
+        'Arquivo Web Crawler', //AI
+        'archive.org_bot', //AI
+        'Anchor Browser', //AI
+        'Plesk (fetch_url utility)',
+        'GeedoShopProductFinder',
+        '(Lanai)', //robo sem vergonha que faz de conta que é Apple
+        'UptimeRobot', //robo de ferramenta de update
+        'BluePex' //https://bluepex.com.br/ Blue Pex Security Platform
     );
 
     /**
@@ -414,7 +481,7 @@ class UserAgent
      *
      * @param string $userAgent
      *
-     * @return UserAgent
+     * @return void
      */
     function __construct($userAgent = NULL)
     {
