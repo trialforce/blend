@@ -22,9 +22,16 @@ function applyAutonumeric()
     //limpa campo quando entrar nele e for zerado
     $('input.float').blur(function () 
     {
-        if ($(this).val() == '')
+        let value=  $(this).val();
+        //deixa zerado quando sai do campo
+        if ( value == '')
         {
             $(this).val('0,00');
+        }
+        //completa com ,00 caso necessário
+        else if (value.indexOf(',') === -1 &&  value.indexOf('.'))
+        {
+            $(this).val(value+",00");
         }
     });
 
