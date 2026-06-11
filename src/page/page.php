@@ -777,7 +777,7 @@ class Page extends \View\Layout
         if (\DataHandle\Server::getInstance()->isAjax())
         {
             //tira a primeira barra
-            $gridId = ltrim($id, '\\');
+            $gridId = ltrim($gridClass, '\\');
             $gridId = str_replace('\\', '\\\\', $gridId);
             \App::setResponse($gridId, 'html');
         }
