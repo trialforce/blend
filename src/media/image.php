@@ -540,8 +540,8 @@ class Image extends \Disk\File
 
             if (file_exists($this->path) && $this->getSize() > 0 )
             {
-                //works without load the image (read from path)
-                $this->sizes = getimagesize($this->path);
+                //works without load the image (read from path), supports SVG
+                $this->sizes = \Media\Image::getimagesize($this->path);
 
                 //padroniz format with image magick
                 if (isset($this->sizes[0]) && isset($this->sizes[1]))
@@ -1085,6 +1085,63 @@ class Image extends \Disk\File
 </svg>';
 
         return $svgString;
+    }
+
+    /**
+     * Get imagem size, support svg image
+     *
+     * @param string $filename
+     * @param $image_info
+     * @return array|false
+     */
+    public static function getimagesize(string $filename, &$image_info = null): array|false
+    {
+        $explode = explode('.', $filename);
+        $extension = $explode[count($explode) - 1];
+
+        if (strtolower($extension) == self::EXT_SVG)
+        {
+            return \Media\Image::getSvgSize($filename);
+        }
+
+        return getimagesize($filename, $image_info);
+    }
+
+    /**
+     * Get the image size of an svg image
+     * @param $filename
+     * @return float[]|false
+     */
+    public static function getSvgSize($filename)
+    {
+        $svg = simplexml_load_file($filename);
+
+        $width = (string)$svg['width'];
+        $height = (string)$svg['height'];
+        //still need to add support to other extension
+        $hasMm = stripos($width,'mm') !== false;
+
+        if (!$hasMm && $width && $height)
+        {
+            return [
+                0 => (float) preg_replace('/[^0-9.]/', '', $width),
+                1 => (float) preg_replace('/[^0-9.]/', '', $height),
+            ];
+        }
+
+        $viewBox = (string)$svg['viewBox'];
+
+        if ($viewBox)
+        {
+            list($x, $y, $width, $height) = preg_split('/\s+/', trim($viewBox));
+
+            return [
+                0 => (float)$width,
+                1 => (float)$height,
+            ];
+        }
+
+        return false;
     }
 
 }
