@@ -94,26 +94,31 @@ class Server extends DataHandle
     }
 
     /**
-     * Return the user ip
+     * Return the user ip. Considering some headers.
      *
      * @return string
      */
     public function getUserIp()
     {
-        if (strlen($this->getVar('HTTP_CLIENT_IP') . '') > 0)
+        $ip = null;
+        $httpClientIp = $this->getVar('HTTP_CLIENT_IP') . '';
+        $httpXForwardedFor = $this->getVar('HTTP_X_FORWARDED_FOR').'';
+        $remoteAddr = $this->getVar('REMOTE_ADDR');
+
+        if (strlen($httpClientIp) > 0 && \Validator\Ip::isPublic($httpClientIp))
         {
-            $ip = $this->getVar('HTTP_CLIENT_IP');
+            $ip = $httpClientIp;
         }
-        elseif (strlen($this->getVar('HTTP_X_FORWARDED_FOR') . '') > 0)
+        elseif (strlen($httpXForwardedFor) > 0 && \Validator\Ip::isPublic($httpXForwardedFor))
         {
-            $ip = $this->getVar('HTTP_X_FORWARDED_FOR');
+            $ip = $httpXForwardedFor;
         }
         else
         {
-            $ip = $this->getVar('REMOTE_ADDR');
+            $ip = $remoteAddr;
         }
 
-        return $ip;
+        return $ip ?: $remoteAddr;
     }
 
     /**

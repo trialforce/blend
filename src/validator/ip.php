@@ -58,4 +58,15 @@ class Ip extends \Validator\Validator
         return $ip;
     }
 
+    /**
+     * Verify if an ip is public or local network
+     *
+     * @param $ip
+     * @return bool
+     */
+    public static function isPublic($ip)
+    {
+        return filter_var( $ip, FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+    }
+
 }
