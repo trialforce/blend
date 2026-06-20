@@ -216,6 +216,12 @@ window.onpopstate = function(event)
 {
     blend.isBack = true;
     avoidUrlRegister = true;
+
+    if (isMobile() && blendEscape())
+    {
+        return;
+    }
+
     p(window.location.href, true);
 };
 
@@ -264,6 +270,11 @@ function blendEscape()
         menuClose();
         return true;
     }
+    else if (b('html').hasClass('action-list-open'))
+    {
+        actionList.close()
+        return true;
+    }
     //popup
     else if ( b('.popup').isVisible() >= 0 )
     {
@@ -299,10 +310,12 @@ function blendEscape()
     else if ( b('slider-full-screen').length > 0)
     {
         removeSlideFullScreen();
+        return true;
     }
     else if (!isMobile())
     {
         history.back();
+        return true;
     }
     
     return false;
