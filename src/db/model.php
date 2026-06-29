@@ -410,17 +410,6 @@ class Model implements \JsonSerializable
 
         //mount group by
         $groupBy = NULL;
-        $grpIndex = count($columns);
-
-        foreach ($columns as $column)
-        {
-            if ($column instanceof \Db\GroupColumn && ($column->getAgg() == \Db\GroupColumn::METHOD_GROUP || !$column->getAgg()))
-            {
-                $groupBy[] = $grpIndex;
-            }
-
-            $grpIndex--;
-        }
 
         if (is_array($groupBy))
         {
