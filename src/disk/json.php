@@ -87,7 +87,7 @@ class Json
             return $result;
         }
 
-        throw new \Exception(json_last_error_msg());
+        throw new \BlendException(json_last_error_msg(),0,null, $json);
     }
 
     /**
