@@ -106,9 +106,29 @@ class Crud extends \Page\Page
      *
      * @return string
      */
-    public function getModelName()
+    public function getModelName():string
     {
         return '\\' . get_class($this->model);
+    }
+
+    /**
+     * Retorna a label do model
+     *
+     * @return string
+     */
+    public function getModelLabel() : string
+    {
+        return $this->model->getLabel();
+    }
+
+    /**
+     * Retorna a label do model em plural
+     *
+     * @return string
+     */
+    public function getModelLabelPlural(): string
+    {
+        return $this->model->getLabelPlural();
     }
 
     /**
@@ -443,11 +463,11 @@ class Crud extends \Page\Page
         {
             if ($this->isSearch())
             {
-                return lcfirst($this->model->getLabelPlural());
+                return lcfirst($this->getModelLabelPlural());
             }
             else
             {
-                return lcfirst($this->model->getLabel());
+                return lcfirst($this->getModelLabel());
             }
         }
 
@@ -471,7 +491,7 @@ class Crud extends \Page\Page
             return [];
         }
 
-        $adicionar = 'Adicionar ' . lcfirst($this->model->getLabel());
+        $adicionar = 'Adicionar ' . lcfirst($this->getModelLabel());
         $buttons[] = $btnInsert = new \View\Ext\LinkButton('btnInsert', 'plus', $adicionar, $this->getPageUrl() . '/' . $this->getMethodInsert(), 'btn btninserir success');
         $btnInsert->setTitle('Abre a tela para digitação de um novo cadastro!');
 
