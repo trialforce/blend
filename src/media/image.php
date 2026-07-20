@@ -226,7 +226,7 @@ class Image extends \Disk\File
      */
     public function getWidth()
     {
-        if ($this->content)
+        if ($this->content && $this->getExtension() !== self::EXT_SVG)
         {
             return imagesx($this->content);
         }
@@ -242,7 +242,7 @@ class Image extends \Disk\File
      */
     public function getHeight()
     {
-        if ($this->content)
+        if ($this->content && $this->getExtension() !== self::EXT_SVG)
         {
             return imagesy($this->content);
         }
@@ -324,6 +324,28 @@ class Image extends \Disk\File
 
         $extension = $filename->getExtension();
 
+        //caso seja um SVG faz a conversão interna para PNG para poder exportar
+        if ($this->getExtension() == Image::EXT_SVG)
+        {
+            if ($extension == \Media\Image::EXT_SVG)
+            {
+                copy($this->getPath(),$filename->getPath());
+                return $this;
+            }
+            else
+            {
+                $output = \Disk\File::getStoragePath() . 'output.png';
+                \Media\Image::svgToImage($this->getPath(), $output);
+
+                if (file_exists($output))
+                {
+                    $bytes = file_get_contents($output);
+                    $this->content = imagecreatefromstring($bytes);
+                    unlink($output);
+                }
+            }
+        }
+
         if ($extension == Image::EXT_ICO)
         {
             $pngQuality = round(abs(($quality - 100) / 11.111111));
@@ -391,8 +413,59 @@ class Image extends \Disk\File
 
             imagewebp($this->content, $filename . '', $quality);
         }
+        else if ($extension == Image::EXT_SVG)
+        {
+            $svgString = $this->exportSVG(0);
+            file_put_contents($filename.'', $svgString);
+        }
+        else
+        {
+            throw new \UserException('Extensão '. $extension. ' não suportada!');
+        }
 
         return $this;
+    }
+
+    /**
+     * Export an image to SVG
+     *
+     * @param int $width pass zero to use the image width
+     * @return string
+     * @throws \Exception
+     */
+    public function exportSVG(int $width)
+    {
+        if ($width == 0) //keep
+        {
+            $width = $this->getWidth();
+        }
+
+        $extension = $this->getExtension();
+        $ratio = $width / $this->getWidth();
+        $height = intval($this->getHeight() * $ratio);
+        $this->load();
+        $base64 = $this->getBase64();
+
+        $svgString = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="'.$width.'"
+   height="'.$height.'"
+   viewBox="0 0 '.$width.' '.$height.'"
+   version="1.1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   >
+	<image
+       width="'.$width.'"
+       height="'.$height.'"
+       preserveAspectRatio="none"
+       xlink:href="data:image/'.$extension.';base64,'.$base64.'"
+       x="0"
+       y="0"
+	   />
+</svg>';
+
+        return $svgString;
     }
 
     /**
@@ -1040,51 +1113,31 @@ class Image extends \Disk\File
     }
 
     /**
-     * This static function converts a image from a file to an SVG
-     * With a desired with.
-     * To be true, it only generate a SVG/XML with the embebed image inside
-     * IT does not do trace or anything
+     * Convert an SVG to an PNG using inkscape shell app
      *
      * @param string $filePath
-     * @param int $width
-     * @return string
-     * @throws \Exception
+     * @param string $outputPath
+     * @param int|null $width
+     * @return null
+     * @throws \UserException
      */
-    public static function imageToSVG(string $filePath, int $width)
+    public static function svgToImage(string $filePath, string $outputPath, ?int $width = null)
     {
-        $image = new \Media\Image($filePath);
+        $cmd = "inkscape $filePath --without-gui --export-png=\"$outputPath\"";
 
-        if ($width == 0) //keep
+        if (is_int($width))
         {
-            $width = $image->getWidth();
+            $cmd .= " --export-width=".$width;
         }
 
-        $extension = $image->getExtension();
-        $ratio = $width / $image->getWidth();
-        $height = intval($image->getHeight() * $ratio);
-        $image->load();
-        $base64 = $image->getBase64();
+        shell_exec($cmd);
 
-        $svgString = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="'.$width.'"
-   height="'.$height.'"
-   viewBox="0 0 '.$width.' '.$height.'"
-   version="1.1"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns="http://www.w3.org/2000/svg"
-   >
-	<image
-       width="'.$width.'"
-       height="'.$height.'"
-       preserveAspectRatio="none"
-       xlink:href="data:image/'.$extension.';base64,'.$base64.'"
-       x="0"
-       y="0"
-	   />
-</svg>';
+        if (!file_exists($outputPath))
+        {
+            throw new \UserException('Impossível converter arquivo SVG '.$filePath);
+        }
 
-        return $svgString;
+        return null;
     }
 
     /**
