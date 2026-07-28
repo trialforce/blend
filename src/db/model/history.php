@@ -29,6 +29,7 @@ trait History
     {
         $action = $this->oldModel->getId() ? 'Atualizar' : 'Inserir';
         $diff = self::diffModel($this, $this->oldModel);
+        $this->oldModel = null;
         $this->historyReg($this::getName(), $this->getId(), $action, $diff);
     }
 
