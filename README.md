@@ -8,6 +8,8 @@ O Blend é um framework PHP para aplicações web orientadas pelo servidor. Ele 
 - O framework possui tratamento nativo para formatos brasileiros, como datas, números, dinheiro, CPF e CNPJ.
 - Uma aplicação pode utilizar vários bancos e tipos de banco simultaneamente.
 - Atualmente, não há funcionalidade PHP classificada como legado; alguns nomes e estruturas históricas permanecem por compatibilidade.
+- Todos arquivos são em minuscula e sem acentos.
+- Textos em string no código são em português. Programação em inglês ( a exceção é algo brasileiro como CPF/CEP ).
 
 ## Organização dos módulos
 
