@@ -241,6 +241,11 @@ WHERE index_name = '{$indexName}'";
 
             return $table;
         }
+        
+        if (!$table)
+        {
+            return '';
+        }
 
         //is numeric or function, or has left join
         if (is_numeric($table) ||
