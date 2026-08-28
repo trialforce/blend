@@ -4,6 +4,7 @@ namespace View\Blend;
 
 use View\Div;
 use DataHandle\Config;
+use View\View;
 
 /**
  * Simple popup class.
@@ -127,7 +128,15 @@ class Popup extends Div
      */
     public function show($param = FALSE)
     {
-        Config::set('responseType', 'append');
+        if (\DataHandle\Server::getInstance()->isAjax())
+        {
+            Config::set('responseType', 'append');
+        }
+        else
+        {
+            \View\View::getDom()->getMainDiv()->append($this);
+        }
+
         \App::addJs(self::getJs('show', $this->getId()));
 
         return $this;
