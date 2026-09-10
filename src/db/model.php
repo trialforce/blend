@@ -106,6 +106,7 @@ class Model implements \JsonSerializable
      * Return conn info of current model
      *
      * @return \Db\ConnInfo
+     * @throws \Exception
      */
     public static function getConnInfo()
     {
@@ -129,6 +130,7 @@ class Model implements \JsonSerializable
      * Return the connection of current model
      *
      * @return \Db\Conn
+     * @throws \Exception
      */
     public static function getConn()
     {
@@ -216,6 +218,7 @@ class Model implements \JsonSerializable
      * If no column is passed, get the default column from model
      *
      * @return array
+     * @throws \Exception
      */
     public function getColumnValues($columns = NULL, $avoidPk = TRUE)
     {
@@ -269,8 +272,6 @@ class Model implements \JsonSerializable
                 continue;
             }
 
-            $filter instanceof \Db\Where;
-
             if (method_exists($filter, 'getFilter'))
             {
                 //remove Mysql crap escape character, sometimes we can get it here (from \Db\QueryBuilder)
@@ -290,7 +291,7 @@ class Model implements \JsonSerializable
 
     /**
      * Create a respository for query
-     * @return type
+     * @param ?bool $fill
      */
     public static function repository($fill = null)
     {
@@ -379,6 +380,7 @@ class Model implements \JsonSerializable
      * @param string $orderWay
      *
      * @return array<T>
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function find($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL, $logId = NULL)
     {
@@ -397,6 +399,8 @@ class Model implements \JsonSerializable
      * @param string|null $returnType
      *
      * @return array
+     * @throws \Exception
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function search($columns = NULL, $filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL, $logId = null)
     {
@@ -430,7 +434,7 @@ class Model implements \JsonSerializable
         $sql = $catalog::mountSelect($table, $catalog::implodeColumnNames($columnNameSql), $where->getSql(), $limit, $offset, $groupBy, NULL, $orderBy, $orderWay);
 
         $returnType = is_null($returnType) ? $name : $returnType;
-        $result = $name::getConn()->query($sql, $where->getArgs(), $returnType, $logId ? $logId : $name);
+        $result = $name::getConn()->query($sql, $where->getArgs(), $returnType, $logId ?: $name);
 
         return $result;
     }
@@ -451,8 +455,8 @@ class Model implements \JsonSerializable
     public static function findForReference($filters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $logId = NULL)
     {
         $name = self::getName();
-        $orderBy = $orderBy ? $orderBy : \Db\Column\Collection::getForModel($name)->getColumnAtPosition(0);
-        $orderWay = $orderWay ? $orderWay : 'ASC';
+        $orderBy = $orderBy ?: \Db\Column\Collection::getForModel($name)->getColumnAtPosition(0);
+        $orderWay = $orderWay ?: 'ASC';
 
         return $name::find($filters, $limit, $offset, $orderBy, $orderWay, $logId);
     }
@@ -463,6 +467,7 @@ class Model implements \JsonSerializable
      * @param array $filters
      *
      * @return int
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function count($filters = array(), $value = '*')
     {
@@ -471,6 +476,16 @@ class Model implements \JsonSerializable
         return $name::aggregation($filters, 'count(' . $value . ')');
     }
 
+    /**
+     * @param $filters
+     * @param $aggregations
+     * @param $forceExternalSelect
+     * @param $columns
+     * @param $logId
+     * @return int
+     * @throws \Exception
+     * @deprecated since version 04/09/2026 use ::query()
+     */
     public static function aggregations($filters = array(), $aggregations=NULL, $forceExternalSelect = FALSE, $columns = NULL, $logId = NULL)
     {
         $name = self::getName();
@@ -495,11 +510,20 @@ class Model implements \JsonSerializable
             $sql = 'SELECT ' . implode(',', $columnsAggregation) . ' FROM ( ' . $sql . ') AS ag';
         }
 
-        $result = $name::getConn()->findOne($sql, $where->getArgs(), null, $logId ? $logId : $name);
+        $result = $name::getConn()->findOne($sql, $where->getArgs(), null, $logId ?: $name);
 
         return isset($result) ? $result : 0;
     }
 
+    /**
+     * @param $filters
+     * @param $aggregation
+     * @param $forceExternalSelect
+     * @param $columns
+     * @param $logId
+     * @return int
+     * @deprecated since version 04/09/2026 use ::query()
+     */
     public static function aggregation($filters = array(), $aggregation = 'count(*)', $forceExternalSelect = FALSE, $columns = NULL, $logId = null)
     {
         $name = self::getName();
@@ -600,6 +624,7 @@ class Model implements \JsonSerializable
      *
      * @param array $filters
      * @return T|null
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function findOne($filters = array(), $logId = null)
     {
@@ -621,6 +646,7 @@ class Model implements \JsonSerializable
      *
      * @param array $filters
      * @return T
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function findOneOrCreate($filters = array(), $logId = null)
     {
@@ -668,6 +694,7 @@ class Model implements \JsonSerializable
      * @param string $orderWay
      *
      * @return array
+     * @deprecated since version 04/09/2026 use ::query()
      */
     public static function smartFind($filter = NULL, $extraFilters = array(), $limit = NULL, $offset = NULL, $orderBy = NULL, $orderWay = NULL, $returnType = NULL)
     {
@@ -714,6 +741,7 @@ class Model implements \JsonSerializable
      * Make a database insert
      *
      * @return int
+     * @throws \Exception
      */
     public function insert($columns = NULL)
     {
@@ -758,6 +786,7 @@ class Model implements \JsonSerializable
      * Update current object
      *
      * @return int quantity of updated register
+     * @throws \Exception
      */
     public function update($columns = NULL)
     {
@@ -791,6 +820,7 @@ class Model implements \JsonSerializable
      * Call insert or update according situation
      *
      * @return integer
+     * @throws \Exception
      */
     public function save($columns = NULL)
     {
@@ -849,6 +879,7 @@ class Model implements \JsonSerializable
      * Duplicate current object in database
      *
      * @return int
+     * @throws \Exception
      */
     public function duplicate()
     {
@@ -860,6 +891,7 @@ class Model implements \JsonSerializable
      * Make the validation of data in model
      *
      * @return array
+     * @throws \Exception
      */
     public function validate()
     {
@@ -905,6 +937,7 @@ class Model implements \JsonSerializable
      * Remove the current object from databse
      *
      * @return int
+     * @throws \Exception
      */
     public function delete()
     {
@@ -938,6 +971,7 @@ class Model implements \JsonSerializable
      * Method used to auto mount selects
      *
      * @return string
+     * @throws \Exception
      */
     public function getOptionValue()
     {
@@ -950,6 +984,7 @@ class Model implements \JsonSerializable
      * when using foreign key
      *
      * @return string|null
+     * @throws \Exception
      */
     public function getOptionLabel()
     {
@@ -971,6 +1006,7 @@ class Model implements \JsonSerializable
      * This method call getOptionLabel internally
      *
      * @return string
+     * @throws \Exception
      */
     public function __toString()
     {
@@ -1013,6 +1049,7 @@ class Model implements \JsonSerializable
      *
      * @param string $property
      * @return string
+     * @throws \Exception
      */
     public function getValueDb($property)
     {
@@ -1034,6 +1071,7 @@ class Model implements \JsonSerializable
      * @param string $property
      * @param mixed $value
      * @return \Db\Model
+     * @throws \Exception
      */
     public function setValue($property, $value)
     {
@@ -1064,6 +1102,7 @@ class Model implements \JsonSerializable
      * @param DataHandle $request
      * @param bool $overwrite
      * @return Model
+     * @throws \Exception
      */
     public function setData(\DataHandle\DataHandle $request, $overwrite = TRUE)
     {
@@ -1093,6 +1132,7 @@ class Model implements \JsonSerializable
      * Return a data of the object
      *
      * @return \DataHandle\DataHandle
+     * @throws \Exception
      */
     public function getData()
     {
@@ -1105,6 +1145,7 @@ class Model implements \JsonSerializable
      * @param bool $getValue if is or not to call getvalue (not call is an optmization)
      *
      * @return array
+     * @throws \Exception
      */
     public function getArray($getValue = true)
     {
@@ -1118,7 +1159,7 @@ class Model implements \JsonSerializable
             if ($getValue)
             {
                 $gettedValue = $this->getValue($property);
-                $value = $gettedValue ? $gettedValue : $value;
+                $value = $gettedValue ?: $value;
             }
 
             if ($value instanceof \Type\Generic)
@@ -1140,6 +1181,7 @@ class Model implements \JsonSerializable
      * Return a json string representation of this model
      *
      * @return string
+     * @throws \Exception
      */
     public function toJson()
     {
@@ -1150,6 +1192,7 @@ class Model implements \JsonSerializable
      * Implements the default PHP json serialize method
      *
      * @return array
+     * @throws \Exception
      */
     public function jsonSerialize():mixed
     {
@@ -1176,7 +1219,6 @@ class Model implements \JsonSerializable
         $name = self::getName();
         $columns = $name::getColumns();
         $column = $columns[$propertyName];
-        $column instanceof \Db\Column\Column;
 
         $idValue = $this->$propertyName;
 
@@ -1228,7 +1270,7 @@ class Model implements \JsonSerializable
      * @deprecated since version 18/02/2020
      *
      * @param array $filters \Db\Cond or \Db\Where
-     * @return \stdClass
+     * @return \Db\Criteria
      * @throws \Exception
      */
     public static function getWhereFromFilters($filters)
@@ -1273,7 +1315,6 @@ class Model implements \JsonSerializable
 
         foreach ($columns as $column)
         {
-            $column instanceof \Db\Column\Column;
             $referenceModel = $column->getReferenceTable();
 
             //don't do relation if the colum ins a search column
