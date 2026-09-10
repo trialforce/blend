@@ -276,7 +276,7 @@ class File implements \JsonSerializable
      */
     public function getExtension()
     {
-        $explode = explode('.', $this->path);
+        $explode = explode('.', strval($this->path));
         return strtolower($explode[count($explode) - 1]);
     }
 
