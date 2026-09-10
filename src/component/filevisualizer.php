@@ -23,6 +23,23 @@ class FileVisualizer extends \Component\Component
         $this->setFile($file);
     }
 
+    public function callEvent()
+    {
+        \Component\FileVisualizer::validaUsuarioLogado();
+
+        $eventos = [];
+        $eventos[] = 'delete';
+        $eventos[] = 'preview';
+        $eventos[] = 'upload';
+
+        if (!in_array($this->getEvent(), $eventos))
+        {
+            throw new \UserException('Operação de arquivo não permitida!');
+        }
+
+        return parent::callEvent();
+    }
+
     /**
      * Get the relative file
      * @return \Disk\File
@@ -88,8 +105,10 @@ class FileVisualizer extends \Component\Component
 
     public function delete()
     {
+        \Component\FileVisualizer::validaUsuarioLogado();
         \App::dontChangeUrl();
         $path = \DataHandle\Request::get('file');
+        $path = \Component\FileVisualizer::validaCaminhoPermitido($path);
         $file = new \Disk\File($path);
         $ok = $file->remove();
 
@@ -106,13 +125,17 @@ class FileVisualizer extends \Component\Component
 
     public function preview()
     {
+        \Component\FileVisualizer::validaUsuarioLogado();
+
         if (!\DataHandle\Server::getInstance()->isAjax())
         {
             $folder = \DataHandle\Request::get('file');
+            $folder = \Component\FileVisualizer::validaCaminhoPermitido($folder);
             return \Component\FileVisualizer::createHolder(new \Disk\Folder($folder), '*');
         }
 
         $path = \DataHandle\Request::get('file');
+        $path = \Component\FileVisualizer::validaCaminhoPermitido($path);
         $file = new \Disk\File($path);
         $isDir = $file->isDir();
 
@@ -165,6 +188,7 @@ class FileVisualizer extends \Component\Component
 
     public function upload()
     {
+        \Component\FileVisualizer::validaUsuarioLogado();
         \App::dontChangeUrl();
 
         if (empty($_FILES))
@@ -178,7 +202,11 @@ class FileVisualizer extends \Component\Component
         {
             $uploadName = $uploadedFile['name'];
             $targetPath = \DataHandle\Request::get('file-visualizer-folder');
+            $targetPath = \Component\FileVisualizer::validaCaminhoPermitido($targetPath);
             $tempFile = $uploadedFile['tmp_name'];
+
+            $fileUpload = new \Disk\FileUpload($uploadedFile);
+            $this->validaUpload($fileUpload);
 
             $file = new \Disk\File($uploadName);
             $basename = $file->getBasename(false);
@@ -209,11 +237,46 @@ class FileVisualizer extends \Component\Component
         }
     }
 
+    private function validaUpload(\Disk\FileUpload $fileUpload)
+    {
+        $extensoesNegadas = [];
+        $extensoesNegadas[] = 'php';
+        $extensoesNegadas[] = 'php3';
+        $extensoesNegadas[] = 'php4';
+        $extensoesNegadas[] = 'php5';
+        $extensoesNegadas[] = 'php7';
+        $extensoesNegadas[] = 'php8';
+        $extensoesNegadas[] = 'phtml';
+        $extensoesNegadas[] = 'phar';
+        $extensoesNegadas[] = 'html';
+        $extensoesNegadas[] = 'htm';
+        $extensoesNegadas[] = 'shtml';
+        $extensoesNegadas[] = 'js';
+        $extensoesNegadas[] = 'svg';
+        $extensoesNegadas[] = 'cgi';
+        $extensoesNegadas[] = 'pl';
+        $extensoesNegadas[] = 'py';
+        $extensoesNegadas[] = 'sh';
+        $extensoesNegadas[] = 'htaccess';
+        $extensoesNegadas[] = 'ini';
+
+        $fileUpload->verifyExtension($extensoesNegadas, true);
+        $partesNome = explode('.', strtolower($fileUpload->getName()));
+
+        foreach ($partesNome as $parteNome)
+        {
+            if (in_array($parteNome, $extensoesNegadas))
+            {
+                throw new \UserException('Formato de arquivo não permitido!');
+            }
+        }
+    }
+
     public function mountFolder(\Disk\File $file)
     {
         $folder = $file->getFolder();
         $root = \DataHandle\Request::get('file-visualizer-root');
-        $search = \DataHandle\Request::get('file-visualizer-search');
+        $search = \Component\FileVisualizer::validaBusca(\DataHandle\Request::get('file-visualizer-search'));
         $title = '';
 
         if ($root)
@@ -250,8 +313,11 @@ class FileVisualizer extends \Component\Component
      */
     public static function createHolder(\Disk\Folder $folder, $search = '*', $title = null)
     {
+        \Component\FileVisualizer::validaUsuarioLogado();
         $isCkEditor = \DataHandle\Request::get('CKEditor');
         $accept = '*';
+
+        $search = \Component\FileVisualizer::validaBusca($search);
 
         if ($isCkEditor || $search == 'image')
         {
@@ -259,6 +325,8 @@ class FileVisualizer extends \Component\Component
             $accept = 'image/*';
         }
 
+        $folderPath = \Component\FileVisualizer::validaCaminhoPermitido($folder->getPath());
+        $folder = new \Disk\Folder($folderPath);
         $folder->createFolderIfNeeded();
 
         $uploadUrl = \Component\FileVisualizer::getLinkForComponent(null, 'upload');
@@ -288,6 +356,86 @@ class FileVisualizer extends \Component\Component
         $content[] = new \View\Div('file-visualizer-files', $components, 'file-visualizer-files clearfix');
 
         return new \View\Div('file-visualizer-holder', $content, 'file-visualizer-holder clearfix');
+    }
+
+    private static function validaUsuarioLogado()
+    {
+        if (!\DataHandle\Session::get('user'))
+        {
+            throw new \UserException('É necessário estar logado para acessar os arquivos!');
+        }
+    }
+
+    private static function validaBusca($search)
+    {
+        $buscasPermitidas = [];
+        $buscasPermitidas[] = '*';
+        $buscasPermitidas[] = 'image';
+        $buscasPermitidas[] = '*.{jpg,jpeg,png,gif,wbep,svg}';
+
+        if (!is_string($search) || !in_array($search, $buscasPermitidas))
+        {
+            throw new \UserException('Busca de arquivos não permitida!');
+        }
+
+        return $search;
+    }
+
+    private static function validaCaminhoPermitido($path)
+    {
+        if (!is_string($path) || !$path)
+        {
+            throw new \UserException('Caminho de arquivo inválido!');
+        }
+
+        $partesPendentes = [];
+        $pathExistente = $path;
+
+        while (!file_exists($pathExistente))
+        {
+            $parte = basename($pathExistente);
+
+            if (!$parte || $parte == '.' || $parte == '..')
+            {
+                throw new \UserException('Caminho de arquivo inválido!');
+            }
+
+            array_unshift($partesPendentes, $parte);
+            $pathPai = dirname($pathExistente);
+
+            if ($pathPai == $pathExistente)
+            {
+                throw new \UserException('Caminho de arquivo inválido!');
+            }
+
+            $pathExistente = $pathPai;
+        }
+
+        if ($partesPendentes && !is_dir($pathExistente))
+        {
+            throw new \UserException('Caminho de arquivo inválido!');
+        }
+
+        $pathReal = realpath($pathExistente);
+
+        foreach ($partesPendentes as $parte)
+        {
+            $pathReal .= DIRECTORY_SEPARATOR . $parte;
+        }
+
+        $roots = [];
+        $roots[] = realpath(\Disk\Media::getMediaPath());
+        $roots[] = realpath(\Disk\Media::getStoragePath());
+
+        foreach ($roots as $root)
+        {
+            if ($root && ($pathReal == $root || str_starts_with($pathReal, $root . DIRECTORY_SEPARATOR)))
+            {
+                return $pathReal;
+            }
+        }
+
+        throw new \UserException('Acesso ao caminho de arquivo não permitido!');
     }
 
 }
