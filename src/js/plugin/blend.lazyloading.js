@@ -43,12 +43,17 @@ blend.lazyloading.onScroll = function ()
 blend.lazyloading.parseBackImages = function ()
 {
     var elements = $('[data-lazyloading-background-image]');
+    // Lê todas as posições antes de alterar as imagens para evitar reflows entre os itens.
+    let positions = elements.map(function ()
+    {
+        return $(this).offset().top;
+    }).get();
 
     //background image
     elements.each(function (idx)
     {
         var element = $(elements[idx]);
-        var offsetTop = element.offset().top - blend.lazyloading.adjust;
+        var offsetTop = positions[idx] - blend.lazyloading.adjust;
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
@@ -69,15 +74,30 @@ blend.lazyloading.parseBackImages = function ()
     });
 }
 
-blend.lazyloading.parseSrcImages = function ()
+blend.lazyloading.medeImagens = function ()
 {
-    var imgs = $('[data-lazyloading-src]:visible');
+    let imagens = [];
 
-    //images with href
-    imgs.each(function (idx)
+    document.querySelectorAll('[data-lazyloading-src]').forEach(function (element)
     {
-        var element = $(imgs[idx]);
-        var offsetTop = element.offset().top - blend.lazyloading.adjust;
+        let rect = element.getBoundingClientRect();
+
+        if (element.offsetWidth > 0 || element.offsetHeight > 0)
+        {
+            imagens.push({element: element, top: rect.top + window.scrollY});
+        }
+    });
+
+    return imagens;
+};
+
+blend.lazyloading.parseSrcImages = function (imgs = blend.lazyloading.medeImagens())
+{
+    //images with href
+    imgs.forEach(function (imagem)
+    {
+        var element = $(imagem.element);
+        var offsetTop = imagem.top - blend.lazyloading.adjust;
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
@@ -101,13 +121,18 @@ blend.lazyloading.parseSrcImages = function ()
 blend.lazyloading.parseActives = function ()
 {
     var actives = $('[data-lazyloading-active]');
+    // Lê as posições antes de alterar as classes dos elementos.
+    let positions = actives.map(function ()
+    {
+        return $(this).offset().top;
+    }).get();
 
     //element to active (add class lazyloading-active)
     actives.each(function (idx)
     {
         var element = $(actives[idx]);
         var adjust = 150;
-        var offsetTop = element.offset().top + (adjust);
+        var offsetTop = positions[idx] + adjust;
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
@@ -121,13 +146,18 @@ blend.lazyloading.parseActives = function ()
 blend.lazyloading.parseFunctions = function ()
 {
     var functions = $('[data-lazyloading-function]');
+    // Lê as posições antes de executar funções que podem alterar o layout.
+    let positions = functions.map(function ()
+    {
+        return $(this).offset().top;
+    }).get();
 
     //elements to call function
     functions.each(function (idx)
     {
         var element = $(functions[idx]);
         var adjust = 150;
-        var offsetTop = element.offset().top + (adjust);
+        var offsetTop = positions[idx] + adjust;
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
@@ -151,16 +181,13 @@ blend.lazyloading.parseFunctions = function ()
 
 blend.lazyloading.parse = function ()
 {
-    var scrollingElement = document.documentElement;
+    blend.lazyloading.heightVisible = window.scrollY + screen.height;
 
-    if (document.scrollingElement)
-    {
-        scrollingElement = document.scrollingElement;
-    }
 
-    blend.lazyloading.heightVisible = scrollingElement.scrollTop + screen.height;
+    let imagens = blend.lazyloading.medeImagens();
+
     blend.lazyloading.parseBackImages();
-    blend.lazyloading.parseSrcImages();
+    blend.lazyloading.parseSrcImages(imagens);
     blend.lazyloading.parseActives();
     blend.lazyloading.parseFunctions();
 

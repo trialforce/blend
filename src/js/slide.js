@@ -8,17 +8,57 @@ blend.slide.register = function ()
 
 blend.slide.start = function ()
 {
-    //first inner slider
-    $('.slider').not('.slider-outter').each(function ()
+    let sliders = Array.from(document.querySelectorAll('.slider:not(.loaded):not(.slider-outter)'));
+    let slidersSemFilhos = sliders.filter(function (element)
     {
-        slide('#' + $(this).attr('id'));
+        return !element.querySelector('.slider') && (element.offsetWidth > 0 || element.offsetHeight > 0);
     });
-    
-    //after that the rest
-    $('.slider').each(function ()
+    let medidas = new Map();
+
+    // Inicializa os sliders internos antes do carrossel externo.
+    slidersSemFilhos.forEach(function (element)
     {
-        slide('#' + $(this).attr('id'));
+        element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
     });
+    slidersSemFilhos.forEach(function (element)
+    {
+        medidas.set(element, blend.slide.medeSlider(element));
+    });
+    slidersSemFilhos.forEach(function (element)
+    {
+        slide('#' + element.id, medidas.get(element));
+    });
+
+    // Sliders externos preservam a inicialização depois dos internos.
+    document.querySelectorAll('.slider:not(.loaded)').forEach(function (element)
+    {
+        slide('#' + element.id);
+    });
+};
+
+blend.slide.medeSlider = function (element)
+{
+    let wrapper = element.querySelector(':scope > .slider-wrapper');
+    let slides = wrapper.querySelectorAll(':scope > .slider-items > .slide');
+    //copy outter width to inner
+    let wrapperStyle = window.getComputedStyle(wrapper);
+    let groupStyle = window.getComputedStyle(element);
+    let wrapperExtra = wrapperStyle.boxSizing == 'border-box' ? parseFloat(wrapperStyle.paddingLeft) + parseFloat(wrapperStyle.paddingRight) + parseFloat(wrapperStyle.borderLeftWidth) + parseFloat(wrapperStyle.borderRightWidth) : 0;
+    let groupExtra = groupStyle.boxSizing == 'border-box' ? parseFloat(groupStyle.paddingTop) + parseFloat(groupStyle.paddingBottom) + parseFloat(groupStyle.borderTopWidth) + parseFloat(groupStyle.borderBottomWidth) : 0;
+    var outterWidth = parseFloat(wrapperStyle.width) - wrapperExtra + 1;
+    var outterHeight = Math.trunc(parseFloat(groupStyle.height) - groupExtra);
+
+    // Calcula a largura externa antes das alterações; restrições de tamanho mantêm a medição original.
+    let slideStyle = window.getComputedStyle(slides[0]);
+    let slideExtra = parseFloat(slideStyle.paddingLeft) + parseFloat(slideStyle.paddingRight) + parseFloat(slideStyle.borderLeftWidth) + parseFloat(slideStyle.borderRightWidth);
+    let slideSize = null;
+
+    if (slideStyle.minWidth == '0px' && slideStyle.maxWidth == 'none' && slides[0].style.getPropertyPriority('width') != 'important')
+    {
+        slideSize = Math.round(slideStyle.boxSizing == 'border-box' ? Math.max(outterWidth, slideExtra) : outterWidth + slideExtra);
+    }
+
+    return {width: outterWidth, height: outterHeight, size: slideSize};
 };
 
 /**
@@ -26,18 +66,18 @@ blend.slide.start = function ()
  * @param string selector the jquery selector
  * @returns void
  */
-function slide(selector)
+function slide(selector, medidas)
 {
     var group = $($(selector).get(0));
     
-    //don't process invisible elements
-    if (!group.is(":visible"))
+    // Evita consultar o layout de sliders que já foram inicializados.
+    if (group.hasClass('loaded'))
     {
         return;
     }
        
-    //don't proccess the same slide again
-    if ($(group).hasClass('loaded'))
+    //don't process invisible elements
+    if (!medidas && !group.is(":visible"))
     {
         return;
     }
@@ -62,7 +102,10 @@ function slide(selector)
     
     var slides= items.querySelectorAll(':scope >.slide'); //only first level child
     var slidesLength = slides.length;
-    slides[0].style.display = 'inline-block';
+    if (!medidas)
+    {
+        slides[0].style.display = 'inline-block';
+    }
 
     var hasSubSlider = group.find('.slider').length>0;
 
@@ -72,7 +115,10 @@ function slide(selector)
     }
     
     //remove outter class, is not needed after parse
-    group.get(0).classList.remove('slider-outter');
+    if (!medidas)
+    {
+        group.get(0).classList.remove('slider-outter');
+    }
 
     //data
     var autoSlide = group.data('auto-slide');
@@ -81,9 +127,10 @@ function slide(selector)
     var dataChangeOnHover = group.data('change-on-hover');
     var dataDragDisable = group.data('drag-disabled');
     
-    //copy outter width to inner
-    var outterWidth = wrapper.width()+1; //strange +1 is needed
-    var outterHeight = parseInt(group.height());
+    medidas = medidas || blend.slide.medeSlider(group.get(0));
+    var outterWidth = medidas.width;
+    var outterHeight = medidas.height;
+    let slideSize = medidas.size;
 
     //if the height it not loaded yet, wait a little
     if (outterHeight == 0 || outterHeight == '0px')
@@ -189,7 +236,7 @@ function slide(selector)
     var thresholdMove = 15; 
     var allowShift = true;
 
-    var slideSize = slides[0].offsetWidth;
+    slideSize = slideSize === null ? slides[0].offsetWidth : slideSize;
     var firstSlide = slides[0];
     var lastSlide = slides[slidesLength - 1];
 
@@ -347,15 +394,16 @@ function slide(selector)
 
     function shiftSlide(dir, action)
     {
+        // Consulta a posição antes de invalidar os estilos com a classe de transição.
+        if (allowShift && !action)
+        {
+            posInitial = items.offsetLeft;
+        }
+
         items.classList.add('shifting');
 
         if (allowShift)
         {
-            if (!action)
-            {
-                posInitial = items.offsetLeft;
-            }
-
             //show all slides
             let slides = items.querySelectorAll(':scope >.slide');
             for (var i=0; i<slides.length; i++)
