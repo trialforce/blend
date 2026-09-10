@@ -230,7 +230,7 @@ class Server extends DataHandle
     {
         //adds slash to avoid final url without
         $folder = '/';
-        $requestURI = $this->getVar('REQUEST_URI'); //folder
+        $requestURI = strval($this->getVar('REQUEST_URI')); //folder
         $parts = array_values(array_filter(explode('/', $requestURI)));
 
         if (count($parts) > 0 && Request::get('e') != $parts[0])
