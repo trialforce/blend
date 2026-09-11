@@ -69,6 +69,12 @@ blend.slide.medeSlider = function (element)
 function slide(selector, medidas)
 {
     var group = $($(selector).get(0));
+    var groupElement = group.get(0);
+
+    if (!groupElement)
+    {
+        return;
+    }
     
     // Evita consultar o layout de sliders que já foram inicializados.
     if (group.hasClass('loaded'))
@@ -77,7 +83,7 @@ function slide(selector, medidas)
     }
        
     //don't process invisible elements
-    if (!medidas && !group.is(":visible"))
+    if (!medidas && groupElement.checkVisibility && !groupElement.checkVisibility())
     {
         return;
     }
