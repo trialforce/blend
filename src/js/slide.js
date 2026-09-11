@@ -15,14 +15,14 @@ blend.slide.start = function ()
     });
     let medidas = new Map();
 
-    // Inicializa os sliders internos antes do carrossel externo.
-    slidersSemFilhos.forEach(function (element)
-    {
-        element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
-    });
     slidersSemFilhos.forEach(function (element)
     {
         medidas.set(element, blend.slide.medeSlider(element));
+    });
+    // Inicializa os sliders internos depois de concluir todas as leituras de layout.
+    slidersSemFilhos.forEach(function (element)
+    {
+        element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
     });
     slidersSemFilhos.forEach(function (element)
     {
