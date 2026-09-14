@@ -30,10 +30,29 @@ blend.slide.start = function ()
     });
 
     // Sliders externos preservam a inicialização depois dos internos.
-    document.querySelectorAll('.slider:not(.loaded)').forEach(function (element)
+    setTimeout(function ()
     {
-        slide('#' + element.id);
-    });
+        let slidersPendentes = Array.from(document.querySelectorAll('.slider:not(.loaded)'));
+        let slidersVisiveis = slidersPendentes.filter(function (element)
+        {
+            return !element.checkVisibility || element.checkVisibility();
+        });
+        let medidasPendentes = new Map();
+
+        slidersVisiveis.forEach(function (element)
+        {
+            element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
+            element.classList.remove('slider-outter');
+        });
+        slidersVisiveis.forEach(function (element)
+        {
+            medidasPendentes.set(element, blend.slide.medeSlider(element));
+        });
+        slidersVisiveis.forEach(function (element)
+        {
+            slide('#' + element.id, medidasPendentes.get(element));
+        });
+    }, 0);
 };
 
 blend.slide.medeSlider = function (element)
@@ -46,7 +65,7 @@ blend.slide.medeSlider = function (element)
     let wrapperExtra = wrapperStyle.boxSizing == 'border-box' ? parseFloat(wrapperStyle.paddingLeft) + parseFloat(wrapperStyle.paddingRight) + parseFloat(wrapperStyle.borderLeftWidth) + parseFloat(wrapperStyle.borderRightWidth) : 0;
     let groupExtra = groupStyle.boxSizing == 'border-box' ? parseFloat(groupStyle.paddingTop) + parseFloat(groupStyle.paddingBottom) + parseFloat(groupStyle.borderTopWidth) + parseFloat(groupStyle.borderBottomWidth) : 0;
     var outterWidth = parseFloat(wrapperStyle.width) - wrapperExtra + 1;
-    var outterHeight = Math.trunc(parseFloat(groupStyle.height) - groupExtra);
+    var outterHeight = parseFloat(groupStyle.height) - groupExtra;
 
     // Calcula a largura externa antes das alterações; restrições de tamanho mantêm a medição original.
     let slideStyle = window.getComputedStyle(slides[0]);
@@ -150,7 +169,9 @@ function slide(selector, medidas)
     }
     
     //ajdust width e height
-    items.style.left = '-' + outterWidth+'px';
+    var itemsPosition = -outterWidth;
+    items.style.transitionProperty = 'transform';
+    moveItems(itemsPosition);
     
     for (var i=0; i<slides.length; i++)
     {
@@ -311,7 +332,7 @@ function slide(selector, medidas)
             return false;
         }
 
-        posInitial = items.offsetLeft;
+        posInitial = itemsPosition;
         posInitialY = $(window).scrollTop();
 
         if (e.type == 'touchstart')
@@ -349,7 +370,7 @@ function slide(selector, medidas)
 
         if (Math.abs(posX2)> thresholdMove)
         {
-            items.style.left = (items.offsetLeft - posX2) + "px";
+            moveItems(itemsPosition - posX2);
         }
 
         $(window).scrollTop(posInitialY + posY2);
@@ -357,7 +378,7 @@ function slide(selector, medidas)
 
     function dragEnd(e)
     {
-        posFinal = items.offsetLeft;
+        posFinal = itemsPosition;
         posFinalY = $(window).scrollTop();
         
         var diffX = (posFinal - posInitial);
@@ -391,7 +412,7 @@ function slide(selector, medidas)
         //nothing, return original position
         else
         {
-            items.style.left = (posInitial) + "px";
+            moveItems(posInitial);
         }
 
         document.onmouseup = null;
@@ -403,7 +424,7 @@ function slide(selector, medidas)
         // Consulta a posição antes de invalidar os estilos com a classe de transição.
         if (allowShift && !action)
         {
-            posInitial = items.offsetLeft;
+            posInitial = itemsPosition;
         }
 
         items.classList.add('shifting');
@@ -419,12 +440,12 @@ function slide(selector, medidas)
 
             if (dir == 1)
             {
-                items.style.left = (posInitial - slideSize) + "px";
+                moveItems(posInitial - slideSize);
                 index++;
             } 
             else if (dir == -1)
             {
-                items.style.left = (posInitial + slideSize) + "px";
+                moveItems(posInitial + slideSize);
                 index--;
             }
         };
@@ -437,7 +458,7 @@ function slide(selector, medidas)
     {
         items.classList.add('shifting');
         slides[position].style.display = 'inline-block';
-        items.style.left = (slideSize * (position + 1) * -1) + "px";
+        moveItems(slideSize * (position + 1) * -1);
         index = position;
         clearInterval(timerInterval);
 
@@ -450,13 +471,13 @@ function slide(selector, medidas)
 
         if (index == -1)
         {
-            items.style.left = -(slidesLength * slideSize) + "px";
+            moveItems(-(slidesLength * slideSize));
             index = slidesLength - 1;
         }
 
         if (index == slidesLength)
         {
-            items.style.left = -(1 * slideSize) + "px";
+            moveItems(-(1 * slideSize));
             index = 0;
         }
         
@@ -487,7 +508,8 @@ function slide(selector, medidas)
         
         var sliderItems = newSlider.find('.slider-items');
         sliderItems.css('height',"");
-        sliderItems.css('left',"");
+        sliderItems.css('transform',"");
+        sliderItems.css('transition-property',"");
         
         newSlider.find('.slide.cloned').remove();
 
@@ -527,6 +549,12 @@ function slide(selector, medidas)
         
         var page = pages.get(position);
         page.classList.add('active');
+    }
+
+    function moveItems(position)
+    {
+        itemsPosition = position;
+        items.style.transform = 'translate3d(' + position + 'px, 0, 0)';
     }
 };
 
