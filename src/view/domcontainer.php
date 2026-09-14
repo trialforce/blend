@@ -274,6 +274,21 @@ class DomContainer implements \Countable
         return \View\View::sAppend($this->getDomElement(), $content);
     }
 
+    public function prepend(...$nodes): void
+    {
+        if (is_array($nodes))
+        {
+            foreach ($nodes as $node)
+            {
+                $this->domElement->prepend($node);
+            }
+        }
+        else
+        {
+            $this->domElement->prepend($nodes);
+        }
+    }
+
     public function clearChildren()
     {
         while ($this->hasChildNodes())
