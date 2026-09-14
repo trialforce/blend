@@ -262,6 +262,7 @@ function slide(selector, medidas)
     //needs to 15 at least for avoid shaking in iPhone
     var thresholdMove = 15; 
     var allowShift = true;
+    var loadingSlide = false;
 
     slideSize = slideSize === null ? slides[0].offsetWidth : slideSize;
     var firstSlide = slides[0];
@@ -419,8 +420,23 @@ function slide(selector, medidas)
         document.onmousemove = null;
     }
 
-    function shiftSlide(dir, action)
+    async function shiftSlide(dir, action)
     {
+        if (!allowShift || loadingSlide)
+        {
+            return false;
+        }
+
+        var targetSlides = obtemSlidesDestino(dir);
+        var loading = carregaFundosSlides(targetSlides);
+
+        if (loading)
+        {
+            loadingSlide = true;
+            await loading;
+            loadingSlide = false;
+        }
+
         // Consulta a posição antes de invalidar os estilos com a classe de transição.
         if (allowShift && !action)
         {
@@ -454,8 +470,22 @@ function slide(selector, medidas)
         return false;
     }
     
-    function setSlide(position)
+    async function setSlide(position)
     {
+        if (loadingSlide)
+        {
+            return false;
+        }
+
+        var loading = carregaFundosSlides([slides[position]]);
+
+        if (loading)
+        {
+            loadingSlide = true;
+            await loading;
+            loadingSlide = false;
+        }
+
         items.classList.add('shifting');
         slides[position].style.display = 'inline-block';
         moveItems(slideSize * (position + 1) * -1);
@@ -463,6 +493,72 @@ function slide(selector, medidas)
         clearInterval(timerInterval);
 
         return false;
+    }
+
+    function obtemSlidesDestino(dir)
+    {
+        var targetIndex = index + dir;
+
+        if (targetIndex < 0)
+        {
+            return [lastSlide, cloneLast];
+        }
+
+        if (targetIndex >= slidesLength)
+        {
+            return [firstSlide, cloneFirst];
+        }
+
+        return [slides[targetIndex]];
+    }
+
+    function carregaFundosSlides(targetSlides)
+    {
+        var loadings = [];
+
+        for (var i = 0; i < targetSlides.length; i++)
+        {
+            var loading = carregaFundoSlide(targetSlides[i]);
+
+            if (loading)
+            {
+                loadings.push(loading);
+            }
+        }
+
+        return loadings.length ? Promise.all(loadings) : null;
+    }
+
+    function carregaFundoSlide(targetSlide)
+    {
+        var imageUrl = targetSlide.getAttribute('data-slide-background-image');
+
+        if (!imageUrl)
+        {
+            return null;
+        }
+
+        if (blend.lazyloading && typeof blend.lazyloading.srcTranslate == 'function')
+        {
+            imageUrl = blend.lazyloading.srcTranslate(imageUrl);
+        }
+
+        return new Promise(function (resolve)
+        {
+            var image = new Image();
+
+            image.onload = function ()
+            {
+                targetSlide.style.backgroundImage = 'url(' + imageUrl + ')';
+                targetSlide.removeAttribute('data-slide-background-image');
+                resolve();
+            };
+            image.onerror = function ()
+            {
+                resolve();
+            };
+            image.src = imageUrl;
+        });
     }
 
     function checkIndex()
