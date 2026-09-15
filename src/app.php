@@ -87,7 +87,7 @@ class App
      */
     public function getCurrentPageExtension()
     {
-        $requestUri = Server::getInstance()->getRequestUri(false);
+        $requestUri = strval(parse_url(Server::getInstance()->getRequestUri(false), PHP_URL_PATH));
         $explode = explode('.', $requestUri);
 
         if (count($explode) > 1 && isset($explode[count($explode) - 1]))
