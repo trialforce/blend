@@ -30,29 +30,36 @@ blend.slide.start = function ()
     });
 
     // Sliders externos preservam a inicialização depois dos internos.
-    setTimeout(function ()
+    requestAnimationFrame(function ()
     {
-        let slidersPendentes = Array.from(document.querySelectorAll('.slider:not(.loaded)'));
-        let slidersVisiveis = slidersPendentes.filter(function (element)
+        requestAnimationFrame(function ()
         {
-            return !element.checkVisibility || element.checkVisibility();
-        });
-        let medidasPendentes = new Map();
+            let slidersPendentes = Array.from(document.querySelectorAll('.slider:not(.loaded)'));
+            let slidersVisiveis = slidersPendentes.filter(function (element)
+            {
+                return !element.checkVisibility || element.checkVisibility();
+            });
 
-        slidersVisiveis.forEach(function (element)
-        {
-            element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
-            element.classList.remove('slider-outter');
+            slidersVisiveis.forEach(function (element)
+            {
+                element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
+                element.classList.remove('slider-outter');
+            });
+            requestAnimationFrame(function ()
+            {
+                let medidasPendentes = new Map();
+
+                slidersVisiveis.forEach(function (element)
+                {
+                    medidasPendentes.set(element, blend.slide.medeSlider(element));
+                });
+                slidersVisiveis.forEach(function (element)
+                {
+                    slide('#' + element.id, medidasPendentes.get(element));
+                });
+            });
         });
-        slidersVisiveis.forEach(function (element)
-        {
-            medidasPendentes.set(element, blend.slide.medeSlider(element));
-        });
-        slidersVisiveis.forEach(function (element)
-        {
-            slide('#' + element.id, medidasPendentes.get(element));
-        });
-    }, 0);
+    });
 };
 
 blend.slide.medeSlider = function (element)
@@ -518,11 +525,17 @@ function slide(selector, medidas)
 
         for (var i = 0; i < targetSlides.length; i++)
         {
-            var loading = carregaFundoSlide(targetSlides[i]);
+            var loadingFundo = carregaFundoSlide(targetSlides[i]);
+            var loadingImagem = carregaImagemSlide(targetSlides[i]);
 
-            if (loading)
+            if (loadingFundo)
             {
-                loadings.push(loading);
+                loadings.push(loadingFundo);
+            }
+
+            if (loadingImagem)
+            {
+                loadings.push(loadingImagem);
             }
         }
 
@@ -558,6 +571,37 @@ function slide(selector, medidas)
                 resolve();
             };
             image.src = imageUrl;
+        });
+    }
+
+    function carregaImagemSlide(targetSlide)
+    {
+        let imagem = targetSlide.querySelector('img[data-slide-src]');
+
+        if (!imagem)
+        {
+            return null;
+        }
+
+        return new Promise(function (resolve)
+        {
+            imagem.onload = resolve;
+            imagem.onerror = resolve;
+
+            if (imagem.dataset.slideSizes)
+            {
+                imagem.sizes = imagem.dataset.slideSizes;
+            }
+
+            if (imagem.dataset.slideSrcset)
+            {
+                imagem.srcset = imagem.dataset.slideSrcset;
+            }
+
+            imagem.src = imagem.dataset.slideSrc;
+            imagem.removeAttribute('data-slide-src');
+            imagem.removeAttribute('data-slide-srcset');
+            imagem.removeAttribute('data-slide-sizes');
         });
     }
 
@@ -608,6 +652,19 @@ function slide(selector, medidas)
         sliderItems.css('transition-property',"");
         
         newSlider.find('.slide.cloned').remove();
+
+        let imagensOriginais = newSlider.get(0).querySelectorAll('img[data-full-screen-src]');
+
+        for (let i = 0; i < imagensOriginais.length; i++)
+        {
+            let imagemOriginal = imagensOriginais[i];
+            imagemOriginal.removeAttribute('srcset');
+            imagemOriginal.removeAttribute('sizes');
+            imagemOriginal.removeAttribute('data-slide-src');
+            imagemOriginal.removeAttribute('data-slide-srcset');
+            imagemOriginal.removeAttribute('data-slide-sizes');
+            imagemOriginal.src = imagemOriginal.getAttribute('data-full-screen-src');
+        }
 
         var slides = newSlider.find('.slide');
         

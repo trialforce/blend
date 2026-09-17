@@ -208,19 +208,16 @@ table.column-12 {
 }
 
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 800px) {
 
     .hide-in-desktop {
         display: block !important;
     }
 
-    .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11 {
+    .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col-p-1, .col-p-2, .col-p-3, .col-p-4, .col-p-5, .col-p-6, .col-p-7, .col-p-8, .col-p-9, .col-p-10, .col-p-11, .col-p-12, .half {
         width: 100%;
-        display: inline-block;
-    }
-    
-    .col-p-2, .col-p-3, .col-p-4, .col-p-5, .col-p-6, .col-p-7, .colp--8, .col-p-9, .col-p-10, .col-p-11 {
-        width: 100%;
+        padding: 0;
+        margin: 0;
         display: inline-block;
     }
 
