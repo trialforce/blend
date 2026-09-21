@@ -39,24 +39,20 @@ blend.slide.start = function ()
             {
                 return !element.checkVisibility || element.checkVisibility();
             });
+            let medidasPendentes = new Map();
 
+            slidersVisiveis.forEach(function (element)
+            {
+                medidasPendentes.set(element, blend.slide.medeSlider(element));
+            });
             slidersVisiveis.forEach(function (element)
             {
                 element.querySelector('.slider-wrapper > .slider-items > .slide').style.display = 'inline-block';
                 element.classList.remove('slider-outter');
             });
-            requestAnimationFrame(function ()
+            slidersVisiveis.forEach(function (element)
             {
-                let medidasPendentes = new Map();
-
-                slidersVisiveis.forEach(function (element)
-                {
-                    medidasPendentes.set(element, blend.slide.medeSlider(element));
-                });
-                slidersVisiveis.forEach(function (element)
-                {
-                    slide('#' + element.id, medidasPendentes.get(element));
-                });
+                slide('#' + element.id, medidasPendentes.get(element));
             });
         });
     });
