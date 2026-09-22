@@ -35,12 +35,14 @@ class SmartFilter
     protected $modelClass;
     protected $columns;
     protected $conds;
+    protected bool $exact = false;
 
-    public function __construct($modelClass, $columns, $queryString = NULL)
+    public function __construct($modelClass, $columns, $queryString = NULL, bool $exact = false)
     {
         $this->setModelClass($modelClass);
         $this->setColumns($columns);
         $this->setQueryString($queryString);
+        $this->setExact($exact);
     }
 
     public function getQueryString()
@@ -51,6 +53,18 @@ class SmartFilter
     public function setQueryString($queryString)
     {
         $this->queryString = $queryString;
+        return $this;
+    }
+
+    public function isExact(): bool
+    {
+        return $this->exact;
+    }
+
+    public function setExact(bool $exact)
+    {
+        $this->exact = $exact;
+
         return $this;
     }
 
@@ -257,9 +271,12 @@ class SmartFilter
         $lastLetter = $filter[mb_strlen($filter) - 1];
 
         //like google
-        if ($firstLetter == '"' and $lastLetter == '"')
+        $quotedSearch = $firstLetter == '"' && $lastLetter == '"';
+
+        if ($this->isExact() || $quotedSearch)
         {
-            $preparedSearch = mb_strtolower(mb_substr($filter, 1, mb_strlen($filter) - 2));
+            $preparedSearch = $quotedSearch ? mb_substr($filter, 1, mb_strlen($filter) - 2) : $filter;
+            $preparedSearch = mb_strtolower($preparedSearch);
             $this->conds[] = new \Db\Cond($columnQuery . ' = lower(?)', $preparedSearch, \Db\Cond::COND_OR);
         }
         else
@@ -333,7 +350,11 @@ class SmartFilter
         $columnQuery = $this->getColumnQuery($column);
         $firstLetter = $filter[0];
 
-        if ($firstLetter == '>' || $firstLetter == '<')
+        if (($firstLetter == '>' || $firstLetter == '<') && $this->isExact())
+        {
+            return;
+        }
+        else if ($firstLetter == '>' || $firstLetter == '<')
         {
             $preparedSearch = \Type\Decimal::get(mb_strtolower(mb_substr($filter, 1, mb_strlen($filter) - 1)));
 
@@ -369,7 +390,9 @@ class SmartFilter
         }
 
         $query = '( SELECT ' . $top . $column->getReferenceDescription() . ' FROM ' . $referenceTable . ' WHERE ' . $referenceTable . '.' . $column->getReferenceField() . ' = ' . $tableName . '.' . $column->getName() . ' ' . $limit . ') ';
-        $this->conds[] = new \Db\Cond($query . ' like ?', str_replace(' ', '%', '%' . $filter . '%'), \Db\Cond::COND_OR);
+        $operator = $this->isExact() ? '=' : 'like';
+        $value = $this->isExact() ? $filter : str_replace(' ', '%', '%' . $filter . '%');
+        $this->conds[] = new \Db\Cond($query . ' ' . $operator . ' ?', $value, \Db\Cond::COND_OR);
     }
 
     protected function filterByContantValues($filter, \Db\Column\Column $column)

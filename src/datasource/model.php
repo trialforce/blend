@@ -106,7 +106,7 @@ class Model extends DataSource
         $model = $this->model;
         $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
         $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
-        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+        $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter, $this->isSmartFilterExact());
 
         return $filters;
     }
@@ -251,7 +251,7 @@ class Model extends DataSource
             {
                 $columns = $this->getUseColumnsForSearch() ? $this->getDbColumns() : $model->getColumns();
                 $columnsFilter = $this->getUseColumnsForSearch() ? $columns : $this->filterOnlySmartSearchableColumns($columns);
-                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter);
+                $filters = $model->smartFilters($this->getSmartFilter(), $this->getExtraFilter(), $columnsFilter, $this->isSmartFilterExact());
             }
 
             $result = $model->aggregations($filters, $querys);

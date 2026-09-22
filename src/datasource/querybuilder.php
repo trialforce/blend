@@ -94,7 +94,7 @@ class QueryBuilder extends DataSource
             $columns = \DataSource\ColumnConvert::gridToDbAll($this->getColumns());
         }
 
-        $smartFilter = new \Db\SmartFilter($modelName,$columns , $this->getSmartFilter());
+        $smartFilter = new \Db\SmartFilter($modelName, $columns, $this->getSmartFilter(), $this->isSmartFilterExact());
         return $smartFilter->createFilters();
     }
 

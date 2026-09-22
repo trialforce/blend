@@ -667,13 +667,14 @@ class Model implements \JsonSerializable
      * @param string $filter the "google" query string question
      * @param array $extraFilters extra filter to be added to the filters
      * @param array $columns columns to be considered in smartFilter
+     * @param bool $exact use exact comparison in searchable columns
      *
      * @return array
      */
-    public static function smartFilters($filter = NULL, $extraFilters = array(), $columns = NULL)
+    public static function smartFilters($filter = NULL, $extraFilters = array(), $columns = NULL, bool $exact = false)
     {
         $modelClass = self::getName();
-        $smartFilters = new SmartFilter($modelClass, $columns, $filter);
+        $smartFilters = new SmartFilter($modelClass, $columns, $filter, $exact);
         $filters = $smartFilters->createFilters();
 
         $extraFilters = is_array($extraFilters) ? array_filter($extraFilters) : array($extraFilters);

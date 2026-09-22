@@ -49,6 +49,12 @@ abstract class DataSource
     protected $smartFilter;
 
     /**
+     * Exact smart filter
+     * @var bool
+     */
+    protected bool $smartFilterExact = false;
+
+    /**
      * Extra filter
      * @var array
      */
@@ -227,10 +233,16 @@ abstract class DataSource
         return $this->smartFilter;
     }
 
-    public function setSmartFilter($smartFilter)
+    public function setSmartFilter($smartFilter, bool $exact = false)
     {
         $this->smartFilter = $smartFilter;
+        $this->smartFilterExact = $exact;
         return $this;
+    }
+
+    public function isSmartFilterExact(): bool
+    {
+        return $this->smartFilterExact;
     }
 
     public function getExtraFilter()

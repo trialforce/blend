@@ -274,7 +274,7 @@ abstract class Combo extends \Component\Component
             $dataSource->setLimit(10);
         }
 
-        $data = $dataSource->getData();
+        $data = $this->getDataPrioritizingExact($dataSource, $searchValue);
 
         if (isIterable($data) && count($data) > 0)
         {
@@ -411,6 +411,64 @@ abstract class Combo extends \Component\Component
         $dataSource->setSmartFilter($searchText);
 
         return $dataSource;
+    }
+
+    protected function getDataPrioritizingExact(\DataSource\DataSource $dataSource, string $searchText): array
+    {
+        if (!$searchText || $dataSource->getSmartFilterCallback() || !($dataSource instanceof \DataSource\Model || $dataSource instanceof \DataSource\QueryBuilder))
+        {
+            return $this->mergeAndLimit([$dataSource->getData()], $dataSource);
+        }
+
+        $exactDataSource = $this->getDataSource();
+        $this->filterData($exactDataSource, $searchText);
+        $exactDataSource->setSmartFilter($exactDataSource->getSmartFilter(), true);
+        $exactDataSource->setLimit($dataSource->getLimit());
+
+        $exactData = $exactDataSource->getData();
+
+        if (isCountable($exactData) && count($exactData) >= $dataSource->getLimit())
+        {
+            return $this->mergeAndLimit([$exactData], $dataSource);
+        }
+
+        return $this->mergeAndLimit([$exactData, $dataSource->getData()], $dataSource);
+    }
+
+    protected function mergeAndLimit(iterable $dataGroups, \DataSource\DataSource $dataSource): array
+    {
+        $data = [];
+        $identifiers = [];
+        $columns = array_values($dataSource->getColumns());
+        $identifierColumn = $columns[0];
+
+        foreach ($dataGroups as $dataGroup)
+        {
+            if (!isIterable($dataGroup))
+            {
+                continue;
+            }
+
+            foreach ($dataGroup as $item)
+            {
+                $identifier = \DataSource\Grab::getUserValue($identifierColumn, $item).'';
+
+                if (isset($identifiers[$identifier]))
+                {
+                    continue;
+                }
+
+                $identifiers[$identifier] = true;
+                $data[] = $item;
+
+                if (count($data) >= $dataSource->getLimit())
+                {
+                    return $data;
+                }
+            }
+        }
+
+        return $data;
     }
 
 }
