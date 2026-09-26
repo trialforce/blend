@@ -64,6 +64,7 @@ trait PagePopup
         \App::dontChangeUrl();
         $isAjax = \DataHandle\Server::getInstance()->isAjax();
         $idInput = Request::get('idInput');
+        $atualizaAoFechar = Request::get('atualizaAoFechar') !== '0';
         $id = Request::get('v');
         //edit or add
         $url = $id ? $this->getPageUrl() . '/editar/' . $id : $this->getPageUrl() . '/adicionar/?';
@@ -79,7 +80,7 @@ trait PagePopup
 
         $title = ucfirst(($id ? 'editar' : 'adicionar') . ' ' . lcfirst($this->model->getLabel()));
 
-        return $this->crudEditPopup($url, $title, $idInput);
+        return $this->crudEditPopup($url, $title, $idInput, $atualizaAoFechar);
     }
 
     /**
@@ -140,10 +141,11 @@ trait PagePopup
      * @param $url
      * @param $title
      * @param $idInput
+     * @param bool $atualizaAoFechar
      * @return \View\Blend\Popup
      * @throws \Exception
      */
-    public function crudEditPopup($url, $title, $idInput = null)
+    public function crudEditPopup($url, $title, $idInput = null, bool $atualizaAoFechar = true)
     {
         $body = new \View\IFrame('edit-popup-iframe', $url);
         $body->setWidth('100', '%')->setHeight('70', 'vh');
@@ -171,7 +173,7 @@ trait PagePopup
         }
         else
         {
-            if (stripos($url, 'ver') > 0)
+            if (stripos($url, 'ver') > 0 || !$atualizaAoFechar)
             {
                 $this->byId('btbClosePopup')->click("popup('destroy','#$idPopup');");
             }
