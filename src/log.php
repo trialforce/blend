@@ -149,6 +149,7 @@ class Log
 
     protected static $logSql = false;
     protected static $indexData = null;
+    protected static $loggingException = false;
 
     /**
      * Active SQL LOG
@@ -204,6 +205,12 @@ class Log
      */
     public static function exception(Throwable $exception)
     {
+        if (\Log::$loggingException)
+        {
+            error_log('Falha ao registrar exceção durante o tratamento de outra exceção: ' . $exception->getMessage());
+            return false;
+        }
+
         $mysqlError = \Log::parseMysqlErrors($exception);
 
         if ($mysqlError)
@@ -230,7 +237,7 @@ class Log
         //pass log object to project error handling
         $logErrorFunction = \DataHandle\Config::get('log-error-function');
 
-        if ($logErrorFunction)
+        if ($logErrorFunction && $errorMessage)
         {
             $extraInfo = '';
 
@@ -253,7 +260,20 @@ class Log
             $data->backtrace = $exception->getTraceAsString();
             $data->data = $extraInfo;
 
-            $logErrorFunction($data);
+            \Log::$loggingException = true;
+
+            try
+            {
+                $logErrorFunction($data);
+            }
+            catch (\Throwable $logException)
+            {
+                error_log('Falha no registro externo da exceção: ' . $logException->getMessage());
+            }
+            finally
+            {
+                \Log::$loggingException = false;
+            }
         }
 
         return \Log::sendDevelEmailIfNeeded('Exceção', $exception->getMessage(), $errorMessage);
