@@ -98,6 +98,158 @@ class DataHandle
     }
 
     /**
+     * Retorna uma variável como string.
+     *
+     * @param string $var
+     * @return string
+     * @throws \UnexpectedValueException
+     */
+    public static function getString($var): string
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return '';
+        }
+
+        if (!is_string($value))
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser uma string.');
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retorna uma variável como string ou null.
+     *
+     * @param string $var
+     * @return string|null
+     * @throws \UnexpectedValueException
+     */
+    public static function getStringOrNull($var): ?string
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return null;
+        }
+
+        if (!is_string($value))
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser uma string.');
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retorna uma variável como inteiro.
+     *
+     * @param string $var
+     * @return int
+     * @throws \UnexpectedValueException
+     */
+    public static function getInt($var): int
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return 0;
+        }
+
+        $int = filter_var($value, FILTER_VALIDATE_INT);
+
+        if ($int === false)
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser um inteiro.');
+        }
+
+        return $int;
+    }
+
+    /**
+     * Retorna uma variável como inteiro ou null.
+     *
+     * @param string $var
+     * @return int|null
+     * @throws \UnexpectedValueException
+     */
+    public static function getIntOrNull($var): ?int
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return null;
+        }
+
+        $int = filter_var($value, FILTER_VALIDATE_INT);
+
+        if ($int === false)
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser um inteiro.');
+        }
+
+        return $int;
+    }
+
+    /**
+     * Retorna uma variável como float.
+     *
+     * @param string $var
+     * @return float
+     * @throws \UnexpectedValueException
+     */
+    public static function getFloat($var): float
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return 0.0;
+        }
+
+        $float = filter_var($value, FILTER_VALIDATE_FLOAT);
+
+        if ($float === false)
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser um número decimal.');
+        }
+
+        return $float;
+    }
+
+    /**
+     * Retorna uma variável como float ou null.
+     *
+     * @param string $var
+     * @return float|null
+     * @throws \UnexpectedValueException
+     */
+    public static function getFloatOrNull($var): ?float
+    {
+        $value = static::getValue($var);
+
+        if ($value === null)
+        {
+            return null;
+        }
+
+        $float = filter_var($value, FILTER_VALIDATE_FLOAT);
+
+        if ($float === false)
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' deve ser um número decimal.');
+        }
+
+        return $float;
+    }
+
+    /**
      * Verify is some variable exists in datahandle
      *
      * @param string $var
@@ -176,6 +328,25 @@ class DataHandle
         }
 
         return $this;
+    }
+
+    /**
+     * Retorna o valor e rejeita arrays.
+     *
+     * @param string $var
+     * @return mixed
+     * @throws \UnexpectedValueException
+     */
+    private static function getValue($var)
+    {
+        $value = static::get($var);
+
+        if (is_array($value))
+        {
+            throw new \UnexpectedValueException('O parâmetro ' . $var . ' não pode ser um array.');
+        }
+
+        return $value;
     }
 
 }
