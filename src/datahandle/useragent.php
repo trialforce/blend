@@ -562,7 +562,7 @@ class UserAgent
         if (preg_match('/android/i', $this->userAgent))
         {
             $this->platform = self::PLATFORM_ANDROID;
-            $this->mobile = TRUE;
+            $this->mobile = stripos($this->userAgent, 'mobile') !== false;
         }
         else if (preg_match('/iphone/i', $this->userAgent))
         {
@@ -580,7 +580,7 @@ class UserAgent
             $this->completeName = self::PLATFORM_IPHONE;
             $this->ubname = self::PLATFORM_IPHONE;
             $this->name = self::PLATFORM_IPHONE;
-            $this->mobile = TRUE;
+            $this->mobile = FALSE;
         }
         else if (preg_match('/blackberry/i', $this->userAgent))
         {
@@ -627,6 +627,12 @@ class UserAgent
         {
             $this->mobile = true;
         }
+
+        //iPad deve ser tratado como desktop
+        if (preg_match('/ipad/i', $this->userAgent))
+        {
+            $this->mobile = false;
+        }
     }
 
     /**
@@ -661,7 +667,7 @@ class UserAgent
         }
         elseif ($this->detectedBrowser(UserAgent::BROWSER_ANDROID))
         {
-            $this->mobile = true;
+            $this->mobile = stripos($this->userAgent, 'mobile') !== false;
         }
         elseif (preg_match('/Opr/i', $this->userAgent)) //must be before Chrome
         {
