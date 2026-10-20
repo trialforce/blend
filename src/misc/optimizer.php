@@ -96,6 +96,11 @@ class Optimizer
         if ($objOut->exists())
         {
             $mTime = intval($objOut->getMTime());
+
+            if (!$this->getTimestampedFile()->exists())
+            {
+                $needRedo = true;
+            }
         }
 
         $files = $this->getFiles();

@@ -84,3 +84,30 @@
     line-height: 20px;
     font-size: 10px;
 }
+
+.file-visualizer-camera-button {
+    display: none;
+}
+
+@media screen and (max-width: 800px) {
+    .file-visualizer-camera-button {
+        display: inline-block;
+        width: auto;
+        max-width: 160px;
+        margin-bottom: 20px;
+        font-size: 12px;
+    }
+
+    .file-visualizer, .image-container {
+        width: calc(50% - 6px);
+        margin: 0 6px 12px 0;
+    }
+
+    .file-visualizer .img-back, .image-container .img-back {
+        height: 100px;
+    }
+
+    .file-visualizer span, .image-container span {
+        font-size: 12px;
+    }
+}

@@ -228,6 +228,7 @@ class FileVisualizer extends \Component\Component
             if ($ok && $targetFile->exists())
             {
                 $this->byId('file-visualizer-upload')->val('');
+                $this->byId('file-visualizer-camera')->val('');
                 $this->mountFolder($targetFile);
             }
             else
@@ -343,6 +344,17 @@ class FileVisualizer extends \Component\Component
             ->attr('accept', $accept)
             ->css('margin-bottom', '30px')
             ->change('p("' . $uploadUrl . '");');
+
+        $content[] = $camera = new \View\Input('file-visualizer-camera', \View\Input::TYPE_FILE, null, 'file-visualizer-camera-input');
+        $camera->attr('accept', 'image/*')
+            ->attr('capture', 'environment')
+            ->change('p("' . $uploadUrl . '");')
+            ->hide();
+
+        $cameraLabel = [];
+        $cameraLabel[] = new \View\Ext\Icon('camera');
+        $cameraLabel[] = new \View\Span(null, ' Tirar foto');
+        $content[] = new \View\Label(null, 'file-visualizer-camera', $cameraLabel, 'btn primary file-visualizer-camera-button');
 
         $components = [];
         $files = $folder->listFiles($search, null);
