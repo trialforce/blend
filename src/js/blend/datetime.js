@@ -113,8 +113,13 @@ function dateTimeInputDesktop()
     //close if click in background
     if (isCellPhone())
     {
-        $('.xdsoft_datetimepicker.xdsoft_noselect').click(function()
+        $('.xdsoft_datetimepicker.xdsoft_noselect').click(function(event)
         {
+            if (event.target !== this)
+            {
+                return;
+            }
+
             $(this).hide();
             event.preventDefault();
             return false;
