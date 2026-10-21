@@ -133,8 +133,17 @@ abstract class Action
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+
+        if ($post_string !== null)
+        {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);
+        }
+        else
+        {
+            curl_setopt($ch, CURLOPT_POST, false);
+        }
 
         //less then 200 maybe will be problem in big ping/latency
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200);
