@@ -240,6 +240,7 @@ function iterate_over_node($node)
     return $output;
 }
 
+#[\AllowDynamicProperties]
 class Html2TextException extends Exception
 {
 

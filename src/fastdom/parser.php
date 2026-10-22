@@ -16,7 +16,7 @@ class Parser
     public static function parseHtml($html)
     {
         $dom = new \DOMDocument('1.0','utf-8');
-        $dom->loadHTML(utf8_decode($html));
+        $dom->loadHTML(mb_convert_encoding($html, 'ISO-8859-1', 'UTF-8'));
 
         return self::convertToFast($dom->documentElement);
     }

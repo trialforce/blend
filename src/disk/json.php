@@ -71,7 +71,7 @@ class Json
         //convert to utf8 if not
         if (!\Type\Text::isUTF8($json))
         {
-            $json = utf8_encode($json);
+            $json = mb_convert_encoding($json, 'UTF-8', 'ISO-8859-1');
         }
 
         //avoid error in null strings

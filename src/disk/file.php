@@ -5,6 +5,7 @@ namespace Disk;
 /**
  * Represrnts a file in disk
  */
+#[\AllowDynamicProperties]
 class File implements \JsonSerializable
 {
 

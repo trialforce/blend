@@ -16,6 +16,7 @@ use \DomText as DomText;
  * Represent a generic html view/element
  * When you call new \View\View it goes direct to html dom tree
  */
+#[\AllowDynamicProperties]
 class View extends DomElement implements \Countable
 {
 
@@ -1442,7 +1443,13 @@ class View extends DomElement implements \Countable
         //if for the \DomNode Case with default DomDocument
         if ($element instanceof \DOMNode)
         {
-            $htmlText = mb_convert_encoding($htmlText, 'HTML-ENTITIES', "UTF-8");
+            $mapaEntidades = [];
+            $mapaEntidades[] = 0x80;
+            $mapaEntidades[] = 0x10FFFF;
+            $mapaEntidades[] = 0;
+            $mapaEntidades[] = 0x1FFFFF;
+
+            $htmlText = mb_encode_numericentity($htmlText, $mapaEntidades, 'UTF-8');
 
             //disable boring errors of libxml
             libxml_use_internal_errors(true);

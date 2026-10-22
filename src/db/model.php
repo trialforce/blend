@@ -11,6 +11,7 @@ use Db\Column\Column;
  *
  * @template T
  */
+#[\AllowDynamicProperties]
 class Model implements \JsonSerializable
 {
 

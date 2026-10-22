@@ -50,7 +50,13 @@ class Layout extends \View\Document
         if (file_exists($htmlFile))
         {
             //add suporte a UTF-8
-            $content = mb_convert_encoding(file_get_contents($htmlFile), 'HTML-ENTITIES', "UTF-8");
+            $mapaEntidades = [];
+            $mapaEntidades[] = 0x80;
+            $mapaEntidades[] = 0x10FFFF;
+            $mapaEntidades[] = 0;
+            $mapaEntidades[] = 0x1FFFFF;
+
+            $content = mb_encode_numericentity(file_get_contents($htmlFile), $mapaEntidades, 'UTF-8');
 
             if (!$content)
             {

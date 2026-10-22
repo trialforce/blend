@@ -5,6 +5,7 @@ namespace Db;
 /**
  * An action related to a model
  */
+#[\AllowDynamicProperties]
 abstract class Action
 {
 

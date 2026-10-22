@@ -5,6 +5,7 @@ namespace Type;
 /**
  * Time type
  */
+#[\AllowDynamicProperties]
 class Vector implements \Type\Generic, \JsonSerializable
 {
 

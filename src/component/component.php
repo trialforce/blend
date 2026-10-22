@@ -8,6 +8,7 @@ use DataHandle\Request;
  * Component is a simple class that represents a complex view element.
  * Used to Combos, grids and other elements that need a direct call to ajax.
  */
+#[\AllowDynamicProperties]
 class Component
 {
 

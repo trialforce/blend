@@ -89,7 +89,13 @@ class Document extends DomDocument implements \Countable
 
         if ($encoding == 'UTF-8')
         {
-            $source = mb_convert_encoding($source,'HTML-ENTITIES');
+            $mapaEntidades = [];
+            $mapaEntidades[] = 0x80;
+            $mapaEntidades[] = 0x10FFFF;
+            $mapaEntidades[] = 0;
+            $mapaEntidades[] = 0x1FFFFF;
+
+            $source = mb_encode_numericentity($source, $mapaEntidades, 'UTF-8');
         }
 
         $ok = @parent::loadHTML($source);

@@ -75,7 +75,7 @@ class Csv
         $file = \Disk\File::getFromStorage(Session::get('user') . '/grid_export/' . $csvPath);
         //remove file to avoid error
         $file->remove();
-        $file->save(utf8_decode($csv));
+        $file->save(mb_convert_encoding($csv, 'ISO-8859-1', 'UTF-8'));
 
         return $file;
     }
