@@ -2,6 +2,7 @@
 
 namespace DataHandle;
 
+#[\AllowDynamicProperties]
 class DataHandle
 {
 
