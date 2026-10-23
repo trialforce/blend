@@ -224,7 +224,14 @@ class File implements \JsonSerializable
     {
         if ($this->exists())
         {
-            return @unlink($this->path);
+            $result = @unlink($this->path);
+
+            if (!$result && !$this->exists())
+            {
+                error_clear_last();
+            }
+
+            return $result;
         }
 
         return false;
