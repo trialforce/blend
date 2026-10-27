@@ -9,6 +9,14 @@
     text-align: center;
 }
 
+.loading.loading-blocking.hide {
+    display: block !important;
+}
+
+.loading.loading-blocking.hide p {
+    display: none;
+}
+
 .loading p {
     background-color: #fff;
     width: 150px;

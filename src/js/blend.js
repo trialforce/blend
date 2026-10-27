@@ -13,6 +13,7 @@ blend.plugins = [];
 blend.ajax = {};
 blend.ajax.timeout = 200;
 blend.ajax.timer = null;
+blend.ajax.pending = 0;
 blend.isBack = false;
 blend.last = {};
 blend.last.url = '';
@@ -473,11 +474,13 @@ function fileUpload(page)
 
 function showLoadingTimeout()
 {
+    b(".loading").addClass('loading-blocking');
+
     if (!blend.ajax.timer)
     {
         blend.ajax.timer = setTimeout(showLoading, blend.ajax.timeout);
     }
-    
+
     return false;
 }
 
@@ -489,12 +492,19 @@ function showLoading()
 
 function hideLoading()
 {
+    if (blend.ajax.pending > 0)
+    {
+        return false;
+    }
+
     if (blend.ajax.timer)
     {
         clearTimeout(blend.ajax.timer);
         blend.ajax.timer = null;
     }
-    b(".loading").addClass('hide');
+    let loading = b(".loading");
+    loading.removeClass('loading-blocking');
+    loading.addClass('hide');
     return false;
 }
 
@@ -632,6 +642,7 @@ function r(type, page, formData, callBack)
         return false;
     }
 
+    blend.ajax.pending++;
     showLoadingTimeout();
     pluginsCallMethod('beforeSubmit');
     isAjax = true;
@@ -656,6 +667,7 @@ function r(type, page, formData, callBack)
         processData: false,
         success: function (data)
         {
+            blend.ajax.pending = Math.max(blend.ajax.pending - 1, 0);
             //enable the focused element
             focused.removeAttr('disabled');
             let currentScroll = $(window).scrollTop();
@@ -713,6 +725,7 @@ function r(type, page, formData, callBack)
         ,
         error: function (xhr, ajaxOptions, thrownError)
         {
+            blend.ajax.pending = Math.max(blend.ajax.pending - 1, 0);
             console.log(thrownError);
             hideLoading();
 
