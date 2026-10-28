@@ -400,7 +400,8 @@ function slide(selector, medidas)
             }
             else if ( fullScreen )
             {
-                fullscreen();
+                let reproduzMidia = e.target.closest('[data-slider-play-full-screen=true]') !== null;
+                fullscreen(reproduzMidia);
             }
         }
         //draf left
@@ -622,7 +623,7 @@ function slide(selector, medidas)
         allowShift = true;
     }
     
-    function fullscreen()
+    function fullscreen(reproduzMidia)
     {
         var oldIndex = index;
         var newSlider = $(selector).clone();
@@ -678,6 +679,45 @@ function slide(selector, medidas)
         $('body').append(newSlider).css('overflow','hidden');
         
         slide('#slider-full-screen');
+
+        if (reproduzMidia)
+        {
+            reproduzMidiaFullScreen(newSlider.get(0), oldIndex);
+        }
+    }
+
+    function reproduzMidiaFullScreen(slider, position)
+    {
+        let slides = slider.querySelectorAll('.slider-items > .slide:not(.cloned)');
+        let slideAtual = slides[position];
+
+        if (!slideAtual)
+        {
+            return;
+        }
+
+        let botao = slideAtual.querySelector('button');
+
+        if (botao)
+        {
+            botao.click();
+            return;
+        }
+
+        let video = slideAtual.querySelector('video');
+
+        if (video)
+        {
+            video.play();
+            return;
+        }
+
+        let iframe = slideAtual.querySelector('iframe');
+
+        if (iframe && iframe.src.indexOf('autoplay=1') === -1)
+        {
+            iframe.src += (iframe.src.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=1';
+        }
     }
     
     function setActiveSymbol(position)
