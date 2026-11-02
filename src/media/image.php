@@ -52,6 +52,13 @@ class Image extends \Disk\File
     protected $sizes;
 
     /**
+     * Mime type detected from image content
+     *
+     * @var string
+     */
+    protected $mime;
+
+    /**
      * Construct the images
      * @param string $path
      * @param bool $load
@@ -151,6 +158,11 @@ class Image extends \Disk\File
      */
     public function getRealExtension() :string
     {
+        if ($this->mime)
+        {
+            return \Media\Image::getExtensionFromMime($this->mime);
+        }
+
         $mime = mime_content_type($this->getPath());
         $extension = str_replace('image/','', $mime);
 
@@ -216,6 +228,7 @@ class Image extends \Disk\File
     {
         $this->sizes = NULL;
         $this->content = NULL;
+        $this->mime = NULL;
         parent::setPath($path);
     }
 
@@ -271,8 +284,13 @@ class Image extends \Disk\File
 
     public function getMime()
     {
+        if ($this->mime)
+        {
+            return $this->mime;
+        }
+
         $imageSize = $this->getSizes();
-        return $imageSize['mime'];
+        return isset($imageSize['mime']) ? $imageSize['mime'] : null;
     }
 
     /**
@@ -412,6 +430,10 @@ class Image extends \Disk\File
             imagepalettetotruecolor($this->content);
 
             imagewebp($this->content, $filename . '', $quality);
+        }
+        else if ($extension == Image::EXT_GIF)
+        {
+            imagegif($this->content, $filename . '');
         }
         else if ($extension == Image::EXT_SVG)
         {
@@ -843,21 +865,103 @@ class Image extends \Disk\File
             }
         }
 
+        if ($found == 'other' && substr($data, 0, 4) == 'RIFF' && substr($data, 8, 4) == 'WEBP')
+        {
+            $found = \Media\Image::EXT_WEBP;
+        }
+
+        if ($found == 'other' && \Media\Image::getImageMimeType($data) == 'image/svg+xml')
+        {
+            $found = \Media\Image::EXT_SVG;
+        }
+
         return $found;
     }
 
+    /**
+     * Return the MIME type represented by image bytes.
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function getImageMimeType($data)
+    {
+        $data = $data . '';
+        $inicio = ltrim(substr($data, 0, 4096), "\xEF\xBB\xBF \t\n\r\0\x0B");
+        $iniciaComSvg = stripos($inicio, '<svg') === 0;
+        $iniciaComXml = stripos($inicio, '<?xml') === 0;
+        $iniciaComComentario = stripos($inicio, '<!--') === 0;
+        $iniciaComDoctypeSvg = stripos($inicio, '<!DOCTYPE svg') === 0;
+
+        if ($iniciaComSvg || (($iniciaComXml || $iniciaComComentario || $iniciaComDoctypeSvg) && stripos($inicio, '<svg') !== false))
+        {
+            return 'image/svg+xml';
+        }
+
+        $size = @getimagesizefromstring($data);
+
+        return isset($size['mime']) ? $size['mime'] : '';
+    }
+
+    /**
+     * Return the image extension represented by a MIME type.
+     *
+     * @param string $mime
+     * @return string
+     */
+    public static function getExtensionFromMime($mime)
+    {
+        $extensions = [];
+        $extensions['image/jpeg'] = \Media\Image::EXT_JPG;
+        $extensions['image/png'] = \Media\Image::EXT_PNG;
+        $extensions['image/gif'] = \Media\Image::EXT_GIF;
+        $extensions['image/webp'] = \Media\Image::EXT_WEBP;
+        $extensions['image/svg+xml'] = \Media\Image::EXT_SVG;
+        $extensions['image/bmp'] = 'bmp';
+        $extensions['image/x-ms-bmp'] = 'bmp';
+        $extensions['image/vnd.adobe.photoshop'] = 'psd';
+        $extensions['application/x-shockwave-flash'] = 'swf';
+
+        return isset($extensions[$mime]) ? $extensions[$mime] : 'other';
+    }
+
+    /**
+     * Create an image from its bytes.
+     *
+     * @param string $bytes
+     * @return \Media\Image
+     */
     public static function createFromBytes($bytes)
     {
+        $mime = \Media\Image::getImageMimeType($bytes);
         $gd = imagecreatefromstring($bytes);
 
         $image = new \Media\Image(null);
         $image->setContent($gd);
+        $image->mime = $mime;
 
         return $image;
     }
 
+    /**
+     * Create an image from raw base64 or a complete data URI.
+     *
+     * @param string $base64
+     * @return \Media\Image
+     */
     public static function createFromBase64($base64)
     {
+        if (stripos($base64, 'data:') === 0)
+        {
+            $separator = strpos($base64, ',');
+            $metadata = $separator === false ? '' : substr($base64, 0, $separator);
+
+            if ($separator !== false && stripos($metadata, ';base64') !== false)
+            {
+                $base64 = substr($base64, $separator + 1);
+            }
+        }
+
         $bytes = base64_decode($base64);
 
         return \Media\Image::createFromBytes($bytes);
