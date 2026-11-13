@@ -88,7 +88,11 @@ class FileVisualizer extends \Component\Component
         }
 
         $span = new \View\Span(NULL, $this->getFile()->getBasename(FALSE));
-        $previewUrl = $this->getLink('preview', null, ['file' => $this->getFile()->getPath()]);
+        $parametrosPreview = [];
+        $parametrosPreview['file'] = $this->getFile()->getPath();
+        $parametrosPreview['file-visualizer-otimiza-imagens'] = \DataHandle\Request::get('file-visualizer-otimiza-imagens');
+
+        $previewUrl = $this->getLink('preview', null, $parametrosPreview);
 
         $link = new \View\A('', array($holder, $span), $this->getFile()->getUrl(), 'file-visualizer-link', \View\A::TARGET_BLANK);
         $link->click("return p('$previewUrl');");
@@ -131,7 +135,8 @@ class FileVisualizer extends \Component\Component
         {
             $folder = \DataHandle\Request::get('file');
             $folder = \Component\FileVisualizer::validaCaminhoPermitido($folder);
-            return \Component\FileVisualizer::createHolder(new \Disk\Folder($folder), '*');
+            $otimizaImagens = (bool) \DataHandle\Request::get('file-visualizer-otimiza-imagens');
+            return \Component\FileVisualizer::createHolder(new \Disk\Folder($folder), '*', null, $otimizaImagens);
         }
 
         $path = \DataHandle\Request::get('file');
@@ -203,6 +208,19 @@ class FileVisualizer extends \Component\Component
             $uploadName = $uploadedFile['name'];
             $targetPath = \DataHandle\Request::get('file-visualizer-folder');
             $targetPath = \Component\FileVisualizer::validaCaminhoPermitido($targetPath);
+            $mediaPath = realpath(\Disk\Media::getMediaPath());
+            $editorPath = realpath(\Disk\Media::getMediaPath() . 'editor');
+
+            if ($targetPath == $mediaPath)
+            {
+                throw new \UserException('Não é permitido enviar arquivos para a raiz da pasta de mídia.');
+            }
+
+            if ($editorPath && str_starts_with($targetPath, $editorPath . DIRECTORY_SEPARATOR) && basename($targetPath) == 'null')
+            {
+                throw new \UserException('Salve o registro antes de enviar arquivos pelo editor.');
+            }
+
             $tempFile = $uploadedFile['tmp_name'];
 
             $fileUpload = new \Disk\FileUpload($uploadedFile);
@@ -223,7 +241,14 @@ class FileVisualizer extends \Component\Component
             $targetFile = new \Disk\File($targetPath . '/' . $fileName);
             $targetFile->createFolderIfNeeded();
 
-            $ok = move_uploaded_file($tempFile, $targetFile);
+            if (\DataHandle\Request::get('file-visualizer-otimiza-imagens'))
+            {
+                $ok = $this->salvaUploadImagemOtimizada($tempFile, $targetFile);
+            }
+            else
+            {
+                $ok = move_uploaded_file($tempFile, $targetFile);
+            }
 
             if ($ok && $targetFile->exists())
             {
@@ -236,6 +261,51 @@ class FileVisualizer extends \Component\Component
                 throw new \UserException('Ops! Problema em enviar arquivo!');
             }
         }
+    }
+
+    /**
+     * Converte imagens compatíveis para WebP e limita suas dimensões.
+     *
+     * @param string $tempFile
+     * @param \Disk\File $targetFile
+     * @return bool
+     * @throws \Exception
+     */
+    private function salvaUploadImagemOtimizada($tempFile, \Disk\File $targetFile)
+    {
+        $image = new \Media\Image($tempFile);
+        $extension = $image->getRealExtension();
+
+        $extensoesOtimizadas = [];
+        $extensoesOtimizadas[] = \Media\Image::EXT_JPG;
+        $extensoesOtimizadas[] = \Media\Image::EXT_JPEG;
+        $extensoesOtimizadas[] = \Media\Image::EXT_PNG;
+        $extensoesOtimizadas[] = \Media\Image::EXT_WEBP;
+
+        if (!in_array($extension, $extensoesOtimizadas))
+        {
+            return move_uploaded_file($tempFile, $targetFile);
+        }
+
+        $image->load();
+        $width = $image->getWidth();
+        $height = $image->getHeight();
+        $redimensiona = $width > 2000 || $height > 2000;
+        $targetFile->setExtension(\Media\Image::EXT_WEBP);
+
+        if ($extension == \Media\Image::EXT_WEBP && !$redimensiona)
+        {
+            return move_uploaded_file($tempFile, $targetFile);
+        }
+
+        if ($redimensiona)
+        {
+            $width >= $height ? $image->resize(2000) : $image->resize(null, 2000);
+        }
+
+        $image->export($targetFile);
+
+        return $targetFile->exists();
     }
 
     private function validaUpload(\Disk\FileUpload $fileUpload)
@@ -309,10 +379,12 @@ class FileVisualizer extends \Component\Component
      *
      * @param \Disk\Folder $folder the root folder
      * @param string $search the files to search, use glob sintax
+     * @param string|null $title
+     * @param bool $otimizaImagens converte imagens compatíveis para WebP e limita suas dimensões
      * @return \View\Div the holder element
      * @throws \Exception
      */
-    public static function createHolder(\Disk\Folder $folder, $search = '*', $title = null)
+    public static function createHolder(\Disk\Folder $folder, $search = '*', $title = null, $otimizaImagens = false)
     {
         \Component\FileVisualizer::validaUsuarioLogado();
         $isCkEditor = \DataHandle\Request::get('CKEditor');
@@ -322,7 +394,7 @@ class FileVisualizer extends \Component\Component
 
         if ($isCkEditor || $search == 'image')
         {
-            $search = '*.{jpg,jpeg,png,gif,wbep,svg}';
+            $search = '*.{jpg,jpeg,png,gif,webp,svg}';
             $accept = 'image/*';
         }
 
@@ -337,6 +409,7 @@ class FileVisualizer extends \Component\Component
         $content[] = new \View\Input('file-visualizer-folder', \View\Input::TYPE_HIDDEN, $folder->getPath());
         $content[] = new \View\Input('file-visualizer-search', \View\Input::TYPE_HIDDEN, $search);
         $content[] = new \View\Input('file-visualizer-ckeditor', \View\Input::TYPE_HIDDEN, $isCkEditor);
+        $content[] = new \View\Input('file-visualizer-otimiza-imagens', \View\Input::TYPE_HIDDEN, $otimizaImagens);
 
         $content[] = new \View\H1('file-visualizer-title', $title ? $title : $folder->getBasename());
         $content[] = $upload = new \View\Input('file-visualizer-upload', \View\Input::TYPE_FILE);
@@ -383,7 +456,7 @@ class FileVisualizer extends \Component\Component
         $buscasPermitidas = [];
         $buscasPermitidas[] = '*';
         $buscasPermitidas[] = 'image';
-        $buscasPermitidas[] = '*.{jpg,jpeg,png,gif,wbep,svg}';
+        $buscasPermitidas[] = '*.{jpg,jpeg,png,gif,webp,svg}';
 
         if (!is_string($search) || !in_array($search, $buscasPermitidas))
         {
