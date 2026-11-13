@@ -8,7 +8,6 @@ namespace Db;
 #[\AllowDynamicProperties]
 abstract class Task
 {
-
     protected $data;
 
     /**
@@ -57,12 +56,14 @@ abstract class Task
 
     /**
      * Add a result message
-     * Case is shell: an echo is make on the moment
+     * Case is shell: an echo is make on the moment using ANSI color
+     * Case is browser: the result uses the hexadecimal CSS color
      *
      * @param string $message message
+     * @param \Media\Color|null $color terminal color
      * @return $this
      */
-    public function addResult($message = null)
+    public function addResult($message = null, ?\Media\Color $color = null)
     {
         $isShell = \DataHandle\Server::getInstance()->isShell();
 
@@ -70,21 +71,25 @@ abstract class Task
         {
             foreach ($message as $msg)
             {
-                $this->result[] = $msg;
+                $resultMessage = !$isShell && $color ? '<span style="color: ' . $color->getHex() . '">' . $msg . '</span>' : $msg;
+                $this->result[] = $resultMessage;
 
                 if ($isShell)
                 {
-                    echo $msg."\r\n";
+                    $shellMessage = $color ? $color->getAnsi() . $msg . "\033[0m" : $msg;
+                    echo $shellMessage."\r\n";
                 }
             }
         }
         else
         {
-            $this->result[] = $message;
+            $resultMessage = !$isShell && $color ? '<span style="color: ' . $color->getHex() . '">' . $message . '</span>' : $message;
+            $this->result[] = $resultMessage;
 
             if ($isShell)
             {
-                echo $message."\r\n";
+                $shellMessage = $color ? $color->getAnsi() . $message . "\033[0m" : $message;
+                echo $shellMessage."\r\n";
             }
         }
 

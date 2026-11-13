@@ -342,6 +342,18 @@ class Color implements \Type\Generic
     }
 
     /**
+     * Return the ANSI escape sequence for this color
+     *
+     * @param bool $foreground true for text color or false for background color
+     * @return string
+     */
+    public function getAnsi($foreground = true)
+    {
+        $type = $foreground ? 38 : 48;
+        return "\033[{$type};2;{$this->getRed()};{$this->getGreen()};{$this->getBlue()}m";
+    }
+
+    /**
      * Convert RGB to HSV
      *
      * RGB values:    0-255, 0-255, 0-255
