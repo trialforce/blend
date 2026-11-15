@@ -548,11 +548,6 @@ function slide(selector, medidas)
             return null;
         }
 
-        if (blend.lazyloading && typeof blend.lazyloading.srcTranslate == 'function')
-        {
-            imageUrl = blend.lazyloading.srcTranslate(imageUrl);
-        }
-
         return new Promise(function (resolve)
         {
             var image = new Image();

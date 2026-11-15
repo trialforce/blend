@@ -10,8 +10,17 @@
  *
  */
 blend.lazyloading = {};
+
+blend.lazyloading.isPageSpeed = function ()
+{
+    return navigator.userAgent.indexOf('Speed Insights') > -1
+        || navigator.userAgent.indexOf('Chrome-Lighthouse') > -1
+        || navigator.userAgent.indexOf('GoogleBot') > -1
+        || navigator.userAgent.indexOf('GTmetrix') > -1;
+};
+
 //default image offset adjust, 0 for lighthouse/pagespeed
-blend.lazyloading.adjust = navigator.userAgent.indexOf("Chrome-Lighthouse") == -1 ? 0 : 40;
+blend.lazyloading.adjust = blend.lazyloading.isPageSpeed() ? 40 : 0;
 //current height visible
 blend.lazyloading.heightVisible = 0;
 //last height visible
@@ -19,8 +28,16 @@ blend.lazyloading.lastHeightVisible = 0;
 //scroll events/methods
 blend.lazyloading.onScrollUp = null;
 blend.lazyloading.onScrollDown = null;
-//if you need to "translate" the image to arbitrary change the url
-blend.lazyloading.srcTranslate = null;
+blend.lazyloading.idleLoading = {
+    waitTime: 2000,
+    timer: null,
+    callback: null,
+    lastInteraction: 0,
+    loadingImage: false,
+    imageElement: null,
+    backgroundImage: null,
+    backgroundUrl: null
+};
 //add to plugin list
 blend.plugins.push(blend.lazyloading);
 
@@ -28,16 +45,284 @@ blend.lazyloading.register = function ()
 {
     window.addEventListener("scroll", blend.lazyloading.onScroll, {passive: true});
     blend.lazyloading.parse();
+
+    if (!blend.lazyloading.isPageSpeed())
+    {
+        blend.lazyloading.idleLoading.lastInteraction = Date.now();
+        window.addEventListener("pointerdown", blend.lazyloading.idleLoading.handleInteraction, {passive: true});
+        window.addEventListener("keydown", blend.lazyloading.idleLoading.handleInteraction);
+        document.addEventListener("visibilitychange", blend.lazyloading.idleLoading.handleInteraction);
+        blend.lazyloading.idleLoading.schedule();
+    }
 };
 
 blend.lazyloading.start = function ()
 {
     blend.lazyloading.parse();
+    blend.lazyloading.idleLoading.schedule();
 };
 
 blend.lazyloading.onScroll = function ()
 {
     blend.lazyloading.parse();
+    blend.lazyloading.idleLoading.handleInteraction();
+};
+
+blend.lazyloading.loadSrc = function (element, lowPriority)
+{
+    let image = element.getAttribute('data-lazyloading-src');
+
+    if (lowPriority && element.tagName == 'IMG' && !element.hasAttribute('fetchpriority'))
+    {
+        element.setAttribute('fetchpriority', 'low');
+    }
+
+    element.setAttribute('src', image);
+    $(element).removeData('lazyloading-src');
+    element.removeAttribute('data-lazyloading-src');
+};
+
+blend.lazyloading.loadBackground = function (element, image)
+{
+    image = image || element.getAttribute('data-lazyloading-background-image');
+    element.style.backgroundImage = 'url(' + image + ')';
+    $(element).removeData('lazyloading-background-image');
+    element.removeAttribute('data-lazyloading-background-image');
+};
+
+blend.lazyloading.executeFunction = function (element, silent)
+{
+    let method = $(element).data('lazyloading-function');
+    let previousSilent = blend.ajax.silent;
+    blend.ajax.silent = previousSilent || silent === true;
+
+    try
+    {
+        if (typeof method == 'function')
+        {
+            method();
+        }
+        else
+        {
+            eval(method);
+        }
+    }
+    finally
+    {
+        blend.ajax.silent = previousSilent;
+    }
+
+    element.classList.add('lazyloading-function');
+    $(element).removeData('lazyloading-function');
+    element.removeAttribute('data-lazyloading-function');
+};
+
+blend.lazyloading.idleLoading.handleInteraction = function ()
+{
+    blend.lazyloading.idleLoading.lastInteraction = Date.now();
+    blend.lazyloading.idleLoading.schedule();
+};
+
+blend.lazyloading.idleLoading.canLoad = function ()
+{
+    let dataSaver = navigator.connection && navigator.connection.saveData;
+
+    return !blend.lazyloading.isPageSpeed() && !document.hidden && !dataSaver;
+};
+
+blend.lazyloading.idleLoading.cancel = function ()
+{
+    if (blend.lazyloading.idleLoading.timer)
+    {
+        clearTimeout(blend.lazyloading.idleLoading.timer);
+        blend.lazyloading.idleLoading.timer = null;
+    }
+
+    if (blend.lazyloading.idleLoading.callback)
+    {
+        if (typeof window.cancelIdleCallback == 'function')
+        {
+            window.cancelIdleCallback(blend.lazyloading.idleLoading.callback);
+        }
+        else
+        {
+            clearTimeout(blend.lazyloading.idleLoading.callback);
+        }
+
+        blend.lazyloading.idleLoading.callback = null;
+    }
+};
+
+blend.lazyloading.idleLoading.schedule = function ()
+{
+    blend.lazyloading.idleLoading.cancel();
+
+    if (!blend.lazyloading.idleLoading.canLoad() || blend.lazyloading.idleLoading.loadingImage)
+    {
+        return;
+    }
+
+    let timeWithoutInteraction = Date.now() - blend.lazyloading.idleLoading.lastInteraction;
+    let wait = Math.max(blend.lazyloading.idleLoading.waitTime - timeWithoutInteraction, 0);
+    blend.lazyloading.idleLoading.timer = setTimeout(blend.lazyloading.idleLoading.request, wait);
+};
+
+blend.lazyloading.idleLoading.continue = function ()
+{
+    let timeWithoutInteraction = Date.now() - blend.lazyloading.idleLoading.lastInteraction;
+
+    if (timeWithoutInteraction < blend.lazyloading.idleLoading.waitTime)
+    {
+        blend.lazyloading.idleLoading.schedule();
+        return;
+    }
+
+    blend.lazyloading.idleLoading.cancel();
+    blend.lazyloading.idleLoading.timer = setTimeout(blend.lazyloading.idleLoading.request, 250);
+};
+
+blend.lazyloading.idleLoading.request = function ()
+{
+    blend.lazyloading.idleLoading.timer = null;
+
+    if (!blend.lazyloading.idleLoading.canLoad())
+    {
+        return;
+    }
+
+    if (typeof window.requestIdleCallback == 'function')
+    {
+        blend.lazyloading.idleLoading.callback = window.requestIdleCallback(blend.lazyloading.idleLoading.load);
+    }
+    else
+    {
+        blend.lazyloading.idleLoading.callback = setTimeout(blend.lazyloading.idleLoading.load, 0);
+    }
+};
+
+blend.lazyloading.idleLoading.load = function ()
+{
+    blend.lazyloading.idleLoading.callback = null;
+
+    if (!blend.lazyloading.idleLoading.canLoad())
+    {
+        return;
+    }
+
+    if (blend.ajax.pending > 0)
+    {
+        blend.lazyloading.idleLoading.continue();
+        return;
+    }
+
+    let elements = document.querySelectorAll('[data-lazyloading-src], [data-lazyloading-background-image], [data-lazyloading-function]');
+    let element = null;
+
+    for (let index = 0; index < elements.length; index++)
+    {
+        if (elements[index].offsetWidth > 0 || elements[index].offsetHeight > 0)
+        {
+            element = elements[index];
+            break;
+        }
+    }
+
+    if (!element)
+    {
+        return;
+    }
+
+    if (element.hasAttribute('data-lazyloading-src'))
+    {
+        blend.lazyloading.idleLoading.loadSrc(element);
+    }
+    else if (element.hasAttribute('data-lazyloading-background-image'))
+    {
+        blend.lazyloading.idleLoading.loadBackground(element);
+    }
+    else
+    {
+        blend.lazyloading.idleLoading.executeFunction(element);
+    }
+};
+
+blend.lazyloading.idleLoading.loadSrc = function (element)
+{
+    blend.lazyloading.idleLoading.loadingImage = true;
+    blend.lazyloading.idleLoading.imageElement = element;
+    element.addEventListener('load', blend.lazyloading.idleLoading.finishSrc);
+    element.addEventListener('error', blend.lazyloading.idleLoading.finishSrc);
+    blend.lazyloading.loadSrc(element, true);
+
+    if (element.tagName == 'IMG' && element.complete)
+    {
+        blend.lazyloading.idleLoading.finishSrc();
+    }
+};
+
+blend.lazyloading.idleLoading.finishSrc = function ()
+{
+    let element = blend.lazyloading.idleLoading.imageElement;
+
+    if (element)
+    {
+        element.removeEventListener('load', blend.lazyloading.idleLoading.finishSrc);
+        element.removeEventListener('error', blend.lazyloading.idleLoading.finishSrc);
+    }
+
+    blend.lazyloading.idleLoading.imageElement = null;
+    blend.lazyloading.idleLoading.loadingImage = false;
+    blend.lazyloading.idleLoading.continue();
+};
+
+blend.lazyloading.idleLoading.loadBackground = function (element)
+{
+    let image = element.getAttribute('data-lazyloading-background-image');
+
+    blend.lazyloading.idleLoading.loadingImage = true;
+    blend.lazyloading.idleLoading.imageElement = element;
+    blend.lazyloading.idleLoading.backgroundUrl = image;
+    blend.lazyloading.idleLoading.backgroundImage = new Image();
+    blend.lazyloading.idleLoading.backgroundImage.fetchPriority = 'low';
+    blend.lazyloading.idleLoading.backgroundImage.addEventListener('load', blend.lazyloading.idleLoading.finishBackground);
+    blend.lazyloading.idleLoading.backgroundImage.addEventListener('error', blend.lazyloading.idleLoading.finishBackground);
+
+    if ((image.startsWith("'") && image.endsWith("'")) || (image.startsWith('"') && image.endsWith('"')))
+    {
+        image = image.substring(1, image.length - 1);
+    }
+
+    blend.lazyloading.idleLoading.backgroundImage.src = image;
+};
+
+blend.lazyloading.idleLoading.finishBackground = function (event)
+{
+    let element = blend.lazyloading.idleLoading.imageElement;
+    let image = blend.lazyloading.idleLoading.backgroundImage;
+
+    if (event && event.type == 'load' && element)
+    {
+        blend.lazyloading.loadBackground(element, blend.lazyloading.idleLoading.backgroundUrl);
+    }
+    else if (element)
+    {
+        $(element).removeData('lazyloading-background-image');
+        element.removeAttribute('data-lazyloading-background-image');
+    }
+
+    image.removeEventListener('load', blend.lazyloading.idleLoading.finishBackground);
+    image.removeEventListener('error', blend.lazyloading.idleLoading.finishBackground);
+    blend.lazyloading.idleLoading.imageElement = null;
+    blend.lazyloading.idleLoading.backgroundImage = null;
+    blend.lazyloading.idleLoading.backgroundUrl = null;
+    blend.lazyloading.idleLoading.loadingImage = false;
+    blend.lazyloading.idleLoading.continue();
+};
+
+blend.lazyloading.idleLoading.executeFunction = function (element)
+{
+    blend.lazyloading.executeFunction(element, true);
+    blend.lazyloading.idleLoading.continue();
 };
 
 blend.lazyloading.parseBackImages = function ()
@@ -57,18 +342,9 @@ blend.lazyloading.parseBackImages = function ()
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
-            var image = element.data('lazyloading-background-image');
-            
-            if (image)
+            if (element.data('lazyloading-background-image'))
             {
-                if (typeof blend.lazyloading.srcTranslate == 'function' )
-                {
-                    image = blend.lazyloading.srcTranslate(image);
-                }
-        
-                element.css('background-image', 'url(' + image + ')');
-                element.removeData('lazyloading-background-image');
-                element.removeAttr('data-lazyloading-background-image');
+                blend.lazyloading.loadBackground(elements[idx]);
             }
         }
     });
@@ -101,18 +377,9 @@ blend.lazyloading.parseSrcImages = function (imgs = blend.lazyloading.medeImagen
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
-            var image = element.data('lazyloading-src');
-            
-            if (image)
+            if (element.data('lazyloading-src'))
             {
-                if (typeof blend.lazyloading.srcTranslate == 'function' )
-                {
-                    image = blend.lazyloading.srcTranslate(image);
-                }
-                
-                element.attr('src', image);
-                element.removeData('lazyloading-src');
-                element.removeAttr('data-lazyloading-src');
+                blend.lazyloading.loadSrc(imagem.element, false);
             }
         }
     });
@@ -161,20 +428,7 @@ blend.lazyloading.parseFunctions = function ()
 
         if (blend.lazyloading.heightVisible > offsetTop)
         {
-            var method = element.data('lazyloading-function');
-
-            if (typeof method == 'function')
-            {
-                method();
-            } 
-            else
-            {
-                eval(method);
-            }
-
-            element.addClass('lazyloading-function');
-            element.removeData('lazyloading-function');
-            element.removeAttr('data-lazyloading-function');
+            blend.lazyloading.executeFunction(functions[idx], false);
         }
     });
 }

@@ -14,6 +14,7 @@ blend.ajax = {};
 blend.ajax.timeout = 200;
 blend.ajax.timer = null;
 blend.ajax.pending = 0;
+blend.ajax.silent = false;
 blend.isBack = false;
 blend.last = {};
 blend.last.url = '';
@@ -643,7 +644,12 @@ function r(type, page, formData, callBack)
     }
 
     blend.ajax.pending++;
-    showLoadingTimeout();
+
+    if (!blend.ajax.silent)
+    {
+        showLoadingTimeout();
+    }
+
     pluginsCallMethod('beforeSubmit');
     isAjax = true;
     let focused = disableFocused();
