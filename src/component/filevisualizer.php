@@ -205,62 +205,94 @@ class FileVisualizer extends \Component\Component
 
         foreach ($files as $uploadedFile)
         {
-            $uploadName = $uploadedFile['name'];
             $targetPath = \DataHandle\Request::get('file-visualizer-folder');
-            $targetPath = \Component\FileVisualizer::validaCaminhoPermitido($targetPath);
-            $mediaPath = realpath(\Disk\Media::getMediaPath());
-            $editorPath = realpath(\Disk\Media::getMediaPath() . 'editor');
+            $otimizaImagens = \DataHandle\Request::get('file-visualizer-otimiza-imagens');
+            $targetFile = $this->salvaUpload($uploadedFile, $targetPath, $otimizaImagens);
 
-            if ($targetPath == $mediaPath)
-            {
-                throw new \UserException('Não é permitido enviar arquivos para a raiz da pasta de mídia.');
-            }
-
-            if ($editorPath && str_starts_with($targetPath, $editorPath . DIRECTORY_SEPARATOR) && basename($targetPath) == 'null')
-            {
-                throw new \UserException('Salve o registro antes de enviar arquivos pelo editor.');
-            }
-
-            $tempFile = $uploadedFile['tmp_name'];
-
-            $fileUpload = new \Disk\FileUpload($uploadedFile);
-            $this->validaUpload($fileUpload);
-
-            $file = new \Disk\File($uploadName);
-            $basename = $file->getBasename(false);
-
-            //add support for pasted images
-            if ($basename == 'image')
-            {
-                $basename = \Type\DateTime::now()->getTimestampUnix().'.'.$file->getExtension();
-                $file->setPath($basename);
-            }
-
-            $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
-
-            $targetFile = new \Disk\File($targetPath . '/' . $fileName);
-            $targetFile->createFolderIfNeeded();
-
-            if (\DataHandle\Request::get('file-visualizer-otimiza-imagens'))
-            {
-                $ok = $this->salvaUploadImagemOtimizada($tempFile, $targetFile);
-            }
-            else
-            {
-                $ok = move_uploaded_file($tempFile, $targetFile);
-            }
-
-            if ($ok && $targetFile->exists())
-            {
-                $this->byId('file-visualizer-upload')->val('');
-                $this->byId('file-visualizer-camera')->val('');
-                $this->mountFolder($targetFile);
-            }
-            else
-            {
-                throw new \UserException('Ops! Problema em enviar arquivo!');
-            }
+            $this->byId('file-visualizer-upload')->val('');
+            $this->byId('file-visualizer-camera')->val('');
+            $this->mountFolder($targetFile);
         }
+    }
+
+    /**
+     * Salva uma imagem enviada pelo CKEditor.
+     *
+     * @param \Disk\Folder $folder
+     * @return \Disk\File
+     * @throws \Throwable
+     */
+    public function uploadCkEditor(\Disk\Folder $folder)
+    {
+        \Component\FileVisualizer::validaUsuarioLogado();
+
+        if (!isset($_FILES['upload']))
+        {
+            throw new \UserException('Nenhuma imagem foi enviada.');
+        }
+
+        $targetPath = \Component\FileVisualizer::validaCaminhoPermitido($folder->getPath());
+        $editorPath = realpath(\Disk\Media::getMediaPath() . 'editor');
+
+        if (!$editorPath || !str_starts_with($targetPath, $editorPath . DIRECTORY_SEPARATOR))
+        {
+            throw new \UserException('A pasta de upload do editor é inválida.');
+        }
+
+        $targetFile = $this->salvaUpload($_FILES['upload'], $targetPath, true);
+
+        return $targetFile;
+    }
+
+    /**
+     * Salva um arquivo enviado.
+     *
+     * @param array $uploadedFile
+     * @param string $targetPath
+     * @param bool $otimizaImagens
+     * @return \Disk\File
+     * @throws \Throwable
+     */
+    private function salvaUpload($uploadedFile, $targetPath, $otimizaImagens)
+    {
+        $targetPath = \Component\FileVisualizer::validaCaminhoPermitido($targetPath);
+        $mediaPath = realpath(\Disk\Media::getMediaPath());
+        $editorPath = realpath(\Disk\Media::getMediaPath() . 'editor');
+
+        if ($targetPath == $mediaPath)
+        {
+            throw new \UserException('Não é permitido enviar arquivos para a raiz da pasta de mídia.');
+        }
+
+        if ($editorPath && str_starts_with($targetPath, $editorPath . DIRECTORY_SEPARATOR) && basename($targetPath) == 'null')
+        {
+            throw new \UserException('Salve o registro antes de enviar arquivos pelo editor.');
+        }
+
+        $fileUpload = new \Disk\FileUpload($uploadedFile);
+        $this->validaUpload($fileUpload);
+
+        $file = new \Disk\File($uploadedFile['name']);
+        $basename = $file->getBasename(false);
+
+        //add support for pasted images
+        if ($basename == 'image')
+        {
+            $basename = \Type\DateTime::now()->getTimestampUnix().'.'.$file->getExtension();
+            $file->setPath($basename);
+        }
+
+        $fileName = \Type\Text::get($file->getBasename(false))->toFile('-') . '.' . $file->getExtension();
+        $targetFile = new \Disk\File($targetPath . '/' . $fileName);
+        $targetFile->createFolderIfNeeded();
+        $ok = $otimizaImagens ? $this->salvaUploadImagemOtimizada($uploadedFile['tmp_name'], $targetFile) : move_uploaded_file($uploadedFile['tmp_name'], $targetFile);
+
+        if (!$ok || !$targetFile->exists())
+        {
+            throw new \UserException('Ops! Problema em enviar arquivo!');
+        }
+
+        return $targetFile;
     }
 
     /**
