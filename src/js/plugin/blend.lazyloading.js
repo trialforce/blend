@@ -30,13 +30,10 @@ blend.lazyloading.onScrollUp = null;
 blend.lazyloading.onScrollDown = null;
 blend.lazyloading.idleLoading = {
     waitTime: 2000,
+    interval: 50,
     timer: null,
     callback: null,
-    lastInteraction: 0,
-    loadingImage: false,
-    imageElement: null,
-    backgroundImage: null,
-    backgroundUrl: null
+    lastInteraction: 0
 };
 //add to plugin list
 blend.plugins.push(blend.lazyloading);
@@ -157,7 +154,7 @@ blend.lazyloading.idleLoading.schedule = function ()
 {
     blend.lazyloading.idleLoading.cancel();
 
-    if (!blend.lazyloading.idleLoading.canLoad() || blend.lazyloading.idleLoading.loadingImage)
+    if (!blend.lazyloading.idleLoading.canLoad())
     {
         return;
     }
@@ -178,7 +175,7 @@ blend.lazyloading.idleLoading.continue = function ()
     }
 
     blend.lazyloading.idleLoading.cancel();
-    blend.lazyloading.idleLoading.timer = setTimeout(blend.lazyloading.idleLoading.request, 250);
+    blend.lazyloading.idleLoading.timer = setTimeout(blend.lazyloading.idleLoading.request, blend.lazyloading.idleLoading.interval);
 };
 
 blend.lazyloading.idleLoading.request = function ()
@@ -216,113 +213,39 @@ blend.lazyloading.idleLoading.load = function ()
     }
 
     let elements = document.querySelectorAll('[data-lazyloading-src], [data-lazyloading-background-image], [data-lazyloading-function]');
-    let element = null;
+    let loaded = 0;
 
     for (let index = 0; index < elements.length; index++)
     {
-        if (elements[index].offsetWidth > 0 || elements[index].offsetHeight > 0)
+        let element = elements[index];
+
+        if (element.offsetWidth == 0 && element.offsetHeight == 0)
         {
-            element = elements[index];
-            break;
+            continue;
         }
+
+        if (element.hasAttribute('data-lazyloading-function'))
+        {
+            blend.lazyloading.executeFunction(element, true);
+            blend.lazyloading.idleLoading.continue();
+            return;
+        }
+        else if (element.hasAttribute('data-lazyloading-src'))
+        {
+            blend.lazyloading.loadSrc(element, true);
+        }
+        else
+        {
+            blend.lazyloading.loadBackground(element);
+        }
+
+        loaded++;
     }
 
-    if (!element)
+    if (loaded > 0)
     {
-        return;
+        blend.lazyloading.idleLoading.continue();
     }
-
-    if (element.hasAttribute('data-lazyloading-src'))
-    {
-        blend.lazyloading.idleLoading.loadSrc(element);
-    }
-    else if (element.hasAttribute('data-lazyloading-background-image'))
-    {
-        blend.lazyloading.idleLoading.loadBackground(element);
-    }
-    else
-    {
-        blend.lazyloading.idleLoading.executeFunction(element);
-    }
-};
-
-blend.lazyloading.idleLoading.loadSrc = function (element)
-{
-    blend.lazyloading.idleLoading.loadingImage = true;
-    blend.lazyloading.idleLoading.imageElement = element;
-    element.addEventListener('load', blend.lazyloading.idleLoading.finishSrc);
-    element.addEventListener('error', blend.lazyloading.idleLoading.finishSrc);
-    blend.lazyloading.loadSrc(element, true);
-
-    if (element.tagName == 'IMG' && element.complete)
-    {
-        blend.lazyloading.idleLoading.finishSrc();
-    }
-};
-
-blend.lazyloading.idleLoading.finishSrc = function ()
-{
-    let element = blend.lazyloading.idleLoading.imageElement;
-
-    if (element)
-    {
-        element.removeEventListener('load', blend.lazyloading.idleLoading.finishSrc);
-        element.removeEventListener('error', blend.lazyloading.idleLoading.finishSrc);
-    }
-
-    blend.lazyloading.idleLoading.imageElement = null;
-    blend.lazyloading.idleLoading.loadingImage = false;
-    blend.lazyloading.idleLoading.continue();
-};
-
-blend.lazyloading.idleLoading.loadBackground = function (element)
-{
-    let image = element.getAttribute('data-lazyloading-background-image');
-
-    blend.lazyloading.idleLoading.loadingImage = true;
-    blend.lazyloading.idleLoading.imageElement = element;
-    blend.lazyloading.idleLoading.backgroundUrl = image;
-    blend.lazyloading.idleLoading.backgroundImage = new Image();
-    blend.lazyloading.idleLoading.backgroundImage.fetchPriority = 'low';
-    blend.lazyloading.idleLoading.backgroundImage.addEventListener('load', blend.lazyloading.idleLoading.finishBackground);
-    blend.lazyloading.idleLoading.backgroundImage.addEventListener('error', blend.lazyloading.idleLoading.finishBackground);
-
-    if ((image.startsWith("'") && image.endsWith("'")) || (image.startsWith('"') && image.endsWith('"')))
-    {
-        image = image.substring(1, image.length - 1);
-    }
-
-    blend.lazyloading.idleLoading.backgroundImage.src = image;
-};
-
-blend.lazyloading.idleLoading.finishBackground = function (event)
-{
-    let element = blend.lazyloading.idleLoading.imageElement;
-    let image = blend.lazyloading.idleLoading.backgroundImage;
-
-    if (event && event.type == 'load' && element)
-    {
-        blend.lazyloading.loadBackground(element, blend.lazyloading.idleLoading.backgroundUrl);
-    }
-    else if (element)
-    {
-        $(element).removeData('lazyloading-background-image');
-        element.removeAttribute('data-lazyloading-background-image');
-    }
-
-    image.removeEventListener('load', blend.lazyloading.idleLoading.finishBackground);
-    image.removeEventListener('error', blend.lazyloading.idleLoading.finishBackground);
-    blend.lazyloading.idleLoading.imageElement = null;
-    blend.lazyloading.idleLoading.backgroundImage = null;
-    blend.lazyloading.idleLoading.backgroundUrl = null;
-    blend.lazyloading.idleLoading.loadingImage = false;
-    blend.lazyloading.idleLoading.continue();
-};
-
-blend.lazyloading.idleLoading.executeFunction = function (element)
-{
-    blend.lazyloading.executeFunction(element, true);
-    blend.lazyloading.idleLoading.continue();
 };
 
 blend.lazyloading.parseBackImages = function ()
