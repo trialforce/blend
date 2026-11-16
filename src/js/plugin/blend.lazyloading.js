@@ -15,7 +15,7 @@ blend.lazyloading.isPageSpeed = function ()
 {
     return navigator.userAgent.indexOf('Speed Insights') > -1
         || navigator.userAgent.indexOf('Chrome-Lighthouse') > -1
-        || navigator.userAgent.indexOf('GoogleBot') > -1
+        || navigator.userAgent.indexOf('Googlebot') > -1
         || navigator.userAgent.indexOf('GTmetrix') > -1;
 };
 
