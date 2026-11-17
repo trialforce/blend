@@ -600,15 +600,17 @@ class Model implements \JsonSerializable
     /**
      * Find one object by pk or create
      *
-     * If not find create anotger
+     * If not found creates a new one.
      *
      * @param int|string $id
+     * @param bool $useCache
+     * @param string|null $logId
      * @return T
      */
-    public static function findOneByPkOrCreate($id = null, $logId = null)
+    public static function findOneByPkOrCreate($id = null, $useCache = false, $logId = null)
     {
         $name = self::getName();
-        $obj = $name::findOneByPk($id, $logId);
+        $obj = $name::findOneByPk($id, $useCache, $logId);
 
         if (!$obj)
         {
